@@ -1,33 +1,31 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
-
+import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+
+import java.util.*;
 
 @Service
 @Slf4j
@@ -85,7 +83,8 @@ public class MoogServiceImpl implements MoogService {
             moogCampaign
                     .setCollectionStartDate(camp.get().getPartitionings().iterator().next().getOpeningDate().getTime());
             moogSearchDto.setIdContact(view.getIdentifier());
-            moogSearchDto.setAddress(c.get().getAddress().getZipCode().concat(" ").concat(c.get().getAddress().getCityName()));
+            String address = createAddressMoog(c.get().getAddress());
+            moogSearchDto.setAddress(address);
             moogSearchDto.setIdSu(view.getIdSu());
             moogSearchDto.setCampaign(moogCampaign);
             moogSearchDto.setFirstName(c.get().getFirstName());
@@ -94,6 +93,16 @@ public class MoogServiceImpl implements MoogService {
             listResult.add(moogSearchDto);
         }
         return listResult;
+    }
+
+    protected String createAddressMoog(Address address) {
+        String zipCode = address.getZipCode();
+        String city = address.getCityName();
+        return StringUtils.trim(String.join(" ", valueNotNull(zipCode), valueNotNull(city)));
+    }
+
+    private String valueNotNull(String value) {
+        return value == null || value.isBlank() ? "" : value;
     }
 
     @Override
@@ -134,20 +143,20 @@ public class MoogServiceImpl implements MoogService {
         }
         Set<Partitioning> setParts = campaign.get().getPartitionings();
         Questioning questioning = null;
-        for (Partitioning part : setParts){
+        for (Partitioning part : setParts) {
             Questioning qTemp = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            if(qTemp!=null){
-                questioning =qTemp;
+            if (qTemp != null) {
+                questioning = qTemp;
                 break;
             }
         }
-        if(questioning!=null) {
+        if (questioning != null) {
             return applicationConfig.getQuestioningUrl() + READONLY_QUESTIONNAIRE + questioning.getModelName()
                     + UNITE_ENQUETEE + surveyUnitId;
         }
-        String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
+        String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;
         log.error(msg);
-        throw new  NotFoundException(msg);
+        throw new NotFoundException(msg);
     }
 
 

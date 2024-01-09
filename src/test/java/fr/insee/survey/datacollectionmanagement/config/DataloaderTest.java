@@ -1,31 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
@@ -33,33 +11,27 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.Cont
 import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.OwnerRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SupportRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.EventOrderRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Profile("test")
@@ -218,7 +190,7 @@ public class DataloaderTest {
 
     private void initMetadata() throws ParseException {
 
-        int year = Year.now().getValue();
+        int year = 2023;
 
         Owner ownerInsee = new Owner();
         ownerInsee.setId("Insee");
@@ -317,7 +289,7 @@ public class DataloaderTest {
     private void initQuestionning(Faker faker) {
 
         Long nbExistingQuestionings = questioningRepository.count();
-        int year = Year.now().getValue();
+        int year = 2023;
         Date today = new Date();
 
         Questioning qu;
