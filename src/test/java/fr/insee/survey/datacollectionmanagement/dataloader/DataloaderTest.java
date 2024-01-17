@@ -32,7 +32,6 @@ import org.springframework.context.annotation.Profile;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -204,7 +203,7 @@ public class DataloaderTest {
 
     private void initMetadata() throws ParseException {
 
-        int year = Year.now().getValue();
+        int year = 2023;
 
         Owner ownerInsee = new Owner();
         ownerInsee.setId("Insee");
@@ -303,7 +302,7 @@ public class DataloaderTest {
     private void initQuestionning(Faker faker) {
 
         Long nbExistingQuestionings = questioningRepository.count();
-        int year = Year.now().getValue();
+        int year = 2023;
         Date today = new Date();
 
         Questioning qu;
