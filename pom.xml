@@ -17,7 +17,7 @@
 		<springdoc-version>1.6.8</springdoc-version>
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<vladmihalcea-version>2.9.7</vladmihalcea-version>
-		<jeasy-version>4.0.0</jeasy-version>
+		<jeasy-version>4.3.0</jeasy-version>
 		<javafaker-version>1.0.2</javafaker-version>
 		<testcontainers-version>1.15.3</testcontainers-version>
 		<orgjson-version>20230227</orgjson-version>
