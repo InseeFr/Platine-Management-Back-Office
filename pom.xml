@@ -15,7 +15,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<springdoc-version>1.6.8</springdoc-version>
-		<modelmapper-version>3.1.0</modelmapper-version>
+		<modelmapper-version>3.2.0</modelmapper-version>
 		<vladmihalcea-version>2.9.7</vladmihalcea-version>
 		<jeasy-version>4.0.0</jeasy-version>
 		<javafaker-version>1.0.2</javafaker-version>
