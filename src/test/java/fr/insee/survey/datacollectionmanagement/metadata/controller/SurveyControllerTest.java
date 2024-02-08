@@ -39,6 +39,16 @@ class SurveyControllerTest {
 
 
     @Test
+    void getSourcesOk() throws Exception {
+        JSONObject jo = new JSONObject();
+        jo.put("totalElements", surveyRepository.count());
+        jo.put("numberOfElements", surveyRepository.count());
+
+        this.mockMvc.perform(get(Constants.API_SURVEYS)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(jo.toString(), false));
+    }
+
+    @Test
     void getSurveyNotFound() throws Exception {
         String identifier = "SURVEYNOTFOUND";
         this.mockMvc.perform(get(Constants.API_SURVEYS_ID, identifier)).andDo(print())
