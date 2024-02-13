@@ -61,6 +61,21 @@ public class SurveyController {
         List<SurveyDto> listSurveys = pageSurvey.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new SurveyController.SurveyPage(listSurveys, pageable, pageSurvey.getTotalElements()));
     }
+
+    @Operation(summary = "Search for surveys, paginated")
+    @GetMapping(value = Constants.API_SURVEYS_SEARCH, produces = "application/json")
+    public ResponseEntity<SurveyController.SurveyPage> getSurveys(
+            @RequestParam(required = false) String idSource,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String periodicity,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "id") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<Survey> pageSurvey = surveyService.findBySourceIdYearPeriodicity(pageable, idSource, year, periodicity);
+        List<SurveyDto> listSurveys = pageSurvey.stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(new SurveyController.SurveyPage(listSurveys, pageable, pageSurvey.getTotalElements()));
+    }
     @Operation(summary = "Search for surveys by the source id")
     @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")
     public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {

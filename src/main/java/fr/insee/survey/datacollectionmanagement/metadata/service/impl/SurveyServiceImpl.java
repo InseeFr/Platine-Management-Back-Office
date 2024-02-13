@@ -22,8 +22,8 @@ public class SurveyServiceImpl implements SurveyService {
     private final SurveyRepository surveyRepository;
 
     @Override
-    public List<Survey> findByYear(int year) {
-        return surveyRepository.findByYear(year);
+    public Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity) {
+        return surveyRepository.findBySourceIdYearPeriodicity(pageable,sourceId, year, periodicity);
     }
 
     @Override

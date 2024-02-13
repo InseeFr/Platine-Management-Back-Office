@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface SurveyService {
 
-    List<Survey> findByYear(int year);
+    Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity);
 
     Survey findById(String id);
 
