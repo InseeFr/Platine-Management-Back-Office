@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -81,6 +82,16 @@ public class CampaignController {
         Survey survey = surveyService.findById(id);
         return ResponseEntity.ok()
                 .body(survey.getCampaigns().stream().map(this::convertToDto).toList());
+
+    }
+
+    @Operation(summary = "Search for campaigns and partitionings by the survey id")
+    @GetMapping(value = Constants.API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS, produces = "application/json")
+    public ResponseEntity<List<CampaignPartitioningsDto>> getCampaignsPartitioningsBySurvey(@PathVariable("id") String id) {
+
+        Survey survey = surveyService.findById(id);
+        return ResponseEntity.ok()
+                .body(survey.getCampaigns().stream().map(this::convertToCampaignPartitioningsDto).toList());
 
     }
 
@@ -176,6 +187,10 @@ public class CampaignController {
 
     private CampaignDto convertToDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignDto.class);
+    }
+
+    private CampaignPartitioningsDto convertToCampaignPartitioningsDto(Campaign campaign) {
+        return modelmapper.map(campaign, CampaignPartitioningsDto.class);
     }
 
     private Campaign convertToEntity(CampaignDto campaignDto) {
