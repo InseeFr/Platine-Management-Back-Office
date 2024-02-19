@@ -105,7 +105,7 @@ public class DataloaderTest {
     private void initUser() {
         User user = new User();
         user.setIdentifier("USER1");
-        user.setRole(User.UserRoleType.Assistance);
+        user.setRole(User.UserRoleType.ASSISTANCE);
         userService.createUser(user, null);
     }
 

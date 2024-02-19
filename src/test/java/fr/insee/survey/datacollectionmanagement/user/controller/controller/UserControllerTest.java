@@ -89,13 +89,13 @@ class UserControllerTest {
         assertEquals(user.getRole(), userFound.getRole());
 
         // update user - status ok
-        user.setRole(User.UserRoleType.Assistance);
+        user.setRole(User.UserRoleType.ASSISTANCE);
         String jsonUserUpdate = createJson(user);
         mockMvc.perform(put(Constants.API_USERS_ID, identifier).content(jsonUserUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonUserUpdate.toString(), false));
         User userFoundAfterUpdate = userService.findByIdentifier(identifier);
-        assertEquals(User.UserRoleType.Assistance, userFoundAfterUpdate.getRole());
+        assertEquals(User.UserRoleType.ASSISTANCE, userFoundAfterUpdate.getRole());
         List<UserEvent> listUpdate = new ArrayList<>(
                 userEventService.findUserEventsByUser(userFoundAfterUpdate));
         assertEquals(2, listUpdate.size());
@@ -128,7 +128,7 @@ class UserControllerTest {
     }
 
     private User initGestionnaire(String identifier) {
-        return initUser(identifier, User.UserRoleType.Gestionnaire);
+        return initUser(identifier, User.UserRoleType.GESTIONNAIRE);
     }
 
     private User initUser(String identifier, User.UserRoleType role) {

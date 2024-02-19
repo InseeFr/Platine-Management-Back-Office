@@ -18,7 +18,7 @@ public class UserDto{
     private String role;
     private String name;
     private String firstName;
-    private String Organization;
+    private String organization;
     private List<String> accreditedSources;
     private Date creationDate;
     private String creationAuthor;

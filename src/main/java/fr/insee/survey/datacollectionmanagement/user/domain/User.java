@@ -16,7 +16,7 @@ import java.util.Set;
 public class User {
 
     public enum UserRoleType {
-        Administrateur, Responsable, Gestionnaire, Assistance
+        ADMINISTRATEUR, RESPONSABLE, GESTIONNAIRE, ASSISTANCE
     }
 
 
@@ -24,7 +24,7 @@ public class User {
     private String identifier;
     private String name;
     private String firstName;
-    private String Organization;
+    private String organization;
     private Date creationDate;
     private String creationAuthor;
 

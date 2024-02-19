@@ -67,7 +67,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
         if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleInternalUser())) {
             String userRole = user.getRole().toString();
-            if (userRole.equals(User.UserRoleType.Assistance.toString())) {
+            if (userRole.equals(User.UserRoleType.ASSISTANCE.toString())) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
                 return false;
             }
