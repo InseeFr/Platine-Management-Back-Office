@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.insee.survey</groupId>
 	<artifactId>platine-management</artifactId>
-	<version>1.1.8</version>
+	<version>1.1.9</version>
 	<name>platine-management</name>
 	<description>REST API for communication between DB and Platine-Management UI and Platine-My-Surveys UI</description>
 	<properties>
