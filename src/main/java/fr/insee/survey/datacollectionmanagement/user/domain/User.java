@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -15,12 +16,17 @@ import java.util.Set;
 public class User {
 
     public enum UserRoleType {
-        RESPONSABLE, GESTIONNAIRE, ASSISTANCE
+        Administrateur, Responsable, Gestionnaire, Assistance
     }
 
 
     @Id
     private String identifier;
+    private String name;
+    private String firstName;
+    private String Organization;
+    private Date creationDate;
+    private String creationAuthor;
 
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
