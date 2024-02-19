@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class UserDto{
     private String name;
     private String firstName;
     private String Organization;
+    private List<String> accreditedSources;
     private Date creationDate;
     private String creationAuthor;
 

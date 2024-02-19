@@ -160,7 +160,7 @@ public class UserController {
 
         User oldUser = userService.findByIdentifier(userDto.getIdentifier());
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
         user.setUserEvents(oldUser.getUserEvents());
 
         return user;
@@ -168,12 +168,16 @@ public class UserController {
 
     private User convertToEntityNewUser(UserDto userDto) {
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole().toUpperCase()));
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
         return user;
     }
 
     private UserDto convertToDto(User user) {
-        return modelMapper.map(user, UserDto.class);
+
+        List<String> accreditedSources = userService.findAccreditedSources(user.getIdentifier());
+        UserDto userDto= modelMapper.map(user, UserDto.class);
+        userDto.setAccreditedSources(accreditedSources);
+        return userDto;
     }
 
     class UserPage extends PageImpl<UserDto> {
