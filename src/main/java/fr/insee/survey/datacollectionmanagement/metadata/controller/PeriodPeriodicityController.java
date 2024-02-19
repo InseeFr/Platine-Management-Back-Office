@@ -34,7 +34,7 @@ public class PeriodPeriodicityController {
     public ResponseEntity<List<PeriodicityDto>> getPeriodicities()  {
         List<PeriodicityDto> periodicities = new ArrayList<>();
         for (PeriodicityEnum periodicity : PeriodicityEnum.values()) {
-            periodicities.add(new PeriodicityDto(periodicity.getValue(),periodicity.name()));
+            periodicities.add(new PeriodicityDto(periodicity.name(),periodicity.getValue()));
         }
         return ResponseEntity.ok().body(periodicities);
     }
@@ -44,7 +44,7 @@ public class PeriodPeriodicityController {
     public ResponseEntity<List<PeriodDto>> getPeriods()  {
         List<PeriodDto> periods = new ArrayList<>();
         for (PeriodEnum period : PeriodEnum.values()) {
-            periods.add(new PeriodDto(period.getValue(),period.name(), period.getPeriod().getValue()));
+            periods.add(new PeriodDto(period.name(), period.getValue(), period.getPeriod().getValue()));
         }
         return ResponseEntity.ok().body(periods);
     }
@@ -57,7 +57,7 @@ public class PeriodPeriodicityController {
             List<PeriodDto> periods = new ArrayList<>();
             for (PeriodEnum period : PeriodEnum.values()) {
                 if (period.getPeriod().equals(PeriodicityEnum.valueOf(periodicity))) {
-                    periods.add(new PeriodDto(period.getValue(),period.name(), period.getPeriod().getValue()));
+                    periods.add(new PeriodDto(period.name(), period.getValue(),period.getPeriod().getValue()));
                 }          
             }
             return ResponseEntity.ok().body(periods);
