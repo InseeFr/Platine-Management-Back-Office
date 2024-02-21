@@ -21,6 +21,8 @@ public interface UserService {
      */
     public Page<User> findAll(Pageable pageable);
 
+    public List<User> findAll();
+
     /**
      * Find a user by its identifier.
      *

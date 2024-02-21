@@ -33,6 +33,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public User findByIdentifier(String identifier) {
         return userRepository.findByIdentifierIgnoreCase(identifier).orElseThrow(()-> new NotFoundException(String.format("User %s not found", identifier)));
     }
