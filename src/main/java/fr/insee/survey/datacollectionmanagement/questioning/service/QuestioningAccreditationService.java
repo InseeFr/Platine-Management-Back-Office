@@ -1,37 +1,22 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Set;
 
 public interface QuestioningAccreditationService {
 
-    public List<QuestioningAccreditation> findByContactIdentifier(String id);
+    List<QuestioningAccreditation> findByContactIdentifier(String id);
 
-    public Set<QuestioningAccreditation> findBySurveyUnit(SurveyUnit su);
 
-    public List<String> findIdContactsByPartitionigAccredications(String idPartitioning);
+    Page<QuestioningAccreditation> findAll(Pageable pageable);
 
-    public List<String> findIdPartitioningsByContactAccreditations(String idContact);
-
-    public List<String> findIdContactsByIdSource(String idSource);
-
-    public List<String> findIdContactsByYear(Integer year);
-
-    public List<String> findIdContactsByPeriod(String period);
-
-    public List<String> findIdContactsBySourceYearPeriod(String idSource, Integer year, String period);
-
-    public Page<QuestioningAccreditation> findAll(Pageable pageable);
-
-    public QuestioningAccreditation findById(Long id);
+    QuestioningAccreditation findById(Long id);
    
-    public QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
+    QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
-    public void deleteAccreditation(QuestioningAccreditation c);
+    void deleteAccreditation(QuestioningAccreditation c);
 
 }

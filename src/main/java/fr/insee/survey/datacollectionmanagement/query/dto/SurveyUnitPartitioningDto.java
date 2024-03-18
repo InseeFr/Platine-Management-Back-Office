@@ -11,22 +11,13 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AccreditationDetailDto {
+public class SurveyUnitPartitioningDto {
 
-    private String sourceId;
-
-    private String surveyId;
     private String sourceWording;
     private int year;
     private PeriodEnum period;
-    private String partition;
+    private String campaignWording;
     private Date partioningClosingDate;
-    private String surveyUnitId;
-    private String identificationName;
-    private boolean isMain;
     private TypeQuestioningEvent lastEvent;
-    private String questioningId;
-    private String questioningUrl;
-
 
 }

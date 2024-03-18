@@ -10,7 +10,6 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventServ
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,11 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    public List<Contact> findAll() {
+        return contactRepository.findAll();
+    }
+
+    @Override
     public Contact findByIdentifier(String identifier) {
         return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
     }
@@ -49,62 +53,10 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<Contact> findByLastName(String lastName) {
-        return contactRepository.findByLastNameIgnoreCase(lastName);
+    public Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable) {
+        return contactRepository.findByParameters(identifier,name,email,pageable);
     }
 
-    @Override
-    public List<Contact> findByFirstName(String firstName) {
-        return contactRepository.findByFirstNameIgnoreCase(firstName);
-    }
-
-    @Override
-    public List<Contact> findByEmail(String email) {
-        return contactRepository.findByEmailIgnoreCase(email);
-    }
-
-    @Override
-    public List<Contact> searchListContactParameters(String identifier, String lastName, String firstName,
-                                                     String email) {
-
-        List<Contact> listContactContact = new ArrayList<>();
-        boolean alwaysEmpty = true;
-
-        if (!StringUtils.isEmpty(identifier)) {
-            listContactContact = Arrays.asList(findByIdentifier(identifier));
-            alwaysEmpty = false;
-        }
-
-        if (!StringUtils.isEmpty(lastName)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByLastName(lastName));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream().filter(c -> c.getLastName().equalsIgnoreCase(lastName))
-                        .toList();
-
-        }
-
-        if (!StringUtils.isEmpty(firstName)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByFirstName(firstName));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream()
-                        .filter(c -> c.getFirstName().equalsIgnoreCase(firstName)).toList();
-        }
-
-        if (!StringUtils.isEmpty(email)) {
-            if (listContactContact.isEmpty() && alwaysEmpty) {
-                listContactContact.addAll(findByEmail(email));
-                alwaysEmpty = false;
-            } else
-                listContactContact = listContactContact.stream().filter(c -> c.getEmail().equalsIgnoreCase(email))
-                        .toList();
-        }
-
-        return listContactContact;
-    }
 
     @Override
     @Transactional
@@ -114,7 +66,7 @@ public class ContactServiceImpl implements ContactService {
         }
         ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventType.create,
                 payload);
-        contact.setContactEvents(new HashSet<>(Arrays.asList(newContactEvent)));
+        contact.setContactEvents(new HashSet<>(Collections.singletonList(newContactEvent)));
         return saveContact(contact);
     }
 

@@ -14,47 +14,42 @@ public interface ContactService {
 
     /**
      * Find all contacts
-     * 
-     * @param pageable
+     *
+     * @param pageable pageable
      * @return contact Page
      */
-    public Page<Contact> findAll(Pageable pageable);
+    Page<Contact> findAll(Pageable pageable);
+
+    List<Contact> findAll();
 
     /**
      * Find a contact by its identifier.
      *
-     * @param identifier
+     * @param identifier contact identifier
      * @return contact found
      */
-    public Contact findByIdentifier(String identifier) ;
+    Contact findByIdentifier(String identifier) ;
 
     /**
      * Update an existing contact and its address, or creates a new one
-     * 
-     * @param contact
+     *
+     * @param contact Contact to save
      * @return contact updated
      */
-    public Contact saveContact(Contact contact);
+    Contact saveContact(Contact contact);
 
     /**
      * Delete a contact. Delete also the contact address.
-     * @param identifier
+     * @param identifier contact identifier
      */
-    public void deleteContact(String identifier);
+    void deleteContact(String identifier);
 
-    public List<Contact> findByLastName(String lastName);
+    Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable);
 
-    public List<Contact> findByFirstName(String firstName);
+    Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
-    public List<Contact> findByEmail(String email);
+    Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 
-    public List<Contact> searchListContactParameters(String identifier, String lastName, String firstName,
-            String email);
-
-    public Contact createContactAddressEvent(Contact contact, JsonNode payload);
-
-    public Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
-
-    public void deleteContactAddressEvent(Contact contact);
+    void deleteContactAddressEvent(Contact contact);
 
 }

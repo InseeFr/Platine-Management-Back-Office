@@ -30,6 +30,7 @@ public class Contact {
     private String firstName;
     private String email;
     private String function;
+    private String usualCompanyName;
     private String phone;
     private String comment;
     @Column(columnDefinition = "boolean default false")

@@ -1,41 +1,22 @@
 package fr.insee.survey.datacollectionmanagement.query.service;
 
-import java.util.List;
-
-import org.springframework.data.domain.Pageable;
-
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
-import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SearchContactService {
 
     /**
      * Search contact according to diffeent parameters
-     * @param identifier
-     * @param lastName
-     * @param firstName
-     * @param email
-     * @param idSu
-     * @param identificationCode
-     * @param identificationName
-     * @param source
-     * @param year
-     * @param period
+     * @param identifier contact identifier
+     * @param name (first name or and lastName)
+     * @param email contact email
+
      * @return
      */
-    List<View> searchContactCrossDomain(
+    Page<SearchContactDto> searchContactCrossDomain(
         String identifier,
-        String lastName,
-        String firstName,
+        String name,
         String email,
-        String idSu,
-        String identificationCode,
-        String identificationName,
-        String source,
-        String year,
-        String period,
         Pageable pageable);
-
-    List<SearchContactDto> transformListViewDaoToDto(List<View> subList);
-
 }

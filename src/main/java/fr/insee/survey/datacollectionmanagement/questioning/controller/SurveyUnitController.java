@@ -26,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -59,6 +58,26 @@ public class SurveyUnitController {
         return new SurveyUnitPage(listSuDto, pageable, pageC.getTotalElements());
     }
 
+    @Operation(summary = "Multi-criteria search survey-unit")
+    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitPage.class))),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public Page<SurveyUnitDto> searchSurveyUnits(
+            @RequestParam(required = false) String idSu,
+            @RequestParam(required = false) String identificationCode,
+            @RequestParam(required = false) String identificationName,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "id_su") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        Page<SurveyUnit> pageC = surveyUnitService.findByParameters(idSu, identificationCode, identificationName, pageable);
+        List<SurveyUnitDto> listSuDto = pageC.stream().map(this::convertToDto).toList();
+        return new SurveyUnitPage(listSuDto, pageable, pageC.getTotalElements());
+    }
+
     @Operation(summary = "Search for a survey unit by its id")
     @GetMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
     @ApiResponses(value = {
@@ -66,7 +85,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> findSurveyUnit(@PathVariable("id") String id) {
+    public ResponseEntity<SurveyUnitDto> findSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
         return ResponseEntity.status(HttpStatus.OK).body(convertToDto(surveyUnit));
 
@@ -79,7 +98,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putSurveyUnit(@PathVariable("id") String id, @RequestBody @Valid SurveyUnitDto surveyUnitDto) {
+    public ResponseEntity<SurveyUnitDto> putSurveyUnit(@PathVariable("id") String id, @RequestBody @Valid SurveyUnitDto surveyUnitDto) {
         if (!surveyUnitDto.getIdSu().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSu don't match");
         }
@@ -90,11 +109,8 @@ public class SurveyUnitController {
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(surveyUnitDto.getIdSu()).toUriString());
 
-        try {
-            surveyUnit = convertToEntity(surveyUnitDto);
-        } catch (ParseException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse survey unit");
-        }
+        surveyUnit = convertToEntity(surveyUnitDto);
+
         try {
             surveyUnitService.findbyId(surveyUnitDto.getIdSu());
             responseStatus = HttpStatus.OK;
@@ -116,7 +132,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> deleteSurveyUnit(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
 
         try {
@@ -137,7 +153,7 @@ public class SurveyUnitController {
         return modelMapper.map(surveyUnit, SurveyUnitDto.class);
     }
 
-    private SurveyUnit convertToEntity(SurveyUnitDto surveyUnitDto) throws ParseException {
+    private SurveyUnit convertToEntity(SurveyUnitDto surveyUnitDto) {
         return modelMapper.map(surveyUnitDto, SurveyUnit.class);
     }
 

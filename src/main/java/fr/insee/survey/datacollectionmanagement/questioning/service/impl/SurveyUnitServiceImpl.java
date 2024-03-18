@@ -43,6 +43,11 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     }
 
     @Override
+    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable) {
+        return surveyUnitRepository.findByParameters(idSu, identificationCode, identificationName, pageable);
+    }
+
+    @Override
     public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit) {
         return surveyUnitRepository.save(surveyUnit);
     }
@@ -56,8 +61,7 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
                 if (existingSurveyUnit.getSurveyUnitAddress() != null) {
                     surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.getSurveyUnitAddress().getId());
                 }
-            }
-            catch (NotFoundException e){
+            } catch (NotFoundException e) {
                 log.debug("Survey unit does not exist");
             }
             surveyUnitAddressRepository.save(surveyUnit.getSurveyUnitAddress());

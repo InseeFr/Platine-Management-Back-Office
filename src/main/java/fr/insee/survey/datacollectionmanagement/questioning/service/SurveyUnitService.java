@@ -16,6 +16,8 @@ public interface SurveyUnitService {
 
     public Page<SurveyUnit> findAll(Pageable pageable);
 
+    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable);
+
     public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     
     public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit);
