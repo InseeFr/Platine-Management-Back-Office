@@ -87,6 +87,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         return questioningRepository.findBySurveyUnitIdSu(idSu);
     }
 
+
     /**
      * Generates an access URL based on the provided parameters.
      *
@@ -104,12 +105,18 @@ public class QuestioningServiceImpl implements QuestioningService {
 
         if (typeUrl.equalsIgnoreCase("V1")) {
             return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
-        } else if (typeUrl.equalsIgnoreCase("V2")) {
+        }
+        if (typeUrl.equalsIgnoreCase("V2")) {
             return buildV2Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+        }
+        if (typeUrl.equalsIgnoreCase("V3")) {
+            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
         }
 
         return "";
     }
+
+
 
     /**
      * Builds a V1 access URL based on the provided parameters.
@@ -147,5 +154,17 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
+    /**
+     * Builds a V3 access URL based on the provided parameters
+     *
+     * @param baseUrl      The base URL for the access.
+     * @param role          The user role (REVIEWER or INTERVIEWER).
+     * @param modelName     The model name from the questioning object.
+     * @param surveyUnitId  The survey unit ID.
+     * @return The generated V2 access URL.
+     */private String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId) {
+        //TODO: update with stromae V3
+         return baseUrl;
+    }
 
  }

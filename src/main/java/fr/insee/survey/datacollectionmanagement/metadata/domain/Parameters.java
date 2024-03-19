@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 
@@ -22,6 +23,8 @@ public class Parameters {
     @Id
     @Enumerated(EnumType.STRING)
     private ParameterEnum paramId;
+
+    @Column(length = 2000)
     private String paramValue;
 
 }

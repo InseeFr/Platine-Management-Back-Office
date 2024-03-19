@@ -112,6 +112,7 @@ public class CampaignController {
 
     }
 
+
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
@@ -127,8 +128,9 @@ public class CampaignController {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
                 && !(paramsDto.getParamValue().equalsIgnoreCase("V1")
-                || paramsDto.getParamValue().equalsIgnoreCase("V2"))) {
-            throw new NotMatchException("Only V1 and V2 are valid values for URL_TYPE");
+                || paramsDto.getParamValue().equalsIgnoreCase("V2")
+                || paramsDto.getParamValue().equalsIgnoreCase("V3"))) {
+            throw new NotMatchException("Only V1 and V2 and V3 are valid values for URL_TYPE");
         }
         Parameters param = convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
@@ -142,6 +144,7 @@ public class CampaignController {
         campaign.setParams(setParams);
         campaignService.insertOrUpdateCampaign(campaign);
     }
+
 
     @Operation(summary = "Update or create a campaign")
     @PutMapping(value = Constants.API_CAMPAIGNS_ID, produces = "application/json", consumes = "application/json")
