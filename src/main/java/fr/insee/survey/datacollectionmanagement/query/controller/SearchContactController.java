@@ -70,6 +70,8 @@ public class SearchContactController {
             @RequestParam(required = false) String identifier,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String email,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String function,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(defaultValue = "identifier")  String sort) {
@@ -80,7 +82,7 @@ public class SearchContactController {
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
-        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email,
+        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email, city, function,
                 pageable);
         return new ResponseEntity<>(pageSearchContact, HttpStatus.OK);
 

@@ -21,7 +21,6 @@ public class AddressDto  {
     private String cedexCode;
     private String cedexName;
     private String specialDistribution;
-    private String usualCompanyName;
     private String countryCode;
     private String countryName;
 

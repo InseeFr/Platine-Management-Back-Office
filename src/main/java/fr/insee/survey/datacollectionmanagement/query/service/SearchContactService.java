@@ -11,6 +11,8 @@ public interface SearchContactService {
      * @param identifier contact identifier
      * @param name (first name or and lastName)
      * @param email contact email
+     * @param city contact city
+     * @param function contact function
 
      * @return
      */
@@ -18,5 +20,7 @@ public interface SearchContactService {
         String identifier,
         String name,
         String email,
+        String city,
+        String function,
         Pageable pageable);
 }

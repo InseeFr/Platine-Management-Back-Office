@@ -44,7 +44,7 @@ public interface ContactService {
      */
     void deleteContact(String identifier);
 
-    Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable);
+    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
 
     Contact createContactAddressEvent(Contact contact, JsonNode payload);
 

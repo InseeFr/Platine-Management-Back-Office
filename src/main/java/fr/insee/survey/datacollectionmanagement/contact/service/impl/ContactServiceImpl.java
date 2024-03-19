@@ -15,7 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +56,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Page<Contact> findByParameters(String identifier, String name, String email, Pageable pageable) {
-        return contactRepository.findByParameters(identifier,name,email,pageable);
+    public Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable) {
+        return contactRepository.findByParameters(identifier, name, email, city, function, pageable);
     }
 
 
