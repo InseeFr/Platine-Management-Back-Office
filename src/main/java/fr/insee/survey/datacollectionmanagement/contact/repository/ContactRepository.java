@@ -35,7 +35,7 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
             AND
             (:email IS NULL OR UPPER(c.email) = UPPER(:email))
             AND
-            (:function IS NULL OR UPPER(c.function) = UPPER(:function))
+            (:function IS NULL OR UPPER(c.function) LIKE UPPER(CONCAT('%', :function, '%')))
             AND
             (:city IS NULL OR UPPER(a.city_name) = UPPER(:city))
     """,
