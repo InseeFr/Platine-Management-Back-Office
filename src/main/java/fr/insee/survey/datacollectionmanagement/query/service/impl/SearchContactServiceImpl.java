@@ -47,6 +47,27 @@ public class SearchContactServiceImpl implements SearchContactService {
         return new PageImpl<>(listSearchContact, pageable, pageContact.getTotalElements());
     }
 
+    @Override
+    public Page<SearchContactDto> searchContactCrossDomain(
+            String identifier,
+            String name,
+            String email,
+            String city,
+            String function,
+            String campaign,
+            Pageable pageable) {
+
+        List<SearchContactDto> listSearchContact = new ArrayList<>();
+
+        Page<Contact> pageContact = contactService.findByParameters(identifier, name, email,city, function,campaign, pageable);
+
+        for (Contact c : pageContact) {
+            listSearchContact.add(transformContactTSearchContactDto(c));
+        }
+
+        return new PageImpl<>(listSearchContact, pageable, pageContact.getTotalElements());
+    }
+
     private SearchContactDto transformContactTSearchContactDto(Contact c) {
         SearchContactDto searchContact = new SearchContactDto();
         searchContact.setIdentifier(c.getIdentifier());

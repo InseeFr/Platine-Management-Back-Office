@@ -44,4 +44,43 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
     Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
 
 
+    @Query(
+            value = """ 
+            SELECT
+                *
+            FROM
+                contact c
+            JOIN 
+                address a
+            ON 
+                c.address_id = a.id
+            JOIN 
+                public.questioning_accreditation qa 	
+            ON 
+                c.identifier = qa.id_contact
+            JOIN 
+                public.questioning q 
+            ON 
+                qa.questioning_id = q.id
+            JOIN 
+                public.partitioning p 
+            ON 
+            q.id_partitioning = p.id 
+            WHERE
+                (:identifier IS NULL OR UPPER(c.identifier) = UPPER(:identifier))
+                AND
+                (:name IS NULL OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE UPPER(CONCAT('%', :name, '%')))
+                AND
+                (:email IS NULL OR UPPER(c.email) = UPPER(:email))
+                AND
+                (:function IS NULL OR UPPER(c.function) LIKE UPPER(CONCAT('%', :function, '%')))
+                AND
+                (:city IS NULL OR UPPER(a.city_name) = UPPER(:city))
+                AND 
+                (:campaign IS NULL OR UPPER(p.campaign_id) = UPPER(:campaign))
+    """,
+            nativeQuery = true
+    )
+    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function,String campaign, Pageable pageable);
+
 }

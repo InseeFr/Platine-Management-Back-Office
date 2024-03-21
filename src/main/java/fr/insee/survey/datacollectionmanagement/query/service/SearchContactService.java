@@ -23,4 +23,15 @@ public interface SearchContactService {
         String city,
         String function,
         Pageable pageable);
+
+
+    Page<SearchContactDto> searchContactCrossDomain(
+            String identifier,
+            String name,
+            String email,
+            String city,
+            String function,
+            String campaign,
+            Pageable pageable);
 }
+

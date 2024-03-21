@@ -74,7 +74,7 @@ public class SearchContactController {
             @RequestParam(required = false) String function,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "identifier")  String sort) {
+            @RequestParam(defaultValue = "identifier") String sort) {
 
         log.info(
                 "Search contact: identifier = {}, name= {}, email= {}, page= {}, pageSize= {} ",
@@ -86,6 +86,34 @@ public class SearchContactController {
                 pageable);
         return new ResponseEntity<>(pageSearchContact, HttpStatus.OK);
 
+    }
+
+    @GetMapping(path = Constants.API_CONTACTS_SEARCH + "V2", produces = "application/json")
+    @Operation(summary = "Multi-criteria search contacts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public ResponseEntity<Page<SearchContactDto>> searchContactsV2(
+            @RequestParam(required = false) String identifier,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String function,
+            @RequestParam(required = false) String campaign,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "identifier") String sort) {
+
+        log.info(
+                "Search contact: identifier = {}, name= {}, email= {}, page= {}, pageSize= {} ",
+                identifier, name, email, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+
+        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(identifier, name, email, city, function,campaign,
+                pageable);
+        return new ResponseEntity<>(pageSearchContact, HttpStatus.OK);
 
     }
 

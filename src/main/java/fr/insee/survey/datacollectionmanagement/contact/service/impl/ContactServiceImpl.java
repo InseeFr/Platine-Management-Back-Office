@@ -60,6 +60,10 @@ public class ContactServiceImpl implements ContactService {
         return contactRepository.findByParameters(identifier, name, email, city, function, pageable);
     }
 
+    @Override
+    public Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, String campaign, Pageable pageable) {
+        return contactRepository.findByParameters(identifier, name, email, city, function, campaign, pageable);
+    }
 
     @Override
     @Transactional
