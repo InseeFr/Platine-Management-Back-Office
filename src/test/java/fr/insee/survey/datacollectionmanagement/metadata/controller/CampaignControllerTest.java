@@ -4,12 +4,11 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
+import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,15 +16,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -40,23 +40,11 @@ class CampaignControllerTest {
 
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private CampaignService campaignService;
+    CampaignService campaignService;
 
-    @Autowired
-    private CampaignRepository campaignRepository;
-
-    @Test
-    void getCampaignOk() throws Exception {
-        String identifier = "SOURCE12023T01";
-        Optional<Campaign> campaign = campaignService.findById(identifier);
-        assertTrue(campaign.isPresent());
-        String json = createJson(campaign.get(), "SOURCE12023");
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
-    }
 
     @Test
     void getCampaignNotFound() throws Exception {
@@ -73,14 +61,14 @@ class CampaignControllerTest {
         String otherIdentifier = "WRONG";
         Campaign campaign = initOpenedCampaign(identifier);
         String jsonCampaign = createJson(campaign, "SOURCE12023");
+        String jsonError = JsonUtil.createJsonErrorBadRequest("id and idCampaign don't match");
         mockMvc.perform(put(Constants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().string("id and idCampaign don't match"));
+                .andExpect(status().isBadRequest()).andExpect(content().json(jsonError, false));
 
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoing() throws Exception {
         String identifier = "OPENED";
         Campaign campaign = initOpenedCampaign(identifier);
@@ -94,7 +82,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingClose() throws Exception {
         String identifier = "CLOSED";
         Campaign campaign = initClosedCampaign(identifier);
@@ -108,7 +95,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingFutureCampaignFalse() throws Exception {
         String identifier = "FUTURE";
         Campaign campaign = initFutureCampaign(identifier);
@@ -123,7 +109,6 @@ class CampaignControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void isCampaignOnGoingEmptyCampaignFalse() throws Exception {
         String identifier = "EMPTY";
         Campaign campaign = initEmptyCampaign(identifier);
@@ -216,14 +201,14 @@ class CampaignControllerTest {
         JSONObject jo = new JSONObject();
         jo.put("id", part.getId());
         jo.put("campaignId", part.getCampaign().getId());
-        jo.put("openingDate", part.getOpeningDate().toInstant());
-        jo.put("closingDate", part.getClosingDate().toInstant());
-        jo.put("returnDate", part.getClosingDate().toInstant());
+        jo.put("openingDate", part.getOpeningDate().toInstant().toString());
+        jo.put("closingDate", part.getClosingDate().toInstant().toString());
+        jo.put("returnDate", part.getClosingDate().toInstant().toString());
         jo.put("label", "label");
         return jo.toString();
     }
 
-    private String createJson(Campaign campaign, String idSurvey) throws JSONException {
+    private String createJson(Campaign campaign, String idSurvey) {
         JSONObject jo = new JSONObject();
         jo.put("id", campaign.getId());
         jo.put("year", campaign.getYear());
@@ -232,5 +217,19 @@ class CampaignControllerTest {
         jo.put("period", campaign.getPeriod().toString());
         return jo.toString();
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void getCampaignOk() throws Exception {
+        String identifier = "SOURCE12023T01";
+
+        assertDoesNotThrow(() -> campaignService.findById(identifier));
+        Campaign campaign = campaignService.findById(identifier);
+        String json = createJson(campaign, "SOURCE12023");
+        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(json, false));
+    }
+
 
 }

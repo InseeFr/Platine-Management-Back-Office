@@ -1,18 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface QuestioningEventService {
 
-    public Optional<QuestioningEvent> findbyId(Long id);
+    public QuestioningEvent findbyId(Long id);
 
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent);
 

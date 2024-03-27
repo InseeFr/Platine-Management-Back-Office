@@ -5,6 +5,6 @@ import org.springframework.security.core.Authentication;
 @FunctionalInterface
 public interface UserProvider {
 
-    User getUser(Authentication authentication);
+    AuthUser getUser(Authentication authentication);
 
 }

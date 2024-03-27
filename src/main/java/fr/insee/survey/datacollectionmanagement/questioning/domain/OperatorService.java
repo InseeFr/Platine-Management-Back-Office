@@ -1,22 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
 @Entity
-@Data
+@Getter
+@Setter
 public class OperatorService {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "operator_service_seq")
     private Long id;
     private String name;
     private String mail;

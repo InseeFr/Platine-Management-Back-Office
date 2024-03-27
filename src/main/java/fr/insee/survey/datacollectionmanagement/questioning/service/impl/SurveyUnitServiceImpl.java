@@ -1,32 +1,30 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SurveyUnitServiceImpl implements SurveyUnitService {
 
-    @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    private final SurveyUnitRepository surveyUnitRepository;
 
-    @Autowired
-    private SurveyUnitAddressRepository surveyUnitAddressRepository;
+    private final SurveyUnitAddressRepository surveyUnitAddressRepository;
 
     @Override
-    public Optional<SurveyUnit> findbyId(String idSu) {
-        return surveyUnitRepository.findById(idSu);
+    public SurveyUnit findbyId(String idSu) {
+        return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit %s not found", idSu)));
     }
 
     @Override
@@ -45,6 +43,11 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     }
 
     @Override
+    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable) {
+        return surveyUnitRepository.findByParameters(idSu, identificationCode, identificationName, pageable);
+    }
+
+    @Override
     public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit) {
         return surveyUnitRepository.save(surveyUnit);
     }
@@ -53,18 +56,19 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit) {
 
         if (surveyUnit.getSurveyUnitAddress() != null) {
-
-            Optional<SurveyUnit> existingSurveyUnit = findbyId(surveyUnit.getIdSu());
-            if (existingSurveyUnit.isPresent()) {
-                if (existingSurveyUnit.get().getSurveyUnitAddress() != null) {
-                    surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.get().getSurveyUnitAddress().getId());
+            try {
+                SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());
+                if (existingSurveyUnit.getSurveyUnitAddress() != null) {
+                    surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.getSurveyUnitAddress().getId());
                 }
-            } else
-                log.info("Survey unit does not exist");
-
+            } catch (NotFoundException e) {
+                log.debug("Survey unit does not exist");
+            }
             surveyUnitAddressRepository.save(surveyUnit.getSurveyUnitAddress());
+
         }
         return surveyUnitRepository.save(surveyUnit);
+
     }
 
     @Override

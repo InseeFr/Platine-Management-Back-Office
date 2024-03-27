@@ -1,42 +1,39 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
-import fr.insee.survey.datacollectionmanagement.user.exception.RoleException;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -44,55 +41,50 @@ import java.util.stream.Stream;
         " || @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
+@Validated
+@RequiredArgsConstructor
 public class UserController {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
 
+    private final SourceService sourceService;
 
-    @Autowired
-    UserService userService;
+    private final SourceAccreditationService sourceAccreditationService;
 
-    @Autowired
-    SourceService sourceService;
-
-    @Autowired
-    SourceAccreditationService sourceAccreditationService;
-
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for users, paginated")
     @GetMapping(value = Constants.API_USERS_ALL, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserController.UserPage.class)))
     })
-    public ResponseEntity<?> getUsers(
+    public ResponseEntity getUsers(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<User> pageC = userService.findAll(pageable);
-        List<UserDto> listC = pageC.stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+        List<UserDto> listC = pageC.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new UserController.UserPage(listC, pageable, pageC.getTotalElements()));
+    }
+
+    @Operation(summary = "Search for users, without pagination")
+    @GetMapping(value = Constants.API_USERS_ALL_NO_PAGINATION, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class ))))
+    })
+    public ResponseEntity getUsersNotPaginated() {
+        List<User> users = userService.findAll();
+        List<UserDto> listUsers = users.stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(listUsers);
     }
 
     @Operation(summary = "Search for a user by its id")
     @GetMapping(value = Constants.API_USERS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public ResponseEntity<?> getUser(@PathVariable("id") String id) {
-        Optional<User> user = userService.findByIdentifier(StringUtils.upperCase(id));
-        try {
-            if (user.isPresent())
-                return ResponseEntity.ok().body(convertToDto(user.get()));
-            else
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user does not exist");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") String id) {
+        User user = userService.findByIdentifier(id);
+        return ResponseEntity.ok().body(convertToDto(user));
+
 
     }
 
@@ -103,9 +95,9 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> putUser(@PathVariable("id") String id, @RequestBody UserDto userDto) {
-        if (StringUtils.isBlank(userDto.getIdentifier()) || !userDto.getIdentifier().equalsIgnoreCase(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and user identifier don't match");
+    public ResponseEntity putUser(@PathVariable("id") String id, @Valid @RequestBody UserDto userDto) {
+        if (!userDto.getIdentifier().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and user identifier don't match");
         }
         User user;
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -117,23 +109,17 @@ public class UserController {
         } catch (ParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Impossible to parse user");
 
-        }
-        catch (RoleException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Role not recognized: only [" + Stream.of(User.UserRoleType.values())
-                            .map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
+        } catch (NotFoundException e) {
+            log.info("Creating user with the identifier {}", userDto.getIdentifier());
+            user = convertToEntityNewUser(userDto);
 
-        }
-        catch (NoSuchElementException e) {
-            LOGGER.info("Creating user with the identifier {}", userDto.getIdentifier());
-            user = convertToEntityNewContact(userDto);
-
-            User userCreate = userService.createUserEvent(user, null);
+            User userCreate = userService.createUser(user, null);
             return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(userCreate));
         }
 
-        LOGGER.info("Updating user with the identifier {}", userDto.getIdentifier());
-        User userUpdate = userService.updateUserEvent(user, null);
+        log.info("Updating user with the identifier {}", userDto.getIdentifier());
+        User userUpdate = userService.updateUser(user, null);
+
         return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(userUpdate));
     }
 
@@ -146,26 +132,23 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Transactional
-    public ResponseEntity<?> deleteUser(@PathVariable("id") String id) {
+    public ResponseEntity deleteUser(@PathVariable("id") String id) {
+        User user = userService.findByIdentifier(id);
+
         try {
-            Optional<User> user = userService.findByIdentifier(id);
-            if (user.isPresent()) {
-                userService.deleteContactAddressEvent(user.get());
+            userService.deleteUserAndEvents(user);
 
-                sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
-                    Source source = sourceService.findById(acc.getSource().getId()).get();
-                    Set<SourceAccreditation> newSet = source.getSourceAccreditations();
-                    newSet.removeIf(a -> a.getId().equals(acc.getId()));
-                    source.setSourceAccreditations(newSet);
-                    sourceService.insertOrUpdateSource(source);
-                    sourceAccreditationService.deleteAccreditation(acc);
+            sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
+                Source source = sourceService.findById(acc.getSource().getId());
+                Set<SourceAccreditation> newSet = source.getSourceAccreditations();
+                newSet.removeIf(a -> a.getId().equals(acc.getId()));
+                source.setSourceAccreditations(newSet);
+                sourceService.insertOrUpdateSource(source);
+                sourceAccreditationService.deleteAccreditation(acc);
 
-                });
-                log.info("Delete user {}", id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-            }
+            });
+            log.info("Delete user {}", id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
@@ -178,43 +161,37 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getUserSources(@PathVariable("id") String id){
-        Optional<User> user = userService.findByIdentifier(id);
-        if (user.isPresent()) {
-           List<String> accreditedSources= userService.findAccreditedSources(id);
-           return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist");
-        }
+    public ResponseEntity getUserSources(@PathVariable("id") String id) {
+        userService.findByIdentifier(id);
+        List<String> accreditedSources = userService.findAccreditedSources(id);
+        return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
     }
 
 
+    private User convertToEntity(UserDto userDto) throws ParseException {
 
-    private User convertToEntity(UserDto userDto) throws ParseException, NoSuchElementException, RoleException {
+        User oldUser = userService.findByIdentifier(userDto.getIdentifier());
         User user = modelMapper.map(userDto, User.class);
-
-        Optional<User> oldUser = userService.findByIdentifier(userDto.getIdentifier());
-        if (!oldUser.isPresent()) {
-            throw new NoSuchElementException();
-        }
-        if(user.getRole()==null){
-            throw new RoleException("Role missing or not recognized. Only  [" + Stream.of(User.UserRoleType.values()).map(User.UserRoleType::name).collect(Collectors.joining(", ")) + "] are possible");
-        }
-        user.setUserEvents(oldUser.get().getUserEvents());
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
+        user.setUserEvents(oldUser.getUserEvents());
 
         return user;
     }
 
-    private User convertToEntityNewContact(UserDto userDto) {
+    private User convertToEntityNewUser(UserDto userDto) {
         User user = modelMapper.map(userDto, User.class);
+        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
         return user;
     }
 
     private UserDto convertToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
+
+        List<String> accreditedSources = userService.findAccreditedSources(user.getIdentifier());
+        UserDto userDto= modelMapper.map(user, UserDto.class);
+        userDto.setAccreditedSources(accreditedSources);
         return userDto;
     }
+
     class UserPage extends PageImpl<UserDto> {
 
         private static final long serialVersionUID = 656181199902518234L;

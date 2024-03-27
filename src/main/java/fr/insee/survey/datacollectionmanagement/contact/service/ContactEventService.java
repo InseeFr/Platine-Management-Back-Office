@@ -1,24 +1,21 @@
 package fr.insee.survey.datacollectionmanagement.contact.service;
 
-import java.util.Optional;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import java.util.Set;
 
 @Service
 public interface ContactEventService {
 
     public Page<ContactEvent> findAll(Pageable pageable);
 
-    public Optional<ContactEvent> findById(Long id);
+    public ContactEvent findById(Long id);
 
     public ContactEvent saveContactEvent(ContactEvent contactEvent);
 

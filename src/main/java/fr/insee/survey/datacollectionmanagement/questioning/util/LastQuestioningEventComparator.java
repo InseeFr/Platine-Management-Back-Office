@@ -1,19 +1,18 @@
 package fr.insee.survey.datacollectionmanagement.questioning.util;
 
-import java.util.Comparator;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.EventOrderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 @Component
+@RequiredArgsConstructor
 public class LastQuestioningEventComparator implements Comparator<QuestioningEvent> {
 
-    @Autowired
-    private EventOrderService eventOrderService;
+    private final EventOrderService eventOrderService;
 
     @Override
     public int compare(QuestioningEvent o1, QuestioningEvent o2) {

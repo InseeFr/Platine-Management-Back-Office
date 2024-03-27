@@ -1,60 +1,47 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import org.webjars.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MoogServiceImpl implements MoogService {
 
     public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
     public static final String UNITE_ENQUETEE = "/unite-enquetee/";
-    @Autowired
-    private ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    private CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    private MoogRepository moogRepository;
+    private final MoogRepository moogRepository;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    PartitioningService partitioningService;
-
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -69,28 +56,22 @@ public class MoogServiceImpl implements MoogService {
         List<MoogSearchDto> listResult = new ArrayList<>();
         for (View view : listView) {
             MoogSearchDto moogSearchDto = new MoogSearchDto();
-            Optional<Contact> c = contactService.findByIdentifier(view.getIdentifier());
-            Optional<Campaign> camp = campaignService.findById(view.getCampaignId());
-            if (!camp.isPresent()) {
-                throw new NoSuchElementException("campaign does not exist");
-            }
-            if (!c.isPresent()) {
-                throw new NoSuchElementException("contact does not exist");
-            }
-            MoogCampaign moogCampaign = new MoogCampaign();
+            Contact c = contactService.findByIdentifier(view.getIdentifier());
+            Campaign camp = campaignService.findById(view.getCampaignId());
+             MoogCampaign moogCampaign = new MoogCampaign();
             moogCampaign.setId(view.getCampaignId());
-            moogCampaign.setLabel(camp.get().getCampaignWording());
+            moogCampaign.setLabel(camp.getCampaignWording());
             moogCampaign
-                    .setCollectionEndDate(camp.get().getPartitionings().iterator().next().getClosingDate().getTime());
+                    .setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());
             moogCampaign
-                    .setCollectionStartDate(camp.get().getPartitionings().iterator().next().getOpeningDate().getTime());
+                    .setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().getTime());
             moogSearchDto.setIdContact(view.getIdentifier());
-            moogSearchDto.setAddress(c.get().getAddress().getZipCode().concat(" ").concat(c.get().getAddress().getCityName()));
+            moogSearchDto.setAddress(c.getAddress().getZipCode().concat(" ").concat(c.getAddress().getCityName()));
             moogSearchDto.setIdSu(view.getIdSu());
             moogSearchDto.setCampaign(moogCampaign);
-            moogSearchDto.setFirstName(c.get().getFirstName());
-            moogSearchDto.setLastname(c.get().getLastName());
-            moogSearchDto.setSource(camp.get().getSurvey().getSource().getId());
+            moogSearchDto.setFirstName(c.getFirstName());
+            moogSearchDto.setLastname(c.getLastName());
+            moogSearchDto.setSource(camp.getSurvey().getSource().getId());
             listResult.add(moogSearchDto);
         }
         return listResult;
@@ -101,15 +82,12 @@ public class MoogServiceImpl implements MoogService {
 
         List<MoogQuestioningEventDto> moogEvents = moogRepository.getEventsByIdSuByCampaign(campaign, idSu);
 
-        Optional<Campaign> camp = campaignService.findById(campaign);
-        if (!camp.isPresent()) {
-            throw new NoSuchElementException("campaign does not exist");
-        }
+        Campaign camp = campaignService.findById(campaign);
         MoogCampaign moogCampaign = new MoogCampaign();
         moogCampaign.setId(campaign);
-        moogCampaign.setLabel(camp.get().getCampaignWording());
-        moogCampaign.setCollectionEndDate(camp.get().getPartitionings().iterator().next().getClosingDate().getTime());
-        moogCampaign.setCollectionStartDate(camp.get().getPartitionings().iterator().next().getOpeningDate().getTime());
+        moogCampaign.setLabel(camp.getCampaignWording());
+        moogCampaign.setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());
+        moogCampaign.setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().getTime());
         MoogSearchDto surveyUnit = new MoogSearchDto();
         surveyUnit.setCampaign(moogCampaign);
         moogEvents.stream().forEach(e -> e.setSurveyUnit(surveyUnit));
@@ -128,11 +106,8 @@ public class MoogServiceImpl implements MoogService {
 
     @Override
     public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException {
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        if (!campaign.isPresent()) {
-            throw new NotFoundException("Campaign not found");
-        }
-        Set<Partitioning> setParts = campaign.get().getPartitionings();
+        Campaign campaign = campaignService.findById(idCampaign);
+        Set<Partitioning> setParts = campaign.getPartitionings();
         Questioning questioning = null;
         for (Partitioning part : setParts){
             Questioning qTemp = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
@@ -147,7 +122,7 @@ public class MoogServiceImpl implements MoogService {
         }
         String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
         log.error(msg);
-        throw new  NotFoundException(msg);
+        throw new NotFoundException(msg);
     }
 
 

@@ -1,20 +1,19 @@
 package fr.insee.survey.datacollectionmanagement.view.serviceImpl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ViewServiceImpl implements ViewService {
 
-    @Autowired
-    private ViewRepository viewRepository;
+    private final ViewRepository viewRepository;
 
     @Override
     public List<View> findViewByIdentifier(String identifier) {

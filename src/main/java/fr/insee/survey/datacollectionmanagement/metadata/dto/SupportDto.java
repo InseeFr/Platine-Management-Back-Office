@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class SupportDto {
 
+    @NotBlank
     private String id;
     private String label;
     private String phoneNumber;

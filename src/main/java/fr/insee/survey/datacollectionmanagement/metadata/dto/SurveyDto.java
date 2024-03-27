@@ -1,15 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class SurveyDto {
 
+    @NotBlank
     private String id;
-    @NonNull
+    @NotBlank
     private String sourceId;
     private Integer year;
     private Integer sampleSize;

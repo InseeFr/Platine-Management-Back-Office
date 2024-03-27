@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class SourceCompleteDto {
 
+    @NotBlank
     private String id;
     private String longWording;
     private String shortWording;

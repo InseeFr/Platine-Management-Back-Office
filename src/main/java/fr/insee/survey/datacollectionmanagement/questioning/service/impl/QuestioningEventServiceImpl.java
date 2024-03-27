@@ -1,32 +1,29 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
-    @Autowired
-    LastQuestioningEventComparator lastQuestioningEventComparator;
+    private final LastQuestioningEventComparator lastQuestioningEventComparator;
 
-    @Autowired
-    QuestioningEventRepository questioningEventRepository;
+    private final QuestioningEventRepository questioningEventRepository;
 
     @Override
-    public Optional<QuestioningEvent> findbyId(Long id) {
-        return questioningEventRepository.findById(id);
+    public QuestioningEvent findbyId(Long id) {
+        return questioningEventRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", id)));
     }
 
     @Override
@@ -42,20 +39,16 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning,
-            List<TypeQuestioningEvent> events) {
+                                                              List<TypeQuestioningEvent> events) {
 
         List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
-                .filter(qe -> events.contains(qe.getType()))
-                .collect(Collectors.toList());
-        Collections.sort(listQuestioningEvent, lastQuestioningEventComparator);
+                .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
         return listQuestioningEvent.stream().findFirst();
     }
 
     @Override
-    public List<QuestioningEvent> findbyIdUpload(Long id){
-        List<QuestioningEvent> listQuestioningEvent = questioningEventRepository.findAll().stream().filter(qe -> qe.getUpload()!= null && qe.getUpload().getId().equals(id)).collect(Collectors.toList());
-
-        return listQuestioningEvent;
+    public List<QuestioningEvent> findbyIdUpload(Long id) {
+        return questioningEventRepository.findAll().stream().filter(qe -> qe.getUpload() != null && qe.getUpload().getId().equals(id)).toList();
     }
 
 }

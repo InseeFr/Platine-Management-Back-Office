@@ -2,24 +2,19 @@ package fr.insee.survey.datacollectionmanagement.user.domain;
 
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import jakarta.persistence.*;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class SourceAccreditation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_accreditation_seq")
     private Long id;
 
     private Date creationDate;
@@ -28,7 +23,6 @@ public class SourceAccreditation {
     private String idUser;
 
     @OneToOne
-    @EqualsAndHashCode.Exclude
     private Source source;
 
     @Override

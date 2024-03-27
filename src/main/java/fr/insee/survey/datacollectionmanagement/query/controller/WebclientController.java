@@ -5,10 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact.Gender;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
@@ -33,15 +34,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -53,49 +56,37 @@ import java.util.*;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
+@RequiredArgsConstructor
+@Validated
 public class WebclientController {
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    SurveyUnitService surveyUnitService;
+    private final SurveyUnitService surveyUnitService;
 
-    @Autowired
-    PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    SourceService sourceService;
+    private final SourceService sourceService;
 
-    @Autowired
-    SurveyService surveyService;
+    private final SurveyService surveyService;
 
-    @Autowired
-    CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    OwnerService ownerService;
+    private final OwnerService ownerService;
 
-    @Autowired
-    SupportService supportService;
+    private final SupportService supportService;
 
-    @Autowired
-    ContactService contactService;
+    private final ContactService contactService;
 
-    @Autowired
-    AddressService addressService;
+    private final AddressService addressService;
 
-    @Autowired
-    ViewService viewService;
+    private final ViewService viewService;
 
-    @Autowired
-    QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Create or update questioning for webclients - Returns the questioning and all its accreditations")
     @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = "application/json", consumes = "application/json")
@@ -121,12 +112,8 @@ public class WebclientController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing fields");
         }
 
-        Optional<Partitioning> part = partitioningService.findById(idPartitioning);
+        Partitioning part = partitioningService.findById(idPartitioning);
 
-        if (!part.isPresent()) {
-            log.warn("Partitioning {} does not exist", idPartitioning);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partitioning does not exist");
-        }
 
         QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
         SurveyUnit su;
@@ -135,10 +122,11 @@ public class WebclientController {
         su = convertToEntity(questioningWebclientDto.getSurveyUnit());
 
         // Create su if not exists or update
-        Optional<SurveyUnit> optSuBase = surveyUnitService.findbyId(idSu);
-        if (optSuBase.isPresent()) {
-            su.setQuestionings(optSuBase.get().getQuestionings());
-        } else {
+        try {
+            SurveyUnit optSuBase = surveyUnitService.findbyId(idSu);
+            su.setQuestionings(optSuBase.getQuestionings());
+
+        } catch (NotFoundException e) {
             log.warn("survey unit {} does not exist - Creation of the survey unit",
                     idSu);
             su.setQuestionings(new HashSet<>());
@@ -165,14 +153,14 @@ public class WebclientController {
         }
 
 
-        for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()){
+        for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()) {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
         }
 
         // save questioning and su
         questioningService.saveQuestioning(questioning);
         su.getQuestionings().add(questioning);
-        su = surveyUnitService.saveSurveyUnitAndAddress(su);
+        surveyUnitService.saveSurveyUnitAndAddress(su);
 
 
         questioningReturn.setIdPartitioning(idPartitioning);
@@ -181,7 +169,7 @@ public class WebclientController {
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
         questioning.getQuestioningAccreditations().stream()
                 .forEach(acc -> listContactAccreditationDto
-                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()).get(), acc.isMain())));
+                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningReturn.setContacts(listContactAccreditationDto);
 
 
@@ -192,7 +180,7 @@ public class WebclientController {
 
     }
 
-    private void createContactAndAccreditations(String idSu, Optional<Partitioning> part, Questioning questioning, ContactAccreditationDto contactAccreditationDto) throws JsonProcessingException {
+    private void createContactAndAccreditations(String idSu, Partitioning part, Questioning questioning, ContactAccreditationDto contactAccreditationDto) throws JsonProcessingException {
         // Create contact if not exists or update
         JsonNode node = addWebclientAuthorNode();
 
@@ -202,7 +190,7 @@ public class WebclientController {
             if (contactAccreditationDto.getAddress() != null)
                 contact.setAddress(addressService.convertToEntity(contactAccreditationDto.getAddress()));
             contactService.updateContactAddressEvent(contact, node);
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | NotFoundException e) {
             log.info("Creating contact with the identifier {}", contactAccreditationDto.getIdentifier());
             contact = convertToEntityNewContact(contactAccreditationDto);
             if (contactAccreditationDto.getAddress() != null)
@@ -214,12 +202,12 @@ public class WebclientController {
 
         Set<QuestioningAccreditation> setExistingAccreditations = (questioning
                 .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
-                        : new HashSet<>();
+                : new HashSet<>();
 
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(contactAccreditationDto.getIdentifier())
-                        && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
+                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
                         && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
                 .toList();
 
@@ -235,7 +223,7 @@ public class WebclientController {
 
             // create view
             viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
-                    part.get().getCampaign().getId());
+                    part.getCampaign().getId());
 
             questioning.getQuestioningAccreditations().add(questioningAccreditation);
         } else {
@@ -253,9 +241,8 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
     })
     public ResponseEntity<?> getQuestioning(@RequestParam(required = true) String modelName,
-            @RequestParam(required = true) String idPartitioning,
-            @RequestParam(required = true) String idSurveyUnit)
-            {
+                                            @RequestParam(required = true) String idPartitioning,
+                                            @RequestParam(required = true) String idSurveyUnit) {
 
         QuestioningWebclientDto questioningWebclientDto = new QuestioningWebclientDto();
 
@@ -273,7 +260,7 @@ public class WebclientController {
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
         questioning.getQuestioningAccreditations().stream()
                 .forEach(acc -> listContactAccreditationDto
-                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()).get(), acc.isMain())));
+                        .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningWebclientDto.setContacts(listContactAccreditationDto);
         return ResponseEntity.status(httpStatus).body(questioningWebclientDto);
 
@@ -288,18 +275,16 @@ public class WebclientController {
     })
     public ResponseEntity<?> getMetadata(@PathVariable("id") String id) {
         MetadataDto metadataDto = new MetadataDto();
+        Partitioning part = partitioningService.findById(StringUtils.upperCase(id));
+
         try {
-            Optional<Partitioning> part = partitioningService.findById(StringUtils.upperCase(id));
-            if (!part.isPresent()) {
-                log.warn("partitioning {} does not exist", id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("partitioning does not exist");
-            }
-            metadataDto.setPartitioningDto(convertToDto(part.get()));
-            metadataDto.setCampaignDto(convertToDto(part.get().getCampaign()));
-            metadataDto.setSurveyDto(convertToDto(part.get().getCampaign().getSurvey()));
-            metadataDto.setSourceDto(convertToDto(part.get().getCampaign().getSurvey().getSource()));
-            metadataDto.setOwnerDto(convertToDto(part.get().getCampaign().getSurvey().getSource().getOwner()));
-            metadataDto.setSupportDto(convertToDto(part.get().getCampaign().getSurvey().getSource().getSupport()));
+
+            metadataDto.setPartitioningDto(convertToDto(part));
+            metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
+            metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
+            metadataDto.setSourceDto(convertToDto(part.getCampaign().getSurvey().getSource()));
+            metadataDto.setOwnerDto(convertToDto(part.getCampaign().getSurvey().getSource().getOwner()));
+            metadataDto.setSupportDto(convertToDto(part.getCampaign().getSurvey().getSource().getSupport()));
             return ResponseEntity.ok().body(metadataDto);
 
         } catch (Exception e) {
@@ -317,12 +302,12 @@ public class WebclientController {
     })
     @Transactional
     public ResponseEntity<?> putMetadata(@PathVariable("id") String id,
-            @RequestBody MetadataDto metadataDto) {
+                                         @RequestBody @Valid MetadataDto metadataDto) {
+        if (!metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
+            throw new NotMatchException("id and idPartitioning don't match");
+        }
         try {
-            if (StringUtils.isBlank(metadataDto.getPartitioningDto().getId())
-                    || !metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id and idPartitioning don't match");
-            }
+
             MetadataDto metadataReturn = new MetadataDto();
 
             HttpHeaders responseHeaders = new HttpHeaders();
@@ -330,15 +315,16 @@ public class WebclientController {
                     ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(id).toUriString());
             HttpStatus httpStatus;
 
-            if (partitioningService.findById(id).isPresent()) {
-                log.info("Update partitioning with the id {}", id);
+            try {
                 partitioningService.findById(id);
+                log.info("Update partitioning with the id {}", id);
                 httpStatus = HttpStatus.OK;
 
-            } else {
+            } catch (NotFoundException e) {
                 log.info("Create partitioning with the id {}", id);
                 httpStatus = HttpStatus.CREATED;
             }
+
 
             Owner owner = convertToEntity(metadataDto.getOwnerDto());
             Support support = convertToEntity(metadataDto.getSupportDto());
@@ -414,8 +400,10 @@ public class WebclientController {
                 List<QuestioningAccreditation> listQa = questioning.getQuestioningAccreditations().stream()
                         .filter(qa -> qa.isMain()).toList();
                 if (listQa != null && !listQa.isEmpty()) {
-                    Contact c = contactService.findByIdentifier(listQa.get(0).getIdContact()).get();
+                    Contact c = contactService.findByIdentifier(listQa.get(0).getIdContact());
                     return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c)));
+
+
                 }
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No contact found");
@@ -435,7 +423,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> getState(@PathVariable("idPartitioning") String idPartitioning,
-            @PathVariable("idSu") String idSu) {
+                                      @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
@@ -522,7 +510,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<?> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
-            @PathVariable("idSu") String idSu) {
+                                         @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
@@ -569,12 +557,10 @@ public class WebclientController {
         Contact contact = modelMapper.map(contactAccreditationDto, Contact.class);
         contact.setGender(contactAccreditationDto.getCivility());
 
-        Optional<Contact> oldContact = contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
-        if (!oldContact.isPresent())
-            throw new NoSuchElementException();
-        contact.setComment(oldContact.get().getComment());
-        contact.setAddress(oldContact.get().getAddress());
-        contact.setContactEvents(oldContact.get().getContactEvents());
+        Contact oldContact = contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
+        contact.setComment(oldContact.getComment());
+        contact.setAddress(oldContact.getAddress());
+        contact.setContactEvents(oldContact.getContactEvents());
 
         return contact;
     }
@@ -598,7 +584,7 @@ public class WebclientController {
 
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
-        contactDto.setCivility(contact.getGender());
+        contactDto.setCivility(contact.getGender().name());
         return contactDto;
     }
 

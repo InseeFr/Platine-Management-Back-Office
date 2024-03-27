@@ -1,12 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.metadata.repository;
 
-import java.util.List;
-
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import java.util.List;
 
 
 public interface CampaignRepository extends JpaRepository<Campaign, String>,PagingAndSortingRepository<Campaign, String> {

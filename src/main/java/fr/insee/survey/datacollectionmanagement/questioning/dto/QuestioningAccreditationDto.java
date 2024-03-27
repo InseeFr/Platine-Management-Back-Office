@@ -1,19 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.questioning.dto;
 
-import java.util.Date;
-
-import javax.persistence.Id;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Getter
 @Setter
 public class QuestioningAccreditationDto {
 
-    @Id
     @JsonIgnore
     private Long id;
 

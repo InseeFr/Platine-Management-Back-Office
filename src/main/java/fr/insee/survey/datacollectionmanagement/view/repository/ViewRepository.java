@@ -1,15 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.view.repository;
 
-import java.util.List;
-
+import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import java.util.List;
 
 @Repository
-public interface ViewRepository extends PagingAndSortingRepository<View, Long> {
+public interface ViewRepository extends PagingAndSortingRepository<View, Long>, JpaRepository<View, Long> {
 
     static final String FIND_DISTNCT_VIEW_BY_IDENTIFIER = "select                                                           "
             + "    distinct on                                                                                              "
@@ -39,5 +39,6 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long> {
     List<View> findByIdentifierContainingAndIdSuNotNull(String identifier);
 
     void deleteByIdentifier(String identifier);
+
 
 }

@@ -1,30 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
@@ -36,7 +17,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.webjars.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -44,57 +40,43 @@ import org.webjars.NotFoundException;
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
+@RequiredArgsConstructor
 public class MoogController {
-    
-    @Autowired
-    private MoogService moogService;
 
-    @Autowired
-    private ContactService contactService;
+    private final MoogService moogService;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final ContactService contactService;
 
-    @Autowired
-    QuestioningService questioningService;
-
-    @Autowired
-    UploadService uploadService;
 
     @GetMapping(path = Constants.API_MOOG_SEARCH)
-    public ResponseEntity<?> moogSearch(@RequestParam(required = false) String filter1,
-            @RequestParam(required = false) String filter2,
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "20", required = false) int pageSize) {
+    public ResponseEntity<Page<MoogSearchDto>> moogSearch(@RequestParam(required = false) String filter1,
+                                                          @RequestParam(required = false) String filter2,
+                                                          @RequestParam(defaultValue = "0", required = false) int pageNo,
+                                                          @RequestParam(defaultValue = "20", required = false) int pageSize) {
 
         List<View> listView = moogService.moogSearch(filter1);
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         int start = (int) pageable.getOffset();
-        int end = (int) ((start + pageable.getPageSize()) > listView.size() ? listView.size()
-                : (start + pageable.getPageSize()));
+        int end = (start + pageable.getPageSize()) > listView.size() ? listView.size()
+                : (start + pageable.getPageSize());
 
         if (start <= end) {
-            Page<MoogSearchDto> page = new PageImpl<MoogSearchDto>(
+            Page<MoogSearchDto> page = new PageImpl<>(
                     moogService.transformListViewToListMoogSearchDto(listView.subList(start, end)), pageable,
                     listView.size());
             return new ResponseEntity<>(page, HttpStatus.OK);
 
         } else
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException("Start must be inferior to end");
 
     }
 
     @GetMapping(path = Constants.API_MOOG_MAIL, produces = "application/json")
     @Operation(summary = "Get Moog questioning events by campaign and idSu")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "404", description = "Not found")
-    })
-    public ResponseEntity<?> getMoogMail(@PathVariable("id") String contactId) {
-        Optional<Contact> contact = contactService.findByIdentifier(contactId);
-        return contact.isPresent() ? ResponseEntity.ok().body(contact.get().getEmail())
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact not found");
+    public ResponseEntity<String> getMoogMail(@PathVariable("id") String contactId) {
+        Contact contact = contactService.findByIdentifier(contactId);
+        return ResponseEntity.ok().body(contact.getEmail());
     }
 
     @GetMapping(path = Constants.API_MOOG_EVENTS, produces = "application/json")
@@ -103,8 +85,8 @@ public class MoogController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MoogQuestioningEventDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getMoogQuestioningEvents(@PathVariable("campaign") String campaignId,
-            @PathVariable("id") String idSu) {
+    public ResponseEntity<Map<String, List<MoogQuestioningEventDto>>> getMoogQuestioningEvents(@PathVariable("campaign") String campaignId,
+                                                                                               @PathVariable("id") String idSu) {
         return new ResponseEntity<>(Map.of("datas", moogService.getMoogEvents(campaignId, idSu)), HttpStatus.OK);
 
     }
@@ -118,21 +100,19 @@ public class MoogController {
     @GetMapping(value = Constants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = "application/json")
     public JSONCollectionWrapper<MoogExtractionRowDto> displaySurveyUnitsToFollowUp(@PathVariable String idCampaign) {
         log.info("Request GET for su to follow up - campaign {}", idCampaign);
-        return new JSONCollectionWrapper<MoogExtractionRowDto>(moogService.getSurveyUnitsToFollowUp(idCampaign));
+        return new JSONCollectionWrapper<>(moogService.getSurveyUnitsToFollowUp(idCampaign));
     }
 
     @GetMapping(value = Constants.MOOG_API_READONLY_URL, produces = "application/json")
-    public ResponseEntity<String> getReadOnlyUrl(@PathVariable String idCampaign, @PathVariable String surveyUnitId){
-        log.info("Request READONLY url for su {} and campaign {}",surveyUnitId, idCampaign);
+    public ResponseEntity<String> getReadOnlyUrl(@PathVariable String idCampaign, @PathVariable String surveyUnitId) {
+        log.info("Request READONLY url for su {} and campaign {}", surveyUnitId, idCampaign);
         String url;
         try {
             url = moogService.getReadOnlyUrl(idCampaign, surveyUnitId);
             return ResponseEntity.ok().body(url);
-        }
-       catch (NotFoundException e){
-           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-       }
-        catch (Exception e){
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

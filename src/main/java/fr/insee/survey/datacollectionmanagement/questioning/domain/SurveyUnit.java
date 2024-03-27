@@ -1,22 +1,18 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import lombok.Data;
-
 @Entity
-@Data
+@Getter
+@Setter
 @Table(indexes = {
-    @Index(name = "identificationName_index", columnList = "identificationName"), @Index(name = "identificationCode_index", columnList = "identificationCode")
+    @Index(name = "identificationName_index", columnList = "identificationName"),
+        @Index(name = "identificationCode_index", columnList = "identificationCode"),
+        @Index(name = "surveyUnitAddress_index", columnList = "survey_unit_address_id")
 })
 public class SurveyUnit {
 

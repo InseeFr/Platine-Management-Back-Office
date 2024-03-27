@@ -1,21 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(indexes = {
         @Index(name = "idContact_index", columnList = "idContact"),
@@ -24,7 +16,7 @@ import lombok.NonNull;
 public class QuestioningAccreditation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_accreditation_seq")
     private Long id;
 
     private boolean isMain;
@@ -33,8 +25,7 @@ public class QuestioningAccreditation {
     @NonNull
     private String idContact;
 
-    @OneToOne
-    @EqualsAndHashCode.Exclude
+    @ManyToOne
     private Questioning questioning;
 
     @Override

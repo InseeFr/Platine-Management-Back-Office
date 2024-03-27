@@ -1,33 +1,29 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
-import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-public class MyQuestioningsControllerTest {
+@ContextConfiguration
+class MyQuestioningsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,7 +32,7 @@ public class MyQuestioningsControllerTest {
     private CheckHabilitationService checkAccreditationService;
 
 //    @Test
-//    public void myQuestionings() throws Exception {
+//    void myQuestionings() throws Exception {
 //        String identifier = "CONT2";
 //
 //        MvcResult result = this.mockMvc.perform(get(Constants.API_MY_QUESTIONINGS_ID, identifier)).andDo(print())
@@ -56,7 +52,7 @@ public class MyQuestioningsControllerTest {
 //    }
 
     @Test
-    public void myQuestioningsContactNotExist() throws Exception {
+    void myQuestioningsContactNotExist() throws Exception {
         String identifier = "CONT500";
 
         MvcResult result = this.mockMvc.perform(get(Constants.API_MY_QUESTIONINGS_ID, identifier)).andDo(print())

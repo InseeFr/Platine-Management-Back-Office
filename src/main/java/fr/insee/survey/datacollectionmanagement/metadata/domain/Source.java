@@ -2,13 +2,14 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Source {
 
@@ -23,20 +24,16 @@ public class Source {
     private Boolean mandatoryMySurveys;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<Survey> surveys;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<SourceAccreditation> sourceAccreditations;
 
-    @OneToOne
+    @ManyToOne
     @NonNull
     private Owner owner;
 
-    @OneToOne
+    @ManyToOne
     @NonNull
     private Support support;
 

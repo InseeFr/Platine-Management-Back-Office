@@ -17,9 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
-public class MoogControllerTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+class MoogControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -28,25 +28,26 @@ public class MoogControllerTest {
     private MoogService moogService;
 
     @Test
-    public void getMoogReadOnlyUrl() throws Exception {
-        String idCampaign= "SOURCE12024T01";
-        String surveyUnitId= "100000000";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign,surveyUnitId)).andDo(print()).andExpect(status().isOk())
+    void getMoogReadOnlyUrl() throws Exception {
+        String idCampaign = "SOURCE12023T01";
+        String surveyUnitId = "100000000";
+        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
+
                 .andExpect(content().string("http://localhost:8081/readonly/questionnaire/m0/unite-enquetee/100000000"));
     }
 
 
     @Test
-    public void getMoogReadOnlyUrlCampaignNotFound() throws Exception {
-        String idCampaign= "SOURCE12023T00";
-        String surveyUnitId= "100000000";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign,surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+    void getMoogReadOnlyUrlCampaignNotFound() throws Exception {
+        String idCampaign = "CAMPAIGN";
+        String surveyUnitId = "100000000";
+        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
     }
 
     @Test
-    public void getMoogReadOnlyUrlQuestioningNotFound() throws Exception {
-        String idCampaign= "SOURCE12023T01";
-        String surveyUnitId= "10";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign,surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+    void getMoogReadOnlyUrlQuestioningNotFound() throws Exception {
+        String idCampaign = "SOURCE12023T01";
+        String surveyUnitId = "SU";
+        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
     }
 }

@@ -1,22 +1,21 @@
 package fr.insee.survey.datacollectionmanagement.query.repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogFollowUpDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogRowProgressDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogFollowUpDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogRowProgressDto;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class MonitoringRepository {
 
-   @Autowired
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     final String progressQuery = "SELECT COUNT(survey_unit_id_su) as total,status,batch_num FROM\n" +
             "(SELECT DISTINCT ON (survey_unit_id_su) survey_unit_id_su,status,event_order,batch_num FROM (SELECT event_order, campaign_id, C.status, batch_num, survey_unit_id_su FROM (SELECT campaign_id, type as status, id_partitioning as batch_num, survey_unit_id_su  FROM\n" +

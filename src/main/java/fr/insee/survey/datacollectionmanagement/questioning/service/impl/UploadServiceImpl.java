@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.RessourceNotValidatedException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -17,29 +18,26 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UploadServiceImpl implements UploadService {
 
-    @Autowired
-    UploadRepository uploadRepository;
+    private final UploadRepository uploadRepository;
 
-    @Autowired
-    QuestioningEventService questioningEventService;
+    private final QuestioningEventService questioningEventService;
 
-    @Autowired
-    CampaignService campaignService;
+    private final CampaignService campaignService;
 
-    @Autowired
-    QuestioningService questioningService;
+    private final QuestioningService questioningService;
+
 
     @Override
     public ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException {
@@ -62,20 +60,17 @@ public class UploadServiceImpl implements UploadService {
             try {
                 QuestioningEvent qe = new QuestioningEvent();
 
-                Optional<Campaign> campaign = campaignService.findById(idCampaign);
-                if (!campaign.isPresent()) {
-                    throw new RessourceNotValidatedException("Campaign", idCampaign);
-                }
-                Set<Partitioning> setParts = campaign.get().getPartitionings();
+                Campaign campaign = campaignService.findById(idCampaign);
+                Set<Partitioning> setParts = campaign.getPartitionings();
                 if (setParts.isEmpty()) {
                     throw new RessourceNotValidatedException("No partitionings found for campaign ", idCampaign);
                 }
-  
+
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
 
-                List<String> listIdParts = campaignService.findById(idCampaign).get().getPartitionings().stream().map(Partitioning::getId).toList();
+                List<String> listIdParts = campaignService.findById(idCampaign).getPartitionings().stream().map(Partitioning::getId).toList();
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning()) && q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact)
-                        .collect(Collectors.toList()).contains(mmDto.getIdContact())).findFirst();
+                        .toList().contains(mmDto.getIdContact())).findFirst();
 
                 qe.setUpload(up);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
@@ -86,7 +81,7 @@ public class UploadServiceImpl implements UploadService {
                 qe.setPayload(objectMapper.readTree(jo.toString()));
                 qe.setDate(today);
                 liste.add(questioningEventService.saveQuestioningEvent(qe));
-                if(quest.isPresent()){
+                if (quest.isPresent()) {
                     quest.get().getQuestioningEvents().add(qe);
                     questioningService.saveQuestioning(quest.get());
                 }
@@ -97,33 +92,34 @@ public class UploadServiceImpl implements UploadService {
                 result.addIdKo(identifier, "RessourceNotFound or unprocessable request");
             }
         }
-        if (result.getListIdOK().size() == 0) {
+        if (result.getListIdOK().isEmpty()) {
             delete(up);
             return result;
         }
         up.setQuestioningEvents(liste);
-        up = saveAndFlush(up);
+        saveAndFlush(up);
 
         return result;
     }
 
     @Override
-    public Optional<Upload> findById(long id) {
-        return uploadRepository.findById(id);
+    public Upload findById(long id) {
+        return uploadRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("Upload %s not found", id)));
     }
 
     @Override
     public List<Upload> findAllByIdCampaign(String idCampaign) {
 
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.findById(idCampaign);
 
-        List<String> partitioningIds = campaign.get().getPartitionings().stream().map(Partitioning::getId).collect(Collectors.toList());
+        List<String> partitioningIds = campaign.getPartitionings().stream().map(Partitioning::getId).toList();
 
         // Keeps the uploads which first managementMonitoringInfo belongs to the survey
         return uploadRepository.findAll().stream().filter(upload -> !upload.getQuestioningEvents().isEmpty())
                 .filter(upload -> partitioningIds.contains(upload.getQuestioningEvents().stream().findFirst().get().getQuestioning().getIdPartitioning()
                 ))
-                .collect(Collectors.toList());
+                .toList();
+
     }
 
 
@@ -139,19 +135,26 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public boolean checkUploadDate(String idCampaign, Date date) {
-        Optional<Campaign> campaign = campaignService.findById(idCampaign);
-        Long timestamp = date.getTime();
-        Long start = campaign.get().getPartitionings().stream().map(Partitioning::getOpeningDate)
-                .collect(Collectors.toList()).stream()
-                .min(Comparator.comparing(Date::getTime)).get().getTime();
-        Long end = campaign.get().getPartitionings().stream().map(Partitioning::getClosingDate)
-                .collect(Collectors.toList()).stream()
-                .max(Comparator.comparing(Date::getTime)).get().getTime();
-        return (start < timestamp && timestamp < end);
+        Campaign campaign = campaignService.findById(idCampaign);
+        long timestamp = date.getTime();
+        Optional<Date> openingDate = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
+                .toList().stream()
+                .min(Comparator.comparing(Date::getTime));
+        Optional<Date> closingDate = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
+                .toList().stream()
+                .max(Comparator.comparing(Date::getTime));
+        if (openingDate.isPresent() && closingDate.isPresent()) {
+            long start = openingDate.get().getTime();
+            long end = closingDate.get().getTime();
+            return (start < timestamp && timestamp < end);
+
+
+        }
+        return false;
     }
 
     @Override
     public void removeEmptyUploads() {
-        uploadRepository.findByQuestioningEventsIsEmpty().forEach(u -> uploadRepository.delete(u));
+        uploadRepository.findByQuestioningEventsIsEmpty().forEach(uploadRepository::delete);
     }
 }

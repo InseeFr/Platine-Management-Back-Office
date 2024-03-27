@@ -1,12 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
-import lombok.Data;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class EventOrder {
 
     @Id

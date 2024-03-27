@@ -1,1 +1,2 @@
-create domain if not exists jsonb as other;
+create domain if not exists jsonb as json;
+

@@ -1,13 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
-import java.util.Date;
-import java.util.Optional;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+
+import java.util.Date;
 
 public interface PartitioningService {
 
-    Optional<Partitioning> findById(String id);
+    Partitioning findById(String id);
 
     Partitioning insertOrUpdatePartitioning(Partitioning partitioning);
 

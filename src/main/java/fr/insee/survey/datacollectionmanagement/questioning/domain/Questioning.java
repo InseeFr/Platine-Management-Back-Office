@@ -1,33 +1,22 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
-
 @Entity
-@Data
-@NoArgsConstructor
+@Getter
+@Setter@NoArgsConstructor
 @Table(indexes = {
-        @Index(name = "idPartitioning_index", columnList = "idPartitioning")
+        @Index(name = "idPartitioning_index", columnList = "idPartitioning"),
+        @Index(name = "surveyUnitId_index", columnList = "survey_unit_id_su")
+
 })
 public class Questioning {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_seq")
     private Long id;
 
     @NonNull
@@ -36,18 +25,12 @@ public class Questioning {
     private String idPartitioning;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<QuestioningAccreditation> questioningAccreditations;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private Set<QuestioningEvent> questioningEvents;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.EAGER)
     @NonNull
     private SurveyUnit surveyUnit;
 

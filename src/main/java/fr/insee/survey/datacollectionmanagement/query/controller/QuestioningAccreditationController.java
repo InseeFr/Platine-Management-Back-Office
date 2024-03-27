@@ -1,26 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -38,33 +17,40 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
         + "|| @AuthorizeMethodDecider.isWebClient() "
         + "|| @AuthorizeMethodDecider.isAdmin() ")
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
+@Slf4j
+@RequiredArgsConstructor
 public class QuestioningAccreditationController {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(QuestioningAccreditationController.class);
+    private final QuestioningAccreditationService questioningAccreditationService;
 
-    @Autowired
-    private QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningService questioningService;
 
-    @Autowired
-    private QuestioningService questioningService;
+    private final ContactService contactService;
 
-    @Autowired
-    private ContactService contactService;
+    private final PartitioningService partitioningService;
 
-    @Autowired
-    private PartitioningService partitioningService;
+    private final ViewService viewService;
 
-    @Autowired
-    private ViewService viewService;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for questioning accreditations by questioning id")
     @GetMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
@@ -75,15 +61,13 @@ public class QuestioningAccreditationController {
     })
     public ResponseEntity<?> getQuestioningAccreditation(@PathVariable("id") Long id) {
 
+        Questioning optQuestioning = questioningService.findbyId(id);
+
         try {
-            Optional<Questioning> optQuestioning = questioningService.findbyId(id);
-            if (optQuestioning.isPresent())
-                return new ResponseEntity<>(
-                        optQuestioning.get().getQuestioningAccreditations().stream().map(c -> convertToDto(c))
-                                .collect(Collectors.toList()),
-                        HttpStatus.OK);
-            else
-                return new ResponseEntity<>("Questioning does not exist", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(
+                    optQuestioning.getQuestioningAccreditations().stream().map(this::convertToDto)
+                            .toList(), HttpStatus.OK);
+
         } catch (Exception e) {
             return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -99,38 +83,28 @@ public class QuestioningAccreditationController {
     })
     @Transactional
     public ResponseEntity<?> postQuestioningAccreditation(@PathVariable("id") Long id,
-            @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
+                                                          @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
-        Optional<Questioning> optQuestioning = null;
+        Questioning questioning = questioningService.findbyId(id);
 
         String idContact = questioningAccreditationDto.getIdContact();
+        contactService.findByIdentifier(idContact);
 
-        // Check if questioning exists
-        try {
-            optQuestioning = questioningService.findbyId(id);
-            if (!optQuestioning.isPresent())
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
-        }
-        Questioning questioning = optQuestioning.get();
 
-        // Check if contact exists
-        if (!contactService.findByIdentifier(idContact).isPresent())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Contact does not exist");
 
         HttpHeaders responseHeaders = new HttpHeaders();
 
         // save new accreditation or update existing one
         Set<QuestioningAccreditation> setExistingAccreditations = questioning.getQuestioningAccreditations();
-        Optional<Partitioning> part = partitioningService.findById(questioning.getIdPartitioning());
+        Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+
         String idSu = questioning.getSurveyUnit().getIdSu();
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(idContact)
-                        && acc.getQuestioning().getIdPartitioning().equals(part.get().getId())
+                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
                         && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
-                .collect(Collectors.toList());
+                .toList();
 
         if (listContactAccreditations.isEmpty()) {
             // Create new accreditation
@@ -142,7 +116,7 @@ public class QuestioningAccreditationController {
 
             // create view
             viewService.createView(idContact, questioning.getSurveyUnit().getIdSu(),
-                    part.get().getCampaign().getId());
+                    part.getCampaign().getId());
 
             // location header
             responseHeaders.set(HttpHeaders.LOCATION,
@@ -151,6 +125,7 @@ public class QuestioningAccreditationController {
 
             return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
                     .body(convertToDto(questioningAccreditation));
+
 
         } else {
             // update accreditation

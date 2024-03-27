@@ -1,42 +1,28 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.webjars.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CampaignServiceImpl implements CampaignService {
 
-    static final Logger LOGGER = LoggerFactory.getLogger(CampaignServiceImpl.class);
+    private final CampaignRepository campaignRepository;
 
-    @Autowired
-    CampaignRepository campaignRepository;
-
-    @Autowired
-    PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
     public Collection<CampaignMoogDto> getCampaigns() {
 
@@ -70,8 +56,8 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public Optional<Campaign> findById(String idCampaign) {
-        return campaignRepository.findById(idCampaign);
+    public Campaign findById(String idCampaign) {
+        return campaignRepository.findById(idCampaign).orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
     }
 
     @Override
@@ -91,14 +77,16 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
-        Optional<Campaign> campaignBase = findById(campaign.getId());
-        if (!campaignBase.isPresent()) {
+        try {
+            Campaign campaignBase = findById(campaign.getId());
+            log.info("Update campaign with the id {}", campaign.getId());
+            campaign.setPartitionings(campaignBase.getPartitionings());
+
+        } catch (NotFoundException e) {
             log.info("Create campaign with the id {}", campaign.getId());
-            return campaignRepository.save(campaign);
         }
-        log.info("Update campaign with the id {}", campaign.getId());
-        campaign.setPartitionings(campaignBase.get().getPartitionings());
         return campaignRepository.save(campaign);
+
     }
 
     @Override
@@ -108,15 +96,16 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning) {
-        Optional<Campaign> campaignBase = findById(campaign.getId());
-        if (campaignBase.isPresent() && isPartitioningPresent(partitioning, campaignBase.get())) {
-            campaign.setPartitionings(campaignBase.get().getPartitionings());
-        } else {
-            Set<Partitioning> partitionings = (!campaignBase.isPresent()) ? new HashSet<>()
-                    : campaignBase.get().getPartitionings();
-            partitionings.add(partitioning);
-            campaign.setPartitionings(partitionings);
+        Set<Partitioning> partitionings;
+        try {
+            Campaign campaignBase = findById(campaign.getId());
+            partitionings = campaignBase.getPartitionings();
+            if (!isPartitioningPresent(partitioning, campaignBase))
+                partitionings.add(partitioning);
+        } catch (NotFoundException e) {
+            partitionings = Set.of(partitioning);
         }
+        campaign.setPartitionings(partitionings);
         return campaign;
     }
 
@@ -130,24 +119,21 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public boolean isCampaignOngoing(String idCampaign) throws NotFoundException {
-        Optional<Campaign> camp = findById(idCampaign);
+    public boolean isCampaignOngoing(String idCampaign)  {
+        Campaign camp = findById(idCampaign);
 
-        if (camp.isEmpty()) {
-            throw new NotFoundException("Campaign does not exist");
-        }
         Date now = new Date();
         int nbOnGoingParts = 0;
 
-        for (Partitioning part : camp.get().getPartitionings()) {
+        for (Partitioning part : camp.getPartitionings()) {
             if (partitioningService.isOnGoing(part, now)) {
                 nbOnGoingParts++;
-                LOGGER.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
+                log.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
             } else {
-                LOGGER.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
+                log.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
             }
         }
-        return !camp.get().getPartitionings().isEmpty() && nbOnGoingParts == camp.get().getPartitionings().size();
+        return !camp.getPartitionings().isEmpty() && nbOnGoingParts == camp.getPartitionings().size();
     }
 
 }

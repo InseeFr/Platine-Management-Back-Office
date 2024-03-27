@@ -1,19 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
-import java.util.Optional;
-import java.util.Set;
-
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import java.util.Set;
 
 public interface QuestioningService {
 
     public Page<Questioning> findAll(Pageable pageable);
 
-    public Optional<Questioning> findbyId(Long id);
+    public Questioning findbyId(Long id);
 
     public Questioning saveQuestioning(Questioning questioning);
 

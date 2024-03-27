@@ -2,5 +2,45 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base"
-  ]
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "labels": ["dependencies"],
+      "bumpVersion": "patch",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "groupName": "spring",
+      "groupSlug": "spring",
+      "matchPackagePatterns": ["org.springframework.*"],
+      "bumpVersion": "minor",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "groupName": "all minor dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "bumpVersion": "patch",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "groupName": "spring minor dependencies",
+      "groupSlug": "spring-minor-patch",
+      "matchPackagePatterns": ["org.springframework.*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "bumpVersion": "patch",
+      "dependencyDashboardApproval": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "addLabels": ["security"],
+    "bumpVersion": "patch",
+    "schedule": ["before 5:00am"]
+  },
+  "schedule": ["every weekend"],
+  "timezone": "Europe/Paris"
+}
 }

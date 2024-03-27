@@ -1,31 +1,27 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.OwnerRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SupportRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
-    @Autowired
-    private SourceRepository sourceRepository;
+    private final SourceRepository sourceRepository;
 
-    public Optional<Source> findById(String source) {
-        return sourceRepository.findById(source);
+    public Source findById(String source) {
+        return sourceRepository.findById(source).orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
     }
 
     @Override
@@ -35,13 +31,15 @@ public class SourceServiceImpl implements SourceService {
 
     @Override
     public Source insertOrUpdateSource(Source source) {
-        Optional<Source> sourceBase = findById(source.getId());
-        if (!sourceBase.isPresent()) {
+        try {
+            Source sourceBase = findById(source.getId());
+            log.info("Update source with the id {}", source.getId());
+            source.setSurveys(sourceBase.getSurveys());
+        } catch (NotFoundException e) {
             log.info("Create source with the id {}", source.getId());
             return sourceRepository.save(source);
+
         }
-        log.info("Update source with the id {}", source.getId());
-        source.setSurveys(sourceBase.get().getSurveys());
         return sourceRepository.save(source);
     }
 
@@ -53,20 +51,21 @@ public class SourceServiceImpl implements SourceService {
 
     @Override
     public Source addSurveyToSource(Source source, Survey survey) {
-        Optional<Source> sourceBase = findById(source.getId());
-        if (sourceBase.isPresent() && isSurveyPresent(survey, sourceBase.get())) {
-            source.setSurveys(sourceBase.get().getSurveys());
+        Set<Survey> surveys;
+        try {
+            Source sourceBase = findById(source.getId());
+            surveys = sourceBase.getSurveys();
+            if (!isSurveyPresent(survey, sourceBase)) {
+                surveys.add(survey);
+            }
+        } catch (NotFoundException e) {
+            surveys = Set.of(survey);
 
-        } else {
-
-            Set<Survey> surveys = (!sourceBase.isPresent()) ? new HashSet<>()
-                    : sourceBase.get().getSurveys();
-            surveys.add(survey);
-            source.setSurveys(surveys);
         }
+        source.setSurveys(surveys);
         return source;
     }
-    
+
     private boolean isSurveyPresent(Survey su, Source s) {
         for (Survey survey : s.getSurveys()) {
             if (survey.getId().equals(su.getId())) {

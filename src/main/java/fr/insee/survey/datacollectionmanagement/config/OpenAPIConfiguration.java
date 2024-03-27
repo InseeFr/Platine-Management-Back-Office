@@ -1,42 +1,35 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
 
-import java.util.Arrays;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.Scopes;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
+import java.util.Arrays;
 
 
 @Configuration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true", matchIfMissing = true)
-
+@RequiredArgsConstructor
 public class OpenAPIConfiguration {
 
-    @Autowired
-    BuildProperties buildProperties;
+    private final BuildProperties buildProperties;
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final ApplicationConfig applicationConfig;
 
 
     @Bean public OpenAPI customOpenAPI() {
 
         switch(applicationConfig.getAuthType()) {
 
-            case "OIDC":
+            case AuthConstants.OIDC:
 
                 OAuthFlows flows = new OAuthFlows();
                 OAuthFlow flow = new OAuthFlow();

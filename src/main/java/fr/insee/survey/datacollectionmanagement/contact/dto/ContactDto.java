@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.dto;
 
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.validation.ContactGenderValid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,14 +9,17 @@ import lombok.Setter;
 @Setter
 public class ContactDto{
 
+    @NotBlank(message = "Id can't be empty")
     private String identifier;
     private String externalId;
-    private Contact.Gender civility;
+    @ContactGenderValid
+    private String civility;
     private String lastName;
     private String firstName;
     private String function;
     private String email;
     private String phone;
+    private String usualCompanyName;
     private AddressDto address;
 
 }

@@ -8,14 +8,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UploadService {
 
     public ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException;
 
-    public Optional<Upload> findById(long id);
+    public Upload findById(long id);
 
     public List<Upload> findAllByIdCampaign(String idCampaign);
 

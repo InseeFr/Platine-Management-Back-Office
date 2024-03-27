@@ -22,8 +22,7 @@ public enum TypeQuestioningEvent {
             HC,
             INITLA,
             PARTIELINT,
-            PND,
-            FOLLOWUP);
+            PND);
 
     public static final List<TypeQuestioningEvent> FOLLOWUP_EVENTS = Arrays.asList(
             VALINT,

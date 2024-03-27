@@ -6,7 +6,7 @@ REST API for communication between DB and Platine-Management UI and Platine-My-S
 
 For building and running the application you need:
 
-- JDK 11
+- JDK 21
 - Maven 3
 
 ## Install and excute unit tests

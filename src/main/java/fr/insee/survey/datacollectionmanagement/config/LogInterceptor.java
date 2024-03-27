@@ -1,36 +1,30 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.User;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogInterceptor.class);
+    private final ApplicationConfig applicationConfig;
 
-
-   @Autowired
-   ApplicationConfig applicationConfig;
-
-   @Autowired
-    UserProvider userProvider;
-
+    private final UserProvider userProvider;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
@@ -42,10 +36,10 @@ public class LogInterceptor implements HandlerInterceptor {
 
         switch (applicationConfig.getAuthType()) {
 
-            case "OIDC":
+            case AuthConstants.OIDC:
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                User currentUser = userProvider.getUser(authentication);
-                userId=(currentUser!=null && currentUser.getId()!=null ?currentUser.getId() : "anonymous");
+                AuthUser currentAuthUser = userProvider.getUser(authentication);
+                userId = (currentAuthUser != null && currentAuthUser.getId() != null ? currentAuthUser.getId() : "anonymous");
                 ThreadContext.put("user", userId.toUpperCase());
                 break;
             default:
@@ -58,7 +52,7 @@ public class LogInterceptor implements HandlerInterceptor {
         ThreadContext.put("method", method);
 
 
-        logger.info("["+userId.toUpperCase()+"] - ["+method+"] - ["+operationPath+"]");
+        log.info("[" + userId.toUpperCase() + "] - [" + method + "] - [" + operationPath + "]");
         return true;
     }
 

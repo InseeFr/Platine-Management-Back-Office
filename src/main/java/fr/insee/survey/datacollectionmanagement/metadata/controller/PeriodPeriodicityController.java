@@ -1,24 +1,24 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.PeriodDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.PeriodicityDto;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
         + "|| @AuthorizeMethodDecider.isWebClient() "
@@ -28,59 +28,38 @@ public class PeriodPeriodicityController {
 
     @Operation(summary = "Search for periodicities")
     @GetMapping(value = Constants.API_PERIODICITIES, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK")
-    })
-    public ResponseEntity<?> getPeriodicities() throws JsonProcessingException, JSONException {
-        JSONArray jsonArray = new JSONArray();
+    public ResponseEntity<List<PeriodicityDto>> getPeriodicities()  {
+        List<PeriodicityDto> periodicities = new ArrayList<>();
         for (PeriodicityEnum periodicity : PeriodicityEnum.values()) {
-            JSONObject json = new JSONObject();
-            json.put("key", periodicity.name());
-            json.put("label", periodicity.getValue());
-            jsonArray.put(json);
+            periodicities.add(new PeriodicityDto(periodicity.name(),periodicity.getValue()));
         }
-        return ResponseEntity.ok().body(jsonArray.toString());
+        return ResponseEntity.ok().body(periodicities);
     }
 
     @Operation(summary = "Search for periods")
     @GetMapping(value = Constants.API_PERIODS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK")
-    })
-    public ResponseEntity<?> getPeriods() throws JsonProcessingException, JSONException {
-        JSONArray jsonArray = new JSONArray();
-
+    public ResponseEntity<List<PeriodDto>> getPeriods()  {
+        List<PeriodDto> periods = new ArrayList<>();
         for (PeriodEnum period : PeriodEnum.values()) {
-            JSONObject json = new JSONObject();
-            json.put("key", period.name());
-            json.put("label", period.getValue());
-            json.put("period",period.getPeriod().name());
-            jsonArray.put(json);
+            periods.add(new PeriodDto(period.name(), period.getValue(), period.getPeriod().getValue()));
         }
-        return ResponseEntity.ok().body(jsonArray.toString());
+        return ResponseEntity.ok().body(periods);
     }
 
     @Operation(summary = "Search for periods of a periodicity")
     @GetMapping(value = Constants.API_PERIODICITIES_ID_PERIODS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK")
-    })
-    public ResponseEntity<?> getPeriodsOdPeriodicity(String periodicity) throws JsonProcessingException, JSONException {
+    public ResponseEntity<List<PeriodDto>> getPeriodsOfPeriodicity(@PathVariable("periodicity") String periodicity) {
         try {
             PeriodicityEnum.valueOf(periodicity);
-            JSONArray jsonArray = new JSONArray();
+            List<PeriodDto> periods = new ArrayList<>();
             for (PeriodEnum period : PeriodEnum.values()) {
                 if (period.getPeriod().equals(PeriodicityEnum.valueOf(periodicity))) {
-                    JSONObject json = new JSONObject();
-                    json.put("key", period.name());
-                    json.put("label", period.getValue());
-                    json.put("period",period.getPeriod().name());
-                    jsonArray.put(json);
+                    periods.add(new PeriodDto(period.name(), period.getValue(),period.getPeriod().getValue()));
                 }          
             }
-            return ResponseEntity.ok().body(jsonArray.toString());
+            return ResponseEntity.ok().body(periods);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("periodicity does not exist");       
+            throw new NotFoundException("periodicity does not exist");
         }
 
     }

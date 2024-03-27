@@ -1,33 +1,33 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.util.Date;
 
-import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
-import lombok.Data;
-
 @Entity
-@Data
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@Getter
+@Setter
+@Table(indexes = {
+        @Index(name = "idQuestioning_index", columnList = "questioning_id")
+})
 public class QuestioningEvent {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_event_seq")
     private Long id;
 
     private Date date;
     @Enumerated(EnumType.STRING)
     private TypeQuestioningEvent type;
 
-    @OneToOne
+    @ManyToOne
     private Questioning questioning;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -35,7 +35,7 @@ public class QuestioningEvent {
     @JsonManagedReference
     private Upload upload;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private JsonNode payload;
 

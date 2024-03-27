@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface SourceAccreditationService {
 
@@ -14,7 +13,7 @@ public interface SourceAccreditationService {
 
     public Page<SourceAccreditation> findAll(Pageable pageable);
 
-    public Optional<SourceAccreditation> findById(Long id);
+    public SourceAccreditation findById(Long id);
 
     public SourceAccreditation saveSourceAccreditation(SourceAccreditation sourceAccreditation);
 

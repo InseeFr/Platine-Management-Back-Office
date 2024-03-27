@@ -1,16 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.query.service;
 
-import java.util.Collection;
-import java.util.List;
-
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
-import org.webjars.NotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public interface MoogService {

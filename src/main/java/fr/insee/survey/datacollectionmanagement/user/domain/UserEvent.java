@@ -1,38 +1,38 @@
 package fr.insee.survey.datacollectionmanagement.user.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class UserEvent {
 
     public enum UserEventType {
-        create, update, delete
+        CREATE, UPDATE, DELETE
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_event_seq")
     private Long id;
 
     private Date eventDate;
+
     @NonNull
+    @Enumerated(EnumType.ORDINAL)
+    @JdbcTypeCode(SqlTypes.INTEGER)
     private UserEventType type;
 
     @ManyToOne
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
     private User user;
 
-    @Type(type = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private JsonNode payload;
 

@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
@@ -9,25 +10,22 @@ import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserEventService userEventService;
+    private final UserEventService userEventService;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    SourceAccreditationService sourceAccreditationService;
+    private final SourceAccreditationService sourceAccreditationService;
 
     @Override
     public Page<User> findAll(Pageable pageable) {
@@ -35,8 +33,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findByIdentifier(String identifier) {
-        return userRepository.findById(identifier);
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User findByIdentifier(String identifier) {
+        return userRepository.findByIdentifierIgnoreCase(identifier).orElseThrow(()-> new NotFoundException(String.format("User %s not found", identifier)));
     }
 
     @Override
@@ -51,21 +54,21 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User createUserEvent(User user, JsonNode payload) {
+    public User createUser(User user, JsonNode payload) {
 
-        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.create,
+        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.CREATE,
                 payload);
         user.setUserEvents(new HashSet<>(Arrays.asList(newUserEvent)));
         return saveUser(user);
     }
 
     @Override
-    public User updateUserEvent(User user, JsonNode payload) {
+    public User updateUser(User user, JsonNode payload) {
 
-        User existingUser = findByIdentifier(user.getIdentifier()).get();
+        User existingUser = findByIdentifier(user.getIdentifier());
 
         Set<UserEvent> setUserEventsUser = existingUser.getUserEvents();
-        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.update,
+        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.UPDATE,
                 payload);
         setUserEventsUser.add(userEventUpdate);
         user.setUserEvents(setUserEventsUser);
@@ -73,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteContactAddressEvent(User user) {
+    public void deleteUserAndEvents(User user) {
         deleteUser(user.getIdentifier());
     }
 
@@ -82,8 +85,8 @@ public class UserServiceImpl implements UserService {
 
         List<String> accreditedSources = new ArrayList<>();
         List<SourceAccreditation> accreditations = sourceAccreditationService.findByUserIdentifier(identifier);
-        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).collect(Collectors.toList());
-        accSource.stream().forEach(acc -> accreditedSources.add(acc.getId()));
+        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).toList();
+        accSource.forEach(acc -> accreditedSources.add(acc.getId()));
 
         return accreditedSources;
     }

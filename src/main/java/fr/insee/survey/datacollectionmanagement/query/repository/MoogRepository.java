@@ -1,31 +1,28 @@
 package fr.insee.survey.datacollectionmanagement.query.repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
-import fr.insee.survey.datacollectionmanagement.contact.service.impl.AddressServiceImpl;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
+@Slf4j
 public class MoogRepository {
 
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    AddressService addressService;
+    private final AddressService addressService;
 
     final String getEventsQuery = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
             + " FROM questioning_event qe join questioning q on qe.questioning_id=q.id join partitioning p on q.id_partitioning=p.id "
@@ -106,7 +103,6 @@ public class MoogRepository {
                 MoogExtractionRowDto ev = new MoogExtractionRowDto();
 
                 ev.setAddress("addresse non connue");
-                Optional<Address> address = addressService.findById(rs.getLong("address"));
 
                 ev.setStatus(rs.getString("status"));
                 ev.setDateInfo(rs.getString("dateinfo"));
@@ -114,9 +110,14 @@ public class MoogRepository {
                 ev.setIdContact(rs.getString("id_contact"));
                 ev.setLastname(rs.getString("lastname"));
                 ev.setFirstname(rs.getString("firstname"));
-                if (address.isPresent()) {
-                    ev.setAddress(address.get().toStringMoog());
+                try {
+                    Address address = addressService.findById(rs.getLong("address"));
+                    ev.setAddress(address.toStringMoog());
                 }
+                catch (NotFoundException e){
+                    log.info("Address not found");
+                }
+
 
                 ev.setBatchNumber(rs.getString("batch_num"));
 

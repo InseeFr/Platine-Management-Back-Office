@@ -28,23 +28,25 @@ public class ContactEventControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void getContactEventOk() throws Exception {
+    void getContactEventOk() throws Exception {
         String identifier = "CONT1";
         String json = createJsonContactEvent(identifier);
-        this.mockMvc.perform(get(Constants.API_CONTACTS_ID_CONTACTEVENTS,identifier)).andDo(print()).andExpect(status().isOk())
-            .andExpect(content().json(json, false));
+        this.mockMvc.perform(get(Constants.API_CONTACTS_ID_CONTACTEVENTS, identifier)).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().json(json, false));
     }
 
     @Test
-    public void getContactEventNotFound() throws Exception {
+    void getContactEventNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(Constants.API_CONTACTS_ID_CONTACTEVENTS,identifier)).andDo(print())
-            .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+        this.mockMvc.perform(get(Constants.API_CONTACTS_ID_CONTACTEVENTS, identifier)).andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
 
     private String createJsonContactEvent(String identifier) throws JSONException {
+        //region Description
         JSONObject jo = new JSONObject();
+        //endregion
         JSONObject joPayload = new JSONObject();
         joPayload.put("contact_identifier", identifier);
         jo.put("payload", joPayload);

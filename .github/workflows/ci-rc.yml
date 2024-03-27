@@ -1,0 +1,89 @@
+name: ci-rc
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build with Maven
+        run: mvn -B clean package
+      - name: Upload jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: jar
+          path: target/*.jar
+
+  get_version:
+    needs: build
+    if: |
+      github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{steps.version.outputs.version}}
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - name: Get current version
+        id: version
+        run: echo "version=$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+      - run: echo ${{steps.version.outputs.version}}
+
+  release:
+    needs: get_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{needs.get_version.outputs.version}}-rc
+          target_commitish: ${{ github.head_ref || github.ref }}
+          name: Release ${{needs.get_version.outputs.version}}-rc
+          draft: false
+          generate_release_notes: true
+          prerelease: false
+
+
+  docker:
+    needs: get_version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+      - name: Download jar
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          name: jar
+          path: target
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          push: true
+          tags: |
+            inseefr/platine-management-back-office:${{ needs.get_version.outputs.version }}-rc
+            inseefr/platine-management-back-office:latest

@@ -1,11 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class CampaignDto {
 
+    @NotBlank
     private String id;
     private String surveyId;
     private int year;

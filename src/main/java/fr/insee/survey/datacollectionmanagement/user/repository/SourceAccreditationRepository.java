@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SourceAccreditationRepository extends JpaRepository<SourceAccreditation, Long> {
 
-    public List<SourceAccreditation> findByIdUser(String idUser);
+    List<SourceAccreditation> findByIdUser(String idUser);
 }

@@ -1,11 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
 
-import java.util.Arrays;
-import java.util.stream.StreamSupport;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.AbstractEnvironment;
@@ -14,10 +10,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
-@Component
-public class PropertyLogger  {
+import java.util.Arrays;
+import java.util.stream.StreamSupport;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyLogger.class);
+@Component
+@Slf4j
+public class PropertyLogger  {
 
     private static boolean alreadyDisplayed=false;
 
@@ -28,7 +26,7 @@ public class PropertyLogger  {
         if (!alreadyDisplayed) {
 
 
-            LOGGER.info("================================ Properties ================================");
+            log.info("================================ Properties ================================");
             final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
             StreamSupport.stream(sources.spliterator(), false)
                     .filter(ps -> ps instanceof EnumerablePropertySource)
@@ -39,8 +37,8 @@ public class PropertyLogger  {
                             || prop.contains("pw") || prop.contains("Password")))
                     .filter(prop -> prop.startsWith("fr.insee") || prop.startsWith("logging") || prop.startsWith("jwt") || prop.startsWith("spring"))
                     .sorted()
-                    .forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
-            LOGGER.info("===========================================================================");
+                    .forEach(prop -> log.info("{}: {}", prop, env.getProperty(prop)));
+            log.info("===========================================================================");
         }
         alreadyDisplayed=true;
     }

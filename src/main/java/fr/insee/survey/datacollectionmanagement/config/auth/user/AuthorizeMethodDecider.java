@@ -1,101 +1,97 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.user;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("AuthorizeMethodDecider")
 @Slf4j
+@RequiredArgsConstructor
 public class AuthorizeMethodDecider {
 
-    private User noAuthUser;
+    public static final String ROLE_OFFLINE_ACCESS = "ROLE_offline_access";
+    public static final String ROLE_UMA_AUTHORIZATION = "ROLE_uma_authorization";
+    private AuthUser noAuthUser;
 
-    @Autowired
-    private UserProvider userProvider;
+    private final  UserProvider userProvider;
 
-    @Autowired
-    ApplicationConfig config;
+    private final ApplicationConfig config;
 
-    public User getUser() {
-        if (config.getAuthType().equals("OIDC")) {
+
+    public AuthUser getUser() {
+        if (config.getAuthType().equals(AuthConstants.OIDC)) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User currentUser = userProvider.getUser(authentication);
-            return currentUser;
+            AuthUser currentAuthUser = userProvider.getUser(authentication);
+            return currentAuthUser;
         }
         return noAuthUser();
     }
 
-    private User noAuthUser() {
+    private AuthUser noAuthUser() {
         if (this.noAuthUser != null) {
             return this.noAuthUser;
         }
 
-        JSONArray roles = new JSONArray();
-        roles.put("ROLE_offline_access");
-        roles.put(config.getRoleAdmin().get(0));
-        roles.put("ROLE_uma_authorization");
-        return new User("GUEST", roles);
+        List<String> roles = new ArrayList<>();
+        roles.add(ROLE_OFFLINE_ACCESS);
+        roles.add(config.getRoleAdmin().get(0));
+        roles.add(ROLE_UMA_AUTHORIZATION);
+        return new AuthUser("GUEST", roles);
     }
 
-    public boolean isInternalUser() throws JSONException {
-        User user = getUser();
-        return isInternalUser(user);
+    public boolean isInternalUser() {
+        AuthUser authUser = getUser();
+        return isInternalUser(authUser);
     }
 
-    public boolean isInternalUser(User user) throws JSONException {
-        return (hasRole(user, config.getRoleInternalUser()));
+    public boolean isInternalUser(AuthUser authUser) {
+        return (hasRole(authUser, config.getRoleInternalUser()));
     }
 
-    public boolean isAdmin() throws JSONException {
-        User user = getUser();
-        return isAdmin(user);
+    public boolean isAdmin()  {
+        AuthUser authUser = getUser();
+        return isAdmin(authUser);
     }
 
-    public boolean isAdmin(User user) throws JSONException {
-        return (hasRole(user, config.getRoleAdmin()));
+    public boolean isAdmin(AuthUser authUser) {
+        return (hasRole(authUser, config.getRoleAdmin()));
     }
 
-    public boolean isWebClient() throws JSONException {
-        User user = getUser();
-        return isWebClient(user);
+    public boolean isWebClient() {
+        AuthUser authUser = getUser();
+        return isWebClient(authUser);
     }
 
-    public boolean isWebClient(User user) throws JSONException {
-        return hasRole(user, config.getRoleWebClient());
+    public boolean isWebClient(AuthUser authUser) {
+        return hasRole(authUser, config.getRoleWebClient());
     }
 
-    public boolean isRespondent() throws JSONException {
-        User user = getUser();
-        return isRespondent(user);
+    public boolean isRespondent() {
+        AuthUser authUser = getUser();
+        return isRespondent(authUser);
     }
 
-    public boolean isRespondent(User user) throws JSONException {
-        return hasRole(user, config.getRoleRespondent());
+    public boolean isRespondent(AuthUser authUser) {
+
+        return hasRole(authUser, config.getRoleRespondent());
     }
 
-    private boolean hasRole(User user, List<String> role) throws JSONException {
+    private boolean hasRole(AuthUser authUser, List<String> authorizedRoles) {
         Boolean hasRole = false;
-        JSONArray roles = user.getRoles();
-        for (int i = 0; i < roles.length(); i++) {
-            if (role.contains(roles.getString(i))) {
-                hasRole = true;
-                log.info("role :"+roles.getString(i)+" has been found");
-            }
-        }
-        return hasRole;
+        List<String> userRoles = authUser.getRoles();
+        return userRoles.stream().anyMatch(authorizedRoles::contains);
     }
 
-    public String getUsername() throws JSONException {
-        User user = getUser();
-        return user.getId().toUpperCase();
+    public String getUsername() {
+        AuthUser authUser = getUser();
+        return authUser.getId().toUpperCase();
     }
 
 }

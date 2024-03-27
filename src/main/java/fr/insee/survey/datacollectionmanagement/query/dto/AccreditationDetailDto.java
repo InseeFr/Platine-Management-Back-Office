@@ -1,40 +1,32 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
 import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
+@AllArgsConstructor
 public class AccreditationDetailDto {
 
     private String sourceId;
+
+    private String surveyId;
     private String sourceWording;
     private int year;
     private PeriodEnum period;
     private String partition;
-    private String identificationCode;
+    private Date partioningClosingDate;
+    private String surveyUnitId;
     private String identificationName;
     private boolean isMain;
+    private TypeQuestioningEvent lastEvent;
+    private String questioningId;
+    private String questioningUrl;
 
-    public AccreditationDetailDto(
-        String sourceId,
-        String sourceWording,
-        int year,
-        PeriodEnum period,
-        String partition,
-        String identificationCode,
-        String identificationName,
-        boolean isMain) {
-        super();
-        this.sourceId = sourceId;
-        this.sourceWording = sourceWording;
-        this.year = year;
-        this.period = period;
-        this.partition = partition;
-        this.identificationCode = identificationCode;
-        this.identificationName = identificationName;
-        this.isMain = isMain;
-    }
 
 }

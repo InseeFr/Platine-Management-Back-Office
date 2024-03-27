@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum PeriodicityEnum {
 
-    X("pluriannual"), A("annual"), S("semi-annual"), T("trimestrial"), B("bimonthly"),
-    M("monthly");
+    X("pluriannuel"), A("annuel"), S("semi-annuel"), T("trimestriel"), B("bimensuel"),
+    M("mensuel");
 
     PeriodicityEnum(String value) {
         this.value = value;

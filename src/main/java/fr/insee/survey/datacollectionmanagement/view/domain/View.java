@@ -1,11 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.view.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.Table;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -23,7 +19,7 @@ import lombok.Setter;
 public class View {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "view_seq")
     private Long id;
     @NonNull
     private String identifier;

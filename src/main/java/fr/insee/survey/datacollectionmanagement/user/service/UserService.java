@@ -2,13 +2,13 @@ package fr.insee.survey.datacollectionmanagement.user.service;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface UserService {
@@ -21,13 +21,15 @@ public interface UserService {
      */
     public Page<User> findAll(Pageable pageable);
 
+    public List<User> findAll();
+
     /**
      * Find a user by its identifier.
      *
      * @param identifier
      * @return Optional user found
      */
-    public Optional<User> findByIdentifier(String identifier) ;
+    public User findByIdentifier(String identifier) ;
 
     /**
      * Update an existing user , or creates a new one
@@ -43,11 +45,11 @@ public interface UserService {
      */
     public void deleteUser(String identifier);
 
-    public User createUserEvent(User user, JsonNode payload);
+    public User createUser(User user, JsonNode payload);
 
-    public User updateUserEvent(User user, JsonNode payload);
+    public User updateUser(User user, JsonNode payload) throws NotFoundException;
 
-    public void deleteContactAddressEvent(User user);
+    public void deleteUserAndEvents(User user);
 
     List<String> findAccreditedSources(String identifier);
 }
