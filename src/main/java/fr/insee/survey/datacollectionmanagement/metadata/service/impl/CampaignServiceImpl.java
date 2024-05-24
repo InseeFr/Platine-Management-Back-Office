@@ -123,7 +123,7 @@ public class CampaignServiceImpl implements CampaignService {
         Campaign camp = findById(idCampaign);
 
         Date now = new Date();
-        return camp.getPartitionings().stream().anyMatch(part -> isPartitionOngoing(part, now))
+        return camp.getPartitionings().stream().anyMatch(part -> isPartitionOngoing(part, now));
     }
 
     private boolean isPartitionOngoing (Partitioning part, Date now) {
