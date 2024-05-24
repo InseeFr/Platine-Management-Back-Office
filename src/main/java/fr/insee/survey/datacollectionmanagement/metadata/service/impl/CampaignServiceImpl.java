@@ -123,17 +123,16 @@ public class CampaignServiceImpl implements CampaignService {
         Campaign camp = findById(idCampaign);
 
         Date now = new Date();
-        int nbOnGoingParts = 0;
 
         for (Partitioning part : camp.getPartitionings()) {
             if (partitioningService.isOnGoing(part, now)) {
-                nbOnGoingParts++;
                 log.info("Partitiong {}  of campaign {} is ongoing", part.getId(), idCampaign);
+                return true;
             } else {
                 log.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
             }
         }
-        return !camp.getPartitionings().isEmpty() && nbOnGoingParts == camp.getPartitionings().size();
+        return camp.getPartitionings().isEmpty();
     }
 
 }
