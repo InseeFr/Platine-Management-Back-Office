@@ -132,7 +132,7 @@ public class CampaignServiceImpl implements CampaignService {
                 log.info("Partitiong {}  of campaign {}  is closed", part.getId(), idCampaign);
             }
         }
-        return camp.getPartitionings().isEmpty();
+        return false;
     }
 
 }
