@@ -76,6 +76,7 @@ public class SurveyController {
         List<SurveyDto> listSurveys = pageSurvey.stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(new SurveyController.SurveyPage(listSurveys, pageable, pageSurvey.getTotalElements()));
     }
+
     @Operation(summary = "Search for surveys by the source id")
     @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")
     public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {

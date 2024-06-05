@@ -17,6 +17,9 @@ public class Source {
     private String id;
     private String longWording;
     private String shortWording;
+    private Boolean forceClose;
+    private String messageSurveyOffline;
+    private String messageInfoSurveyOffline;
     @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodicityEnum periodicity;
