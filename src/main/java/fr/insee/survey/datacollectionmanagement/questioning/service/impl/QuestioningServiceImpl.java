@@ -18,7 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
@@ -179,8 +179,8 @@ public class QuestioningServiceImpl implements QuestioningService {
             url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
         } else if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
             url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
-                    .queryParam(PATH_LOGOUT, "/" + sourceId)
-                    .queryParam(PATH_ASSISTANCE, URLDecoder.decode("/" + sourceId + "/contacter-assistance/auth?questioningId=" + questioningId, StandardCharsets.UTF_8))
+                    .queryParam(PATH_LOGOUT, URLEncoder.encode("/" + sourceId, StandardCharsets.UTF_8))
+                    .queryParam(PATH_ASSISTANCE, URLEncoder.encode("/" + sourceId + "/contacter-assistance/auth?questioningId=" + questioningId, StandardCharsets.UTF_8))
                     .build().toUriString();
         }
         return url;
