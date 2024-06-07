@@ -52,8 +52,9 @@ public class MySurveysServiceImpl implements MySurveysService {
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
             String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
             String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
+            String sourceId = survey.getSource().getId().toLowerCase();
             surveyDto.setAccessUrl(
-                    questioningService.getAccessUrl(accessBaseUrl,typeUrl, UserRoles.INTERVIEWER, questioning, surveyUnitId));
+                    questioningService.getAccessUrl(accessBaseUrl,typeUrl, UserRoles.INTERVIEWER, questioning, surveyUnitId, sourceId));
             surveyDto.setIdentificationCode(surveyUnitId);
             surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
             surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));

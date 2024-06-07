@@ -31,7 +31,7 @@ public interface QuestioningService {
 
     public Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId);
+    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId);
 
 
 }

@@ -17,6 +17,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
+import fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,6 +43,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.*;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -127,10 +130,11 @@ public class CampaignController {
     public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
-                && !(paramsDto.getParamValue().equalsIgnoreCase("V1")
-                || paramsDto.getParamValue().equalsIgnoreCase("V2")
-                || paramsDto.getParamValue().equalsIgnoreCase("V3"))) {
-            throw new NotMatchException("Only V1 and V2 and V3 are valid values for URL_TYPE");
+                && !(paramsDto.getParamValue().equalsIgnoreCase(V1.name())
+                || paramsDto.getParamValue().equalsIgnoreCase(V2.name())
+                || paramsDto.getParamValue().equalsIgnoreCase(V3.name()))) {
+
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", UrlTypeEnum.values()));
         }
         Parameters param = convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
