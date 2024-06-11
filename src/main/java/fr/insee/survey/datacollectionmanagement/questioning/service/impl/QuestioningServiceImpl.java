@@ -176,7 +176,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
         String url = "";
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
+            url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
         } else if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
             url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
                     .queryParam(PATH_LOGOUT, URLEncoder.encode("/" + sourceId, StandardCharsets.UTF_8))
