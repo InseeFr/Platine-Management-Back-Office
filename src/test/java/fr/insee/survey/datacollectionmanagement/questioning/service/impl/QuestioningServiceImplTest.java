@@ -84,7 +84,7 @@ class QuestioningServiceImplTest {
         String modelName = "model";
         String surveyUnitId = "999999999";
         String sourceId = "enq";
-        Long questioningId = Long.valueOf(123456789);
+        Long questioningId = 123456789L;
         String url= questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
         String expected = "https://urlBase/v3/questionnaire/model/unite-enquetee/999999999?pathLogout=%2Fenq&pathAssistance=%2Fenq%2Fcontacter-assistance%2Fauth%3FquestioningId%3D123456789";
         Assertions.assertThat(url).isEqualTo(expected);
@@ -98,9 +98,9 @@ class QuestioningServiceImplTest {
         String modelName = "model";
         String surveyUnitId = "999999999";
         String sourceId = "enq";
-        Long questioningId = Long.valueOf(123456789);
+        Long questioningId = 123456789L;
         String url= questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
-        String expected = "https://urlBase/v3/readonly/questionnaire/model/unite-enquetee/999999999";
+        String expected = "https://urlBase/v3/review/questionnaire/model/unite-enquetee/999999999";
         Assertions.assertThat(url).isEqualTo(expected);
     }
 
