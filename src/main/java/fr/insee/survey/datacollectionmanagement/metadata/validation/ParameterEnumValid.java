@@ -16,7 +16,7 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = ParameterEnumValidator.class)
 public @interface ParameterEnumValid {
     //error message
-    String message() default "Type missing or not recognized. Only URL_REDIRECTION,URL_TYPE are valid";
+    String message() default "Type missing or not recognized. Only URL_REDIRECTION,URL_TYPE, MAIL_ASSISTANCE are valid";
 
     //represents group of constraints
     Class<?>[] groups() default {};
