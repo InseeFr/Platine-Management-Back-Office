@@ -17,7 +17,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
-import fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,11 +39,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.*;
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.values;
+import static java.util.stream.Collectors.joining;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -129,21 +130,18 @@ public class CampaignController {
     @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
-                && !(paramsDto.getParamValue().equalsIgnoreCase(V1.name())
-                || paramsDto.getParamValue().equalsIgnoreCase(V2.name())
-                || paramsDto.getParamValue().equalsIgnoreCase(V3.name()))) {
 
-            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", UrlTypeEnum.values()));
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
+                && Arrays.stream(values()).noneMatch(p -> p.name().equalsIgnoreCase(paramsDto.getParamValue()))) {
+
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(item -> item.name())
+                    .collect(joining(" "))));
         }
         Parameters param = convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
-        Set<Parameters> setParams = new HashSet<>();
-        for (Parameters parameter : campaign.getParams()) {
-            if (!parameter.getParamId().equals(param.getParamId())) {
-                setParams.add(parameter);
-            }
-        }
+        Set<Parameters> setParams = campaign.getParams().stream()
+                .filter(parameter -> !parameter.getParamId().equals(param.getParamId()))
+                .collect(Collectors.toSet());
         setParams.add(param);
         campaign.setParams(setParams);
         campaignService.insertOrUpdateCampaign(campaign);

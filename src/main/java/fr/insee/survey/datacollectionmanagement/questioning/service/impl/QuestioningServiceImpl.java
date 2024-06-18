@@ -136,13 +136,13 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @return The generated V1 access URL.
      */
     protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
-        String url ="";
         if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
-            url = String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
-        } else if (role.equalsIgnoreCase(UserRoles.INTERVIEWER)) {
-            url = String.format("%s/repondre/%s/%s", baseUrl, campaignId, surveyUnitId);
+            return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
         }
-        return url;
+        if (role.equalsIgnoreCase(UserRoles.INTERVIEWER)) {
+            return String.format("%s/repondre/%s/%s", baseUrl, campaignId, surveyUnitId);
+        }
+        return "";
     }
 
     /**
@@ -155,13 +155,13 @@ public class QuestioningServiceImpl implements QuestioningService {
      */
 
     protected String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
-        String url = "";
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            url = String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        } else if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            url = String.format("%s/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
+            return String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
         }
-        return url;
+        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
+            return String.format("%s/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
+        }
+        return "";
     }
 
     /**
@@ -174,16 +174,16 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @return The generated V3 access URL.
      */
     protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
-        String url = "";
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
-        } else if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            url = UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
+            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
+        }
+        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
+            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
                     .queryParam(PATH_LOGOUT, URLEncoder.encode("/" + sourceId, StandardCharsets.UTF_8))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode("/" + sourceId + "/contacter-assistance/auth?questioningId=" + questioningId, StandardCharsets.UTF_8))
                     .build().toUriString();
         }
-        return url;
+        return "";
     }
 
  }
