@@ -28,10 +28,12 @@ class EmailValidatorTest {
     @DisplayName("Check invalid emails")
     void testInvalidMails(){
         assertFalse(EmailValidator.isValidEmail("testé@cocorico.fr"));
+        assertFalse(EmailValidator.isValidEmail("test@@cocorico.fr"));
         assertFalse(EmailValidator.isValidEmail("email.example.com"));
         assertFalse(EmailValidator.isValidEmail("email@example@example.com"));
         assertFalse(EmailValidator.isValidEmail(".email@example.com"));
         assertFalse(EmailValidator.isValidEmail("email.@example.com"));
+        assertFalse(EmailValidator.isValidEmail("email@.example.com"));
         assertFalse(EmailValidator.isValidEmail("email..email@example.com"));
         assertFalse(EmailValidator.isValidEmail("あいうえお@example.com"));
         assertFalse(EmailValidator.isValidEmail("email@example.com (Joe Smith)"));
