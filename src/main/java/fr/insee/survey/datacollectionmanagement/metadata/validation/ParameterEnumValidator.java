@@ -18,6 +18,6 @@ public class ParameterEnumValidator implements ConstraintValidator<ParameterEnum
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(Parameters.ParameterEnum.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
+        return Arrays.stream(Parameters.ParameterEnum.values()).anyMatch(v -> value.equals(v.name()));
     }
 }
