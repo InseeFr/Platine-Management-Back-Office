@@ -1,8 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EmailValidator {
     private static final String EMAIL_REGEX = "^(?=.{1,64}@)[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
