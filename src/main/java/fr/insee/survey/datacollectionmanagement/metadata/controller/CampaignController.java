@@ -17,7 +17,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
-import fr.insee.survey.datacollectionmanagement.util.EmailValidator;
+import fr.insee.survey.datacollectionmanagement.util.EmailValidatorRegex;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -139,7 +139,7 @@ public class CampaignController {
                     .collect(joining(" "))));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())
-                && !EmailValidator.isValidEmail(paramsDto.getParamValue())) {
+                && !EmailValidatorRegex.isValidEmail(paramsDto.getParamValue())) {
 
             throw new NotMatchException(String.format("Email %s is not valid", paramsDto.getParamValue()));
         }
