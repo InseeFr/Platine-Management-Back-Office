@@ -1,7 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
@@ -94,6 +97,19 @@ public class QuestioningController {
         return new ResponseEntity<>(su.getQuestionings().stream().map(this::convertToDto).toList(), HttpStatus.OK);
 
     }
+
+    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
+            + "|| @AuthorizeMethodDecider.isWebClient() "
+            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @Operation(summary = "Get questioning assistance mail")
+    @GetMapping(value = "/api/questioning/{id}/assistance", produces = "application/json")
+    public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
+        Questioning questioning = questioningService.findbyId(questioningId);
+        Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+        String mail = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.MAIL_ASSISTANCE);
+        return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
+    }
+
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {
         return modelMapper.map(questioningDto, Questioning.class);

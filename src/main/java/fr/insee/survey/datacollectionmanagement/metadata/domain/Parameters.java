@@ -14,7 +14,7 @@ public class Parameters {
 
     @Getter
     public enum ParameterEnum {
-        URL_REDIRECTION,URL_TYPE;
+        URL_REDIRECTION,URL_TYPE, MAIL_ASSISTANCE;
     }
 
     @Id
