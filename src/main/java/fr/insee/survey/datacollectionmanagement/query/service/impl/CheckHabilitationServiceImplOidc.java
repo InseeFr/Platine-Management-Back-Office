@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
-import fr.insee.survey.datacollectionmanagement.constants.CheckHabilitationsRoles;
+import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
@@ -40,7 +40,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
         }
 
         //respondents
-        if (role == null || role.isBlank() || role.equals(CheckHabilitationsRoles.INTERVIEWER)) {
+        if (role == null || role.isBlank() || role.equals(UserRoles.INTERVIEWER)) {
             if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleRespondent())) {
                 boolean habilitated = viewService.countViewByIdentifierIdSuCampaignId(userId.toUpperCase(), idSu, campaignId) != 0;
                 log.info("Check habilitation of interviewer {} for accessing survey-unit {} of campaign {} resulted in {}", userId, idSu, campaignId, habilitated);
@@ -52,7 +52,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
 
         // internal users
-        if (!role.equals(CheckHabilitationsRoles.REVIEWER)) {
+        if (!role.equals(UserRoles.REVIEWER)) {
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }
@@ -76,7 +76,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
 
         }
-        log.warn("Only '{}' and '{}' are accepted as a role in query argument", CheckHabilitationsRoles.REVIEWER, CheckHabilitationsRoles.INTERVIEWER);
+        log.warn("Only '{}' and '{}' are accepted as a role in query argument", UserRoles.REVIEWER, UserRoles.INTERVIEWER);
         return false;
 
     }

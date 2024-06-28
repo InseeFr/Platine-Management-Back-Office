@@ -1,13 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
@@ -22,7 +24,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -41,7 +46,7 @@ public class MoogServiceImpl implements MoogService {
 
     private final QuestioningService questioningService;
 
-    private final ApplicationConfig applicationConfig;
+    private final PartitioningService partitioningService;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -58,7 +63,7 @@ public class MoogServiceImpl implements MoogService {
             MoogSearchDto moogSearchDto = new MoogSearchDto();
             Contact c = contactService.findByIdentifier(view.getIdentifier());
             Campaign camp = campaignService.findById(view.getCampaignId());
-             MoogCampaign moogCampaign = new MoogCampaign();
+            MoogCampaign moogCampaign = new MoogCampaign();
             moogCampaign.setId(view.getCampaignId());
             moogCampaign.setLabel(camp.getCampaignWording());
             moogCampaign
@@ -108,19 +113,16 @@ public class MoogServiceImpl implements MoogService {
     public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException {
         Campaign campaign = campaignService.findById(idCampaign);
         Set<Partitioning> setParts = campaign.getPartitionings();
-        Questioning questioning = null;
-        for (Partitioning part : setParts){
-            Questioning qTemp = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            if(qTemp!=null){
-                questioning =qTemp;
-                break;
+        for (Partitioning part : setParts) {
+            Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+            if (questioning != null) {
+                String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
+                String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
+                String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
+                return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
             }
         }
-        if(questioning!=null) {
-            return applicationConfig.getQuestioningUrl() + READONLY_QUESTIONNAIRE + questioning.getModelName()
-                    + UNITE_ENQUETEE + surveyUnitId;
-        }
-        String msg = "0 questioning found for campaign "+idCampaign+" and survey unit "+ surveyUnitId;
+        String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;
         log.error(msg);
         throw new NotFoundException(msg);
     }

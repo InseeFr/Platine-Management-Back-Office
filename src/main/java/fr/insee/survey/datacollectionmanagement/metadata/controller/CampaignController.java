@@ -5,16 +5,19 @@ import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteExce
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
+import fr.insee.survey.datacollectionmanagement.util.EmailValidatorRegex;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,8 +40,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.values;
+import static java.util.stream.Collectors.joining;
 
 @RestController
 @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
@@ -108,6 +116,43 @@ public class CampaignController {
 
 
     }
+
+
+    @Operation(summary = "Get campaign parameters")
+    @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
+    public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
+        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        List<ParamsDto> listParams = campaign.getParams().stream().map(this::convertToDto).toList();
+        return ResponseEntity.ok().body(listParams);
+    }
+
+
+    @Operation(summary = "Create a parameter for a campaign")
+    @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
+    public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
+                && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
+
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(item -> item.name())
+                    .collect(joining(" "))));
+        }
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())
+                && !EmailValidatorRegex.isValidEmail(paramsDto.getParamValue())) {
+
+            throw new NotMatchException(String.format("Email %s is not valid", paramsDto.getParamValue()));
+        }
+        Parameters param = convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(id));
+        Set<Parameters> setParams = campaign.getParams().stream()
+                .filter(parameter -> !parameter.getParamId().equals(param.getParamId()))
+                .collect(Collectors.toSet());
+        setParams.add(param);
+        campaign.setParams(setParams);
+        campaignService.insertOrUpdateCampaign(campaign);
+    }
+
 
     @Operation(summary = "Update or create a campaign")
     @PutMapping(value = Constants.API_CAMPAIGNS_ID, produces = "application/json", consumes = "application/json")
@@ -189,12 +234,23 @@ public class CampaignController {
         return modelmapper.map(campaign, CampaignDto.class);
     }
 
+    private ParamsDto convertToDto(Parameters params) {
+        return modelmapper.map(params, ParamsDto.class);
+    }
+
     private CampaignPartitioningsDto convertToCampaignPartitioningsDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignPartitioningsDto.class);
     }
 
     private Campaign convertToEntity(CampaignDto campaignDto) {
         return modelmapper.map(campaignDto, Campaign.class);
+    }
+
+    private Parameters convertToEntity(ParamsDto paramsDto) {
+
+        Parameters params = modelmapper.map(paramsDto, Parameters.class);
+        params.setParamId(Parameters.ParameterEnum.valueOf(paramsDto.getParamId()));
+        return params;
     }
 
     class CampaignPage extends PageImpl<CampaignDto> {

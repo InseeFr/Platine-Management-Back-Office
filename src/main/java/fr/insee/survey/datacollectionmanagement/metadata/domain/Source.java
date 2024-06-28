@@ -40,4 +40,8 @@ public class Source {
     @NonNull
     private Support support;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Enumerated(EnumType.STRING)
+    private Set<Parameters> params;
+
 }

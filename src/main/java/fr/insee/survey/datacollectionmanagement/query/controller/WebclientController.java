@@ -131,7 +131,6 @@ public class WebclientController {
                     idSu);
             su.setQuestionings(new HashSet<>());
         }
-        surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
@@ -147,7 +146,6 @@ public class WebclientController {
             questioningEvent.setType(TypeQuestioningEvent.INITLA);
             questioningEvent.setDate(new Date());
             questioningEvent.setQuestioning(questioning);
-            questioningEventService.saveQuestioningEvent(questioningEvent);
             questioning.setQuestioningEvents(new HashSet<>(List.of(questioningEvent)));
             questioning.setQuestioningAccreditations(new HashSet<>());
         }
@@ -218,8 +216,7 @@ public class WebclientController {
             questioningAccreditation.setMain(contactAccreditationDto.isMain());
             questioningAccreditation.setQuestioning(questioning);
             setExistingAccreditations.add(questioningAccreditation);
-            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
-            questioningService.saveQuestioning(questioning);
+
 
             // create view
             viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
@@ -230,7 +227,6 @@ public class WebclientController {
             // update accreditation
             QuestioningAccreditation questioningAccreditation = listContactAccreditations.get(0);
             questioningAccreditation.setMain(contactAccreditationDto.isMain());
-            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
         }
     }
 

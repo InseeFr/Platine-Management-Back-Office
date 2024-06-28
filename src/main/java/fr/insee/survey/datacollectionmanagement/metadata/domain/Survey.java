@@ -39,6 +39,10 @@ public class Survey {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Campaign> campaigns;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Enumerated(EnumType.STRING)
+    private Set<Parameters> params;
+
     @ManyToOne
     private Source source;
 
