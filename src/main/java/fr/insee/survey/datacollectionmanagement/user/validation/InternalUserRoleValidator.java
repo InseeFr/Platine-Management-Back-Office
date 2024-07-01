@@ -6,11 +6,11 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Arrays;
 
-public class UserRoleValidator implements ConstraintValidator <UserRoleValid, String>{
+public class InternalUserRoleValidator implements ConstraintValidator <InternalUserRoleValid, String>{
 
 
     @Override
-    public void initialize(UserRoleValid constraintAnnotation) {
+    public void initialize(InternalUserRoleValid constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 

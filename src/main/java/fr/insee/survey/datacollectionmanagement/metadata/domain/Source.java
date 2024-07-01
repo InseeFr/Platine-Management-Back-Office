@@ -20,6 +20,7 @@ public class Source {
     private Boolean forceClose;
     private String messageSurveyOffline;
     private String messageInfoSurveyOffline;
+    private String logo;
     @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodicityEnum periodicity;

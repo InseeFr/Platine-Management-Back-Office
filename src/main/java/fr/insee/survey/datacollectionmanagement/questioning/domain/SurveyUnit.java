@@ -27,6 +27,9 @@ public class SurveyUnit {
     // "Raison Sociale"
     private String identificationName;
 
+    private String label;
+
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private SurveyUnitAddress surveyUnitAddress;
 

@@ -5,7 +5,9 @@ import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
+import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,7 @@ public class CheckHabilitationController {
             + "|| @AuthorizeMethodDecider.isAdmin()")
     @GetMapping(path = Constants.API_CHECK_HABILITATION,produces = "application/json")
     public ResponseEntity<HabilitationDto> checkHabilitation(
-            @RequestParam(required = false) String role,
+            @Valid @ValidUserRole @RequestParam(required = false)  String role,
             @RequestParam(required = true) String id,
             @RequestParam(required = true) String campaign,
             Authentication authentication) {

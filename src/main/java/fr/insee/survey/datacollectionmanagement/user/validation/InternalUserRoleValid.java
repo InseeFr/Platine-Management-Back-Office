@@ -13,8 +13,8 @@ import static java.lang.annotation.ElementType.*;
 @Target({FIELD, PARAMETER, METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = UserRoleValidator.class)
-public @interface UserRoleValid {
+@Constraint(validatedBy = InternalUserRoleValidator.class)
+public @interface InternalUserRoleValid {
     //error message
     String message() default "Role missing or not recognized. Only RESPONSABLE, GESTIONNAIRE, ASSISTANCE are valid";
 

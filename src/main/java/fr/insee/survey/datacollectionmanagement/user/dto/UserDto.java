@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.dto;
 
 
-import fr.insee.survey.datacollectionmanagement.user.validation.UserRoleValid;
+import fr.insee.survey.datacollectionmanagement.user.validation.InternalUserRoleValid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import java.util.List;
 public class UserDto{
     @NotBlank
     private String identifier;
-    @UserRoleValid
+    @InternalUserRoleValid
     private String role;
     private String name;
     private String firstName;
