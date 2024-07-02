@@ -1,0 +1,22 @@
+Feature: Get Questioning Informations
+
+  Background:
+    Given the source "EAP"
+    Given the survey "EAP2023" related to source "EAP"
+    Given the campaign "EAP2023T01" related to survey "EAP2023"
+    Given the partitioning "EAP2023T0100" related to campaign "EAP2023T01"
+    Given the survey unit "TESTCASE" with label "entreprise"
+    Given the contact "USER01" with firstname "Nom" and lastanme "prenom" and gender "Male"
+
+
+  Scenario: Get informations for interviewer
+    Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and main contact "USER01"
+    Given the user "USER01" is authenticated as "repondant"
+    When a GET request is made to "/api/questioning/informations/{idCampaign}/{idUE}" with campaign id "EAP2023T0100", survey unit id "TESTCASE" and role "interviewer"
+    Then the response status should be 200
+
+  Scenario: Get informations for reviewer
+    Given the user is authenticated as "admin"
+    When a GET request is made to "/api/questioning/informations/{idCampaign}/{idUE}" with campaign id "SOURCE12023T01", survey unit id "TESTCASE" and role "reviewer"
+    Then the response status should be 200
+    And the response content should be XML
