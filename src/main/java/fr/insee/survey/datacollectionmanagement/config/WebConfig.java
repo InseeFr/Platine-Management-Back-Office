@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final ApplicationConfig applicationConfig;
 
-    private final UserProvider userProvider;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(this.myLogInterceptor());
@@ -23,7 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Bean
     public LogInterceptor myLogInterceptor() {
-        return new LogInterceptor(applicationConfig,userProvider);
+        return new LogInterceptor(applicationConfig);
     }
 
 }

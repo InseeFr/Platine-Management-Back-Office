@@ -1,8 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import lombok.RequiredArgsConstructor;
@@ -83,18 +81,6 @@ public class OpenIDConnectSecurityContext {
         return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);    }
 
     @Bean
-    public UserProvider getUserProvider() {
-        return auth -> {
-            if ("anonymousUser".equals(auth.getPrincipal()))
-                return null; //init request, or request without authentication
-            final Jwt jwt = (Jwt) auth.getPrincipal();
-            List<String> tryRoles = jwt.getClaimAsStringList(config.getRoleClaim());
-            String tryId = jwt.getClaimAsString(config.getIdClaim());
-            return new AuthUser(tryId, tryRoles);
-        };
-    }
-
-    @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(ApplicationConfig applicationConfig) {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setPrincipalClaimName("preferred_username");
@@ -105,7 +91,4 @@ public class OpenIDConnectSecurityContext {
     Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
         return new GrantedAuthorityConverter(applicationConfig);
     }
-
-
-
 }

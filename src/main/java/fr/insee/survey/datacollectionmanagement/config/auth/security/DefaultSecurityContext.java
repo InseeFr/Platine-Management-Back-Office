@@ -1,8 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
-
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -56,11 +52,6 @@ public class DefaultSecurityContext {
     @Bean
     @Order(1)
     SecurityFilterChain filterPublicUrlsChain(HttpSecurity http) throws Exception {
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls());    }
-    @Bean
-    public UserProvider getUserProvider() {
-        return auth -> new AuthUser("anonymous", Collections.emptyList());
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls());
     }
-
-
 }

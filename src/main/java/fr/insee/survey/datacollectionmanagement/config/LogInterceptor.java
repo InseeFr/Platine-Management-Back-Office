@@ -1,8 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +21,6 @@ public class LogInterceptor implements HandlerInterceptor {
 
     private final ApplicationConfig applicationConfig;
 
-    private final UserProvider userProvider;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
@@ -35,12 +31,9 @@ public class LogInterceptor implements HandlerInterceptor {
         String userId = null;
 
         switch (applicationConfig.getAuthType()) {
-
             case AuthConstants.OIDC:
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                AuthUser currentAuthUser = userProvider.getUser(authentication);
-                userId = (currentAuthUser != null && currentAuthUser.getId() != null ? currentAuthUser.getId() : "anonymous");
-                ThreadContext.put("user", userId.toUpperCase());
+                ThreadContext.put("user", authentication.getName().toUpperCase());
                 break;
             default:
                 userId = "GUEST";

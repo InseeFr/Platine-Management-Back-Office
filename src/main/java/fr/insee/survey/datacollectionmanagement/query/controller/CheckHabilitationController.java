@@ -1,7 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
@@ -25,8 +23,6 @@ public class CheckHabilitationController {
 
     private final CheckHabilitationService checkHabilitationService;
 
-    private final UserProvider userProvider;
-
     @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
             + "|| @AuthorizeMethodDecider.isWebClient() "
             + "|| @AuthorizeMethodDecider.isRespondent()"
@@ -37,9 +33,8 @@ public class CheckHabilitationController {
             @RequestParam(required = true) String id,
             @RequestParam(required = true) String campaign,
             Authentication authentication) {
-        AuthUser authUser = userProvider.getUser(authentication);
         HabilitationDto habDto =  new HabilitationDto();
-        boolean habilitated = checkHabilitationService.checkHabilitation(role, id,campaign, authUser);
+        boolean habilitated = checkHabilitationService.checkHabilitation(role, id,campaign, authentication);
         habDto.setHabilitated(habilitated);
         return new ResponseEntity<>(habDto, HttpStatus.OK);
 
