@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @RequiredArgsConstructor
@@ -98,9 +98,9 @@ public class QuestioningController {
 
     }
 
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
+            + "|| hasRole('ADMIN') ")
     @Operation(summary = "Get questioning assistance mail")
     @GetMapping(value = "/api/questioning/{id}/assistance", produces = "application/json")
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {

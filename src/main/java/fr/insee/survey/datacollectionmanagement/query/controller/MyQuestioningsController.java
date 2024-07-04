@@ -26,10 +26,10 @@ public class MyQuestioningsController {
     private final ApplicationConfig config;
 
     @GetMapping(value = Constants.API_MY_QUESTIONINGS_ID)
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
             + "|| @AuthorizeMethodDecider.isRespondent()"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+            + "|| hasRole('ADMIN') ")
     public List<MyQuestioningDto> findById() {
 
         String idec;

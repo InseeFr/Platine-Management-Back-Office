@@ -42,9 +42,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "4 - Cross domain")
 @Slf4j
 @RequiredArgsConstructor

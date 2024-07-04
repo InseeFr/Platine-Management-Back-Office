@@ -26,9 +26,9 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @Slf4j
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @RequiredArgsConstructor
 @Validated

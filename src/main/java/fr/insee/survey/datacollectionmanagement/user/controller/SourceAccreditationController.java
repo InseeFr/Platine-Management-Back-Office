@@ -34,9 +34,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
 @RequiredArgsConstructor

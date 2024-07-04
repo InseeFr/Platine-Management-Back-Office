@@ -51,9 +51,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.*;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor

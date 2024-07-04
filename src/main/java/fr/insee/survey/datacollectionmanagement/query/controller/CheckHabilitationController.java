@@ -23,10 +23,10 @@ public class CheckHabilitationController {
 
     private final CheckHabilitationService checkHabilitationService;
 
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
             + "|| @AuthorizeMethodDecider.isRespondent()"
-            + "|| @AuthorizeMethodDecider.isAdmin()")
+            + "|| hasRole('ADMIN')")
     @GetMapping(path = Constants.API_CHECK_HABILITATION,produces = "application/json")
     public ResponseEntity<HabilitationDto> checkHabilitation(
             @Valid @ValidUserRole @RequestParam(required = false)  String role,

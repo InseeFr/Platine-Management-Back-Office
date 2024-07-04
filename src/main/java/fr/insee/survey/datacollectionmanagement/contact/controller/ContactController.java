@@ -36,9 +36,9 @@ import java.io.Serial;
 import java.util.List;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -69,10 +69,10 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = Constants.API_CONTACTS_ID)
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
+            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
+            + "|| hasRole('ADMIN') ")
     public ResponseEntity<ContactFirstLoginDto> getContact(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
@@ -83,10 +83,10 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
+            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
+            + "|| hasRole('ADMIN') ")
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
                                                  Authentication auth) throws JsonProcessingException {

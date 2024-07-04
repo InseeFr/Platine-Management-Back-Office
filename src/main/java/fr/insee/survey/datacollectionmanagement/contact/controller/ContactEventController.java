@@ -26,9 +26,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController(value = "contactEvents")
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() " + "|| @AuthorizeMethodDecider.isRespondent() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') " + "|| hasRole('RESPONDENT')"
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated

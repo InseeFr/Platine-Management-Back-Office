@@ -25,7 +25,6 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 import java.util.Collection;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -78,7 +77,8 @@ public class OpenIDConnectSecurityContext {
         String tokenUrl = config.getKeyCloakUrl() + "/realms/" + config.getKeycloakRealm() + "/protocol/openid-connect/token";
         String authorizedConnectionHost = config.getAuthType().equals(AuthConstants.OIDC) ?
                 " " + tokenUrl : "";
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);    }
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);
+    }
 
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(ApplicationConfig applicationConfig) {

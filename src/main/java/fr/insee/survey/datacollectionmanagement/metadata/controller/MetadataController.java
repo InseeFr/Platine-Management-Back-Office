@@ -17,9 +17,9 @@ import java.util.Date;
 @RestController
 @Slf4j
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @RequiredArgsConstructor
 public class MetadataController {
 

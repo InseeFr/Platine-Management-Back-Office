@@ -11,12 +11,12 @@ Feature: Get Questioning Informations
 
   Scenario: Get informations for interviewer
     Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and main contact "USER01"
-    Given the user "USER01" is authenticated as "repondant"
+    Given the user "USER01" is authenticated as "RESPONDENT"
     When a GET request is made to "/api/questioning/informations/{idCampaign}/{idUE}" with campaign id "EAP2023T0100", survey unit id "TESTCASE" and role "interviewer"
     Then the response status should be 200
 
   Scenario: Get informations for reviewer
-    Given the user is authenticated as "admin"
+    Given the user is authenticated as "ADMIN"
     When a GET request is made to "/api/questioning/informations/{idCampaign}/{idUE}" with campaign id "SOURCE12023T01", survey unit id "TESTCASE" and role "reviewer"
     Then the response status should be 200
     And the response content should be XML

@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,10 +18,10 @@ import java.util.Map;
 @AllArgsConstructor
 public class AuthenticationUserProvider {
 
-    public static JwtAuthenticationToken getAuthenticatedUser(String contactId, String... roles) {
+    public static JwtAuthenticationToken getAuthenticatedUser(String contactId, AuthorityRoleEnum... roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+        for (AuthorityRoleEnum role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.securityRole()));
         }
 
         Map<String, Object> headers = Map.of("typ", "JWT");

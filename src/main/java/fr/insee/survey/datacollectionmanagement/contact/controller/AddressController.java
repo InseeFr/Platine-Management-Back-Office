@@ -28,9 +28,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize("hasRole('INTERNAL_USER') "
+        + "|| hasRole('WEB_CLIENT') "
+        + "|| hasRole('ADMIN') ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -44,10 +44,10 @@ public class AddressController {
 
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
+            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
+            + "|| hasRole('ADMIN') ")
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
@@ -60,10 +60,10 @@ public class AddressController {
 
     @Operation(summary = "Update or create an address by the contact id")
     @PutMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize("hasRole('INTERNAL_USER') "
+            + "|| hasRole('WEB_CLIENT') "
+            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
+            + "|| hasRole('ADMIN') ")
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
                                                  @RequestBody AddressDto addressDto,
                                                  Authentication auth) {

@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -21,32 +22,36 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUni
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureMockMvc
 @SpringBootTest
+@ActiveProfiles("test")
 public class QuestioningInformationsSteps {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    @Autowired
     private MockMvc mockMvc;
 
     MvcResult mvcResult;
+
+    //Authentication authentication;
 
     @Autowired
     private ApplicationConfig applicationConfig;
@@ -67,10 +72,6 @@ public class QuestioningInformationsSteps {
     @Autowired
     private ContactRepository contactRepository;
 
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
 
     @Given("the source {string}")
     public void createSource(String sourceId) {
@@ -129,6 +130,7 @@ public class QuestioningInformationsSteps {
         Questioning q = new Questioning();
         q.setIdPartitioning(partId);
         q.setModelName(model);
+        questioningRepository.save(q);
         SurveyUnit su = surveyUnitRepository.findById(idSu).orElseThrow(() -> new IllegalArgumentException("Survey Unit not found"));
         q.setSurveyUnit(su);
         QuestioningAccreditation qa = new QuestioningAccreditation();
@@ -142,19 +144,20 @@ public class QuestioningInformationsSteps {
 
     @Given("the user {string} is authenticated as {string}")
     public void theUserIsAuthenticatedAs(String contactId, String role) {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, role));
+       // authentication = AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.valueOf(role));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.valueOf(role)));
+
+
     }
 
     @Given("the user is authenticated as {string}")
     public void the_user_is_authenticated_as(String role) {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", role));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.valueOf(role)));
     }
 
     @When("a GET request is made to {string} with campaign id {string}, survey unit id {string} and role {string}")
     public void aGETRequestIsMadeToWithCampaignIdSurveyUnitIdAndRole(String url, String idCampaign, String idsu, String role) throws Exception {
-        mvcResult = mockMvc.perform(get(url)
-                        .param("idCampaign", idCampaign)
-                        .param("idsu", idsu)
+        mvcResult = mockMvc.perform(get(url, idCampaign, idsu)
                         .param("role", role)
                         .accept(MediaType.APPLICATION_XML))
                 .andExpect(status().isOk())
