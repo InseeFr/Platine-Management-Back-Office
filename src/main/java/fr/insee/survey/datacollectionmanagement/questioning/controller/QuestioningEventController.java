@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -34,9 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') "
-        + "|| hasRole('ADMIN') ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
 @RequiredArgsConstructor

@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
@@ -26,9 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController(value = "contactEvents")
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') " + "|| hasRole('RESPONDENT')"
-        + "|| hasRole('ADMIN') ")
+@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated

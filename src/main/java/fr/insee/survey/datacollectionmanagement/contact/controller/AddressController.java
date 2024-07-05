@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -28,9 +29,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') "
-        + "|| hasRole('ADMIN') ")
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -44,10 +42,7 @@ public class AddressController {
 
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
-    @PreAuthorize("hasRole('INTERNAL_USER') "
-            + "|| hasRole('WEB_CLIENT') "
-            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
-            + "|| hasRole('ADMIN') ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
@@ -60,10 +55,7 @@ public class AddressController {
 
     @Operation(summary = "Update or create an address by the contact id")
     @PutMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("hasRole('INTERNAL_USER') "
-            + "|| hasRole('WEB_CLIENT') "
-            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
-            + "|| hasRole('ADMIN') ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
                                                  @RequestBody AddressDto addressDto,
                                                  Authentication auth) {

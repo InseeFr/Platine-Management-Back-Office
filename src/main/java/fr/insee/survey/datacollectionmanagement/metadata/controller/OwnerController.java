@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
@@ -26,9 +27,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @Slf4j
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') "
-        + "|| hasRole('ADMIN') ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @RequiredArgsConstructor
 @Validated

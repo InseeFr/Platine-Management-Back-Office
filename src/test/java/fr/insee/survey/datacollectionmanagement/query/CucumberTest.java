@@ -16,7 +16,6 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("/integration/query")

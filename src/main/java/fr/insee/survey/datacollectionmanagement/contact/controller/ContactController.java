@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
@@ -36,9 +37,7 @@ import java.io.Serial;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') "
-        + "|| hasRole('ADMIN') ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -69,10 +68,7 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = Constants.API_CONTACTS_ID)
-    @PreAuthorize("hasRole('INTERNAL_USER') "
-            + "|| hasRole('WEB_CLIENT') "
-            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
-            + "|| hasRole('ADMIN') ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<ContactFirstLoginDto> getContact(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
@@ -83,10 +79,7 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("hasRole('INTERNAL_USER') "
-            + "|| hasRole('WEB_CLIENT') "
-            + "|| (hasRole('RESPONDENT')&& (#id == authentication.name))"
-            + "|| hasRole('ADMIN') ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
                                                  Authentication auth) throws JsonProcessingException {

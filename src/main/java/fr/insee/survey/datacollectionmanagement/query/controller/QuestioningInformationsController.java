@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +25,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@PreAuthorize("hasRole('INTERNAL_USER') "
-        + "|| hasRole('WEB_CLIENT') "
-        + "|| hasRole('RESPONDENT')"
-        + "|| hasRole('INTERNAL_USER') "
-        + "|| hasRole('ADMIN') ")
+@PreAuthorize("hasAnyRole('INTERNAL_USER', 'WEB_CLIENT', 'RESPONDENT', 'ADMIN')")
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor
@@ -49,8 +48,12 @@ public class QuestioningInformationsController {
     public QuestioningInformationsDto getQuestioningInformations(@PathVariable("idCampaign") String idCampaign,
                                                                  @PathVariable("idUE") String idsu,
                                                                  @Valid @ValidUserRole @RequestParam(value = "role", required = false) String role,
-                                                                 @CurrentSecurityContext Authentication authentication) {
-        boolean habilitated = checkHabilitationService.checkHabilitation(role, idsu, idCampaign, authentication);
+                                                                 @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+        List<String> userRoles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        String userId = authentication.getName().toUpperCase();
+        boolean habilitated = checkHabilitationService.checkHabilitation(role, idsu, idCampaign, userRoles, userId);
         if (habilitated) {
             String idContact = authentication.getName().toUpperCase();
             if (StringUtils.equalsIgnoreCase(role, UserRoles.INTERVIEWER) && contactService.findByIdentifier(idContact) != null) {
