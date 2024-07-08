@@ -43,8 +43,8 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
 
     private void fillGrantedRoles(List<String> listRoles, AuthorityRoleEnum roleEnum) {
 
-        for (String role : listRoles) {
-            this.grantedRoles.put(role,
+        for (String role : listRoles ) {
+            this.grantedRoles.putIfAbsent(role,
                     new SimpleGrantedAuthority(roleEnum.securityRole()));
         }
 
