@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -9,12 +11,14 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,14 +36,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SurveyUnitControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private SurveyUnitService surveyUnitService;
+    SurveyUnitService surveyUnitService;
 
     @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    SurveyUnitRepository surveyUnitRepository;
 
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
     @Test
     void getSurveyUnitOk() throws Exception {
         String identifier = "100000000";
@@ -78,7 +86,7 @@ class SurveyUnitControllerTest {
                         put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonSurveyUnit.toString(), false));
+                .andExpect(content().json(jsonSurveyUnit, false));
         SurveyUnit surveyUnitFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getIdSu(), surveyUnitFound.getIdSu());
         assertEquals(surveyUnit.getIdentificationCode(), surveyUnitFound.getIdentificationCode());
@@ -89,7 +97,7 @@ class SurveyUnitControllerTest {
         String jsonSurveyUnitUpdate = createJson(surveyUnit);
         mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonSurveyUnitUpdate.toString(), false));
+                .andExpect(content().json(jsonSurveyUnitUpdate, false));
         SurveyUnit surveyUnitFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals("identificationNameUpdate", surveyUnitFoundAfterUpdate.getIdentificationName());
         assertEquals(surveyUnit.getIdSu(), surveyUnitFoundAfterUpdate.getIdSu());
@@ -113,7 +121,7 @@ class SurveyUnitControllerTest {
                         put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonSurveyUnit.toString(), false));
+                .andExpect(content().json(jsonSurveyUnit, false));
         SurveyUnit suFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(), suFound.getSurveyUnitAddress().getCityName());
 
@@ -123,7 +131,7 @@ class SurveyUnitControllerTest {
         String jsonSurveyUnitUpdate = createJsonSurveyUnitAddress(surveyUnit);
         mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonSurveyUnitUpdate.toString(), false));
+                .andExpect(content().json(jsonSurveyUnitUpdate, false));
         SurveyUnit countactFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(),
                 countactFoundAfterUpdate.getSurveyUnitAddress().getCityName());

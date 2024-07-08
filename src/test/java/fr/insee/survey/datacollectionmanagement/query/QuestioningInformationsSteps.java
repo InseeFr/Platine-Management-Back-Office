@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
@@ -15,12 +15,15 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepo
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -34,9 +37,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,34 +52,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class QuestioningInformationsSteps {
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
-
-    @Autowired
-    private MockMvc mockMvc;
-
+    MockMvc mockMvc;
     MvcResult mvcResult;
-
     @Autowired
-    private ApplicationConfig applicationConfig;
+    SourceRepository sourceRepository;
     @Autowired
-    private SourceRepository sourceRepository;
+    SurveyRepository surveyRepository;
     @Autowired
-    private SurveyRepository surveyRepository;
+    CampaignRepository campaignRepository;
     @Autowired
-    private CampaignRepository campaignRepository;
+    PartitioningRepository partitioningRepository;
     @Autowired
-    private PartitioningRepository partitioningRepository;
+    SurveyUnitRepository surveyUnitRepository;
     @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    QuestioningRepository questioningRepository;
     @Autowired
-    private QuestioningRepository questioningRepository;
+    QuestioningAccreditationRepository questioningAccreditationRepository;
     @Autowired
-    private QuestioningAccreditationRepository questioningAccreditationRepository;
+    ContactRepository contactRepository;
     @Autowired
-    private ContactRepository contactRepository;
+    AddressRepository addressRepository;
     @Autowired
-    private AddressRepository addressRepository;
-
+    ViewRepository viewRepository;
+    private QuestioningInformationsDto questioningInformationsDto;
 
 
     @Transactional
@@ -156,6 +154,7 @@ public class QuestioningInformationsSteps {
     @Given("the questioning for partitioning {string} survey unit id {string} and model {string} and main contact {string}")
     public void createQuestioningMainContact(String partId, String idSu, String model, String mainContactId) {
         createQuestioningContact(partId, idSu, model, mainContactId, true);
+
     }
 
     @Transactional
@@ -165,27 +164,45 @@ public class QuestioningInformationsSteps {
     }
 
     private void createQuestioningContact(String partId, String idSu, String model, String contactId, boolean isMain) {
-        Questioning q = new Questioning();
-        q.setIdPartitioning(partId);
-        q.setModelName(model);
-        questioningRepository.save(q);
+        Questioning q = questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(partId, idSu);
+        if (q == null) {
+            q = new Questioning();
+            q.setIdPartitioning(partId);
+            q.setModelName(model);
+            q = questioningRepository.save(q);
+        }
+        final Questioning savedQ = q;
         SurveyUnit su = surveyUnitRepository.findById(idSu).orElseThrow(() -> new IllegalArgumentException("Survey Unit not found"));
-        QuestioningAccreditation qa = new QuestioningAccreditation();
-        qa.setQuestioning(q);
-        qa.setIdContact(contactId);
-        qa.setMain(isMain);
 
-        Set<Questioning> setQuestioningSu = su.getQuestionings();
-        setQuestioningSu.add(q);
-        su.setQuestionings(setQuestioningSu);
-        surveyUnitRepository.save(su);
-        questioningRepository.save(q);
-        questioningAccreditationRepository.save(qa);
-        Set<QuestioningAccreditation> setQuestioningAcc = new HashSet<>();
-        setQuestioningAcc.add(qa);
-        q.setQuestioningAccreditations(setQuestioningAcc);
-        q.setSurveyUnit(su);
-        questioningRepository.save(q);
+        List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findByIdContact(contactId);
+        if (listAccreditations.stream().filter(acc -> acc.getQuestioning().getId().equals(savedQ.getId())).toList().isEmpty()) {
+            QuestioningAccreditation qa = new QuestioningAccreditation();
+            qa.setQuestioning(q);
+            qa.setIdContact(contactId);
+            qa.setMain(isMain);
+
+            Set<Questioning> setQuestioningSu = su.getQuestionings();
+            setQuestioningSu.add(q);
+            su.setQuestionings(setQuestioningSu);
+            surveyUnitRepository.save(su);
+            questioningRepository.save(q);
+            questioningAccreditationRepository.save(qa);
+            Set<QuestioningAccreditation> setQuestioningAcc = new HashSet<>();
+            setQuestioningAcc.add(qa);
+            q.setQuestioningAccreditations(setQuestioningAcc);
+            q.setSurveyUnit(su);
+            questioningRepository.save(q);
+            initOneView(qa);
+        }
+    }
+
+    private void initOneView(QuestioningAccreditation a) {
+        Partitioning p = partitioningRepository.findById(a.getQuestioning().getIdPartitioning()).orElseThrow(() -> new IllegalArgumentException("Contact not found for ID: " + a.getQuestioning().getIdPartitioning()));
+        View view = new View();
+        view.setIdentifier(contactRepository.findById(a.getIdContact()).orElseThrow(() -> new IllegalArgumentException("Contact not found for ID: " + a.getIdContact())).getIdentifier());
+        view.setCampaignId(p.getCampaign().getId());
+        view.setIdSu(a.getQuestioning().getSurveyUnit().getIdSu());
+        viewRepository.save(view);
     }
 
     @Given("the user {string} is authenticated as {string}")
@@ -203,11 +220,14 @@ public class QuestioningInformationsSteps {
     @When("a GET request is made to {string} with campaign id {string}, survey unit id {string} and role {string}")
     @WithMockUser(authorities = "ROLE_WEB_CLIENT")
     public void aGETRequestIsMadeToWithCampaignIdSurveyUnitIdAndRole(String url, String idCampaign, String idsu, String role) throws Exception {
-        mvcResult = mockMvc.perform(get(url, idCampaign, idsu)
-                        .param("role", role)
-                        .accept(MediaType.APPLICATION_XML))
-                .andExpect(status().isOk())
-                .andReturn();
+        mvcResult = mockMvc.perform(get(url, idCampaign, idsu).param("role", role).accept(MediaType.APPLICATION_XML)).andExpect(status().isOk()).andReturn();
+        XmlMapper xmlMapper = new XmlMapper();
+        questioningInformationsDto = xmlMapper.readValue(mvcResult.getResponse().getContentAsString(), QuestioningInformationsDto.class);
+    }
+
+    @Then("the response XML should have a contact with identity {string}")
+    public void theResponseXMLShouldHaveAContactWithIdentity(String identity) {
+        assertThat(questioningInformationsDto.getContactInformationsDto().getIdentity()).isEqualTo(identity);
     }
 
     @Then("the response status should be {int}")
