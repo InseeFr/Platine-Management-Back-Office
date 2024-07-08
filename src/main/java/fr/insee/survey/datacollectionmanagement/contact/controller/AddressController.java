@@ -29,6 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
