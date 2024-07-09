@@ -81,9 +81,8 @@ public class QuestioningServiceImpl implements QuestioningService {
             SurveyUnit su = q.getSurveyUnit();
             su.getQuestionings().remove(q);
             surveyUnitService.saveSurveyUnit(su);
-            q.getQuestioningEvents().stream().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId()));
-            q.getQuestioningAccreditations().stream()
-                    .forEach(questioningAccreditationService::deleteAccreditation);
+            q.getQuestioningEvents().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId()));
+            q.getQuestioningAccreditations().forEach(questioningAccreditationService::deleteAccreditation);
             deleteQuestioning(q.getId());
             nbQuestioningDeleted++;
         }
@@ -101,9 +100,9 @@ public class QuestioningServiceImpl implements QuestioningService {
      *
      * @param baseUrl      The base URL for the access.
      * @param typeUrl      The type of URL (V1 or V2).
-     * @param role          The user role (REVIEWER or INTERVIEWER).
-     * @param questioning   The questioning object.
-     * @param surveyUnitId  The survey unit ID.
+     * @param role         The user role (REVIEWER or INTERVIEWER).
+     * @param questioning  The questioning object.
+     * @param surveyUnitId The survey unit ID.
      * @return The generated access URL.
      */
     public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
@@ -125,14 +124,13 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
 
-
     /**
      * Builds a V1 access URL based on the provided parameters.
      *
      * @param baseUrl      The base URL for the access.
-     * @param role          The user role (REVIEWER or INTERVIEWER).
-     * @param campaignId    The campaign ID.
-     * @param surveyUnitId  The survey unit ID.
+     * @param role         The user role (REVIEWER or INTERVIEWER).
+     * @param campaignId   The campaign ID.
+     * @param surveyUnitId The survey unit ID.
      * @return The generated V1 access URL.
      */
     protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
@@ -147,10 +145,11 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     /**
      * Builds a V3 access URL based on the provided parameters
-     * @param baseUrl host url
-     * @param role
-     * @param modelName
-     * @param surveyUnitId
+     *
+     * @param baseUrl      The base URL for the access.
+     * @param role         The user role (REVIEWER or INTERVIEWER).
+     * @param modelName    The model ID.
+     * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
 
@@ -166,11 +165,11 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     /**
      * Builds a V3 access URL based on the provided parameters
-     * @param baseUrl
-     * @param role
-     * @param modelName
-     * @param surveyUnitId
-     * @param sourceId
+     *
+     * @param baseUrl      The base URL for the access.
+     * @param role         The user role (REVIEWER or INTERVIEWER).
+     * @param modelName    The model ID.
+     * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
     protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
@@ -186,4 +185,4 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
- }
+}
