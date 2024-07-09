@@ -109,7 +109,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
         // Set default values if baseUrl or typeUrl is empty
         baseUrl = StringUtils.defaultIfEmpty(baseUrl, applicationConfig.getQuestioningUrl());
-        typeUrl = StringUtils.defaultIfEmpty(typeUrl, V2.name());
+        typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
         if (typeUrl.equalsIgnoreCase(V1.name())) {
             return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
