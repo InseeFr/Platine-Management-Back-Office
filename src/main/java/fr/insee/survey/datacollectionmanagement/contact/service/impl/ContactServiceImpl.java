@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +57,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public Page<Contact> findByParameter(String param, Pageable pageable) {
+    public Page<SearchContactDto> findByParameter(String param, Pageable pageable) {
         return contactRepository.findByParameter(param, pageable);
     }
 
