@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,12 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Page<SearchContactDto> findByParameter(String param, Pageable pageable) {
-        return contactRepository.findByParameter(param, pageable);
+        if (StringUtils.isEmpty(param))
+            return contactRepository.findAllNoParameters(pageable);
+        String args[] = param.split(" ");
+        if (args.length == 1)
+            return contactRepository.findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(param, param, param, param, pageable);
+        return contactRepository.findByFirstNameLastName(param, pageable);
     }
 
 

@@ -29,17 +29,25 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                         FROM
                             contact c
                         WHERE
-                            (:param IS NULL 
-                            OR UPPER(c.identifier) LIKE CONCAT(:param, '%')
-                            OR UPPER(CONCAT(c.last_name)) LIKE CONCAT(:param, '%')
-                            OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')
-                            OR UPPER(c.email) LIKE CONCAT(:param, '%')
+                            :param IS NULL 
+                            OR (                                                     
+                                UPPER(c.identifier) LIKE CONCAT(:param, '%')
+                                OR UPPER(CONCAT(c.last_name)) LIKE CONCAT(:param, '%')
+                                OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')
+                                OR UPPER(c.email) LIKE CONCAT(:param, '%')
                             )               
                             """,
             nativeQuery = true
     )
     Page<SearchContactDto> findByParameter(String param, Pageable pageable);
 
+    Page<SearchContactDto> findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(String identifier, String firstName, String lastName, String email, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "SELECT *  FROM contact WHERE UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')")
+    Page<SearchContactDto> findByFirstNameLastName( String param, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "SELECT *  FROM contact")
+    Page<SearchContactDto> findAllNoParameters(Pageable pageable);
 
 
 }
