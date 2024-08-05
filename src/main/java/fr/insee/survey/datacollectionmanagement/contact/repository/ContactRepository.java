@@ -43,7 +43,7 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
 
     Page<SearchContactDto> findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(String identifier, String firstName, String lastName, String email, Pageable pageable);
 
-    @Query(nativeQuery = true, value = "SELECT *  FROM contact WHERE UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')")
+    @Query(nativeQuery = true, value = "SELECT *  FROM contact c WHERE UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')")
     Page<SearchContactDto> findByFirstNameLastName( String param, Pageable pageable);
 
     @Query(nativeQuery = true, value = "SELECT *  FROM contact")
