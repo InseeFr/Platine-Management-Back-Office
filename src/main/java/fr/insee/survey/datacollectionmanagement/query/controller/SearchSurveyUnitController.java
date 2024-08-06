@@ -69,16 +69,13 @@ public class SearchSurveyUnitController {
             SearchSurveyUnitContactDto searchSurveyUnitContactDto = new SearchSurveyUnitContactDto();
             Contact contact = contactService.findByIdentifier(identifier);
             searchSurveyUnitContactDto.setIdentifier(identifier);
+            searchSurveyUnitContactDto.setFunction(contact.getFunction());
             searchSurveyUnitContactDto.setCity(contact.getEmail());
             searchSurveyUnitContactDto.setEmail(contact.getEmail());
             searchSurveyUnitContactDto.setFirstName(contact.getFirstName());
             searchSurveyUnitContactDto.setLastName(contact.getLastName());
             searchSurveyUnitContactDto.setPhoneNumber(contact.getPhone());
             searchSurveyUnitContactDto.setCity(contact.getAddress() != null ? contact.getAddress().getCityName() : null);
-            searchSurveyUnitContactDto.setListSourcesId(questioningAccreditationService.findByContactIdentifier(identifier).stream().
-                    filter(qa -> qa.getQuestioning().getSurveyUnit().getIdSu().equalsIgnoreCase(id)).
-                    map(qa -> partitioningService.findById(qa.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).
-                    distinct().toList());
             listResult.add(searchSurveyUnitContactDto);
         }
 
