@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.repository;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,8 +29,8 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                         FROM
                             contact c
                         WHERE
-                            :param IS NULL 
-                            OR (                                                     
+                            :param IS NULL
+                            OR (                                               
                                 UPPER(c.identifier) LIKE CONCAT(:param, '%')
                                 OR UPPER(CONCAT(c.last_name)) LIKE CONCAT(:param, '%')
                                 OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')
@@ -39,7 +39,6 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                             """,
             nativeQuery = true
     )
-    Page<SearchContactDto> findByParameter(String param, Pageable pageable);
 
     Page<SearchContactDto> findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(String identifier, String firstName, String lastName, String email, Pageable pageable);
 

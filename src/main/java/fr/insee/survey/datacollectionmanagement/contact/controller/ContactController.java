@@ -5,18 +5,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactFirstLoginDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -56,22 +61,23 @@ public class ContactController {
 
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
-    public ResponseEntity<ContactPage> getContacts(
+    public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Contact> pageC = contactService.findAll(pageable);
         List<ContactDto> listC = pageC.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new ContactPage(listC, pageable, pageC.getTotalElements()));
+        return new ContactPage(listC, pageable, pageC.getTotalElements());
     }
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = Constants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
-    public ResponseEntity<ContactFirstLoginDto> getContact(@PathVariable("id") String id) {
+    public ContactDetailsDto getContact(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
+        List<String> listCampaigns = questioningAccreditationService.findCampaignsForContactId(id);
+        return convertToContactDetailsDto(contact, listCampaigns);
 
 
     }
@@ -128,17 +134,39 @@ public class ContactController {
 
     }
 
+    @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
+    @Operation(summary = "Multi-criteria search contacts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public Page<SearchContactDto> searchContacts(
+            @RequestParam(required = false) String param,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "identifier") String sort) {
+
+        log.info(
+                "Search contact with param = {} page = {} pageSize = {}", param, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+
+        return contactService.searchContactByParameter(param, pageable);
+
+
+    }
+
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
         contactDto.setCivility(contact.getGender().name());
         return contactDto;
     }
 
-    private ContactFirstLoginDto convertToFirstLoginDto(Contact contact) {
-        ContactFirstLoginDto contactFirstLoginDto = modelMapper.map(contact, ContactFirstLoginDto.class);
-        contactFirstLoginDto.setCivility(contact.getGender());
-        contactFirstLoginDto.setFirstConnect(contact.getContactEvents().stream().noneMatch(e -> e.getType().equals(ContactEventType.firstConnect)));
-        return contactFirstLoginDto;
+    private ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns) {
+        ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
+        contactDetailsDto.setCivility(contact.getGender());
+        contactDetailsDto.setListCampaigns(listCampaigns);
+        return contactDetailsDto;
     }
 
     private Contact convertToEntity(ContactDto contactDto) {

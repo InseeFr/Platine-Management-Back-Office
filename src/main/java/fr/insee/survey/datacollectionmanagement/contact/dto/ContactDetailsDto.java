@@ -5,9 +5,11 @@ import fr.insee.survey.datacollectionmanagement.contact.validation.ContactGender
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
-public class ContactFirstLoginDto{
+public class ContactDetailsDto {
 
     private String identifier;
     private String externalId;
@@ -20,7 +22,7 @@ public class ContactFirstLoginDto{
     private String phone;
     private String otherPhone;
     private String usualCompanyName;
-    private boolean firstConnect;
     private AddressDto address;
+    private List<String> listCampaigns;
 
 }

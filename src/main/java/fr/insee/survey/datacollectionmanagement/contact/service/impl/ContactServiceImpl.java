@@ -9,7 +9,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -57,11 +57,12 @@ public class ContactServiceImpl implements ContactService {
         contactRepository.deleteById(identifier);
     }
 
+
     @Override
-    public Page<SearchContactDto> findByParameter(String param, Pageable pageable) {
+    public Page<SearchContactDto> searchContactByParameter(String param, Pageable pageable) {
         if (StringUtils.isEmpty(param))
             return contactRepository.findAllNoParameters(pageable);
-        String args[] = param.split(" ");
+        String[] args = param.split(" ");
         if (args.length == 1)
             return contactRepository.findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(param, param, param, param, pageable);
         return contactRepository.findByFirstNameLastName(param, pageable);
@@ -106,5 +107,8 @@ public class ContactServiceImpl implements ContactService {
         deleteContact(contact.getIdentifier());
 
     }
+
+
+
 
 }

@@ -19,4 +19,5 @@ public interface QuestioningAccreditationService {
 
     void deleteAccreditation(QuestioningAccreditation c);
 
+    List<String> findCampaignsForContactId(String id);
 }
