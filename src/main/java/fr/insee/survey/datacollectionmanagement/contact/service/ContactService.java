@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.contact.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.query.dto.SearchContactDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public interface ContactService {
      */
     void deleteContact(String identifier);
 
-    Page<Contact> findByParameter(String param, Pageable pageable);
+    Page<SearchContactDto> findByParameter(String param, Pageable pageable);
 
     Contact createContactAddressEvent(Contact contact, JsonNode payload);
 

@@ -57,6 +57,7 @@ public class SearchContactController {
 
     private final MoogService moogService;
 
+
     @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
@@ -74,8 +75,7 @@ public class SearchContactController {
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
-        Page<SearchContactDto> pageSearchContact = searchContactService.searchContactCrossDomain(param, pageable);
-        return pageSearchContact;
+        return searchContactService.searchContactCrossDomain(param, pageable);
 
 
     }
