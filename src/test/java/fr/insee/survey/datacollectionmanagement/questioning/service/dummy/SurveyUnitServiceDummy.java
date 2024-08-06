@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.dummy;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public class SurveyUnitServiceDummy implements SurveyUnitService {
     }
 
     @Override
-    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable) {
+    public Page<SearchSurveyUnitDto> findByParameter(String param, Pageable pageable) {
         return null;
     }
 

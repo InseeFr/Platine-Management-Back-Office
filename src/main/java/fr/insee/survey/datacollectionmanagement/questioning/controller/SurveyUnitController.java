@@ -2,12 +2,15 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,21 +63,17 @@ public class SurveyUnitController {
     @Operation(summary = "Multi-criteria search survey-unit")
     @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitPage.class))),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public Page<SurveyUnitDto> searchSurveyUnits(
-            @RequestParam(required = false) String idSu,
-            @RequestParam(required = false) String identificationCode,
-            @RequestParam(required = false) String identificationName,
+    public Page<SearchSurveyUnitDto> searchSurveyUnits(
+            @RequestParam(required = false) String param,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id_su") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<SurveyUnit> pageC = surveyUnitService.findByParameters(idSu, identificationCode, identificationName, pageable);
-        List<SurveyUnitDto> listSuDto = pageC.stream().map(this::convertToDto).toList();
-        return new SurveyUnitPage(listSuDto, pageable, pageC.getTotalElements());
+        return surveyUnitService.findByParameter(param, pageable);
     }
 
     @Operation(summary = "Search for a survey unit by its id")
@@ -84,9 +83,9 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<SurveyUnitDto> findSurveyUnit(@PathVariable("id") String id) {
+    public SurveyUnitDto findSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
-        return ResponseEntity.status(HttpStatus.OK).body(convertToDto(surveyUnit));
+        return convertToDto(surveyUnit);
 
     }
 
@@ -131,21 +130,16 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<String> deleteSurveyUnit(@PathVariable("id") String id) {
+    public void deleteSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
 
-        try {
-            if (!surveyUnit.getQuestionings().isEmpty()) {
-                log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Some questionings exist for this survey unit, the survey unit can't be deleted");
-            }
-            surveyUnitService.deleteSurveyUnit(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Survey unit deleted");
+        if (!surveyUnit.getQuestionings().isEmpty()) {
+            log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);
+            throw new ImpossibleToDeleteException("Some questionings exist for this survey unit, the survey unit can't be deleted");
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
+        surveyUnitService.deleteSurveyUnit(id);
+
     }
 
     private SurveyUnitDto convertToDto(SurveyUnit surveyUnit) {
@@ -164,4 +158,6 @@ public class SurveyUnitController {
             super(content, pageable, total);
         }
     }
+
+
 }

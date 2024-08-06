@@ -2,11 +2,13 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,8 +45,8 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     }
 
     @Override
-    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable) {
-        return surveyUnitRepository.findByParameters(idSu, identificationCode, identificationName, pageable);
+    public Page<SearchSurveyUnitDto> findByParameter(String param, Pageable pageable) {
+        return surveyUnitRepository.findByParameters(StringUtils.upperCase(param), pageable);
     }
 
     @Override
