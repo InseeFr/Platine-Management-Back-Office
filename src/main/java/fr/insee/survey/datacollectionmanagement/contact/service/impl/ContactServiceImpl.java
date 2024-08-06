@@ -64,7 +64,7 @@ public class ContactServiceImpl implements ContactService {
             return contactRepository.findAllNoParameters(pageable);
         String[] args = param.split(" ");
         if (args.length == 1)
-            return contactRepository.findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(param, param, param, param, pageable);
+            return contactRepository.findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(param, pageable);
         return contactRepository.findByFirstNameLastName(param, pageable);
     }
 
