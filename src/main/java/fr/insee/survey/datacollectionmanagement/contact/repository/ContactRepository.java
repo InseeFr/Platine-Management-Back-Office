@@ -30,7 +30,7 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                             contact c
                         WHERE
                             :param IS NULL 
-                            OR (                                                         
+                            OR (                                                     
                                 UPPER(c.identifier) LIKE CONCAT(:param, '%')
                                 OR UPPER(CONCAT(c.last_name)) LIKE CONCAT(:param, '%')
                                 OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(:param, '%')
