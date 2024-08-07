@@ -33,6 +33,9 @@ public class SurveyUnit {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private SurveyUnitAddress surveyUnitAddress;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<SurveyUnitComment> surveyUnitComments;
+
     @Override
     public String toString() {
         return "SurveyUnit [idSu=" + idSu + ", identificationCode=" + identificationCode + ", identificationName="

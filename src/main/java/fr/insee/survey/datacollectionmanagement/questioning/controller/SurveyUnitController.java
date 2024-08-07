@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +51,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
+    @Deprecated
     public Page<SurveyUnitDto> getSurveyUnits(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -79,13 +81,13 @@ public class SurveyUnitController {
     @Operation(summary = "Search for a survey unit by its id")
     @GetMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public SurveyUnitDto findSurveyUnit(@PathVariable("id") String id) {
+    public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
-        return convertToDto(surveyUnit);
+        return convertToDetailsDto(surveyUnit);
 
     }
 
@@ -119,7 +121,7 @@ public class SurveyUnitController {
         }
 
         return ResponseEntity.status(responseStatus)
-                .body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
+                .body(convertToDto(surveyUnitService.saveSurveyUnitAddressComments(surveyUnit)));
 
     }
 
@@ -130,6 +132,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @Deprecated
     public void deleteSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
 
@@ -145,6 +148,11 @@ public class SurveyUnitController {
     private SurveyUnitDto convertToDto(SurveyUnit surveyUnit) {
         return modelMapper.map(surveyUnit, SurveyUnitDto.class);
     }
+
+    private SurveyUnitDetailsDto convertToDetailsDto(SurveyUnit surveyUnit) {
+        return modelMapper.map(surveyUnit, SurveyUnitDetailsDto.class);
+    }
+
 
     private SurveyUnit convertToEntity(SurveyUnitDto surveyUnitDto) {
         return modelMapper.map(surveyUnitDto, SurveyUnit.class);
