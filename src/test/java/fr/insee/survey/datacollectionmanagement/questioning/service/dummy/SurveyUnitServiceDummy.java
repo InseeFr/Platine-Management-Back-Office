@@ -40,7 +40,7 @@ public class SurveyUnitServiceDummy implements SurveyUnitService {
     }
 
     @Override
-    public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit) {
+    public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
         return null;
     }
 

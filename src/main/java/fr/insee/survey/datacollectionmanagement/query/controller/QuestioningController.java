@@ -67,6 +67,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
+    @Deprecated
     public ResponseEntity<?> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
         ;

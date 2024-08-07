@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@Tag(name = "4 - Cross domain")
+@Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 public class MyQuestioningsController {
 

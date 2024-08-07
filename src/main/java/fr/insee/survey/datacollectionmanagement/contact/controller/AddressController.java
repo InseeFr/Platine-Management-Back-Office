@@ -44,6 +44,7 @@ public class AddressController {
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @Deprecated
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)

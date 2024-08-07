@@ -21,7 +21,7 @@ public interface SurveyUnitService {
 
     SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     
-    SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit);
+    SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit);
 
     void deleteSurveyUnit(String id);
 

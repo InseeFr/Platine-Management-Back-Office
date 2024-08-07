@@ -61,6 +61,7 @@ public class ContactController {
 
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
+    @Deprecated
     public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -121,6 +122,7 @@ public class ContactController {
     @Operation(summary = "Delete a contact, its address, its contactEvents")
     @DeleteMapping(value = Constants.API_CONTACTS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Deprecated
     public void deleteContact(@PathVariable("id") String id) {
 
         if (!questioningAccreditationService.findByContactIdentifier(id).isEmpty()) {

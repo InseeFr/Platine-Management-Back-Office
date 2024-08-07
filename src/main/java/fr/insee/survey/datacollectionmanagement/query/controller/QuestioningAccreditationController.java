@@ -58,6 +58,7 @@ public class QuestioningAccreditationController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
+    @Deprecated
     public ResponseEntity<?> getQuestioningAccreditation(@PathVariable("id") Long id) {
 
         Questioning optQuestioning = questioningService.findbyId(id);
@@ -81,6 +82,7 @@ public class QuestioningAccreditationController {
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
     @Transactional
+    @Deprecated
     public ResponseEntity<?> postQuestioningAccreditation(@PathVariable("id") Long id,
                                                           @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
