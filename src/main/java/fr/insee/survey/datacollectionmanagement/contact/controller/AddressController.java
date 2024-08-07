@@ -41,10 +41,13 @@ public class AddressController {
 
     private final ContactEventService contactEventService;
 
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
-    @Deprecated
+    @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
