@@ -15,6 +15,7 @@ public class SurveyUnitDetailsDto {
     private String identificationCode;
     private String identificationName;
     private SurveyUnitAddressDto address;
+    private boolean hasQuestionings;
     private Set<SurveyUnitCommentOutputDto> comments;
 
 }

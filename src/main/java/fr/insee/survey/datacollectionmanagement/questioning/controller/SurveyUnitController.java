@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnit
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,6 +43,7 @@ import java.util.List;
 public class SurveyUnitController {
 
     private final SurveyUnitService surveyUnitService;
+    private final ViewService viewService;
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for a survey units, paginated")
@@ -51,7 +53,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @Deprecated
+    @Deprecated(since="2.6.0", forRemoval=true)
     public Page<SurveyUnitDto> getSurveyUnits(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -87,7 +89,9 @@ public class SurveyUnitController {
     })
     public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
-        return convertToDetailsDto(surveyUnit);
+        SurveyUnitDetailsDto surveyUnitDetailsDto =  convertToDetailsDto(surveyUnit);
+        surveyUnitDetailsDto.setHasQuestionings(!viewService.findViewByIdSu(id).isEmpty());
+        return surveyUnitDetailsDto;
 
     }
 
@@ -132,7 +136,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    @Deprecated
+    @Deprecated(since="2.6.0", forRemoval=true)
     public void deleteSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
 
