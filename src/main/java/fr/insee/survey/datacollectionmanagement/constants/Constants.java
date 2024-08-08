@@ -34,6 +34,8 @@ public class Constants {
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
     public static final String API_SURVEY_UNITS_ID_QUESTIONINGS = "/api/survey-units/{id}/questionings";
+    public static final String API_SURVEY_UNITS_ID_COMMENT = "/api/survey-units/{id}/comment";
+
     public static final String API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS = "/api/questionings/{id}/questioning-accreditations";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS = "/api/questionings/questioning-events";
     public static final String API_QUESTIONING_ID_QUESTIONING_EVENTS = "/api/questionings/{id}/questioning-events";

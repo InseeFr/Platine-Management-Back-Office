@@ -153,7 +153,7 @@ public class WebclientController {
         // save questioning and su
         questioningService.saveQuestioning(questioning);
         su.getQuestionings().add(questioning);
-        surveyUnitService.saveSurveyUnitAndAddress(su);
+        surveyUnitService.saveSurveyUnitAddressComments(su);
 
 
         questioningReturn.setIdPartitioning(idPartitioning);

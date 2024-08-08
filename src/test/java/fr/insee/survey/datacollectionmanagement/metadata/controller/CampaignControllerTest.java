@@ -53,6 +53,7 @@ class CampaignControllerTest {
     void init() {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
+
     @Test
     void getCampaignNotFound() throws Exception {
         String identifier = "CAMPAIGNNOTFOUND";
@@ -82,9 +83,9 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": true\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": true}
+                        """, false));
 
     }
 
@@ -95,9 +96,9 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 
@@ -109,9 +110,9 @@ class CampaignControllerTest {
 
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 
@@ -129,9 +130,9 @@ class CampaignControllerTest {
 
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 

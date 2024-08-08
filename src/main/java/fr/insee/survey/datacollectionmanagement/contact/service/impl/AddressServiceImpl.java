@@ -41,14 +41,11 @@ public class AddressServiceImpl implements AddressService {
     }
 
     public AddressDto convertToDto(Address address) {
-        AddressDto adressDto = modelMapper.map(address, AddressDto.class);
-
-        return adressDto;
+        return modelMapper.map(address, AddressDto.class);
     }
 
     public Address convertToEntity(AddressDto addressDto) {
-        Address address = modelMapper.map(addressDto, Address.class);
-        return address;
+        return modelMapper.map(addressDto, Address.class);
     }
 
 }

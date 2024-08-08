@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -20,6 +21,7 @@ import java.util.Set;
 public class QuestioningAccreditationServiceImpl implements QuestioningAccreditationService {
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
+    private final PartitioningService partitioningService;
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -40,7 +42,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public QuestioningAccreditation findById(Long id) {
-        return questioningAccreditationRepository.findById(id).orElseThrow(()-> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
+        return questioningAccreditationRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
     }
 
     @Override
@@ -51,6 +53,12 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     @Override
     public void deleteAccreditation(QuestioningAccreditation acc) {
         questioningAccreditationRepository.deleteById(acc.getId());
+    }
+
+    @Override
+    public List<String> findCampaignsForContactId(String id) {
+        List<QuestioningAccreditation> listContactAccreditations = findByContactIdentifier(id);
+        return listContactAccreditations.stream().map(acc -> partitioningService.findById(acc.getQuestioning().getIdPartitioning()).getCampaign().getId()).distinct().toList();
     }
 
 }

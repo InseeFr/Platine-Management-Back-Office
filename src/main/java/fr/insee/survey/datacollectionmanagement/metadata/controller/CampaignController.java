@@ -134,7 +134,7 @@ public class CampaignController {
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
                 && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
 
-            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(item -> item.name())
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(Enum::name)
                     .collect(joining(" "))));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())

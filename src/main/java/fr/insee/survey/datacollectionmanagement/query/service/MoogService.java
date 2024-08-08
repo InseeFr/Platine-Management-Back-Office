@@ -24,5 +24,5 @@ public interface MoogService {
 
     Collection<MoogExtractionRowDto> getSurveyUnitsToFollowUp(String idCampaign);
 
-    public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException;
+    String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException;
 }

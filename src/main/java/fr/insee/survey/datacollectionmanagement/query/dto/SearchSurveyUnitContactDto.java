@@ -3,8 +3,6 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 public class SearchSurveyUnitContactDto {
@@ -15,5 +13,5 @@ public class SearchSurveyUnitContactDto {
     private String email;
     private String city;
     private String phoneNumber;
-    private List<String> listSourcesId;
+    private String function;
 }
