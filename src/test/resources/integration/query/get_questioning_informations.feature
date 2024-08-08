@@ -6,8 +6,8 @@ Feature: Get Questioning Informations
     Given the campaign "EAP2023T01" related to survey "EAP2023"
     Given the partitioning "EAP2023T0100" related to campaign "EAP2023T01"
     Given the survey unit "TESTCASE" with label "entreprise"
-    Given the contact "USER01" with firstname "Nom" and lastanme "Prenom" and gender "Male" and the streetnumber "17"
-    Given the contact "USER02" with firstname "Nom2" and lastanme "Prenom2" and gender "Female" and the streetnumber "17"
+    Given the contact "USER01" with firstname "Nom" and lastname "Prenom" and gender "Male" and the streetnumber "17"
+    Given the contact "USER02" with firstname "Nom2" and lastname "Prenom2" and gender "Female" and the streetnumber "17"
     Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and main contact "USER01"
     Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and contact "USER02"
 
