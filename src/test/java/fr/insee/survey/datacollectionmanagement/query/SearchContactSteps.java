@@ -13,6 +13,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -87,14 +88,24 @@ public class SearchContactSteps {
     }
 
     @Then("I found the following contacts:")
-    public void iFoundTheFollowingContacts(DataTable expectedTable) {
+    public void iShouldSeeTheFollowingContacts(DataTable expectedTable) {
         List<Map<String, String>> expectedRows = expectedTable.asMaps(String.class, String.class);
 
         for (Map<String, String> expectedRow : expectedRows) {
-            String expectedIdentifier = expectedRow.get("idep");
+            String expectedIdep = expectedRow.get("idep");
+            String expectedLastname = expectedRow.get("lastname");
+            String expectedFirstname = expectedRow.get("firstname");
+            String expectedEmail = expectedRow.get("email");
+
             boolean found = pageSearchContact.getContent().stream()
-                    .anyMatch(contact -> contact.getIdentifier().equalsIgnoreCase(expectedIdentifier));
-            assertTrue(found, "Expected to find contact with identifier: " + expectedIdentifier);
+                    .anyMatch(contact ->
+                            StringUtils.equalsIgnoreCase(contact.getIdentifier(), expectedIdep) &&
+                                    StringUtils.equalsIgnoreCase(contact.getLastName(), expectedLastname) &&
+                                    StringUtils.equalsIgnoreCase(contact.getFirstName(), expectedFirstname) &&
+                                    StringUtils.equalsIgnoreCase(contact.getEmail(), expectedEmail)
+                    );
+
+            assertTrue(found, "Expected to find contact with idep: " + expectedIdep);
         }
     }
 
