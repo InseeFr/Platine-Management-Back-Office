@@ -42,7 +42,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
         }
-        String partId = listParts.getFirst().getId();
+        String partId = listParts.get(0).getId();
         QuestioningInformations infos = informationsRepository.findQuestioningInformationsReviewer(partId, idsu);
         return mapQuestioningInformationsDto(infos);
     }
@@ -57,7 +57,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
         }
-        String partId = listParts.getFirst().getId();
+        String partId = listParts.get(0).getId();
         QuestioningInformations infos = informationsRepository.findQuestioningInformationsInterviewer(partId, idsu, contactId);
         return mapQuestioningInformationsDto(infos);
     }

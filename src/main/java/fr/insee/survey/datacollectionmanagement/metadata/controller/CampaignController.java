@@ -18,6 +18,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
+import fr.insee.survey.datacollectionmanagement.questioning.util.UrlRedirectionEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum;
 import fr.insee.survey.datacollectionmanagement.util.EmailValidatorRegex;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +48,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.values;
 import static java.util.stream.Collectors.joining;
 
 @RestController
@@ -132,9 +133,15 @@ public class CampaignController {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
 
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
-                && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
+                && Arrays.stream(UrlTypeEnum.values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
 
-            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(item -> item.name())
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(UrlTypeEnum.values()).map(item -> item.name())
+                    .collect(joining(" "))));
+        }
+        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_REDIRECTION.name())
+                && Arrays.stream(UrlRedirectionEnum.values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
+
+            throw new NotMatchException(String.format("Only %s are valid values for URL_REDIRECTION", Arrays.stream(UrlRedirectionEnum.values()).map(item -> item.name())
                     .collect(joining(" "))));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())

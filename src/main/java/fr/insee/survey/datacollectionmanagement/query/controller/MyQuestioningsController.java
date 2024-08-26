@@ -26,10 +26,7 @@ public class MyQuestioningsController {
     public List<MyQuestioningDto> findById(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
 
-
-        List<MyQuestioningDto> listSurveys = mySurveysService.getListMySurveys(idec.toUpperCase());
-
-        return listSurveys;
+        return mySurveysService.getListMySurveys(idec.toUpperCase());
 
     }
 }

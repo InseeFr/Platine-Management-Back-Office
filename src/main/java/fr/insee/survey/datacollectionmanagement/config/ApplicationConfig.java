@@ -46,6 +46,18 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.api.questioning.url}")
     private String questioningUrl;
 
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.url.stromaev3.pool1}")
+    private String questioningUrlStromaeV3Pool1;
+
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.url.stromaev2.pool1}")
+    private String questioningUrlStromaeV2Pool1;
+
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.url.stromaev1.pool1}")
+    private String questioningUrlStromaeV1Pool1;
+
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.url.stromaev1.pool2}")
+    private String questioningUrlStromaeV1Pool2;
+
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;
 }

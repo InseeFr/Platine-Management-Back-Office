@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.user.controller.controller;
+package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
