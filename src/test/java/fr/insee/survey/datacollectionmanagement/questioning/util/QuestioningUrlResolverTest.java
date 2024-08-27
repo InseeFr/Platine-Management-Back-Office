@@ -78,9 +78,8 @@ class QuestioningUrlResolverTest {
             String pool = "POOL3";  // Unsupported pool
 
             String url = questioningUrlResolver.resolveUrl(typeUrl, pool);
-            String expected = "";
 
-            assertThat(url).isEqualTo(expected);
+            assertThat(url).isEqualTo(applicationConfig.getQuestioningUrlStromaeV3Pool1());
         }
         @Test
         @DisplayName("Check the V1 url in interviewer mode")
