@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDtoImpl;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
+import fr.insee.survey.datacollectionmanagement.contact.util.ContactParamEnum;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -70,10 +71,47 @@ public class SearchContactSteps {
                 .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(role)));
     }
 
-    @When("I type {string} in the searching area")
-    public void searchContact(String param) throws Exception {
+    @When("I type {string} in the searching area by email")
+    public void searchContactByEmail(String param) throws Exception {
         mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
-                        .param("param", param))
+                        .param("searchParam", param)
+                        .param("searchType", ContactParamEnum.EMAIL.getValue()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
+        });
+        List<SearchContactDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
+        });
+
+        pageSearchContact = new PageImpl<>(contentList);
+    }
+
+    @When("I type {string} in the searching area by name")
+    public void searchContactByName(String param) throws Exception {
+        mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
+                        .param("searchParam", param)
+                        .param("searchType", ContactParamEnum.NAME.getValue()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
+        });
+        List<SearchContactDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
+        });
+
+        pageSearchContact = new PageImpl<>(contentList);
+    }
+
+    @When("I type {string} in the searching area by identifier")
+    public void searchContactByIdentifier(String param) throws Exception {
+        mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
+                        .param("searchParam", param)
+                        .param("searchType", ContactParamEnum.IDENTIFIER.getValue()))
                 .andExpect(status().isOk())
                 .andReturn();
 

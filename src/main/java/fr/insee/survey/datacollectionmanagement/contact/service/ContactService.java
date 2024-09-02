@@ -2,8 +2,8 @@ package fr.insee.survey.datacollectionmanagement.contact.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,12 +52,11 @@ public interface ContactService {
 
     void deleteContactAddressEvent(Contact contact);
 
-    /**
-     * Search for a contact using identifier, first name, last name and email fields
-     * @param param search parameter (search fiels strating with this parameter)
-     * @param pageable pageable
-     * @return {@link SearchContactDto}
-     */
-    Page<SearchContactDto> searchContactByParameter( String param, Pageable pageable);
+    Page<SearchContactDto> searchContactByIdentifier(String identifier, Pageable pageable);
+
+    Page<SearchContactDto> searchContactByEmail(String email, Pageable pageable);
+
+    Page<SearchContactDto> searchContactByName(String name, Pageable pageable);
+
 
 }

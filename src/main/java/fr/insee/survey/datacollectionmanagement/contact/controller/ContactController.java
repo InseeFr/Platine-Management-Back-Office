@@ -7,13 +7,15 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.contact.util.ContactParamEnum;
 import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
+import fr.insee.survey.datacollectionmanagement.contact.validation.ValidContactParam;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
-import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.Serial;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -149,18 +152,26 @@ public class ContactController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public Page<SearchContactDto> searchContacts(
-            @RequestParam(required = false) String param,
+            @RequestParam(required = true) String searchParam,
+            @RequestParam(required = false) @Valid @ValidContactParam String searchType,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(defaultValue = "identifier") String sort) {
 
         log.info(
-                "Search contact with param = {} page = {} pageSize = {}", param, page, pageSize);
+                "Search contact by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
-        return contactService.searchContactByParameter(param, pageable);
-
+        switch (ContactParamEnum.fromValue(searchType)) {
+            case ContactParamEnum.IDENTIFIER:
+                return contactService.searchContactByIdentifier(searchParam.toUpperCase(), pageable);
+            case ContactParamEnum.NAME:
+                return contactService.searchContactByName(searchParam.toUpperCase(), pageable);
+            case ContactParamEnum.EMAIL:
+                return contactService.searchContactByEmail(searchParam.toUpperCase(), pageable);
+        }
+        return new PageImpl<>(Collections.emptyList());
 
     }
 

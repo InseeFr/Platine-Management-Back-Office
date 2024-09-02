@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -59,13 +58,18 @@ public class ContactServiceImpl implements ContactService {
 
 
     @Override
-    public Page<SearchContactDto> searchContactByParameter(String param, Pageable pageable) {
-        if (StringUtils.isEmpty(param))
-            return contactRepository.findAllNoParameters(pageable);
-        String[] args = param.split(" ");
-        if (args.length == 1)
-            return contactRepository.findByIdentifierIgnoreCaseStartingWithOrFirstNameIgnoreCaseStartingWithOrLastNameIgnoreCaseStartingWithOrEmailIgnoreCaseStartingWith(param.toUpperCase(), pageable);
-        return contactRepository.findByFirstNameLastName(param.toUpperCase(), pageable);
+    public Page<SearchContactDto> searchContactByIdentifier(String identifier, Pageable pageable) {
+        return contactRepository.findByIdentifier(identifier, pageable);
+    }
+
+    @Override
+    public Page<SearchContactDto> searchContactByEmail(String email, Pageable pageable) {
+        return contactRepository.findByEmail(email, pageable);
+    }
+
+    @Override
+    public Page<SearchContactDto> searchContactByName(String name, Pageable pageable) {
+        return  contactRepository.findByFirstNameLastName(name, pageable);
     }
 
 
