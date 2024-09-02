@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidContactParam {
-    String message() default "Invalid parameter";
+    String message() default "Invalid searchParam value.Only identifier, email and name are valid";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
