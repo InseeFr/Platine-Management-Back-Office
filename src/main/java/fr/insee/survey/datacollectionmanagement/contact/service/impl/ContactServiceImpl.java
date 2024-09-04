@@ -69,7 +69,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Page<SearchContactDto> searchContactByName(String name, Pageable pageable) {
-        return  contactRepository.findByFirstNameLastName(name, pageable);
+        return contactRepository.findByFirstNameLastName(name, pageable);
     }
 
 
@@ -111,8 +111,6 @@ public class ContactServiceImpl implements ContactService {
         deleteContact(contact.getIdentifier());
 
     }
-
-
 
 
 }

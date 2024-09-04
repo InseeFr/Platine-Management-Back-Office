@@ -165,11 +165,11 @@ public class ContactController {
 
         switch (ContactParamEnum.fromValue(searchType)) {
             case ContactParamEnum.IDENTIFIER:
-                return contactService.searchContactByIdentifier(searchParam.toUpperCase(), pageable);
+                return contactService.searchContactByIdentifier(searchParam, pageable);
             case ContactParamEnum.NAME:
-                return contactService.searchContactByName(searchParam.toUpperCase(), pageable);
+                return contactService.searchContactByName(searchParam, pageable);
             case ContactParamEnum.EMAIL:
-                return contactService.searchContactByEmail(searchParam.toUpperCase(), pageable);
+                return contactService.searchContactByEmail(searchParam, pageable);
         }
         return new PageImpl<>(Collections.emptyList());
 
