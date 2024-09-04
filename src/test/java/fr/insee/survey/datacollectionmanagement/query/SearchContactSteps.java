@@ -25,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +98,7 @@ public class SearchContactSteps {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String content = mvcResult.getResponse().getContentAsString();
+        String content = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
         });
