@@ -13,7 +13,15 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
 
     List<SurveyUnit> findAllByIdentificationCode(String identificationCode);
 
-    List<SurveyUnit> findByIdentificationNameIgnoreCase(String identificationName);
+    @Query(nativeQuery = true, value = """
+                SELECT 
+                    *  
+                FROM 
+                    survey_unit su
+                WHERE
+                    UPPER(su.id_su) LIKE CONCAT(UPPER(:param), '%')                      
+            """)
+    Page<SearchSurveyUnitDto> findByIdentifier(String param, Pageable pageable);
 
     @Query(nativeQuery = true, value = """
                 SELECT 
@@ -21,17 +29,19 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
                 FROM 
                     survey_unit su
                 WHERE
-                    :param IS NULL
-                    OR
-                        (
-                         UPPER(su.id_su) LIKE CONCAT('%', :param, '%')
-                         OR UPPER(su.identification_name) LIKE CONCAT('%', :param, '%')
-                         OR UPPER(su.identification_code) LIKE CONCAT('%', :param, '%')
-                        )
+                    UPPER(su.identification_code) LIKE CONCAT(UPPER(:param), '%')
+                       
             """)
-    Page<SearchSurveyUnitDto> findByParameters(String param, Pageable pageable);
+    Page<SearchSurveyUnitDto> findByIdentificationCode(String param, Pageable pageable);
 
-
-    @Query(nativeQuery = true, value = "SELECT *  FROM survey_unit ORDER BY random() LIMIT 1")
-    SurveyUnit findRandomSurveyUnit();
+    @Query(nativeQuery = true, value = """
+                SELECT 
+                    *  
+                FROM 
+                    survey_unit su
+                WHERE
+                    UPPER(su.identification_name) LIKE CONCAT(UPPER(:param), '%')
+                    
+            """)
+    Page<SearchSurveyUnitDto> findByIdentificationName(String param, Pageable pageable);
 }

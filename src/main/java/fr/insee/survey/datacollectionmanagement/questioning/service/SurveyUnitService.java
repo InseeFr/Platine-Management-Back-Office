@@ -5,19 +5,17 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnit
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface SurveyUnitService {
 
     SurveyUnit findbyId(String idSu);
 
-    List<SurveyUnit> findbyIdentificationCode(String identificationCode);
+    Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable);
 
-    List<SurveyUnit> findbyIdentificationName(String identificationName);
+    Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable);
+
+    Page<SearchSurveyUnitDto>  findbyIdentificationName(String identificationName, Pageable pageable);
 
     Page<SurveyUnit> findAll(Pageable pageable);
-
-    Page<SearchSurveyUnitDto> findByParameter(String param, Pageable pageable);
 
     SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     

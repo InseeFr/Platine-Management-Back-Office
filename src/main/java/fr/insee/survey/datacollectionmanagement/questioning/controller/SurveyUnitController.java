@@ -10,6 +10,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnit
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.util.SurveyUnitParamEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.ValidSurveyUnitParam;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -32,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -72,12 +75,25 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public Page<SearchSurveyUnitDto> searchSurveyUnits(
-            @RequestParam(required = false) String param,
+            @RequestParam(required = true) String searchParam,
+            @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name")String searchType,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(defaultValue = "id_su") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        return surveyUnitService.findByParameter(param, pageable);
+        log.info(
+                "Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+
+        switch (SurveyUnitParamEnum.fromValue(searchType)) {
+            case SurveyUnitParamEnum.IDENTIFIER:
+                return surveyUnitService.findbyIdentifier(searchParam, pageable);
+            case SurveyUnitParamEnum.CODE:
+                return surveyUnitService.findbyIdentificationCode(searchParam, pageable);
+            case SurveyUnitParamEnum.NAME:
+                return surveyUnitService.findbyIdentificationName(searchParam, pageable);
+        }
+        return new PageImpl<>(Collections.emptyList());
     }
 
     @Operation(summary = "Search for a survey unit by its id")

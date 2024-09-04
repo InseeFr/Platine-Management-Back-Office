@@ -6,8 +6,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public class SurveyUnitServiceDummy implements SurveyUnitService {
     @Override
     public SurveyUnit findbyId(String idSu) {
@@ -15,22 +13,22 @@ public class SurveyUnitServiceDummy implements SurveyUnitService {
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationCode(String identificationCode) {
+    public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
         return null;
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationName(String identificationName) {
+    public Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<SearchSurveyUnitDto> findbyIdentificationName(String identificationName, Pageable pageable) {
         return null;
     }
 
     @Override
     public Page<SurveyUnit> findAll(Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public Page<SearchSurveyUnitDto> findByParameter(String param, Pageable pageable) {
         return null;
     }
 

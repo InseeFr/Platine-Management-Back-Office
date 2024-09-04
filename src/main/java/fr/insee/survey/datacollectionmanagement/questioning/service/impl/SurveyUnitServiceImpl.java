@@ -8,12 +8,9 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUni
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -30,23 +27,24 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationCode(String identificationCode) {
-        return surveyUnitRepository.findAllByIdentificationCode(identificationCode);
+    public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
+        return surveyUnitRepository.findByIdentifier(id, pageable);
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationName(String identificationName) {
-        return surveyUnitRepository.findByIdentificationNameIgnoreCase(identificationName);
+    public Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable) {
+        return surveyUnitRepository.findByIdentificationCode(identificationCode, pageable);
     }
+
+    @Override
+    public Page<SearchSurveyUnitDto> findbyIdentificationName(String identificationName, Pageable pageable) {
+        return surveyUnitRepository.findByIdentificationName(identificationName, pageable);
+    }
+
 
     @Override
     public Page<SurveyUnit> findAll(Pageable pageable) {
         return surveyUnitRepository.findAll(pageable);
-    }
-
-    @Override
-    public Page<SearchSurveyUnitDto> findByParameter(String param, Pageable pageable) {
-        return surveyUnitRepository.findByParameters(StringUtils.upperCase(param), pageable);
     }
 
     @Override
