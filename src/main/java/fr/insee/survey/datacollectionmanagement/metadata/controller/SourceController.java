@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
+import fr.insee.survey.datacollectionmanagement.metadata.validation.ParameterEnumValid;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -180,6 +181,14 @@ public class SourceController {
         return ResponseEntity.ok().body(listParams);
     }
 
+    @Operation(summary = "Get source parameters")
+    @GetMapping(value = Constants.API_SOURCES_ID_PARAMS_ID, produces = "application/json")
+    public ParamsDto getSourceParam(@PathVariable("id") String sourceId, @ParameterEnumValid @PathVariable("paramId") String paramId) {
+        Source source = sourceService.findById(StringUtils.upperCase(sourceId));
+        List<Parameters> listParams = source.getParams().stream().filter(parameters -> parameters.getParamId().name().equals(paramId)).toList();
+        return listParams.isEmpty() ? null : parametersService.convertToDto(listParams.get(0));
+    }
+
 
     @Operation(summary = "Create a parameter for a source")
     @PutMapping(value = Constants.API_SOURCES_ID_PARAMS, produces = "application/json")
@@ -189,7 +198,7 @@ public class SourceController {
         ParamValidator.validateParams(paramsDto);
         Parameters param = parametersService.convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
-        Set<Parameters> updatedParams = parametersService.updateSourceParams(source,param);
+        Set<Parameters> updatedParams = parametersService.updateSourceParams(source, param);
         source.setParams(updatedParams);
         sourceService.insertOrUpdateSource(source);
     }
@@ -208,21 +217,11 @@ public class SourceController {
         return modelmapper.map(sourceOnlineStatusDto, Source.class);
     }
 
-    class SourcePage extends PageImpl<SourceDto> {
+    static class SourcePage extends PageImpl<SourceDto> {
 
         public SourcePage(List<SourceDto> content, Pageable pageable, long total) {
             super(content, pageable, total);
         }
-    }
-
-    private Parameters convertToEntity(ParamsDto paramsDto) {
-
-        Parameters params = modelmapper.map(paramsDto, Parameters.class);
-        params.setParamId(Parameters.ParameterEnum.valueOf(paramsDto.getParamId()));
-        return params;
-    }
-    private ParamsDto convertToDto(Parameters params) {
-        return modelmapper.map(params, ParamsDto.class);
     }
 
 

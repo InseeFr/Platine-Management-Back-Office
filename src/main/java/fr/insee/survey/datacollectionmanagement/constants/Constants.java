@@ -49,6 +49,8 @@ public class Constants {
     public static final String API_SURVEYS = "/api/surveys";
     public static final String API_SOURCE_ID_OPENED = "/api/source/{id}/is-opened";
     public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
+    public static final String API_SOURCES_ID_PARAMS_ID = "/api/sources/{id}/params/{paramId}";
+
 
 
     public static final String API_SURVEYS_SEARCH = "/api/surveys/search";
