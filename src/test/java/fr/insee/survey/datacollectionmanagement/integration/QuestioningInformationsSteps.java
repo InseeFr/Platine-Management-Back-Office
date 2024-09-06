@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query;
+package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;

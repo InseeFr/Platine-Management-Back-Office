@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query;
+package fr.insee.survey.datacollectionmanagement.integration;
 
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.junit.platform.suite.api.ConfigurationParameter;
@@ -19,7 +19,7 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("/integration/query")
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "fr.insee.survey.datacollectionmanagement.query")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "fr.insee.survey.datacollectionmanagement.integration")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, json:target/cucumber.json, html:target/cucumber_report.html,"
         + " usage:target/usage.jsonx, junit:target/junit.xml")
 public class CucumberTest {

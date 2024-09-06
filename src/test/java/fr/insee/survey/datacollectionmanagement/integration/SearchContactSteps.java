@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query;
+package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

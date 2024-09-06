@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query;
+package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvide
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.util.SurveyUnitParamEnum;
