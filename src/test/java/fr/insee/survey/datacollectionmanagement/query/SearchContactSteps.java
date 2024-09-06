@@ -72,7 +72,7 @@ public class SearchContactSteps {
                 .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(role)));
     }
 
-    @When("I type {string} in the searching area by email")
+    @When("I type {string} in the searching contact area by email")
     public void searchContactByEmail(String param) throws Exception {
         mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
@@ -90,7 +90,7 @@ public class SearchContactSteps {
         pageSearchContact = new PageImpl<>(contentList);
     }
 
-    @When("I type {string} in the searching area by name")
+    @When("I type {string} in the searching contact area by name")
     public void searchContactByName(String param) throws Exception {
         mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
@@ -108,7 +108,7 @@ public class SearchContactSteps {
         pageSearchContact = new PageImpl<>(contentList);
     }
 
-    @When("I type {string} in the searching area by identifier")
+    @When("I type {string} in the searching contact area by identifier")
     public void searchContactByIdentifier(String param) throws Exception {
         mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
@@ -148,7 +148,7 @@ public class SearchContactSteps {
         }
     }
 
-    @Then("I found nothing")
+    @Then("I found no contact")
     public void iFoundNothing() {
         assertTrue(pageSearchContact.isEmpty(), "Expected to find no contacts");
     }
