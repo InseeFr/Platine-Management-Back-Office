@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEn
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.util.SurveyUnitParamEnum;
 import io.cucumber.datatable.DataTable;
@@ -48,7 +49,7 @@ public class SearchSurveyUnitSteps {
     private SurveyUnitRepository surveyUnitRepository;
 
     private MvcResult mvcResult;
-    private Page<SearchSurveyUnitDto> pageSearchSurveyUnit;
+    private Page<SearchSurveyUnitDtoImpl> pageSearchSurveyUnit;
     private String role;
 
     @Transactional
@@ -83,7 +84,7 @@ public class SearchSurveyUnitSteps {
 
         Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
         });
-        List<SearchSurveyUnitDto> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
+        List<SearchSurveyUnitDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
         });
 
         pageSearchSurveyUnit = new PageImpl<>(contentList);
@@ -101,7 +102,7 @@ public class SearchSurveyUnitSteps {
 
         Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
         });
-        List<SearchSurveyUnitDto> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
+        List<SearchSurveyUnitDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
         });
 
         pageSearchSurveyUnit = new PageImpl<>(contentList);
