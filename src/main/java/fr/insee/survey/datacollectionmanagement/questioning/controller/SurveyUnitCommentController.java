@@ -22,10 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Date;
@@ -46,12 +43,13 @@ public class SurveyUnitCommentController {
 
     @Operation(summary = "Create a survey unit comment")
     @PostMapping(value = Constants.API_SURVEY_UNITS_ID_COMMENT, produces = "application/json", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitCommentInputDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity postSurveyUnitComment(@PathVariable String id, @Valid @RequestBody SurveyUnitCommentInputDto surveyUnitCommentDto) {
+    public void postSurveyUnitComment(@PathVariable String id, @Valid @RequestBody SurveyUnitCommentInputDto surveyUnitCommentDto) {
 
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
         SurveyUnitComment surveyUnitComment = convertToEntity(surveyUnitCommentDto);
@@ -61,21 +59,11 @@ public class SurveyUnitCommentController {
         setSurveyUnitComments.add(newSurveyUnitComment);
         surveyUnit.setSurveyUnitComments(setSurveyUnitComments);
         surveyUnitService.saveSurveyUnit(surveyUnit);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-        return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                .body(convertToDto(newSurveyUnitComment));
-
 
     }
 
     private SurveyUnitComment convertToEntity(SurveyUnitCommentInputDto surveyUnitCommentDto) {
         return modelMapper.map(surveyUnitCommentDto, SurveyUnitComment.class);
-    }
-
-    private SurveyUnitCommentInputDto convertToDto(SurveyUnitComment surveyUnitComment) {
-        return modelMapper.map(surveyUnitComment, SurveyUnitCommentInputDto.class);
     }
 
 
