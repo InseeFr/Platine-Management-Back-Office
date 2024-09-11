@@ -18,11 +18,11 @@ public interface MoogService {
 
     List<MoogSearchDto> transformListViewToListMoogSearchDto(List<View> listView);
 
-    List<MoogQuestioningEventDto> getMoogEvents(String Campaign, String idSu);
+    List<MoogQuestioningEventDto> getMoogEvents(String campaign, String idSu);
 
     JSONCollectionWrapper<MoogExtractionRowDto> getExtraction(String idCampaign);
 
     Collection<MoogExtractionRowDto> getSurveyUnitsToFollowUp(String idCampaign);
 
-    public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException;
+    String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException;
 }

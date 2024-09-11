@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
@@ -30,10 +31,10 @@ public class MySurveysServiceImpl implements MySurveysService {
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
-    private final PartitioningService partitioningService;
-
     private final QuestioningEventService questioningEventService;
 
+    private final ParametersService parametersService;
+    private final PartitioningService partitioningService;
     private final QuestioningService questioningService;
 
 
@@ -50,11 +51,10 @@ public class MySurveysServiceImpl implements MySurveysService {
             String surveyUnitId = questioning.getSurveyUnit().getIdSu();
             surveyDto.setSurveyWording(survey.getLongWording());
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
-            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
-            String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
-            String sourceId = survey.getSource().getId().toLowerCase();
+            String pool = parametersService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
+            String typeUrl = parametersService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
             surveyDto.setAccessUrl(
-                    questioningService.getAccessUrl(accessBaseUrl,typeUrl, UserRoles.INTERVIEWER, questioning, surveyUnitId, sourceId));
+                    questioningService.getAccessUrl(pool, typeUrl, UserRoles.INTERVIEWER, questioning, part));
             surveyDto.setIdentificationCode(surveyUnitId);
             surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
             surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));

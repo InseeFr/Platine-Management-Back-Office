@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -11,21 +10,20 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import lombok.RequiredArgsConstructor;
+import fr.insee.survey.datacollectionmanagement.questioning.util.QuestioningUrlResolver;
+import fr.insee.survey.datacollectionmanagement.questioning.util.UrlParameters;
+import fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.*;
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlRedirectionEnum.POOL1;
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.V3;
 
 @Service
-@RequiredArgsConstructor
 public class QuestioningServiceImpl implements QuestioningService {
 
     private final QuestioningRepository questioningRepository;
@@ -38,8 +36,17 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final ApplicationConfig applicationConfig;
 
-    private static final String PATH_LOGOUT = "pathLogout";
-    private static final String PATH_ASSISTANCE = "pathAssistance";
+    QuestioningUrlResolver urlResolver;
+
+    public QuestioningServiceImpl(QuestioningRepository questioningRepository, SurveyUnitService surveyUnitService, QuestioningEventService questioningEventService, QuestioningAccreditationService questioningAccreditationService, ApplicationConfig applicationConfig) {
+        this.questioningRepository = questioningRepository;
+        this.surveyUnitService = surveyUnitService;
+        this.questioningEventService = questioningEventService;
+        this.questioningAccreditationService = questioningAccreditationService;
+        this.applicationConfig = applicationConfig;
+        urlResolver = new QuestioningUrlResolver(applicationConfig);
+    }
+
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -98,91 +105,31 @@ public class QuestioningServiceImpl implements QuestioningService {
     /**
      * Generates an access URL based on the provided parameters.
      *
-     * @param baseUrl      The base URL for the access.
-     * @param typeUrl      The type of URL (V1 or V2).
+     * @param pool         The pool for access
+     * @param typeUrl      The type of URL (V1 or V2 or V3).
      * @param role         The user role (REVIEWER or INTERVIEWER).
      * @param questioning  The questioning object.
-     * @param surveyUnitId The survey unit ID.
+     * @param part         The part of questioning
      * @return The generated access URL.
      */
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
-        // Set default values if baseUrl or typeUrl is empty
-        baseUrl = StringUtils.defaultIfEmpty(baseUrl, applicationConfig.getQuestioningUrl());
+    public String getAccessUrl(String pool, String typeUrl, String role, Questioning questioning, Partitioning part) {
+        pool = StringUtils.defaultIfEmpty(pool, POOL1.name());
         typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
-        if (typeUrl.equalsIgnoreCase(V1.name())) {
-            return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
-        }
-        if (typeUrl.equalsIgnoreCase(V2.name())) {
-            return buildV2Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
-        }
-        if (typeUrl.equalsIgnoreCase(V3.name())) {
-            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
-        }
+        String baseUrl = urlResolver.resolveUrl(typeUrl, pool);
+        String sourceId = part.getCampaign().getSurvey().getSource().getId();
+        UrlParameters params = new UrlParameters(baseUrl, role, questioning, questioning.getSurveyUnit().getIdSu(), sourceId, "");
+        UrlTypeEnum typeUrlEnum = UrlTypeEnum.valueOf(typeUrl);
 
-        return "";
+        switch (typeUrlEnum) {
+            case V1:
+                String campaignName = part.getCampaign().getSurvey().getSource().getId() + "-" + part.getCampaign().getSurvey().getYear() + "-" + part.getCampaign().getPeriod();
+                params.setCampaignName(campaignName);
+                return urlResolver.buildV1Url(params);
+            case V2:
+                return urlResolver.buildV2Url(params);
+            default:
+                return urlResolver.buildV3Url(params);
+        }
     }
-
-
-    /**
-     * Builds a V1 access URL based on the provided parameters.
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param campaignId   The campaign ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V1 access URL.
-     */
-    protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
-        if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
-            return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
-        }
-        if (role.equalsIgnoreCase(UserRoles.INTERVIEWER)) {
-            return String.format("%s/repondre/%s/%s", baseUrl, campaignId, surveyUnitId);
-        }
-        return "";
-    }
-
-    /**
-     * Builds a V3 access URL based on the provided parameters
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V3 access URL.
-     */
-
-    protected String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        return "";
-    }
-
-    /**
-     * Builds a V3 access URL based on the provided parameters
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V3 access URL.
-     */
-    protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
-                    .queryParam(PATH_LOGOUT, URLEncoder.encode("/" + sourceId, StandardCharsets.UTF_8))
-                    .queryParam(PATH_ASSISTANCE, URLEncoder.encode("/" + sourceId + "/contacter-assistance/auth?questioningId=" + questioningId, StandardCharsets.UTF_8))
-                    .build().toUriString();
-        }
-        return "";
-    }
-
 }

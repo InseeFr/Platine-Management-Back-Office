@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.constants;
 public class Constants {
 
 
+
     private Constants() {
         throw new IllegalStateException("Constants class");
     }
@@ -47,6 +48,9 @@ public class Constants {
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";
     public static final String API_SOURCE_ID_OPENED = "/api/source/{id}/is-opened";
+    public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
+    public static final String API_SOURCES_ID_PARAMS_ID = "/api/sources/{id}/params/{paramId}";
+
 
 
     public static final String API_SURVEYS_SEARCH = "/api/surveys/search";
@@ -59,7 +63,12 @@ public class Constants {
     public static final String API_CAMPAIGNS = "/api/campaigns";
     public static final String API_CAMPAIGNS_ID = "/api/campaigns/{id}";
     public static final String CAMPAIGNS_ID_ONGOING = "/campaigns/{id}/ongoing";
+    public static final String API_CAMPAIGNS_ONGOING = "api/campaigns/ongoing";
+
     public static final String API_CAMPAIGNS_ID_PARTITIONINGS = "/api/campaigns/{id}/partitionings";
+
+    public static final String API_CAMPAIGNS_ID_PARAMS = "/api/campaigns/{id}/params";
+
     public static final String API_PARTITIONINGS_ID = "/api/partitionings/{id}";
     public static final String API_OWNERS = "/api/owners";
     public static final String API_OWNERS_ID = "/api/owners/{id}";
