@@ -17,13 +17,9 @@ public interface CampaignService {
 
     Campaign findById(String idCampaign);
 
-    List<Campaign> findbyPeriod(String period);
-
-    List<Campaign> findbySourceYearPeriod(String source, Integer year, String period);
-
-    List<Campaign> findbySourcePeriod(String source, String period);
-
     Page<Campaign> findAll(Pageable pageable);
+
+    List<Campaign> findAll();
 
     Campaign insertOrUpdateCampaign(Campaign campaign);
 

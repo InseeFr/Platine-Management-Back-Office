@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,6 +54,32 @@ public class ParametersServiceImpl implements ParametersService {
         updatedParams.add(newParam);
         return updatedParams;
     }
+
+    @Override
+    public String findSuitableParameterValue(Partitioning part, Parameters.ParameterEnum paramValue) {
+        return findParameterValueInSet(part.getParams(), paramValue)
+                .orElse(findParameterValueInSet(part.getCampaign().getParams(), paramValue)
+                        .orElse(findParameterValueInSet(part.getCampaign().getSurvey().getParams(), paramValue)
+                                .orElse(findParameterValueInSet(part.getCampaign().getSurvey().getSource().getParams(), paramValue)
+                                        .orElse(""))));
+    }
+
+    @Override
+    public String findSuitableParameterValue(Campaign campaign, Parameters.ParameterEnum paramValue) {
+        return findParameterValueInSet(campaign.getParams(), paramValue)
+                        .orElse(findParameterValueInSet(campaign.getSurvey().getParams(), paramValue)
+                                .orElse(findParameterValueInSet(campaign.getSurvey().getSource().getParams(), paramValue)
+                                        .orElse("")));
+    }
+
+    private Optional<String> findParameterValueInSet(Set<Parameters> params, Parameters.ParameterEnum paramValue) {
+        return params.stream()
+                .filter(param -> param.getParamId().equals(paramValue))
+                .map(Parameters::getParamValue)
+                .findFirst();
+    }
+
+
 }
 
 

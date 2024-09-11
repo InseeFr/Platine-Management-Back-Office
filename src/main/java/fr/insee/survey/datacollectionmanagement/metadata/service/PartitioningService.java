@@ -15,8 +15,5 @@ public interface PartitioningService {
 
     boolean isOnGoing(Partitioning part, Date date);
 
-    String findSuitableParameterValue(Partitioning part, Parameters.ParameterEnum paramValue);
-
-
 
 }

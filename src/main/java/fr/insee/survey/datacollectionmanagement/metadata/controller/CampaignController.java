@@ -9,7 +9,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
@@ -45,6 +47,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 import java.util.Set;
 
+import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.V3;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
@@ -70,33 +74,31 @@ public class CampaignController {
 
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = Constants.API_CAMPAIGNS, produces = "application/json")
-    public ResponseEntity<CampaignPage> getSources(
+    public CampaignPage getCampaigns(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Campaign> pageCampaign = campaignService.findAll(pageable);
         List<CampaignDto> listCampaigns = pageCampaign.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new CampaignPage(listCampaigns, pageable, pageCampaign.getTotalElements()));
+        return new CampaignPage(listCampaigns, pageable, pageCampaign.getTotalElements());
     }
 
     @Operation(summary = "Search for campaigns by the survey id")
     @GetMapping(value = Constants.API_SURVEYS_ID_CAMPAIGNS, produces = "application/json")
-    public ResponseEntity<List<CampaignDto>> getCampaignsBySurvey(@PathVariable("id") String id) {
+    public List<CampaignDto> getCampaignsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
-        return ResponseEntity.ok()
-                .body(survey.getCampaigns().stream().map(this::convertToDto).toList());
+        return survey.getCampaigns().stream().map(this::convertToDto).toList();
 
     }
 
     @Operation(summary = "Search for campaigns and partitionings by the survey id")
     @GetMapping(value = Constants.API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS, produces = "application/json")
-    public ResponseEntity<List<CampaignPartitioningsDto>> getCampaignsPartitioningsBySurvey(@PathVariable("id") String id) {
+    public List<CampaignPartitioningsDto> getCampaignsPartitioningsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
-        return ResponseEntity.ok()
-                .body(survey.getCampaigns().stream().map(this::convertToCampaignPartitioningsDto).toList());
+        return survey.getCampaigns().stream().map(this::convertToCampaignPartitioningsDto).toList();
 
     }
 
@@ -107,9 +109,9 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<CampaignDto> getCampaign(@PathVariable("id") String id) {
+    public CampaignDto getCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToDto(campaign));
+        return convertToDto(campaign);
 
 
     }
@@ -117,10 +119,9 @@ public class CampaignController {
 
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = Constants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
-    public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
+    public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-        List<ParamsDto> listParams = campaign.getParams().stream().map(parametersService::convertToDto).toList();
-        return ResponseEntity.ok().body(listParams);
+        return campaign.getParams().stream().map(parametersService::convertToDto).toList();
     }
 
 
@@ -132,7 +133,7 @@ public class CampaignController {
         ParamValidator.validateParams(paramsDto);
         Parameters param = parametersService.convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(id));
-        Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign,param);
+        Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
         campaign.setParams(updatedParams);
         campaignService.insertOrUpdateCampaign(campaign);
     }
@@ -208,11 +209,39 @@ public class CampaignController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<OnGoingDto> isOnGoingCampaign(@PathVariable("id") String id) {
+    public OnGoingDto isOnGoingCampaign(@PathVariable("id") String id) {
         boolean isOnGoing = campaignService.isCampaignOngoing(id);
-        return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
+        return new OnGoingDto(isOnGoing);
 
     }
+
+
+    @Operation(summary = "get ongoing campaigns")
+    @GetMapping(value = Constants.API_CAMPAIGNS_ONGOING, produces = "application/json")
+    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false) String campaignType) {
+        List<Campaign> listCampaigns = campaignService.findAll();
+        return listCampaigns.stream().filter(c -> campaignService.isCampaignOngoing(c.getId())
+                        && isCampaignInType(c, campaignType)).
+                map(this::convertToCampaignOngoingDto).toList();
+
+
+    }
+
+    private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
+        CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
+        result.setSourceId(campaign.getSurvey().getSource().getId());
+        return result;
+    }
+
+    private boolean isCampaignInType(Campaign c, String campaignType) {
+        if (campaignType.isEmpty())
+            return true;
+        if (campaignType.equalsIgnoreCase(V3.name()))
+            return parametersService.findSuitableParameterValue(c, Parameters.ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType)
+                    || parametersService.findSuitableParameterValue(c, Parameters.ParameterEnum.URL_TYPE).isEmpty();
+        return parametersService.findSuitableParameterValue(c, Parameters.ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType);
+    }
+
 
     private CampaignDto convertToDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignDto.class);
@@ -228,8 +257,7 @@ public class CampaignController {
     }
 
 
-
-    class CampaignPage extends PageImpl<CampaignDto> {
+    static class CampaignPage extends PageImpl<CampaignDto> {
 
         public CampaignPage(List<CampaignDto> content, Pageable pageable, long total) {
             super(content, pageable, total);
