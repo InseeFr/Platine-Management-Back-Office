@@ -234,7 +234,7 @@ public class CampaignController {
     }
 
     private boolean isCampaignInType(Campaign c, String campaignType) {
-        if (campaignType.isEmpty())
+        if (StringUtils.isEmpty(campaignType))
             return true;
         if (campaignType.equalsIgnoreCase(V3.name()))
             return parametersService.findSuitableParameterValue(c, Parameters.ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType)
