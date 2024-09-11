@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 
 import java.util.Date;

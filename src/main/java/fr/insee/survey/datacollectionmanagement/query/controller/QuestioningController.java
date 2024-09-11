@@ -60,7 +60,7 @@ public class QuestioningController {
         try {
             return new ResponseEntity<>(convertToDto(questioning), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>("Error", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -72,7 +72,6 @@ public class QuestioningController {
     })
     public ResponseEntity<?> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
-        ;
         partitioningService.findById(questioningDto.getIdPartitioning());
 
 
