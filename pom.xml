@@ -20,7 +20,7 @@
 		<modelmapper-version>3.2.0</modelmapper-version>
 		<jakarta-version>3.1.0</jakarta-version>
 		<easy-version>5.0.0</easy-version>
-		<postgre-version>42.7.3</postgre-version>
+		<postgres-version>42.7.3</postgres-version>
 		<javafaker-version>1.0.2</javafaker-version>
 		<sonar.organization>inseefr</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>${postgre-version}</version>
+			<version>${postgres-version}</version>
 		</dependency>
 		<!-- SECURITY -->
 		<dependency>
