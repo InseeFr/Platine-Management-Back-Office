@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contacts.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -7,15 +9,16 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,16 +32,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class AddressControllerTest {
+class AddressControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ContactService contactService;
+    ContactService contactService;
 
     @Autowired
-    private AddressService addressService;
+    AddressService addressService;
+
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
 
     @Test
     void getAddressOk() throws Exception {

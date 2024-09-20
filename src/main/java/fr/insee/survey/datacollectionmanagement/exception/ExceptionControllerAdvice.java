@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -122,9 +123,19 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.NOT_FOUND, request);
     }
 
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ApiError> emptyResultDataAccessException(EmptyResultDataAccessException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.NOT_FOUND, request);
+    }
+
+
+
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiError> entityNotFoundException(NotFoundException e, WebRequest request) {
+    public ResponseEntity<ApiError> entityNotFoundException(EntityNotFoundException e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.NOT_FOUND, request);
     }
@@ -159,4 +170,13 @@ public class ExceptionControllerAdvice {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.INTERNAL_SERVER_ERROR, request, ERROR_OCCURRED_LABEL);
     }
+
+    @ExceptionHandler(ForbiddenAccessException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ResponseEntity<ApiError> forbiddenAccessException(Exception e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.FORBIDDEN, request);
+    }
+
 }

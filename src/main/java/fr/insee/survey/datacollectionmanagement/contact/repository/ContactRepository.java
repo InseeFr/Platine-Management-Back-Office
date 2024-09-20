@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.repository;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,31 +18,52 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
 
     @Query(nativeQuery = true, value = "SELECT identifier FROM contact TABLESAMPLE system_rows(1)")
     String findRandomIdentifierContact();
-
     @Query(
-            value = """ 
+            value = """
         SELECT
-            *
+            c.identifier as identifier,
+            c.email as email,
+            c.first_name as firstName,
+            c.last_name as lastName
         FROM
             contact c
-        JOIN 
-            address a
-        ON 
-            c.address_id = a.id
         WHERE
-            (:identifier IS NULL OR UPPER(c.identifier) = UPPER(:identifier))
-            AND
-            (:name IS NULL OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE UPPER(CONCAT('%', :name, '%')))
-            AND
-            (:email IS NULL OR UPPER(c.email) = UPPER(:email))
-            AND
-            (:function IS NULL OR UPPER(c.function) LIKE UPPER(CONCAT('%', :function, '%')))
-            AND
-            (:city IS NULL OR UPPER(a.city_name) = UPPER(:city))
-    """,
+            UPPER(c.identifier) LIKE CONCAT(UPPER(:param), '%')           
+        """,
             nativeQuery = true
     )
-    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
+    Page<SearchContactDto> findByIdentifier( String param, Pageable pageable);
 
+    @Query(
+            value = """
+        SELECT
+            c.identifier as identifier,
+            c.email as email,
+            c.first_name as firstName,
+            c.last_name as lastName
+        FROM
+            contact c
+        WHERE
+            UPPER(c.email) LIKE CONCAT(UPPER(:param), '%')   
+        """,
+            nativeQuery = true
+    )
+    Page<SearchContactDto> findByEmail( String param, Pageable pageable);
+    @Query(
+            value = """
+        SELECT
+            c.identifier as identifier,
+            c.email as email,
+            c.first_name as firstName,
+            c.last_name as lastName
+        FROM
+            contact c
+        WHERE
+            UPPER(c.last_name) LIKE CONCAT(UPPER(:param), '%')
+            OR UPPER(CONCAT(c.first_name, ' ', c.last_name)) LIKE CONCAT(UPPER(:param), '%')            
+        """,
+            nativeQuery = true
+    )
+    Page<SearchContactDto> findByFirstNameLastName(String param, Pageable pageable);
 
 }

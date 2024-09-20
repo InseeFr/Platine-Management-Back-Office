@@ -19,6 +19,7 @@ public class ContactDto{
     private String function;
     private String email;
     private String phone;
+    private String otherPhone;
     private String usualCompanyName;
     private AddressDto address;
 

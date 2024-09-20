@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -30,9 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -44,15 +41,13 @@ public class AddressController {
 
     private final ContactEventService contactEventService;
 
-    private final UserProvider userProvider;
-
-
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
@@ -65,11 +60,10 @@ public class AddressController {
 
     @Operation(summary = "Update or create an address by the contact id")
     @PutMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
-    public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id, @RequestBody AddressDto addressDto, Authentication auth) {
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
+                                                 @RequestBody AddressDto addressDto,
+                                                 Authentication auth) {
         Contact contact = contactService.findByIdentifier(id);
         HttpStatus httpStatus;
         Address addressUpdate;
@@ -89,8 +83,7 @@ public class AddressController {
             contactService.saveContact(contact);
             httpStatus = HttpStatus.CREATED;
         }
-        AuthUser authUser = userProvider.getUser(auth);
-        PayloadUtil.getPayloadAuthor(authUser.getId());
+        PayloadUtil.getPayloadAuthor(auth.getName());
         ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
                 null);
         contactEventService.saveContactEvent(contactEventUpdate);

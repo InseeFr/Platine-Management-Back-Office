@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -22,26 +21,23 @@ import java.util.List;
 @Slf4j
 public class CheckHabilitationServiceImplOidc implements CheckHabilitationService {
 
-    private final ApplicationConfig applicationConfig;
-
     private final ViewService viewService;
 
     private final UserService userService;
 
     @Override
-    public boolean checkHabilitation(String role, String idSu, String campaignId, AuthUser authUser) {
+    public boolean checkHabilitation(String role, String idSu, String campaignId, List<String> userRoles, String userId) {
 
-        String userId = authUser.getId().toUpperCase();
 
         //admin
-        if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleAdmin())) {
+        if (isUserInRole(userRoles, AuthorityRoleEnum.ADMIN.securityRole())) {
             log.info("Check habilitation of admin {} for accessing survey-unit {} of campaign {} resulted in true", userId, idSu, campaignId);
             return true;
         }
 
         //respondents
         if (role == null || role.isBlank() || role.equals(UserRoles.INTERVIEWER)) {
-            if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleRespondent())) {
+            if (isUserInRole(userRoles, AuthorityRoleEnum.RESPONDENT.securityRole())) {
                 boolean habilitated = viewService.countViewByIdentifierIdSuCampaignId(userId.toUpperCase(), idSu, campaignId) != 0;
                 log.info("Check habilitation of interviewer {} for accessing survey-unit {} of campaign {} resulted in {}", userId, idSu, campaignId, habilitated);
                 return habilitated;
@@ -65,7 +61,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
         }
 
 
-        if (isUserInRole(authUser.getRoles(), applicationConfig.getRoleInternalUser())) {
+        if (isUserInRole(userRoles, AuthorityRoleEnum.INTERNAL_USER.securityRole())) {
             String userRole = user.getRole().toString();
             if (userRole.equals(User.UserRoleType.ASSISTANCE.toString())) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
@@ -81,9 +77,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
     }
 
-    private boolean isUserInRole(List<String> roles, List<String> role) {
-
-        return role.stream().anyMatch(roles::contains);
+    private boolean isUserInRole(List<String> userRoles, String targetRole) {
+        return userRoles.stream().anyMatch(userRole -> userRole.equals(targetRole));
     }
-
 }

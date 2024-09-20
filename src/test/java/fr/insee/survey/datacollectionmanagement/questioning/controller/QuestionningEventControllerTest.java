@@ -1,16 +1,20 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,7 +31,13 @@ class QuestionningEventControllerTest {
     @Autowired
     QuestioningService questioningService;
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
+
 
     @Test
     void getQuestioningEventOk() throws Exception {

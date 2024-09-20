@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
@@ -26,9 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController(value = "contactEvents")
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() " + "|| @AuthorizeMethodDecider.isRespondent() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated
@@ -40,8 +39,12 @@ public class ContactEventController {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
@@ -51,8 +54,13 @@ public class ContactEventController {
 
     }
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Create a contactEvent")
     @PostMapping(value = Constants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
         Contact contact = contactService.findByIdentifier(contactEventDto.getIdentifier());
@@ -71,9 +79,14 @@ public class ContactEventController {
     }
 
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Delete a contact event")
     @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContactEvent(@PathVariable("id") Long id) {
         ContactEvent contactEvent = contactEventService.findById(id);
         Contact contact = contactEvent.getContact();

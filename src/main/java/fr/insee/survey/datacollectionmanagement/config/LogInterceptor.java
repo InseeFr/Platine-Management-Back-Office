@@ -1,16 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.config;
 
-
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
-import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthenticationUserHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -22,9 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
-    private final ApplicationConfig applicationConfig;
+    private final AuthenticationUserHelper authenticationUserHelper;
 
-    private final UserProvider userProvider;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
@@ -32,27 +27,16 @@ public class LogInterceptor implements HandlerInterceptor {
         String method = request.getMethod();
         String operationPath = request.getRequestURI();
 
-        String userId = null;
+        Authentication authentication = authenticationUserHelper.getCurrentUser();
+        ThreadContext.put("user", authentication.getName().toUpperCase());
 
-        switch (applicationConfig.getAuthType()) {
-
-            case AuthConstants.OIDC:
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                AuthUser currentAuthUser = userProvider.getUser(authentication);
-                userId = (currentAuthUser != null && currentAuthUser.getId() != null ? currentAuthUser.getId() : "anonymous");
-                ThreadContext.put("user", userId.toUpperCase());
-                break;
-            default:
-                userId = "GUEST";
-                break;
-        }
 
         ThreadContext.put("id", fishTag);
         ThreadContext.put("path", operationPath);
         ThreadContext.put("method", method);
 
 
-        log.info("[" + userId.toUpperCase() + "] - [" + method + "] - [" + operationPath + "]");
+        log.info("[" + authentication.getName().toUpperCase() + "] - [" + method + "] - [" + operationPath + "]");
         return true;
     }
 

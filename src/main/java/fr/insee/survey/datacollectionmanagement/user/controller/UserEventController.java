@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
@@ -30,9 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController(value = "UserEvents")
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @RequiredArgsConstructor

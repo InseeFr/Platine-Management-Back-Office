@@ -24,7 +24,7 @@ public class Contact {
 
     @Id
     private String identifier;
-    
+
     private String externalId;
     private String lastName;
     private String firstName;
@@ -32,6 +32,8 @@ public class Contact {
     private String function;
     private String usualCompanyName;
     private String phone;
+    @Column(name = "phone2")
+    private String otherPhone;
     private String comment;
     @Column(columnDefinition = "boolean default false")
     private boolean emailVerify;

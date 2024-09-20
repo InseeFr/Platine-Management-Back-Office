@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -49,9 +50,7 @@ import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeE
 import static java.util.stream.Collectors.joining;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @Validated
@@ -135,7 +134,7 @@ public class CampaignController {
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
                 && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
 
-            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(item -> item.name())
+            throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(Enum::name)
                     .collect(joining(" "))));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())

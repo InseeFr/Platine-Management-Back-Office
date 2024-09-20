@@ -1,11 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.dummy;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public class SurveyUnitServiceDummy implements SurveyUnitService {
     @Override
@@ -14,12 +13,17 @@ public class SurveyUnitServiceDummy implements SurveyUnitService {
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationCode(String identificationCode) {
+    public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
         return null;
     }
 
     @Override
-    public List<SurveyUnit> findbyIdentificationName(String identificationName) {
+    public Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<SearchSurveyUnitDto> findbyIdentificationName(String identificationName, Pageable pageable) {
         return null;
     }
 
@@ -29,17 +33,12 @@ public class SurveyUnitServiceDummy implements SurveyUnitService {
     }
 
     @Override
-    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable) {
-        return null;
-    }
-
-    @Override
     public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit) {
         return null;
     }
 
     @Override
-    public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit) {
+    public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
         return null;
     }
 

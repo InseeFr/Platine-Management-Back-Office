@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -35,9 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
 @RequiredArgsConstructor
@@ -54,12 +54,11 @@ public class MoogController {
                                                           @RequestParam(defaultValue = "0", required = false) int pageNo,
                                                           @RequestParam(defaultValue = "20", required = false) int pageSize) {
 
-        List<View> listView = moogService.moogSearch(filter1);
+        List<View> listView = moogService.moogSearch(StringUtils.upperCase(filter1));
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         int start = (int) pageable.getOffset();
-        int end = (start + pageable.getPageSize()) > listView.size() ? listView.size()
-                : (start + pageable.getPageSize());
+        int end = Math.min((start + pageable.getPageSize()), listView.size());
 
         if (start <= end) {
             Page<MoogSearchDto> page = new PageImpl<>(

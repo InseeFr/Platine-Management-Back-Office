@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
@@ -55,9 +56,20 @@ public class ContactServiceImpl implements ContactService {
         contactRepository.deleteById(identifier);
     }
 
+
     @Override
-    public Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable) {
-        return contactRepository.findByParameters(identifier, name, email, city, function, pageable);
+    public Page<SearchContactDto> searchContactByIdentifier(String identifier, Pageable pageable) {
+        return contactRepository.findByIdentifier(identifier, pageable);
+    }
+
+    @Override
+    public Page<SearchContactDto> searchContactByEmail(String email, Pageable pageable) {
+        return contactRepository.findByEmail(email, pageable);
+    }
+
+    @Override
+    public Page<SearchContactDto> searchContactByName(String name, Pageable pageable) {
+        return contactRepository.findByFirstNameLastName(name, pageable);
     }
 
 
@@ -99,5 +111,6 @@ public class ContactServiceImpl implements ContactService {
         deleteContact(contact.getIdentifier());
 
     }
+
 
 }

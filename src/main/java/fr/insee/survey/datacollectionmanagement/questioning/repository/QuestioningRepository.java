@@ -1,17 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.questioning.repository;
 
-import java.util.Set;
-
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import java.util.Set;
 
 public interface QuestioningRepository extends JpaRepository<Questioning, Long> {
 
-    public Set<Questioning> findByIdPartitioning(String idPartitioning);
+    Set<Questioning> findByIdPartitioning(String idPartitioning);
 
-    public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
+    Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
             String surveyUnitIdSu);
 
-    public Set<Questioning> findBySurveyUnitIdSu(String idSu);
+    Set<Questioning> findBySurveyUnitIdSu(String idSu);
 }

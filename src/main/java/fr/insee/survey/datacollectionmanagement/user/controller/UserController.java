@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
@@ -36,9 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient()" +
-        " || @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @Slf4j
 @Validated

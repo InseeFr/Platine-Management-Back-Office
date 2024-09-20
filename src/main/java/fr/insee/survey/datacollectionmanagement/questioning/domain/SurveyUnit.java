@@ -27,8 +27,14 @@ public class SurveyUnit {
     // "Raison Sociale"
     private String identificationName;
 
+    private String label;
+
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private SurveyUnitAddress surveyUnitAddress;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<SurveyUnitComment> surveyUnitComments;
 
     @Override
     public String toString() {

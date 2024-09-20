@@ -1,10 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +26,11 @@ class MoogControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
+
     
     @Test
     void getMoogReadOnlyUrl() throws Exception {

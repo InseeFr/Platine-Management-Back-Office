@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -34,9 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
 @RequiredArgsConstructor
@@ -90,6 +89,7 @@ public class QuestioningEventController {
                     .body(convertToDto(newQuestioningEvent));
 
         } catch (ParseException e) {
+            log.error(e.getMessage(),e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
 
@@ -112,13 +112,14 @@ public class QuestioningEventController {
                     .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
             questioningService.saveQuestioning(quesitoning);
             questioningEventService.deleteQuestioningEvent(id);
-            if (upload != null && questioningEventService.findbyIdUpload(upload.getId()).size() == 0) {
+            if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
                 uploadService.delete(upload);
             }
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
 
         } catch (Exception e) {
-            return new ResponseEntity<String>("Error", HttpStatus.BAD_REQUEST);
+            log.error(e.getMessage(),e);
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
     }
 

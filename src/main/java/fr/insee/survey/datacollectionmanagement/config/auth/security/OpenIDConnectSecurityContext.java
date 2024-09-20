@@ -1,8 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,6 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 import java.util.Collection;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -80,18 +77,7 @@ public class OpenIDConnectSecurityContext {
         String tokenUrl = config.getKeyCloakUrl() + "/realms/" + config.getKeycloakRealm() + "/protocol/openid-connect/token";
         String authorizedConnectionHost = config.getAuthType().equals(AuthConstants.OIDC) ?
                 " " + tokenUrl : "";
-        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);    }
-
-    @Bean
-    public UserProvider getUserProvider() {
-        return auth -> {
-            if ("anonymousUser".equals(auth.getPrincipal()))
-                return null; //init request, or request without authentication
-            final Jwt jwt = (Jwt) auth.getPrincipal();
-            List<String> tryRoles = jwt.getClaimAsStringList(config.getRoleClaim());
-            String tryId = jwt.getClaimAsString(config.getIdClaim());
-            return new AuthUser(tryId, tryRoles);
-        };
+        return publicSecurityFilterChainConfiguration.buildSecurityPublicFilterChain(http, config.getPublicUrls(), authorizedConnectionHost);
     }
 
     @Bean
@@ -105,7 +91,4 @@ public class OpenIDConnectSecurityContext {
     Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
         return new GrantedAuthorityConverter(applicationConfig);
     }
-
-
-
 }

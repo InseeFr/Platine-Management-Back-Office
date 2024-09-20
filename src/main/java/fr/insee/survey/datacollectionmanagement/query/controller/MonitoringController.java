@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
@@ -16,9 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "5 - Moog", description = "Enpoints for moog")
 @Slf4j
 @RequiredArgsConstructor

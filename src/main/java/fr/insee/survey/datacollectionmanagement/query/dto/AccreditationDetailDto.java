@@ -14,11 +14,11 @@ import java.util.Date;
 public class AccreditationDetailDto {
 
     private String sourceId;
-
     private String surveyId;
     private String sourceWording;
     private int year;
     private PeriodEnum period;
+    private String campaignId;
     private String partition;
     private Date partioningClosingDate;
     private String surveyUnitId;

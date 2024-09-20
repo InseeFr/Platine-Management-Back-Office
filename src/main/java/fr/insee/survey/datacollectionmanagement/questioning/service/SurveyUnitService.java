@@ -1,27 +1,26 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface SurveyUnitService {
 
-    public SurveyUnit findbyId(String idSu);
+    SurveyUnit findbyId(String idSu);
 
-    public List<SurveyUnit> findbyIdentificationCode(String identificationCode);
+    Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable);
 
-    public List<SurveyUnit> findbyIdentificationName(String identificationName);
+    Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable);
 
-    public Page<SurveyUnit> findAll(Pageable pageable);
+    Page<SearchSurveyUnitDto>  findbyIdentificationName(String identificationName, Pageable pageable);
 
-    public Page<SurveyUnit> findByParameters(String idSu, String identificationCode, String identificationName, Pageable pageable);
+    Page<SurveyUnit> findAll(Pageable pageable);
 
-    public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
+    SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     
-    public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit);
+    SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit);
 
-    public void deleteSurveyUnit(String id);
+    void deleteSurveyUnit(String id);
 
 }

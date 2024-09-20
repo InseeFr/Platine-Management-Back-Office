@@ -1,14 +1,18 @@
 package fr.insee.survey.datacollectionmanagement.contacts.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,10 +26,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class ContactEventControllerTest {
+class ContactEventControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
 
     @Test
     void getContactEventOk() throws Exception {

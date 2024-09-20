@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
@@ -51,15 +52,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.*;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor
 @Validated
 public class WebclientController {
 
+    public static final String QUESTIONING_DOES_NOT_EXIST = "Questioning does not exist";
     private final QuestioningService questioningService;
 
     private final SurveyUnitService surveyUnitService;
@@ -98,7 +98,7 @@ public class WebclientController {
 
     })
     @Transactional
-    public ResponseEntity<?> putQuestioning(@RequestBody QuestioningWebclientDto questioningWebclientDto)
+    public ResponseEntity<QuestioningWebclientDto> putQuestioning(@RequestBody QuestioningWebclientDto questioningWebclientDto)
             throws JsonProcessingException {
 
         log.info("Put questioning for webclients {}", questioningWebclientDto.toString());
@@ -106,11 +106,6 @@ public class WebclientController {
         String idSu = StringUtils.upperCase(questioningWebclientDto.getSurveyUnit().getIdSu());
         String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
 
-
-        if (idPartitioning.isBlank() || modelName.isBlank() || idSu.isBlank()) {
-            log.warn("Missing fields");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing fields");
-        }
 
         Partitioning part = partitioningService.findById(idPartitioning);
 
@@ -158,7 +153,7 @@ public class WebclientController {
         // save questioning and su
         questioningService.saveQuestioning(questioning);
         su.getQuestionings().add(questioning);
-        surveyUnitService.saveSurveyUnitAndAddress(su);
+        surveyUnitService.saveSurveyUnitAddressComments(su);
 
 
         questioningReturn.setIdPartitioning(idPartitioning);
@@ -236,9 +231,9 @@ public class WebclientController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
     })
-    public ResponseEntity<?> getQuestioning(@RequestParam(required = true) String modelName,
-                                            @RequestParam(required = true) String idPartitioning,
-                                            @RequestParam(required = true) String idSurveyUnit) {
+    public ResponseEntity<QuestioningWebclientDto> getQuestioning(@RequestParam(required = true) String modelName,
+                                                                  @RequestParam(required = true) String idPartitioning,
+                                                                  @RequestParam(required = true) String idSurveyUnit) {
 
         QuestioningWebclientDto questioningWebclientDto = new QuestioningWebclientDto();
 
@@ -247,7 +242,7 @@ public class WebclientController {
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 idSurveyUnit);
         if (questioning == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         questioningWebclientDto.setIdPartitioning(idPartitioning);
@@ -269,23 +264,18 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> getMetadata(@PathVariable("id") String id) {
+    public ResponseEntity<MetadataDto> getMetadata(@PathVariable("id") String id) {
+
         MetadataDto metadataDto = new MetadataDto();
         Partitioning part = partitioningService.findById(StringUtils.upperCase(id));
+        metadataDto.setPartitioningDto(convertToDto(part));
+        metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
+        metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
+        metadataDto.setSourceDto(convertToDto(part.getCampaign().getSurvey().getSource()));
+        metadataDto.setOwnerDto(convertToDto(part.getCampaign().getSurvey().getSource().getOwner()));
+        metadataDto.setSupportDto(convertToDto(part.getCampaign().getSurvey().getSource().getSupport()));
+        return ResponseEntity.ok().body(metadataDto);
 
-        try {
-
-            metadataDto.setPartitioningDto(convertToDto(part));
-            metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
-            metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
-            metadataDto.setSourceDto(convertToDto(part.getCampaign().getSurvey().getSource()));
-            metadataDto.setOwnerDto(convertToDto(part.getCampaign().getSurvey().getSource().getOwner()));
-            metadataDto.setSupportDto(convertToDto(part.getCampaign().getSurvey().getSource().getSupport()));
-            return ResponseEntity.ok().body(metadataDto);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -297,83 +287,82 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @Transactional
-    public ResponseEntity<?> putMetadata(@PathVariable("id") String id,
-                                         @RequestBody @Valid MetadataDto metadataDto) {
+    public ResponseEntity<MetadataDto> putMetadata(@PathVariable("id") String id,
+                                                   @RequestBody @Valid MetadataDto metadataDto) {
         if (!metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idPartitioning don't match");
         }
+
+        MetadataDto metadataReturn = new MetadataDto();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.LOCATION,
+                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(id).toUriString());
+        HttpStatus httpStatus = getHttpStatus(id);
+
+
+        Owner owner = convertToEntity(metadataDto.getOwnerDto());
+        Support support = convertToEntity(metadataDto.getSupportDto());
+        Source source = convertToEntity(metadataDto.getSourceDto());
+        Survey survey = convertToEntity(metadataDto.getSurveyDto());
+
+        survey.setSource(source);
+        Campaign campaign = convertToEntity(metadataDto.getCampaignDto());
+        campaign.setSurvey(survey);
+        Partitioning partitioning = convertToEntity(metadataDto.getPartitioningDto());
+        partitioning.setCampaign(campaign);
+
+        campaign = campaignService.addPartitionigToCampaign(campaign, partitioning);
+        survey = surveyService.addCampaignToSurvey(survey, campaign);
+        source = sourceService.addSurveyToSource(source, survey);
+        owner = ownerService.insertOrUpdateOwner(owner);
+        support = supportService.insertOrUpdateSupport(support);
+        source = sourceService.insertOrUpdateSource(source);
+
+        source.setOwner(owner);
+        source.setSupport(support);
+
+        Set<Source> sourcesOwner = (owner.getSources() == null) ? new HashSet<>()
+                : owner.getSources();
+        sourcesOwner.add(source);
+        owner.setSources(sourcesOwner);
+
+        Set<Source> sourcesSupport = (support.getSources() == null) ? new HashSet<>()
+                : support.getSources();
+        sourcesSupport.add(source);
+        support.setSources(sourcesSupport);
+
+        owner = ownerService.insertOrUpdateOwner(owner);
+        support = supportService.insertOrUpdateSupport(support);
+        source = sourceService.insertOrUpdateSource(source);
+        survey = surveyService.insertOrUpdateSurvey(survey);
+        campaign = campaignService.insertOrUpdateCampaign(campaign);
+        partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
+
+        metadataReturn.setOwnerDto(convertToDto(owner));
+        metadataReturn.setSupportDto(convertToDto(support));
+        metadataReturn.setSourceDto(convertToDto(source));
+        metadataReturn.setSurveyDto(convertToDto(survey));
+        metadataReturn.setCampaignDto(convertToDto(campaign));
+        metadataReturn.setPartitioningDto(convertToDto(partitioning));
+
+        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(metadataReturn);
+
+
+    }
+
+    private HttpStatus getHttpStatus(String id) {
+        HttpStatus httpStatus;
         try {
+            partitioningService.findById(id);
+            log.info("Update partitioning with the id {}", id);
+            httpStatus = HttpStatus.OK;
 
-            MetadataDto metadataReturn = new MetadataDto();
-
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.LOCATION,
-                    ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(id).toUriString());
-            HttpStatus httpStatus;
-
-            try {
-                partitioningService.findById(id);
-                log.info("Update partitioning with the id {}", id);
-                httpStatus = HttpStatus.OK;
-
-            } catch (NotFoundException e) {
-                log.info("Create partitioning with the id {}", id);
-                httpStatus = HttpStatus.CREATED;
-            }
-
-
-            Owner owner = convertToEntity(metadataDto.getOwnerDto());
-            Support support = convertToEntity(metadataDto.getSupportDto());
-            Source source = convertToEntity(metadataDto.getSourceDto());
-            Survey survey = convertToEntity(metadataDto.getSurveyDto());
-
-            survey.setSource(source);
-            Campaign campaign = convertToEntity(metadataDto.getCampaignDto());
-            campaign.setSurvey(survey);
-            Partitioning partitioning = convertToEntity(metadataDto.getPartitioningDto());
-            partitioning.setCampaign(campaign);
-
-            campaign = campaignService.addPartitionigToCampaign(campaign, partitioning);
-            survey = surveyService.addCampaignToSurvey(survey, campaign);
-            source = sourceService.addSurveyToSource(source, survey);
-            owner = ownerService.insertOrUpdateOwner(owner);
-            support = supportService.insertOrUpdateSupport(support);
-            source = sourceService.insertOrUpdateSource(source);
-
-            source.setOwner(owner);
-            source.setSupport(support);
-
-            Set<Source> sourcesOwner = (owner.getSources() == null) ? new HashSet<>()
-                    : owner.getSources();
-            sourcesOwner.add(source);
-            owner.setSources(sourcesOwner);
-
-            Set<Source> sourcesSupport = (support.getSources() == null) ? new HashSet<>()
-                    : support.getSources();
-            sourcesSupport.add(source);
-            support.setSources(sourcesSupport);
-
-            owner = ownerService.insertOrUpdateOwner(owner);
-            support = supportService.insertOrUpdateSupport(support);
-            source = sourceService.insertOrUpdateSource(source);
-            survey = surveyService.insertOrUpdateSurvey(survey);
-            campaign = campaignService.insertOrUpdateCampaign(campaign);
-            partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
-
-            metadataReturn.setOwnerDto(convertToDto(owner));
-            metadataReturn.setSupportDto(convertToDto(support));
-            metadataReturn.setSourceDto(convertToDto(source));
-            metadataReturn.setSurveyDto(convertToDto(survey));
-            metadataReturn.setCampaignDto(convertToDto(campaign));
-            metadataReturn.setPartitioningDto(convertToDto(partitioning));
-
-            return ResponseEntity.status(httpStatus).headers(responseHeaders).body(metadataReturn);
-        } catch (Exception e) {
-            log.error("Error in put metadata {}", metadataDto.toString());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-
+        } catch (NotFoundException e) {
+            log.info("Create partitioning with the id {}", id);
+            httpStatus = HttpStatus.CREATED;
         }
-
+        return httpStatus;
     }
 
     @Operation(summary = "Search for main contact")
@@ -383,7 +372,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getMainContact(
+    public ResponseEntity<ContactDto> getMainContact(
             @RequestParam(value = "partitioning", required = true) String partitioningId,
             @RequestParam(value = "survey-unit", required = true) String surveyUnitId) {
 
@@ -402,12 +391,10 @@ public class WebclientController {
 
                 }
             }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No contact found");
+            throw new NotFoundException("Contact does not exist");
 
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("Questioning does not exist", HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
     }
 
@@ -418,13 +405,13 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> getState(@PathVariable("idPartitioning") String idPartitioning,
-                                      @PathVariable("idSu") String idSu) {
+    public ResponseEntity<StateDto> getState(@PathVariable("idPartitioning") String idPartitioning,
+                                             @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
         if (questioning == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
         Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
                 TypeQuestioningEvent.STATE_EVENTS);
@@ -440,14 +427,14 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> isToFollwUp(
+    public ResponseEntity<EligibleDto> isToFollwUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
         if (questioning == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
@@ -466,14 +453,14 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @Transactional
-    public ResponseEntity<?> postFollwUp(
+    public ResponseEntity<StateDto> postFollwUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) throws JsonProcessingException {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
         if (questioning == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         JsonNode node = addWebclientAuthorNode();
@@ -505,13 +492,13 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
-                                         @PathVariable("idSu") String idSu) {
+    public ResponseEntity<EligibleDto> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
+                                                   @PathVariable("idSu") String idSu) {
 
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
         if (questioning == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Questioning does not exist");
+            throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
@@ -520,7 +507,6 @@ public class WebclientController {
         result.setEligible(questioningEvent.isPresent() ? "true" : "false");
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
-
     private Support convertToEntity(SupportDto supportDto) {
         return modelMapper.map(supportDto, Support.class);
     }

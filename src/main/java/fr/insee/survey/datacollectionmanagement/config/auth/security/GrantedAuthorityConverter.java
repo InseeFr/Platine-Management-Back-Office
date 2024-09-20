@@ -1,7 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.config.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,27 +15,39 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GrantedAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
+    private final Map<String, SimpleGrantedAuthority> grantedRoles;
     ApplicationConfig applicationConfig;
 
+    public GrantedAuthorityConverter(ApplicationConfig applicationConfig) {
+        this.applicationConfig = applicationConfig;
+        this.grantedRoles = new HashMap<>();
+        fillGrantedRoles(applicationConfig.getRoleAdmin(), AuthorityRoleEnum.ADMIN);
+        fillGrantedRoles(applicationConfig.getRoleRespondent(), AuthorityRoleEnum.RESPONDENT);
+        fillGrantedRoles(applicationConfig.getRoleInternalUser(), AuthorityRoleEnum.INTERNAL_USER);
+        fillGrantedRoles(applicationConfig.getRoleWebClient(), AuthorityRoleEnum.WEB_CLIENT);
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public Collection<GrantedAuthority> convert(Jwt jwt) {
+    public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
         Map<String, Object> claims = jwt.getClaims();
         List<String> roles = (List<String>) claims.get(applicationConfig.getRoleClaim());
-        List<String> authorizedRoles = new ArrayList<>();
-        authorizedRoles.addAll(applicationConfig.getRoleAdmin());
-        authorizedRoles.addAll(applicationConfig.getRoleRespondent());
-        authorizedRoles.addAll(applicationConfig.getRoleInternalUser());
-        authorizedRoles.addAll(applicationConfig.getRoleWebClient());
 
         return roles.stream()
-                .map(role -> {
-                    if (authorizedRoles.contains(role)) {
-                        return new SimpleGrantedAuthority(role);
-                    }
-                    return null;
-                })
                 .filter(Objects::nonNull)
+                .filter(role -> !role.isBlank())
+                .filter(grantedRoles::containsKey)
+                .map(grantedRoles::get)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private void fillGrantedRoles(List<String> listRoles, AuthorityRoleEnum roleEnum) {
+
+        for (String role : listRoles ) {
+            this.grantedRoles.putIfAbsent(role,
+                    new SimpleGrantedAuthority(roleEnum.securityRole()));
+        }
+
     }
 }
 

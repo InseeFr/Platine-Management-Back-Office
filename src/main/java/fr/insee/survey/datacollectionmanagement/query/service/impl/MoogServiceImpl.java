@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.config.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -22,6 +23,7 @@ import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -71,7 +73,8 @@ public class MoogServiceImpl implements MoogService {
             moogCampaign
                     .setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().getTime());
             moogSearchDto.setIdContact(view.getIdentifier());
-            moogSearchDto.setAddress(c.getAddress().getZipCode().concat(" ").concat(c.getAddress().getCityName()));
+            String address = createAddressMoog(c.getAddress());
+            moogSearchDto.setAddress(address);
             moogSearchDto.setIdSu(view.getIdSu());
             moogSearchDto.setCampaign(moogCampaign);
             moogSearchDto.setFirstName(c.getFirstName());
@@ -80,6 +83,16 @@ public class MoogServiceImpl implements MoogService {
             listResult.add(moogSearchDto);
         }
         return listResult;
+    }
+
+    protected String createAddressMoog(Address address) {
+        String zipCode = address.getZipCode();
+        String city = address.getCityName();
+        return StringUtils.trim(String.join(" ", valueNotNull(zipCode), valueNotNull(city)));
+    }
+
+    private String valueNotNull(String value) {
+        return value == null || value.isBlank() ? "" : value;
     }
 
     @Override

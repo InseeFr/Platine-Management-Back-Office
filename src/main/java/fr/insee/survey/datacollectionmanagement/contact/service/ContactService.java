@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.contact.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,7 @@ public interface ContactService {
      * @param identifier contact identifier
      * @return contact found
      */
-    Contact findByIdentifier(String identifier) ;
+    Contact findByIdentifier(String identifier);
 
     /**
      * Update an existing contact and its address, or creates a new one
@@ -40,16 +41,22 @@ public interface ContactService {
 
     /**
      * Delete a contact. Delete also the contact address.
+     *
      * @param identifier contact identifier
      */
     void deleteContact(String identifier);
-
-    Page<Contact> findByParameters(String identifier, String name, String email, String city, String function, Pageable pageable);
 
     Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
     Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 
     void deleteContactAddressEvent(Contact contact);
+
+    Page<SearchContactDto> searchContactByIdentifier(String identifier, Pageable pageable);
+
+    Page<SearchContactDto> searchContactByEmail(String email, Pageable pageable);
+
+    Page<SearchContactDto> searchContactByName(String name, Pageable pageable);
+
 
 }

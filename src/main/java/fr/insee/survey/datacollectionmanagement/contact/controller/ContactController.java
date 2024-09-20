@@ -2,22 +2,28 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthUser;
-import fr.insee.survey.datacollectionmanagement.config.auth.user.UserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactFirstLoginDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.contact.util.ContactParamEnum;
 import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
+import fr.insee.survey.datacollectionmanagement.contact.validation.ValidContactParam;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +41,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.Serial;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -57,30 +62,29 @@ public class ContactController {
 
     private final ModelMapper modelMapper;
 
-    private final UserProvider userProvider;
-
-
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for contacts, paginated")
     @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
-    public ResponseEntity<ContactPage> getContacts(
+    @Deprecated(since = "2.6.0", forRemoval = true)
+    public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Contact> pageC = contactService.findAll(pageable);
         List<ContactDto> listC = pageC.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new ContactPage(listC, pageable, pageC.getTotalElements()));
+        return new ContactPage(listC, pageable, pageC.getTotalElements());
     }
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = Constants.API_CONTACTS_ID)
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
-    public ResponseEntity<ContactFirstLoginDto> getContact(@PathVariable("id") String id) {
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    public ContactDetailsDto getContact(@PathVariable("id") String id) {
         Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToFirstLoginDto(contact));
+        List<String> listCampaigns = questioningAccreditationService.findCampaignsForContactId(id);
+        return convertToContactDetailsDto(contact, listCampaigns);
 
 
     }
@@ -88,11 +92,10 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| (@AuthorizeMethodDecider.isRespondent() && (#id == @AuthorizeMethodDecider.getUsername()))"
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
-    public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id, @RequestBody @Valid ContactDto contactDto, Authentication auth) throws JsonProcessingException {
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
+                                                 @RequestBody @Valid ContactDto contactDto,
+                                                 Authentication auth) throws JsonProcessingException {
         if (!contactDto.getIdentifier().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and contact identifier don't match");
         }
@@ -100,9 +103,8 @@ public class ContactController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest()
                 .buildAndExpand(contactDto.getIdentifier()).toUriString());
-        AuthUser authUser = userProvider.getUser(auth);
 
-        JsonNode payload = PayloadUtil.getPayloadAuthor(authUser.getId());
+        JsonNode payload = PayloadUtil.getPayloadAuthor(auth.getName());
 
         try {
             contact = convertToEntity(contactDto);
@@ -123,9 +125,13 @@ public class ContactController {
     }
 
 
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Delete a contact, its address, its contactEvents")
     @DeleteMapping(value = Constants.API_CONTACTS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContact(@PathVariable("id") String id) {
 
         if (!questioningAccreditationService.findByContactIdentifier(id).isEmpty()) {
@@ -139,17 +145,47 @@ public class ContactController {
 
     }
 
+    @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
+    @Operation(summary = "Multi-criteria search contacts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public Page<SearchContactDto> searchContacts(
+            @RequestParam(required = true) String searchParam,
+            @RequestParam(required = false) @Valid @ValidContactParam String searchType,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "identifier") String sort) {
+
+        log.info(
+                "Search contact by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+
+        switch (ContactParamEnum.fromValue(searchType)) {
+            case ContactParamEnum.IDENTIFIER:
+                return contactService.searchContactByIdentifier(searchParam, pageable);
+            case ContactParamEnum.NAME:
+                return contactService.searchContactByName(searchParam, pageable);
+            case ContactParamEnum.EMAIL:
+                return contactService.searchContactByEmail(searchParam, pageable);
+        }
+        return new PageImpl<>(Collections.emptyList());
+
+    }
+
     private ContactDto convertToDto(Contact contact) {
         ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
         contactDto.setCivility(contact.getGender().name());
         return contactDto;
     }
 
-    private ContactFirstLoginDto convertToFirstLoginDto(Contact contact) {
-        ContactFirstLoginDto contactFirstLoginDto = modelMapper.map(contact, ContactFirstLoginDto.class);
-        contactFirstLoginDto.setCivility(contact.getGender());
-        contactFirstLoginDto.setFirstConnect(contact.getContactEvents().stream().noneMatch(e -> e.getType().equals(ContactEventType.firstConnect)));
-        return contactFirstLoginDto;
+    private ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns) {
+        ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
+        contactDetailsDto.setCivility(contact.getGender());
+        contactDetailsDto.setListCampaigns(listCampaigns);
+        return contactDetailsDto;
     }
 
     private Contact convertToEntity(ContactDto contactDto) {

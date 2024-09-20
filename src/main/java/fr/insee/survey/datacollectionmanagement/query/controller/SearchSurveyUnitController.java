@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -11,7 +12,6 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SurveyUnitPartitioning
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
@@ -30,10 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
-@Tag(name = "4 - Cross domain")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+@Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @Slf4j
 @RequiredArgsConstructor
 public class SearchSurveyUnitController {
@@ -42,8 +40,6 @@ public class SearchSurveyUnitController {
     private final ContactService contactService;
 
     private final QuestioningService questioningService;
-
-    private final QuestioningAccreditationService questioningAccreditationService;
 
     private final PartitioningService partitioningService;
 
@@ -70,16 +66,13 @@ public class SearchSurveyUnitController {
             SearchSurveyUnitContactDto searchSurveyUnitContactDto = new SearchSurveyUnitContactDto();
             Contact contact = contactService.findByIdentifier(identifier);
             searchSurveyUnitContactDto.setIdentifier(identifier);
+            searchSurveyUnitContactDto.setFunction(contact.getFunction());
             searchSurveyUnitContactDto.setCity(contact.getEmail());
             searchSurveyUnitContactDto.setEmail(contact.getEmail());
             searchSurveyUnitContactDto.setFirstName(contact.getFirstName());
             searchSurveyUnitContactDto.setLastName(contact.getLastName());
             searchSurveyUnitContactDto.setPhoneNumber(contact.getPhone());
             searchSurveyUnitContactDto.setCity(contact.getAddress() != null ? contact.getAddress().getCityName() : null);
-            searchSurveyUnitContactDto.setListSourcesId(questioningAccreditationService.findByContactIdentifier(identifier).stream().
-                    filter(qa -> qa.getQuestioning().getSurveyUnit().getIdSu().equalsIgnoreCase(id)).
-                    map(qa -> partitioningService.findById(qa.getQuestioning().getIdPartitioning()).getCampaign().getSurvey().getSource().getId()).
-                    distinct().toList());
             listResult.add(searchSurveyUnitContactDto);
         }
 
@@ -90,10 +83,10 @@ public class SearchSurveyUnitController {
 
     @GetMapping(path = Constants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
+    @Deprecated
     public ResponseEntity<List<SurveyUnitPartitioningDto>> getSurveyUnitPartitionings(
             @PathVariable("id") String id,
             @RequestParam(defaultValue = "false") boolean isFilterOpened) {
-
         List<SurveyUnitPartitioningDto> listParts = new ArrayList<>();
         Set<Questioning> setQuestionings = questioningService.findBySurveyUnitIdSu(id);
         for (Questioning questioning : setQuestionings) {

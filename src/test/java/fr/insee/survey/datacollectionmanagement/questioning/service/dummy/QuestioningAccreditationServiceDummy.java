@@ -30,6 +30,10 @@ public class QuestioningAccreditationServiceDummy implements QuestioningAccredit
 
     @Override
     public void deleteAccreditation(QuestioningAccreditation c) {
+    }
 
+    @Override
+    public List<String> findCampaignsForContactId(String id) {
+        return null;
     }
 }

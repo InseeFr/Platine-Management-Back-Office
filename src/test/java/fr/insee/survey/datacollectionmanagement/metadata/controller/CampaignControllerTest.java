@@ -1,6 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 
+import fr.insee.survey.datacollectionmanagement.config.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -9,12 +11,14 @@ import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,6 +49,10 @@ class CampaignControllerTest {
     @Autowired
     CampaignService campaignService;
 
+    @BeforeEach
+    void init() {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+    }
 
     @Test
     void getCampaignNotFound() throws Exception {
@@ -75,9 +83,9 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": true\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": true}
+                        """, false));
 
     }
 
@@ -88,9 +96,9 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 
@@ -102,9 +110,9 @@ class CampaignControllerTest {
 
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 
@@ -122,9 +130,9 @@ class CampaignControllerTest {
 
 
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("{\n" +
-                        "  \"ongoing\": false\n" +
-                        "}", false));
+                .andExpect(content().json("""
+                        {"ongoing": false}
+                        """, false));
 
     }
 

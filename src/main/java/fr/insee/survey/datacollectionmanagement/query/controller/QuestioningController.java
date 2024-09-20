@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -29,9 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @RequiredArgsConstructor
@@ -68,6 +67,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
+    @Deprecated
     public ResponseEntity<?> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
         ;
@@ -98,9 +98,6 @@ public class QuestioningController {
 
     }
 
-    @PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-            + "|| @AuthorizeMethodDecider.isWebClient() "
-            + "|| @AuthorizeMethodDecider.isAdmin() ")
     @Operation(summary = "Get questioning assistance mail")
     @GetMapping(value = "/api/questioning/{id}/assistance", produces = "application/json")
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {

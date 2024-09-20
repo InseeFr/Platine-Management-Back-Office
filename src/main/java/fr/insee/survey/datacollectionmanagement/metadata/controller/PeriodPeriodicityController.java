@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.PeriodDto;
@@ -20,9 +21,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@PreAuthorize("@AuthorizeMethodDecider.isInternalUser() "
-        + "|| @AuthorizeMethodDecider.isWebClient() "
-        + "|| @AuthorizeMethodDecider.isAdmin() ")
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 public class PeriodPeriodicityController {
 
