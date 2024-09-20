@@ -9,7 +9,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
@@ -69,14 +68,14 @@ public class UploadServiceImpl implements UploadService {
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
 
                 List<String> listIdParts = campaignService.findById(idCampaign).getPartitionings().stream().map(Partitioning::getId).toList();
-                Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning()) && q.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact)
-                        .toList().contains(mmDto.getIdContact())).findFirst();
+                Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning())).findFirst();
 
                 qe.setUpload(up);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
                 qe.setQuestioning(quest.get());
                 JSONObject jo = new JSONObject();
                 jo.put("source", "Moog IHM - Post Event by upload");
+                jo.put("author", mmDto.getIdContact());
                 ObjectMapper objectMapper = new ObjectMapper();
                 qe.setPayload(objectMapper.readTree(jo.toString()));
                 qe.setDate(today);
@@ -87,8 +86,8 @@ public class UploadServiceImpl implements UploadService {
                 }
                 result.addIdOk(identifier);
             } catch (Exception e) {
-                log.error("Error in request");
-                log.info("Info: id KO " + e.getMessage());
+                log.error(e.getMessage(), e);
+                log.info("Info: id KO {}", e.getMessage());
                 result.addIdKo(identifier, "RessourceNotFound or unprocessable request");
             }
         }

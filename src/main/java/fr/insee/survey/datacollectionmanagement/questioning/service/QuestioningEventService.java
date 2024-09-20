@@ -27,5 +27,5 @@ public interface QuestioningEventService {
      */
     Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events);
 
-    List<QuestioningEvent>  findbyIdUpload(Long id);
+    Long countIdUploadInEvents(Long idupload);
 }

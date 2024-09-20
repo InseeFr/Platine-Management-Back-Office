@@ -30,7 +30,8 @@ public class QuestioningEventServiceDummy implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEvent> findbyIdUpload(Long id) {
-        return null;
+    public Long countIdUploadInEvents(Long idupload) {
+        return 0L;
     }
+
 }
