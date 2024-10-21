@@ -2,9 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,13 +23,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         return questioningAccreditationRepository.findByIdContact(id);
     }
 
-    public Set<QuestioningAccreditation> findBySurveyUnit(SurveyUnit su) {
-        Set<QuestioningAccreditation> setReturn = new HashSet<>();
-        for (Questioning qu : su.getQuestionings()) {
-            setReturn.addAll(qu.getQuestioningAccreditations());
-        }
-        return setReturn;
-    }
 
     @Override
     public Page<QuestioningAccreditation> findAll(Pageable pageable) {
@@ -53,12 +42,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     @Override
     public void deleteAccreditation(QuestioningAccreditation acc) {
         questioningAccreditationRepository.deleteById(acc.getId());
-    }
-
-    @Override
-    public List<String> findCampaignsForContactId(String id) {
-        List<QuestioningAccreditation> listContactAccreditations = findByContactIdentifier(id);
-        return listContactAccreditations.stream().map(acc -> partitioningService.findById(acc.getQuestioning().getIdPartitioning()).getCampaign().getId()).distinct().toList();
     }
 
 }

@@ -82,8 +82,9 @@ public class ContactController {
     @GetMapping(value = Constants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
-        Contact contact = contactService.findByIdentifier(StringUtils.upperCase(id));
-        List<String> listCampaigns = questioningAccreditationService.findCampaignsForContactId(id);
+        String idContact = StringUtils.upperCase(id);
+        Contact contact = contactService.findByIdentifier(idContact);
+        List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
         return convertToContactDetailsDto(contact, listCampaigns);
 
 

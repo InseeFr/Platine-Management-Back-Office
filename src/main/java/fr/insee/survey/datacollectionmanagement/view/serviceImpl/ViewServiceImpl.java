@@ -36,6 +36,13 @@ public class ViewServiceImpl implements ViewService {
     }
 
     @Override
+    public List<String> findDistinctCampaignByIdentifier(String identifier) {
+        return viewRepository.findDistinctCampaignByIdentifier(identifier);
+    }
+
+
+
+    @Override
     public List<View> findViewByIdSu(String idSu) {
         return viewRepository.findByIdSu(idSu);
     }

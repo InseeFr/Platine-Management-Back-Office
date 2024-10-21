@@ -1,11 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.view.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface ViewService {
@@ -17,6 +16,8 @@ public interface ViewService {
     View findFirstViewByIdentifier(String identifier);
 
     List<View> findViewByCampaignId(String campaignId);
+
+    List<String> findDistinctCampaignByIdentifier(String identifier);
 
     List<View> findViewByIdSu(String idSu);
     

@@ -10,7 +10,6 @@ public interface QuestioningAccreditationService {
 
     List<QuestioningAccreditation> findByContactIdentifier(String id);
 
-
     Page<QuestioningAccreditation> findAll(Pageable pageable);
 
     QuestioningAccreditation findById(Long id);
@@ -18,6 +17,4 @@ public interface QuestioningAccreditationService {
     QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
     void deleteAccreditation(QuestioningAccreditation c);
-
-    List<String> findCampaignsForContactId(String id);
 }
