@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -40,6 +41,7 @@ class QuestionningControllerTest {
     }
 
     @Test
+    @Transactional
     void getQuestioningOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();

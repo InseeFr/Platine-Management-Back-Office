@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.4</version>
+		<version>3.3.5</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>fr.insee.survey</groupId>
 	<artifactId>platine-management</artifactId>
-	<version>2.6.1</version>
+	<version>2.6.2</version>
 	<name>platine-management</name>
 	<description>REST API for communication between DB and Platine-Management UI and Platine-My-Surveys UI</description>
 	<properties>
