@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.configuration.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -9,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
@@ -19,6 +19,7 @@ import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -129,8 +130,8 @@ public class MoogServiceImpl implements MoogService {
         for (Partitioning part : setParts) {
             Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
             if (questioning != null) {
-                String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
-                String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
+                String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
+                String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
                 String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
                 return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
             }

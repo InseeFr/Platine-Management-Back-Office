@@ -1,11 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
         if (isUserInRole(userRoles, AuthorityRoleEnum.INTERNAL_USER.securityRole())) {
             String userRole = user.getRole().toString();
-            if (userRole.equals(User.UserRoleType.ASSISTANCE.toString())) {
+            if (userRole.equals(UserRoleTypeEnum.ASSISTANCE.toString())) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
                 return false;
             }

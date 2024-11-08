@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.validation;
 
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -18,6 +18,6 @@ public class ContactEventTypeValidator implements ConstraintValidator<ContactEve
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(ContactEvent.ContactEventType.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
+        return Arrays.stream(ContactEventTypeEnum.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

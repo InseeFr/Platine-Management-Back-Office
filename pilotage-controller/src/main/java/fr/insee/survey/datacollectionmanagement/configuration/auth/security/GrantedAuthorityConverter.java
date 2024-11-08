@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.core.convert.converter.Converter;

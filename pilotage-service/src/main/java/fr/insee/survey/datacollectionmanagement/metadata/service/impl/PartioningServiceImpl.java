@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class PartioningServiceImpl implements PartitioningService {
     }
 
     @Override
-    public String findSuitableParameterValue(Partitioning part, Parameters.ParameterEnum paramValue) {
+    public String findSuitableParameterValue(Partitioning part, ParameterEnum paramValue) {
         return findParameterValueInSet(part.getParams(), paramValue)
                 .orElse(findParameterValueInSet(part.getCampaign().getParams(), paramValue)
                         .orElse(findParameterValueInSet(part.getCampaign().getSurvey().getParams(), paramValue)
@@ -53,7 +54,7 @@ public class PartioningServiceImpl implements PartitioningService {
                                         .orElse(""))));
     }
 
-    private Optional<String> findParameterValueInSet(Set<Parameters> params, Parameters.ParameterEnum paramValue) {
+    private Optional<String> findParameterValueInSet(Set<Parameters> params, ParameterEnum paramValue) {
         return params.stream()
                 .filter(param -> param.getParamId().equals(paramValue))
                 .map(Parameters::getParamValue)

@@ -3,8 +3,8 @@ package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
@@ -79,7 +79,7 @@ public class ContactServiceImpl implements ContactService {
         if (contact.getAddress() != null) {
             addressService.saveAddress(contact.getAddress());
         }
-        ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventType.create,
+        ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.create,
                 payload);
         contact.setContactEvents(new HashSet<>(Collections.singletonList(newContactEvent)));
         return saveContact(contact);
@@ -98,7 +98,7 @@ public class ContactServiceImpl implements ContactService {
         }
 
         Set<ContactEvent> setContactEventsContact = existingContact.getContactEvents();
-        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
+        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update,
                 payload);
         setContactEventsContact.add(contactEventUpdate);
         contact.setContactEvents(setContactEventsContact);

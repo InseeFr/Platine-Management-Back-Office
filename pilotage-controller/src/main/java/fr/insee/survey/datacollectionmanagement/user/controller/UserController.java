@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -171,7 +172,7 @@ public class UserController {
 
         User oldUser = userService.findByIdentifier(userDto.getIdentifier());
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
+        user.setRole(UserRoleTypeEnum.valueOf(userDto.getRole()));
         user.setUserEvents(oldUser.getUserEvents());
 
         return user;
@@ -179,7 +180,7 @@ public class UserController {
 
     private User convertToEntityNewUser(UserDto userDto) {
         User user = modelMapper.map(userDto, User.class);
-        user.setRole(User.UserRoleType.valueOf(userDto.getRole()));
+        user.setRole(UserRoleTypeEnum.valueOf(userDto.getRole()));
         return user;
     }
 

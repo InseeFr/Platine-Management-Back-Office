@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.dataloader;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.EventOrderRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

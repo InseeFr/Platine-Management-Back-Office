@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

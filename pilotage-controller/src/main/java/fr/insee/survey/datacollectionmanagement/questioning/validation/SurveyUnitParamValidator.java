@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.validation;
 
-import fr.insee.survey.datacollectionmanagement.questioning.util.SurveyUnitParamEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.SurveyUnitParamEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

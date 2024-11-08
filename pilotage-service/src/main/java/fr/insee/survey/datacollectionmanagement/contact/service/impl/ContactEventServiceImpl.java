@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -47,7 +47,7 @@ public class ContactEventServiceImpl implements ContactEventService {
     }
 
     @Override
-    public ContactEvent createContactEvent(Contact contact, ContactEventType type, JsonNode payload) {
+    public ContactEvent createContactEvent(Contact contact, ContactEventTypeEnum type, JsonNode payload) {
         ContactEvent contactEventCreate = new ContactEvent();
         contactEventCreate.setContact(contact);
         contactEventCreate.setType(type);

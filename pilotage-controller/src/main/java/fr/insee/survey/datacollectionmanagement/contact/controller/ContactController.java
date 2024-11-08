@@ -8,9 +8,10 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactParamEnum;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
-import fr.insee.survey.datacollectionmanagement.contact.util.ContactParamEnum;
 import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
 import fr.insee.survey.datacollectionmanagement.contact.validation.ValidContactParam;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
@@ -191,7 +192,7 @@ public class ContactController {
 
     private Contact convertToEntity(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(Contact.Gender.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
         Contact oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
         contact.setComment(oldContact.getComment());
         contact.setAddress(oldContact.getAddress());
@@ -202,7 +203,7 @@ public class ContactController {
 
     private Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(Contact.Gender.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
         return contact;
     }
 

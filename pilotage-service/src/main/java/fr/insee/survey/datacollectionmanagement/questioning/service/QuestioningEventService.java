@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

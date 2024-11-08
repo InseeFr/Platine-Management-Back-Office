@@ -13,6 +13,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
@@ -46,7 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.values;
+import static fr.insee.survey.datacollectionmanagement.questioning.enums.UrlTypeEnum.values;
 import static java.util.stream.Collectors.joining;
 
 @RestController
@@ -131,13 +132,13 @@ public class CampaignController {
     public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
 
-        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.URL_TYPE.name())
+        if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.URL_TYPE.name())
                 && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
 
             throw new NotMatchException(String.format("Only %s are valid values for URL_TYPE", Arrays.stream(values()).map(Enum::name)
                     .collect(joining(" "))));
         }
-        if (paramsDto.getParamId().equalsIgnoreCase(Parameters.ParameterEnum.MAIL_ASSISTANCE.name())
+        if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.MAIL_ASSISTANCE.name())
                 && !EmailValidatorRegex.isValidEmail(paramsDto.getParamValue())) {
 
             throw new NotMatchException(String.format("Email %s is not valid", paramsDto.getParamValue()));
@@ -248,7 +249,7 @@ public class CampaignController {
     private Parameters convertToEntity(ParamsDto paramsDto) {
 
         Parameters params = modelmapper.map(paramsDto, Parameters.class);
-        params.setParamId(Parameters.ParameterEnum.valueOf(paramsDto.getParamId()));
+        params.setParamId(ParameterEnum.valueOf(paramsDto.getParamId()));
         return params;
     }
 

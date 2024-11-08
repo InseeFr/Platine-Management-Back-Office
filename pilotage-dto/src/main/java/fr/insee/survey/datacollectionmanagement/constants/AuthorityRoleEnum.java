@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.configuration.auth.user;
+package fr.insee.survey.datacollectionmanagement.constants;
 
 public enum AuthorityRoleEnum {
 

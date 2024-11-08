@@ -2,8 +2,8 @@ package datacollectionmanagement.questioning.service.dummy;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 
 import java.util.List;
 import java.util.Optional;

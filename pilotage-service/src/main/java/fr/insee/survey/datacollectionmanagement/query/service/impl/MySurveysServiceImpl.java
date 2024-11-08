@@ -1,19 +1,19 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,8 +50,8 @@ public class MySurveysServiceImpl implements MySurveysService {
             String surveyUnitId = questioning.getSurveyUnit().getIdSu();
             surveyDto.setSurveyWording(survey.getLongWording());
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
-            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
-            String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
+            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
+            String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
             String sourceId = survey.getSource().getId().toLowerCase();
             surveyDto.setAccessUrl(
                     questioningService.getAccessUrl(accessBaseUrl,typeUrl, UserRoles.INTERVIEWER, questioning, surveyUnitId, sourceId));

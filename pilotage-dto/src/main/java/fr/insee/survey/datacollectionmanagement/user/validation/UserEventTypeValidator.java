@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.validation;
 
-import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -18,6 +18,6 @@ public class UserEventTypeValidator implements ConstraintValidator<UserEventType
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(UserEvent.UserEventType.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
+        return Arrays.stream(UserEventTypeEnum.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

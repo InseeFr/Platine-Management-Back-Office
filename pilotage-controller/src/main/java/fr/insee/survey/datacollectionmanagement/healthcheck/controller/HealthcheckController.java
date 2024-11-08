@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.healthcheck.controller;
 
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.heathcheck.dto.HealthcheckDto;
+import fr.insee.survey.datacollectionmanagement.healthcheck.dto.HealthcheckDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

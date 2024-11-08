@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.configuration;
 
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
