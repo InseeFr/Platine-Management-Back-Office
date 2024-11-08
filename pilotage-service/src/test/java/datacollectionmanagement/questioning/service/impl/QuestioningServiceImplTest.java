@@ -26,8 +26,8 @@ class QuestioningServiceImplTest {
         SurveyUnitService surveyUnitService = new SurveyUnitServiceDummy();
         QuestioningEventService questioningEventService = new QuestioningEventServiceDummy();
         QuestioningAccreditationService questioningAccreditationService = new QuestioningAccreditationServiceDummy();
-        ApplicationConfig applicationConfig = new ApplicationConfig();
-        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, applicationConfig);
+        String questioningUrl = "questioning-url";
+        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, questioningUrl);
     }
 
     @Test

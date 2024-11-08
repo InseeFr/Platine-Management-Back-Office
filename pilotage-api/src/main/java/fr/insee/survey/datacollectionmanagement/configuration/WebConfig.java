@@ -13,6 +13,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final AuthenticationUserHelper authenticationUserHelper;
 
+    private final ApplicationConfig applicationConfig;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(this.myLogInterceptor());
@@ -23,4 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
         return new LogInterceptor(authenticationUserHelper);
     }
 
+    @Bean
+    public String questioningUrl() {
+        return applicationConfig.getQuestioningUrl();
+    }
 }

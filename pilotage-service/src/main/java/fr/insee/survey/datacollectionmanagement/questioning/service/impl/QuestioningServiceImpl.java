@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -36,7 +35,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
-    private final ApplicationConfig applicationConfig;
+    private final String questioningUrl;
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
@@ -107,7 +106,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      */
     public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
         // Set default values if baseUrl or typeUrl is empty
-        baseUrl = StringUtils.defaultIfEmpty(baseUrl, applicationConfig.getQuestioningUrl());
+        baseUrl = StringUtils.defaultIfEmpty(baseUrl, questioningUrl);
         typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
         if (typeUrl.equalsIgnoreCase(V1.name())) {
