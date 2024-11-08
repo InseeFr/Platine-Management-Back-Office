@@ -6,12 +6,11 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.domain.MoogCampaign;
+import fr.insee.survey.datacollectionmanagement.query.dto.MoogCampaignDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogSearchDto;
@@ -66,7 +65,7 @@ public class MoogServiceImpl implements MoogService {
             MoogSearchDto moogSearchDto = new MoogSearchDto();
             Contact c = contactService.findByIdentifier(view.getIdentifier());
             Campaign camp = campaignService.findById(view.getCampaignId());
-            MoogCampaign moogCampaign = new MoogCampaign();
+            MoogCampaignDto moogCampaign = new MoogCampaignDto();
             moogCampaign.setId(view.getCampaignId());
             moogCampaign.setLabel(camp.getCampaignWording());
             moogCampaign
@@ -102,7 +101,7 @@ public class MoogServiceImpl implements MoogService {
         List<MoogQuestioningEventDto> moogEvents = moogRepository.getEventsByIdSuByCampaign(campaign, idSu);
 
         Campaign camp = campaignService.findById(campaign);
-        MoogCampaign moogCampaign = new MoogCampaign();
+        MoogCampaignDto moogCampaign = new MoogCampaignDto();
         moogCampaign.setId(campaign);
         moogCampaign.setLabel(camp.getCampaignWording());
         moogCampaign.setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());
