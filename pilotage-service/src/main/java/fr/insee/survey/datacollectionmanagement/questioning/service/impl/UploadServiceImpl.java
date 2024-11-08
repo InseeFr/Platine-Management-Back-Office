@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.RessourceNotValidatedException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -19,7 +20,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningS
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -73,11 +73,11 @@ public class UploadServiceImpl implements UploadService {
                 qe.setUpload(up);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
                 qe.setQuestioning(quest.get());
-                JSONObject jo = new JSONObject();
-                jo.put("source", "Moog IHM - Post Event by upload");
-                jo.put("author", mmDto.getIdContact());
-                ObjectMapper objectMapper = new ObjectMapper();
-                qe.setPayload(objectMapper.readTree(jo.toString()));
+                ObjectNode payload = JsonNodeFactory.instance.objectNode();
+
+                payload.put("source", "Moog IHM - Post Event by upload");
+                payload.put("author", mmDto.getIdContact());
+                qe.setPayload(payload);
                 qe.setDate(today);
                 liste.add(questioningEventService.saveQuestioningEvent(qe));
                 if (quest.isPresent()) {
