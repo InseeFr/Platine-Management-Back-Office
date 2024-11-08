@@ -2,12 +2,12 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;

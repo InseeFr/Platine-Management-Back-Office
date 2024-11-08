@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 
 import java.util.Date;
 
@@ -15,7 +15,7 @@ public interface PartitioningService {
 
     boolean isOnGoing(Partitioning part, Date date);
 
-    String findSuitableParameterValue(Partitioning part, Parameters.ParameterEnum paramValue);
+    String findSuitableParameterValue(Partitioning part, ParameterEnum paramValue);
 
 
 

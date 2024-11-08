@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.user.Authorit
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -103,7 +104,7 @@ public class QuestioningController {
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
         Questioning questioning = questioningService.findbyId(questioningId);
         Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
-        String mail = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.MAIL_ASSISTANCE);
+        String mail = partitioningService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
         return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
     }
 

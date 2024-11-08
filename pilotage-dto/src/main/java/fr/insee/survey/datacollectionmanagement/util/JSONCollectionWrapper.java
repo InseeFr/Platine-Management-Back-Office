@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.configuration;
+package fr.insee.survey.datacollectionmanagement.util;
 
 import java.util.Collection;
 

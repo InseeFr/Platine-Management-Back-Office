@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
@@ -95,7 +96,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         return questioningInformationsDto;
     }
 
-    protected String getFormattedPhone(String phone, String phone2) {
+    public String getFormattedPhone(String phone, String phone2) {
         if (phone != null && StringUtils.isNotBlank(phone)) {
             return phone;
         }
@@ -119,16 +120,16 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         return addressDto;
     }
 
-    protected static String getFormattedCivility(String gender, String firstName, String lastName) {
+    public static String getFormattedCivility(String gender, String firstName, String lastName) {
         String formattedGender = "";
         String formattedFirstName = "";
         String formattedLastName = "";
 
         if (gender != null) {
-            if (gender.equalsIgnoreCase(Contact.Gender.Male.name())) {
+            if (gender.equalsIgnoreCase(GenderEnum.Male.name())) {
                 formattedGender = "M.";
             }
-            if (gender.equalsIgnoreCase((Contact.Gender.Female.name()))) {
+            if (gender.equalsIgnoreCase((GenderEnum.Female.name()))) {
                 formattedGender = "Mme";
             }
         }

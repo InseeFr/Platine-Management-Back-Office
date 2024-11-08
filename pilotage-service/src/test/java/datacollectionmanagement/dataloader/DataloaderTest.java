@@ -7,18 +7,20 @@ import com.github.javafaker.Faker;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
-import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
@@ -105,7 +107,7 @@ public class DataloaderTest {
     private void initUser() {
         User user = new User();
         user.setIdentifier("USER1");
-        user.setRole(User.UserRoleType.ASSISTANCE);
+        user.setRole(UserRoleTypeEnum.ASSISTANCE);
         userService.createUser(user, null);
     }
 
@@ -158,7 +160,7 @@ public class DataloaderTest {
     private void createContactEvent(Contact contact) {
         ContactEvent contactEvent = new ContactEvent();
         contactRepository.save(contact);
-        contactEvent.setType(ContactEventType.create);
+        contactEvent.setType(ContactEventTypeEnum.create);
         contactEvent.setEventDate(new Date());
         contactEvent.setContact(contact);
         String json = "{\"contact_identifier\":\"" + contact.getIdentifier() + "\",\"name\":\"" + contact.getLastName()
@@ -195,9 +197,9 @@ public class DataloaderTest {
         contact.setLastName("lastName" + i);
         contact.setEmail(contact.getFirstName() + contact.getLastName() + "@test.com");
         if (i % 2 == 0)
-            contact.setGender(Contact.Gender.Female);
+            contact.setGender(GenderEnum.Female);
         if (i % 2 != 0)
-            contact.setGender(Contact.Gender.Male);
+            contact.setGender(GenderEnum.Male);
         return contact;
     }
 

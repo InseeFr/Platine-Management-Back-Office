@@ -22,7 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.*;
+import static fr.insee.survey.datacollectionmanagement.questioning.enums.UrlTypeEnum.*;
 
 @Service
 @RequiredArgsConstructor
@@ -133,7 +133,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V1 access URL.
      */
-    protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
+    public String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
         if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
             return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
         }
@@ -153,7 +153,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @return The generated V3 access URL.
      */
 
-    protected String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
+    public String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
         }
@@ -172,7 +172,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
-    protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
+    public String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
         }

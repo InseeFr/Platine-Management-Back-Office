@@ -1,12 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.util.LastQuestioningEventComparator;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

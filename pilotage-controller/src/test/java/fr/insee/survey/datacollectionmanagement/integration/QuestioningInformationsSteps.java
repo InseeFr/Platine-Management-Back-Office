@@ -2,9 +2,10 @@ package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -142,7 +143,7 @@ public class QuestioningInformationsSteps {
         c.setIdentifier(contactId);
         c.setFirstName(firstName);
         c.setLastName(lastName);
-        c.setGender(Contact.Gender.valueOf(gender));
+        c.setGender(GenderEnum.valueOf(gender));
         Address address = new Address();
         address.setStreetNumber(streetNumber);
         addressRepository.save(address);

@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(User user, JsonNode payload) {
 
-        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEvent.UserEventType.CREATE,
+        UserEvent newUserEvent = userEventService.createUserEvent(user, UserEventTypeEnum.CREATE,
                 payload);
         user.setUserEvents(new HashSet<>(Arrays.asList(newUserEvent)));
         return saveUser(user);
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = findByIdentifier(user.getIdentifier());
 
         Set<UserEvent> setUserEventsUser = existingUser.getUserEvents();
-        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEvent.UserEventType.UPDATE,
+        UserEvent userEventUpdate = userEventService.createUserEvent(user, UserEventTypeEnum.UPDATE,
                 payload);
         setUserEventsUser.add(userEventUpdate);
         user.setUserEvents(setUserEventsUser);

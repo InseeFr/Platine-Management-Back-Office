@@ -5,8 +5,8 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -84,7 +84,7 @@ public class AddressController {
             httpStatus = HttpStatus.CREATED;
         }
         PayloadUtil.getPayloadAuthor(auth.getName());
-        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventType.update,
+        ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update,
                 null);
         contactEventService.saveContactEvent(contactEventUpdate);
         return ResponseEntity.status(httpStatus).headers(responseHeaders)

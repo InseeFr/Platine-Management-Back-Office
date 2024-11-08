@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import fr.insee.survey.datacollectionmanagement.metadata.util.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import jakarta.persistence.*;
 import lombok.*;
 

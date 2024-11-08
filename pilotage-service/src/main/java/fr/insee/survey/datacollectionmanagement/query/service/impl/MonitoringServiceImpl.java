@@ -1,11 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.configuration.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogFollowUpDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogProgressDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogRowProgressDto;
 import fr.insee.survey.datacollectionmanagement.query.repository.MonitoringRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MonitoringService;
+import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

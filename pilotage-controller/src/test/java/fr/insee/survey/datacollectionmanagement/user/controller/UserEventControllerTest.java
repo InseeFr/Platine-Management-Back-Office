@@ -1,9 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,7 +60,7 @@ class UserEventControllerTest {
         JSONObject jo = new JSONObject();
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", identifier);
-        joPayload.put("type", UserEvent.UserEventType.CREATE.name());
+        joPayload.put("type", UserEventTypeEnum.CREATE.name());
         jo.put("payload", payload);
         JSONArray ja = new JSONArray();
         ja.put(jo);

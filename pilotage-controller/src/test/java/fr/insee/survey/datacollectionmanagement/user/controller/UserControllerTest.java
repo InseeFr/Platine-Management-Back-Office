@@ -1,12 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
-import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent.UserEventType;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
@@ -101,17 +102,17 @@ class UserControllerTest {
         assertEquals(user.getRole(), userFound.getRole());
 
         // update user - status ok
-        user.setRole(User.UserRoleType.ASSISTANCE);
+        user.setRole(UserRoleTypeEnum.ASSISTANCE);
         String jsonUserUpdate = createJson(user);
         mockMvc.perform(put(Constants.API_USERS_ID, identifier).content(jsonUserUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonUserUpdate.toString(), false));
         User userFoundAfterUpdate = userService.findByIdentifier(identifier);
-        assertEquals(User.UserRoleType.ASSISTANCE, userFoundAfterUpdate.getRole());
+        assertEquals(UserRoleTypeEnum.ASSISTANCE, userFoundAfterUpdate.getRole());
         List<UserEvent> listUpdate = new ArrayList<>(
                 userEventService.findUserEventsByUser(userFoundAfterUpdate));
         assertEquals(2, listUpdate.size());
-        assertEquals(UserEventType.UPDATE, listUpdate.get(1).getType());
+        assertEquals(UserEventTypeEnum.UPDATE, listUpdate.get(1).getType());
 
         // delete user
         mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
@@ -140,10 +141,10 @@ class UserControllerTest {
     }
 
     private User initGestionnaire(String identifier) {
-        return initUser(identifier, User.UserRoleType.GESTIONNAIRE);
+        return initUser(identifier, UserRoleTypeEnum.GESTIONNAIRE);
     }
 
-    private User initUser(String identifier, User.UserRoleType role) {
+    private User initUser(String identifier, UserRoleTypeEnum role) {
         User userMock = new User();
         userMock.setIdentifier(identifier);
         userMock.setRole(role);

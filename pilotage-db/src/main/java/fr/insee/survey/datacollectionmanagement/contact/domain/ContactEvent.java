@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -14,10 +15,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class ContactEvent {
 
-    public enum ContactEventType {
-        create, update, merged, firstConnect, reinitPassword
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_event_seq")
     private Long id;
@@ -25,7 +22,7 @@ public class ContactEvent {
 
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
-    private ContactEventType type;
+    private ContactEventTypeEnum type;
 
     @ManyToOne
     private Contact contact;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserEventRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
-    public UserEvent createUserEvent(User user, UserEvent.UserEventType type, JsonNode payload) {
+    public UserEvent createUserEvent(User user, UserEventTypeEnum type, JsonNode payload) {
         UserEvent userEventCreate = new UserEvent();
         userEventCreate.setUser(user);
         userEventCreate.setType(type);

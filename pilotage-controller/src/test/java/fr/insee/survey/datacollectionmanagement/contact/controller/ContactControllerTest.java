@@ -1,12 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent.ContactEventType;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -104,7 +105,7 @@ class ContactControllerTest {
         List<ContactEvent> list = new ArrayList<>(contactEventService.findContactEventsByContact(contactFound));
         // List<ContactEvent> list = new ArrayList<>(contactFound.getContactEvents());
         assertEquals(1, list.size());
-        assertEquals(ContactEventType.create, list.get(0).getType());
+        assertEquals(ContactEventTypeEnum.create, list.get(0).getType());
 
         // update contact - status ok
         contact.setLastName("lastNameUpdate");
@@ -119,7 +120,7 @@ class ContactControllerTest {
         List<ContactEvent> listUpdate = new ArrayList<>(
                 contactEventService.findContactEventsByContact(contactFoundAfterUpdate));
         assertEquals(2, listUpdate.size());
-        assertEquals(ContactEventType.update, listUpdate.get(1).getType());
+        assertEquals(ContactEventTypeEnum.update, listUpdate.get(1).getType());
 
         // delete contact
         mockMvc.perform(delete(Constants.API_CONTACTS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
@@ -183,7 +184,7 @@ class ContactControllerTest {
         contactMock.setEmail("test@insee.fr");
         contactMock.setFirstName("firstName" + identifier);
         contactMock.setLastName("lastName" + identifier);
-        contactMock.setGender(Contact.Gender.Male);
+        contactMock.setGender(GenderEnum.Male);
 
         return contactMock;
     }

@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.domain;
 
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,11 +16,6 @@ import java.util.Set;
 @Table(name = "InternalUsers")
 public class User {
 
-    public enum UserRoleType {
-        ADMINISTRATEUR, RESPONSABLE, GESTIONNAIRE, ASSISTANCE
-    }
-
-
     @Id
     private String identifier;
     private String name;
@@ -30,7 +26,7 @@ public class User {
 
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
-    private UserRoleType role;
+    private UserRoleTypeEnum role;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<UserEvent> userEvents;

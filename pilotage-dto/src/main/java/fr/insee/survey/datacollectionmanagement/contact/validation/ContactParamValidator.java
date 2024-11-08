@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.validation;
 
-import fr.insee.survey.datacollectionmanagement.contact.util.ContactParamEnum;
+import fr.insee.survey.datacollectionmanagement.contact.enums.ContactParamEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

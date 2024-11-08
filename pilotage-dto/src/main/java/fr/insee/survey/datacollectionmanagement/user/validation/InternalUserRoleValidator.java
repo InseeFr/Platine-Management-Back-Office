@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.validation;
 
-import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -18,6 +18,6 @@ public class InternalUserRoleValidator implements ConstraintValidator <InternalU
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if(value == null)
             return false;
-        return Arrays.stream(User.UserRoleType.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
+        return Arrays.stream(UserRoleTypeEnum.values()).anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

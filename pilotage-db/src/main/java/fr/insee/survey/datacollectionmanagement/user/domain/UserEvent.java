@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -14,10 +15,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class UserEvent {
 
-    public enum UserEventType {
-        CREATE, UPDATE, DELETE
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_event_seq")
     private Long id;
@@ -27,7 +24,7 @@ public class UserEvent {
     @NonNull
     @Enumerated(EnumType.ORDINAL)
     @JdbcTypeCode(SqlTypes.INTEGER)
-    private UserEventType type;
+    private UserEventTypeEnum type;
 
     @ManyToOne
     private User user;

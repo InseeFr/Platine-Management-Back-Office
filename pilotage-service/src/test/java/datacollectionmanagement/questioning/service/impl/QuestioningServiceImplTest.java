@@ -1,15 +1,14 @@
 package datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import datacollectionmanagement.questioning.repository.dummy.QuestioningRepositoryDummy;
+import datacollectionmanagement.questioning.service.dummy.QuestioningAccreditationServiceDummy;
+import datacollectionmanagement.questioning.service.dummy.QuestioningEventServiceDummy;
+import datacollectionmanagement.questioning.service.dummy.SurveyUnitServiceDummy;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.dummy.QuestioningRepositoryDummy;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.QuestioningAccreditationServiceDummy;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.QuestioningEventServiceDummy;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.SurveyUnitServiceDummy;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

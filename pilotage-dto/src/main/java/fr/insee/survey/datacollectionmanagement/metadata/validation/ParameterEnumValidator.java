@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.validation;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -18,6 +18,6 @@ public class ParameterEnumValidator implements ConstraintValidator<ParameterEnum
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(Parameters.ParameterEnum.values()).anyMatch(v -> value.equals(v.name()));
+        return Arrays.stream(ParameterEnum.values()).anyMatch(v -> value.equals(v.name()));
     }
 }

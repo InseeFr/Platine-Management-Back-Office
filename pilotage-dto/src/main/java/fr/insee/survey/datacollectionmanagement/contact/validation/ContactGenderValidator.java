@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.validation;
 
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -18,6 +18,6 @@ public class ContactGenderValidator implements ConstraintValidator<ContactGender
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(Contact.Gender.values()).anyMatch(v -> value.equals(v.name()));
+        return Arrays.stream(GenderEnum.values()).anyMatch(v -> value.equals(v.name()));
     }
 }

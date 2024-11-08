@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
-import fr.insee.survey.datacollectionmanagement.questioning.util.StatusCommunication;
-import fr.insee.survey.datacollectionmanagement.questioning.util.TypeCommunicationEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

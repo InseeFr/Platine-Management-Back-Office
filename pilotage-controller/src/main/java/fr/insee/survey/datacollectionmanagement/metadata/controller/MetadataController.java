@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import fr.insee.survey.datacollectionmanagement.configuration.JSONCollectionWrapper;
+import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
