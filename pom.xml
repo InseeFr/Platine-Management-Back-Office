@@ -18,10 +18,10 @@
 	</parent>
 
     <modules>
-		<module>pilotage-service</module>
-		<module>pilotage-shared</module>
-		<module>pilotage-db</module>
-		<module>pilotage-api</module>
+		<module>platine-management-service</module>
+		<module>platine-management-shared</module>
+		<module>platine-management-db</module>
+		<module>platine-management-api</module>
 	</modules>
     <properties>
 		<revision>2.6.3</revision>

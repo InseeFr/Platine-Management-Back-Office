@@ -9,7 +9,7 @@
         <version>${revision}${changelist}</version>
     </parent>
 
-    <artifactId>pilotage-api</artifactId>
+    <artifactId>platine-management-api</artifactId>
 
     <properties>
         <springdoc-version>2.6.0</springdoc-version>
@@ -20,13 +20,13 @@
     <dependencies>
         <dependency>
             <groupId>fr.insee.survey</groupId>
-            <artifactId>pilotage-shared</artifactId>
+            <artifactId>platine-management-shared</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>fr.insee.survey</groupId>
-            <artifactId>pilotage-service</artifactId>
+            <artifactId>platine-management-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 

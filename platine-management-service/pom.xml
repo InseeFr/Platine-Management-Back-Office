@@ -9,7 +9,7 @@
         <version>${revision}${changelist}</version>
     </parent>
 
-    <artifactId>pilotage-service</artifactId>
+    <artifactId>platine-management-service</artifactId>
 
     <properties>
         <javafaker-version>1.0.2</javafaker-version>
@@ -19,13 +19,13 @@
     <dependencies>
         <dependency>
             <groupId>fr.insee.survey</groupId>
-            <artifactId>pilotage-shared</artifactId>
+            <artifactId>platine-management-shared</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>fr.insee.survey</groupId>
-            <artifactId>pilotage-db</artifactId>
+            <artifactId>platine-management-db</artifactId>
             <version>${project.version}</version>
         </dependency>
 
