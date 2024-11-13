@@ -4,22 +4,29 @@ import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static fr.insee.survey.datacollectionmanagement.questioning.util.UrlTypeEnum.*;
@@ -35,6 +42,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final ModelMapper modelMapper;
 
     private final ApplicationConfig applicationConfig;
 
@@ -123,6 +132,24 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
+    @Override
+    public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
+        Page<Questioning> pageQuestionings;
+        if (!StringUtils.isEmpty(param)) {
+            pageQuestionings = questioningRepository.findBySurveyUnitIdSuOrSurveyUnitIdentificationCodeOrQuestioningAccreditationsIdContact(param, param, param, pageable);
+        } else {
+            pageQuestionings = questioningRepository.findAll(pageable);
+
+        }
+
+
+        List<SearchQuestioningDto> searchDtos = pageQuestionings
+                .stream()
+                .map(this::convertToSearchDto).toList();
+
+        return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
+    }
+
 
     /**
      * Builds a V1 access URL based on the provided parameters.
@@ -183,6 +210,18 @@ public class QuestioningServiceImpl implements QuestioningService {
                     .build().toUriString();
         }
         return "";
+    }
+
+    private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
+        SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
+        searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
+        Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
+        lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
+        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().sorted(Comparator.comparing(QuestioningCommunication::getDate)).findFirst();
+        questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
+        Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
+        return searchQuestioningDto;
     }
 
 }

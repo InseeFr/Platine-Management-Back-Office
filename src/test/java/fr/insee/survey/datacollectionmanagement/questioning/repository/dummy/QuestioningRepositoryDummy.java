@@ -25,6 +25,12 @@ public class QuestioningRepositoryDummy implements QuestioningRepository {
     }
 
     @Override
+    public Page<Questioning> findBySurveyUnitIdSuOrSurveyUnitIdentificationCode(String surveyUnitIdSu, String surveyUnitIdentificationCode, Pageable pageable) {
+        return null;
+    }
+
+
+    @Override
     public Set<Questioning> findBySurveyUnitIdSu(String idSu) {
         return null;
     }
@@ -178,4 +184,5 @@ public class QuestioningRepositoryDummy implements QuestioningRepository {
     public Page<Questioning> findAll(Pageable pageable) {
         return null;
     }
+
 }

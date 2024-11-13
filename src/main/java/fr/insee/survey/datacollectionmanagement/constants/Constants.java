@@ -31,6 +31,8 @@ public class Constants {
     //API QUESTIONING DOMAIN
     public static final String API_QUESTIONINGS = "/api/questionings";
     public static final String API_QUESTIONINGS_ID = "/api/questionings/{id}";
+    public static final String API_QUESTIONINGS_SEARCH = "/api/questionings/search";
+
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
     public static final String API_SURVEY_UNITS_ID_QUESTIONINGS = "/api/survey-units/{id}/questionings";

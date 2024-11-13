@@ -13,6 +13,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.Survey
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +28,8 @@ class QuestioningServiceImplTest {
         QuestioningEventService questioningEventService = new QuestioningEventServiceDummy();
         QuestioningAccreditationService questioningAccreditationService = new QuestioningAccreditationServiceDummy();
         ApplicationConfig applicationConfig = new ApplicationConfig();
-        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, applicationConfig);
+        ModelMapper modelMapper = new ModelMapper();
+        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, modelMapper, applicationConfig);
     }
 
     @Test

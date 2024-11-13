@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -14,13 +16,13 @@ public class EventOrderServiceImpl implements EventOrderService {
 
     private final EventOrderRepository eventOrderRepository;
 
-    public EventOrder saveAndFlush(EventOrder order) {
-        return eventOrderRepository.saveAndFlush(order);
-    }
-
     @Override
     public EventOrder findByStatus(String status) {
         return eventOrderRepository.findByStatus(status);
     }
+    public List<EventOrder> findAll() {
+        return eventOrderRepository.findAll();
+    }
+
 
 }
