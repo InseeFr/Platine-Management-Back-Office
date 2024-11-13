@@ -25,7 +25,7 @@ public class QuestioningRepositoryDummy implements QuestioningRepository {
     }
 
     @Override
-    public Page<Questioning> findBySurveyUnitIdSuOrSurveyUnitIdentificationCode(String surveyUnitIdSu, String surveyUnitIdentificationCode, Pageable pageable) {
+    public Page<Questioning> findBySurveyUnitIdSuOrSurveyUnitIdentificationCodeOrQuestioningAccreditationsIdContact(String surveyUnitIdSu, String surveyUnitIdentificationCode, String idContact, Pageable pageable) {
         return null;
     }
 
