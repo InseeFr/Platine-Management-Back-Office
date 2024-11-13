@@ -9,5 +9,5 @@
         <version>${revision}${changelist}</version>
     </parent>
 
-    <artifactId>pilotage-shared</artifactId>
+    <artifactId>platine-management-shared</artifactId>
 </project>
