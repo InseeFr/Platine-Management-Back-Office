@@ -1,36 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.dummy.QuestioningRepositoryDummy;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.QuestioningAccreditationServiceDummy;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.QuestioningEventServiceDummy;
-import fr.insee.survey.datacollectionmanagement.questioning.service.dummy.SurveyUnitServiceDummy;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+@AutoConfigureMockMvc
+@SpringBootTest
+@ActiveProfiles("test")
 class QuestioningServiceImplTest {
 
+    @Autowired
     QuestioningServiceImpl questioningService;
 
-    @BeforeEach
-    void init() {
-        QuestioningRepository questioningRepository = new QuestioningRepositoryDummy();
-        SurveyUnitService surveyUnitService = new SurveyUnitServiceDummy();
-        QuestioningEventService questioningEventService = new QuestioningEventServiceDummy();
-        QuestioningAccreditationService questioningAccreditationService = new QuestioningAccreditationServiceDummy();
-        ApplicationConfig applicationConfig = new ApplicationConfig();
-        ModelMapper modelMapper = new ModelMapper();
-        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, modelMapper, applicationConfig);
-    }
+
 
     @Test
     @DisplayName("Check the V1 url in interviewer mode")

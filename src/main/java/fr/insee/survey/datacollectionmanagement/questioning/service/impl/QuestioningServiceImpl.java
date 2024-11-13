@@ -3,15 +3,15 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.config.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.*;
 import fr.insee.survey.datacollectionmanagement.questioning.util.TypeQuestioningEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
@@ -39,9 +40,13 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final SurveyUnitService surveyUnitService;
 
+    private final PartitioningService partitioningService;
+
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final QuestioningCommunicationService questioningCommunicationService;
 
     private final ModelMapper modelMapper;
 
@@ -150,6 +155,12 @@ public class QuestioningServiceImpl implements QuestioningService {
         return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
     }
 
+    @Override
+    public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
+        Questioning questioning = findbyId(id);
+        return convertToDetailsDto(questioning);
+    }
+
 
     /**
      * Builds a V1 access URL based on the provided parameters.
@@ -212,6 +223,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
+
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
         SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
@@ -222,6 +234,36 @@ public class QuestioningServiceImpl implements QuestioningService {
         Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
         validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
         return searchQuestioningDto;
+    }
+
+    private QuestioningDetailsDto convertToDetailsDto(Questioning questioning) {
+        QuestioningDetailsDto questioningDetailsDto = modelMapper.map(questioning, QuestioningDetailsDto.class);
+        questioningDetailsDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
+        Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
+        lastQuestioningEvent.ifPresent(event -> questioningDetailsDto.setLastEvent(event.getType().name()));
+        Optional<QuestioningCommunication> questioningCommunication = questioningCommunicationService.getLastQuestioningCommunication(questioning);
+        questioningCommunication.ifPresent(comm -> questioningDetailsDto.setLastCommunication(comm.getType().name()));
+        Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        validatedQuestioningEvent.ifPresent(event -> questioningDetailsDto.setValidationDate(event.getDate()));
+        questioningDetailsDto.setReadOnlyUrl(getReadOnlyUrl(questioning.getIdPartitioning(), questioning.getSurveyUnit().getIdSu()));
+        questioningDetailsDto.setListEvents(questioning.getQuestioningEvents().stream().map(questioningEventService::convertToDto).toList());
+        questioningDetailsDto.setListCommunications(questioning.getQuestioningCommunications().stream().map(questioningCommunicationService::convertToDto).toList());
+        return questioningDetailsDto;
+    }
+
+    public String getReadOnlyUrl(String idPart, String surveyUnitId) throws NotFoundException {
+
+        Partitioning part = partitioningService.findById(idPart);
+        Questioning questioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+        if (questioning != null) {
+            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_REDIRECTION);
+            String typeUrl = partitioningService.findSuitableParameterValue(part, Parameters.ParameterEnum.URL_TYPE);
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+
+        }
+        return "";
+
     }
 
 }

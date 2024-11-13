@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +39,14 @@ public class SearchQuestioningController {
         Pageable pageable = PageRequest.of(page, pageSize);
 
         return questioningService.searchQuestioning(searchParam, pageable);
+
+    }
+
+    @Operation(summary = "Get questioning details")
+    @GetMapping(value = Constants.API_QUESTIONINGS_ID, produces = "application/json")
+    public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {
+
+        return questioningService.getQuestioningDetails(id);
 
     }
 

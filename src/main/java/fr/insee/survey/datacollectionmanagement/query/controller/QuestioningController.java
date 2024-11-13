@@ -44,22 +44,6 @@ public class QuestioningController {
 
     private final ModelMapper modelMapper;
 
-    @Operation(summary = "Search for a questioning by id")
-    @GetMapping(value = Constants.API_QUESTIONINGS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public ResponseEntity<?> getQuestioning(@PathVariable("id") Long id) {
-
-        Questioning questioning = questioningService.findbyId(id);
-        try {
-            return new ResponseEntity<>(convertToDto(questioning), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<String>("Error", HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @Operation(summary = "Create or update questioning")
     @PostMapping(value = Constants.API_QUESTIONINGS, produces = "application/json", consumes = "application/json")

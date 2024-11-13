@@ -47,8 +47,6 @@ public class QuestioningEventController {
 
     private final UploadService uploadService;
 
-    private final ModelMapper modelMapper;
-
     @Operation(summary = "Search for a questioning event by questioning id")
     @GetMapping(value = Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
     @ApiResponses(value = {
@@ -61,7 +59,7 @@ public class QuestioningEventController {
         Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
         return ResponseEntity.status(HttpStatus.OK)
                 .body(setQe.stream()
-                        .map(this::convertToDto).toList());
+                        .map(questioningEventService::convertToDto).toList());
 
     }
 
@@ -76,7 +74,7 @@ public class QuestioningEventController {
         Questioning questioning = questioningService.findbyId(id);
 
         try {
-            QuestioningEvent questioningEvent = convertToEntity(questioningEventDto);
+            QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
             QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
             Set<QuestioningEvent> setQuestioningEvents = questioning.getQuestioningEvents();
             setQuestioningEvents.add(newQuestioningEvent);
@@ -86,7 +84,7 @@ public class QuestioningEventController {
             responseHeaders.set(HttpHeaders.LOCATION,
                     ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
             return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                    .body(convertToDto(newQuestioningEvent));
+                    .body(questioningEventService.convertToDto(newQuestioningEvent));
 
         } catch (ParseException e) {
             log.error(e.getMessage(),e);
@@ -123,13 +121,6 @@ public class QuestioningEventController {
         }
     }
 
-    private QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) {
-        return modelMapper.map(questioningEvent, QuestioningEventDto.class);
-    }
-
-    private QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException {
-        return modelMapper.map(questioningEventDto, QuestioningEvent.class);
-    }
 
     class QuestioningEventPage extends PageImpl<QuestioningEventDto> {
 
