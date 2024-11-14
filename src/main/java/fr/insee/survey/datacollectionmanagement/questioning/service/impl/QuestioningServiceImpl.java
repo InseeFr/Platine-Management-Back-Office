@@ -226,6 +226,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
         SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
+        searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
         lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
@@ -238,6 +239,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private QuestioningDetailsDto convertToDetailsDto(Questioning questioning) {
         QuestioningDetailsDto questioningDetailsDto = modelMapper.map(questioning, QuestioningDetailsDto.class);
+        questioningDetailsDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         questioningDetailsDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
         lastQuestioningEvent.ifPresent(event -> questioningDetailsDto.setLastEvent(event.getType().name()));
