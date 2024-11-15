@@ -43,6 +43,8 @@ public class Constants {
     public static final String API_QUESTIONING_ID_QUESTIONING_EVENTS = "/api/questionings/{id}/questioning-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
+    public static final String API_QUESTIONING_ID_COMMENT = "/api/questionings/{id}/comment";
+
 
     public static final String API_MAIN_CONTACT = "/api/main-contact";
 

@@ -33,6 +33,9 @@ public class Questioning {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<QuestioningCommunication> questioningCommunications;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<QuestioningComment> questioningComments;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NonNull
     private SurveyUnit surveyUnit;

@@ -48,6 +48,8 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final QuestioningCommunicationService questioningCommunicationService;
 
+    private final QuestioningCommentService questioningCommentService;
+
     private final ModelMapper modelMapper;
 
     private final ApplicationConfig applicationConfig;
@@ -242,14 +244,21 @@ public class QuestioningServiceImpl implements QuestioningService {
         questioningDetailsDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         questioningDetailsDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        lastQuestioningEvent.ifPresent(event -> questioningDetailsDto.setLastEvent(event.getType().name()));
+        lastQuestioningEvent.ifPresent(event -> {
+            questioningDetailsDto.setLastEvent(event.getType().name());
+            questioningDetailsDto.setDateLastEvent(event.getDate());
+        });
         Optional<QuestioningCommunication> questioningCommunication = questioningCommunicationService.getLastQuestioningCommunication(questioning);
-        questioningCommunication.ifPresent(comm -> questioningDetailsDto.setLastCommunication(comm.getType().name()));
+        questioningCommunication.ifPresent(comm -> {
+            questioningDetailsDto.setLastCommunication(comm.getType().name());
+            questioningDetailsDto.setDateLastCommunication(comm.getDate());
+        });
         Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
         validatedQuestioningEvent.ifPresent(event -> questioningDetailsDto.setValidationDate(event.getDate()));
         questioningDetailsDto.setReadOnlyUrl(getReadOnlyUrl(questioning.getIdPartitioning(), questioning.getSurveyUnit().getIdSu()));
         questioningDetailsDto.setListEvents(questioning.getQuestioningEvents().stream().map(questioningEventService::convertToDto).toList());
         questioningDetailsDto.setListCommunications(questioning.getQuestioningCommunications().stream().map(questioningCommunicationService::convertToDto).toList());
+        questioningDetailsDto.setListQuestioningCommentOutputDto(questioning.getQuestioningComments().stream().map(questioningCommentService::convertToOutputDto).toList());
         return questioningDetailsDto;
     }
 
