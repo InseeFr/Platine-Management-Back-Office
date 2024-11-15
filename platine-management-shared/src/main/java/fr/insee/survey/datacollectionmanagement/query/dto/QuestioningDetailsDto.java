@@ -23,7 +23,7 @@ public class QuestioningDetailsDto {
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunication;
     private Date dateLastCommunication;
-    private List<QuestioningCommentOutputDto> listQuestioningCommentOutputDto;
+    private List<QuestioningCommentOutputDto> listComments;
     private Date validationDate;
     private String readOnlyUrl;
 }

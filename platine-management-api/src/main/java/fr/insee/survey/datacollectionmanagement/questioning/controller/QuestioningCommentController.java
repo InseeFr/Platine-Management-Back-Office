@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;

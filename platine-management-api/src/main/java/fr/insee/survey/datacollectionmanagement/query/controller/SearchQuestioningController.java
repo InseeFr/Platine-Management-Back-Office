@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import fr.insee.survey.datacollectionmanagement.config.auth.user.AuthorityPrivileges;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;

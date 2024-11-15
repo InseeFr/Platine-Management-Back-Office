@@ -1,49 +1,20 @@
-package datacollectionmanagement.questioning.service.impl;
+package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-<<<<<<< HEAD:src/test/java/fr/insee/survey/datacollectionmanagement/questioning/service/impl/QuestioningServiceImplTest.java
+
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-=======
-import datacollectionmanagement.questioning.repository.dummy.QuestioningRepositoryDummy;
-import datacollectionmanagement.questioning.service.dummy.QuestioningAccreditationServiceDummy;
-import datacollectionmanagement.questioning.service.dummy.QuestioningEventServiceDummy;
-import datacollectionmanagement.questioning.service.dummy.SurveyUnitServiceDummy;
-import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
->>>>>>> develop:platine-management-service/src/test/java/datacollectionmanagement/questioning/service/impl/QuestioningServiceImplTest.java
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-@AutoConfigureMockMvc
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
 
-    @Autowired
+    @InjectMocks
     QuestioningServiceImpl questioningService;
 
-<<<<<<< HEAD:src/test/java/fr/insee/survey/datacollectionmanagement/questioning/service/impl/QuestioningServiceImplTest.java
-
-=======
-    @BeforeEach
-    void init() {
-        QuestioningRepository questioningRepository = new QuestioningRepositoryDummy();
-        SurveyUnitService surveyUnitService = new SurveyUnitServiceDummy();
-        QuestioningEventService questioningEventService = new QuestioningEventServiceDummy();
-        QuestioningAccreditationService questioningAccreditationService = new QuestioningAccreditationServiceDummy();
-        String questioningUrl = "questioning-url";
-        questioningService = new QuestioningServiceImpl(questioningRepository, surveyUnitService, questioningEventService, questioningAccreditationService, questioningUrl);
-    }
->>>>>>> develop:platine-management-service/src/test/java/datacollectionmanagement/questioning/service/impl/QuestioningServiceImplTest.java
 
     @Test
     @DisplayName("Check the V1 url in interviewer mode")
