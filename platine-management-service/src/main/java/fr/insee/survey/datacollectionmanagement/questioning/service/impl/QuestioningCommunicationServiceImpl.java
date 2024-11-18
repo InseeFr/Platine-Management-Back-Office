@@ -19,7 +19,7 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
 
     @Override
     public Optional<QuestioningCommunication> getLastQuestioningCommunication(Questioning questioning) {
-        return questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
+        return questioning.getQuestioningCommunications().stream().max(Comparator.comparing(QuestioningCommunication::getDate));
     }
 
     @Override
