@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommentService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +47,7 @@ public class QuestioningCommentController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public void postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentDto) {
+    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentDto) {
 
         Questioning questioning = questioningService.findbyId(id);
         QuestioningComment questioningComment = questioningCommentService.convertToEntity(questioningCommentDto);
@@ -56,6 +57,7 @@ public class QuestioningCommentController {
         setQuestioningComments.add(newQuestioningComment);
         questioning.setQuestioningComments(setQuestioningComments);
         questioningService.saveQuestioning(questioning);
+        return questioningCommentService.convertToOutputDto(newQuestioningComment);
 
     }
 
