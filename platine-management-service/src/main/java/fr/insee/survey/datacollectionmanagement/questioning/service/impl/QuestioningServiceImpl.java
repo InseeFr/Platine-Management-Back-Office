@@ -258,7 +258,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         questioningDetailsDto.setReadOnlyUrl(getReadOnlyUrl(questioning.getIdPartitioning(), questioning.getSurveyUnit().getIdSu()));
         questioningDetailsDto.setListEvents(questioning.getQuestioningEvents().stream().map(questioningEventService::convertToDto).toList());
         questioningDetailsDto.setListCommunications(questioning.getQuestioningCommunications().stream().map(questioningCommunicationService::convertToDto).toList());
-        questioningDetailsDto.setListQuestioningCommentOutputDto(questioning.getQuestioningComments().stream().map(questioningCommentService::convertToOutputDto).toList());
+        questioningDetailsDto.setListComments(questioning.getQuestioningComments().stream().map(questioningCommentService::convertToOutputDto).toList());
         return questioningDetailsDto;
     }
 
