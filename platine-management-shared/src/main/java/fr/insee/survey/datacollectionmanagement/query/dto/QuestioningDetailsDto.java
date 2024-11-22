@@ -17,6 +17,8 @@ public class QuestioningDetailsDto {
     private List<String> listContactIdentifiers;
     private String surveyUnitId;
     private String surveyUnitIdentificationCode;
+    private String surveyUnitIdentificationName;
+    private String surveyUnitLabel;
     private List<QuestioningEventDto> listEvents;
     private String lastEvent;
     private Date dateLastEvent;
