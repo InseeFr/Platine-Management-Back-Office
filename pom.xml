@@ -3,42 +3,47 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+	<groupId>fr.insee.survey</groupId>
+	<artifactId>platine-management</artifactId>
+	<version>${revision}${changelist}</version>
+    <name>platine-management</name>
+	<description>Modules for platine management back office</description>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.6</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>fr.insee.survey</groupId>
-	<artifactId>platine-management</artifactId>
-	<version>2.6.2</version>
-	<name>platine-management</name>
-	<description>REST API for communication between DB and Platine-Management UI and Platine-My-Surveys UI</description>
-	<properties>
+
+  <modules>
+		<module>platine-management-service</module>
+		<module>platine-management-shared</module>
+		<module>platine-management-db</module>
+		<module>platine-management-api</module>
+	</modules>
+  
+  <properties>
+		<revision>2.6.3</revision>
+		<changelist></changelist>
 		<java.version>21</java.version>
-		<springdoc-version>2.6.0</springdoc-version>
-		<modelmapper-version>3.2.0</modelmapper-version>
-		<jakarta-version>3.1.0</jakarta-version>
-		<easy-version>5.0.0</easy-version>
-		<postgres-version>42.7.3</postgres-version>
-		<javafaker-version>1.0.2</javafaker-version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!-- maven-surefire-plugin setting.
+             Used for encoding with tests on windows (buggy windows components)
+        -->
+		<argLine>-Dfile.encoding=UTF-8</argLine>
 		<sonar.organization>inseefr</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<cucumber.version>7.18.0</cucumber.version>
+		<sonar.java.binaries>target</sonar.java.binaries>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../pilotage-api/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<modelmapper-version>3.2.0</modelmapper-version>
 	</properties>
+
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
@@ -49,135 +54,15 @@
 			<version>${modelmapper-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>${springdoc-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>jakarta.ws.rs</groupId>
-			<artifactId>jakarta.ws.rs-api</artifactId>
-			<version>${jakarta-version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-xml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jakarta.xml.bind</groupId>
-			<artifactId>jakarta.xml.bind-api</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgres-version}</version>
-		</dependency>
-		<!-- SECURITY -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-client</artifactId>
-		</dependency>
-
-		<!--Cucumber-->
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-suite</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-java</artifactId>
-			<version>${cucumber.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-spring</artifactId>
-			<version>${cucumber.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-junit-platform-engine</artifactId>
-			<version>${cucumber.version}</version>
-		</dependency>
-
-
-
-		<!-- Fakers for poc data -->
-		<dependency>
-			<groupId>org.jeasy</groupId>
-			<artifactId>easy-random-core</artifactId>
-			<version>${easy-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.javafaker</groupId>
-			<artifactId>javafaker</artifactId>
-			<version>${javafaker-version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!--Tests-->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-
-
-		<!-- Actuator Metrics -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<!-- Prometheus Metrics -->
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
 		</dependency>
 	</dependencies>
-
 
 	<profiles>
 		<profile>
@@ -200,11 +85,6 @@
 								<goals>
 									<goal>report</goal>
 								</goals>
-								<configuration>
-									<formats>
-										<format>XML</format>
-									</formats>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -216,27 +96,37 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+				</configuration>
 				<executions>
 					<execution>
-						<id>build-info</id>
+						<id>flatten</id>
+						<phase>process-resources</phase>
 						<goals>
-							<goal>build-info</goal>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
-
-
 </project>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.insee.survey</groupId>
+        <artifactId>platine-management</artifactId>
+        <version>${revision}${changelist}</version>
+    </parent>
+
+    <artifactId>platine-management-db</artifactId>
+
+    <properties>
+        <postgres-version>42.7.3</postgres-version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>fr.insee.survey</groupId>
+            <artifactId>platine-management-shared</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres-version}</version>
+        </dependency>
+    </dependencies>
+</project>
