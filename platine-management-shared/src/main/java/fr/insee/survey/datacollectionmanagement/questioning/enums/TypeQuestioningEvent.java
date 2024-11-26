@@ -41,4 +41,9 @@ public enum TypeQuestioningEvent {
             VALPAP,
             VALINT,
             REFUSAL);
+
+    public static final List<TypeQuestioningEvent> VALIDATED_EVENTS = Arrays.asList(
+            VALINT,
+            VALPAP);
 }
+

@@ -2,16 +2,18 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public interface QuestioningEventService {
 
-    public QuestioningEvent findbyId(Long id);
+    QuestioningEvent findbyId(Long id);
 
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent);
 
@@ -28,4 +30,10 @@ public interface QuestioningEventService {
     Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events);
 
     Long countIdUploadInEvents(Long idupload);
+
+
+    QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) ;
+
+    QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException;
+
 }

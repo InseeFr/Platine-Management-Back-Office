@@ -1,6 +1,5 @@
-package datacollectionmanagement.query.service.impl;
+package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.query.service.impl.QuestioningInformationsServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

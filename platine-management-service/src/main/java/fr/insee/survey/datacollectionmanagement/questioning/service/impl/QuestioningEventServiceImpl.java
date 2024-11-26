@@ -1,15 +1,19 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +24,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
 
     private final QuestioningEventRepository questioningEventRepository;
+
+    private final ModelMapper modelMapper;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -51,4 +57,12 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         return questioningEventRepository.countByUploadId(idupload);
     }
 
+
+    public QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) {
+        return modelMapper.map(questioningEvent, QuestioningEventDto.class);
+    }
+
+    public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException {
+        return modelMapper.map(questioningEventDto, QuestioningEvent.class);
+    }
 }

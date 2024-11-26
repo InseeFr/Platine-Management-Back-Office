@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitComment;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitCommentService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,22 +47,21 @@ public class SurveyUnitCommentController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public void postSurveyUnitComment(@PathVariable String id, @Valid @RequestBody SurveyUnitCommentInputDto surveyUnitCommentDto) {
+    public SurveyUnitCommentOutputDto postSurveyUnitComment(@PathVariable String id, @Valid @RequestBody SurveyUnitCommentInputDto surveyUnitCommentDto) {
 
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
-        SurveyUnitComment surveyUnitComment = convertToEntity(surveyUnitCommentDto);
+        SurveyUnitComment surveyUnitComment = surveyUnitCommentService.convertToEntity(surveyUnitCommentDto);
         surveyUnitComment.setDate(new Date());
         SurveyUnitComment newSurveyUnitComment = surveyUnitCommentService.saveSurveyUnitComment(surveyUnitComment);
         Set<SurveyUnitComment> setSurveyUnitComments = surveyUnit.getSurveyUnitComments();
         setSurveyUnitComments.add(newSurveyUnitComment);
         surveyUnit.setSurveyUnitComments(setSurveyUnitComments);
         surveyUnitService.saveSurveyUnit(surveyUnit);
+        return surveyUnitCommentService.convertToOutputDto(surveyUnit);
 
     }
 
-    private SurveyUnitComment convertToEntity(SurveyUnitCommentInputDto surveyUnitCommentDto) {
-        return modelMapper.map(surveyUnitCommentDto, SurveyUnitComment.class);
-    }
+
 
 
 }
