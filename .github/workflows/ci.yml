@@ -80,7 +80,7 @@ jobs:
       - uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64,linux/arm64
-          context: .
+          context: platine-management-api
           push: true
           tags: |
             inseefr/platine-management-back-office:${{ needs.get_version.outputs.version }}
