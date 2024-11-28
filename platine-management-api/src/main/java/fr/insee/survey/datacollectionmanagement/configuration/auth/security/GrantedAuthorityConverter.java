@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GrantedAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    private final Map<String, SimpleGrantedAuthority> grantedRoles;
+    private final Map<String, List<SimpleGrantedAuthority>> roles;
     ApplicationConfig applicationConfig;
 
     public GrantedAuthorityConverter(ApplicationConfig applicationConfig) {
         this.applicationConfig = applicationConfig;
-        this.grantedRoles = new HashMap<>();
+        this.roles = new HashMap<>();
         fillGrantedRoles(applicationConfig.getRoleAdmin(), AuthorityRoleEnum.ADMIN);
         fillGrantedRoles(applicationConfig.getRoleRespondent(), AuthorityRoleEnum.RESPONDENT);
         fillGrantedRoles(applicationConfig.getRoleInternalUser(), AuthorityRoleEnum.INTERNAL_USER);
@@ -31,23 +31,37 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
     @Override
     public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
         Map<String, Object> claims = jwt.getClaims();
-        List<String> roles = (List<String>) claims.get(applicationConfig.getRoleClaim());
+        List<String> userRoles = (List<String>) claims.get(applicationConfig.getRoleClaim());
 
-        return roles.stream()
+        if(userRoles == null) {
+            return new ArrayList<>();
+        }
+
+        return userRoles.stream()
                 .filter(Objects::nonNull)
                 .filter(role -> !role.isBlank())
-                .filter(grantedRoles::containsKey)
-                .map(grantedRoles::get)
+                .filter(roles::containsKey)
+                .map(roles::get)
+                .flatMap(Collection::stream)
+                .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private void fillGrantedRoles(List<String> listRoles, AuthorityRoleEnum roleEnum) {
+    private void fillGrantedRoles(List<String> configRoles, AuthorityRoleEnum authorityRole) {
 
-        for (String role : listRoles ) {
-            this.grantedRoles.putIfAbsent(role,
-                    new SimpleGrantedAuthority(roleEnum.securityRole()));
+        for (String configRole : configRoles ) {
+            if(configRole == null || configRole.isBlank()) {
+                return;
+            }
+
+            this.roles.compute(configRole, (key, grantedAuthorities) -> {
+                if(grantedAuthorities == null) {
+                    grantedAuthorities = new ArrayList<>();
+                }
+                grantedAuthorities.add(new SimpleGrantedAuthority(authorityRole.securityRole()));
+                return grantedAuthorities;
+            });
         }
-
     }
 }
 
