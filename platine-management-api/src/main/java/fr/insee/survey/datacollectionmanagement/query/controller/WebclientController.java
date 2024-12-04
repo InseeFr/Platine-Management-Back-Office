@@ -302,12 +302,12 @@ public class WebclientController {
         source.setOwner(owner);
         source.setSupport(support);
 
-        campaign = campaignService.insertOrUpdateCampaign(campaign);
-        survey = surveyService.insertOrUpdateSurvey(survey);
-        source = sourceService.insertOrUpdateSource(source);
         owner = ownerService.insertOrUpdateOwner(owner);
         support = supportService.insertOrUpdateSupport(support);
         source = sourceService.insertOrUpdateSource(source);
+        survey = surveyService.insertOrUpdateSurvey(survey);
+        campaign = campaignService.insertOrUpdateCampaign(campaign);
+        partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
 
         metadataReturn.setOwnerDto(convertToDto(owner));
         metadataReturn.setSupportDto(convertToDto(support));
