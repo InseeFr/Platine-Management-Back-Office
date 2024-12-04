@@ -94,10 +94,6 @@ public class QuestioningInformationsSteps {
         Source source = sourceRepository.findById(sourceId).orElseThrow(() -> new IllegalArgumentException("Source not found"));
         survey.setSource(source);
         surveyRepository.save(survey);
-        Set<Survey> listSurveySource = source.getSurveys();
-        listSurveySource.add(survey);
-        source.setSurveys(listSurveySource);
-        sourceRepository.save(source);
     }
 
     @Transactional
@@ -108,10 +104,6 @@ public class QuestioningInformationsSteps {
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("Survey not found"));
         campaign.setSurvey(survey);
         campaignRepository.save(campaign);
-        Set<Campaign> listCampaignSurvey = survey.getCampaigns();
-        listCampaignSurvey.add(campaign);
-        survey.setCampaigns(listCampaignSurvey);
-        surveyRepository.save(survey);
     }
 
     @Transactional
@@ -122,10 +114,6 @@ public class QuestioningInformationsSteps {
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
         part.setCampaign(campaign);
         partitioningRepository.save(part);
-        Set<Partitioning> listPartCampaign = campaign.getPartitionings();
-        listPartCampaign.add(part);
-        campaign.setPartitionings(listPartCampaign);
-        campaignRepository.save(campaign);
     }
 
     @Transactional
