@@ -73,8 +73,11 @@ public class ContactServiceImpl implements ContactService {
     @Override
     @Transactional
     public Contact createContactAddressEvent(Contact contact, JsonNode payload) {
+        if (contact.getAddress() != null) {
+            addressService.saveAddress(contact.getAddress());
+        }
         Contact contactS = saveContact(contact);
-        ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.create,
+        ContactEvent newContactEvent = contactEventService.createContactEvent(contactS, ContactEventTypeEnum.create,
                 payload);
         contactEventService.saveContactEvent(newContactEvent);
         return contactS;
@@ -95,7 +98,7 @@ public class ContactServiceImpl implements ContactService {
         ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update,
                 payload);
         contactEventService.saveContactEvent(contactEventUpdate);
-        return contact;
+        return saveContact(contact);
     }
 
     @Override
