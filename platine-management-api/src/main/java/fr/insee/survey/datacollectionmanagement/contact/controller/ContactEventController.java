@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController(value = "contactEvents")
 @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
@@ -63,13 +59,9 @@ public class ContactEventController {
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
-        Contact contact = contactService.findByIdentifier(contactEventDto.getIdentifier());
+        contactService.findByIdentifier(contactEventDto.getIdentifier());
         ContactEvent contactEvent = convertToEntity(contactEventDto);
         ContactEvent newContactEvent = contactEventService.saveContactEvent(contactEvent);
-        Set<ContactEvent> setContactEvents = contact.getContactEvents();
-        setContactEvents.add(newContactEvent);
-        contact.setContactEvents(setContactEvents);
-        contactService.saveContact(contact);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
@@ -88,11 +80,7 @@ public class ContactEventController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContactEvent(@PathVariable("id") Long id) {
-        ContactEvent contactEvent = contactEventService.findById(id);
-        Contact contact = contactEvent.getContact();
-        contact.setContactEvents(contact.getContactEvents().stream().filter(ce -> !ce.equals(contactEvent))
-                .collect(Collectors.toSet()));
-        contactService.saveContact(contact);
+        contactEventService.findById(id);
         contactEventService.deleteContactEvent(id);
 
     }
@@ -105,15 +93,6 @@ public class ContactEventController {
 
     private ContactEvent convertToEntity(ContactEventDto contactEventDto) {
          return modelMapper.map(contactEventDto, ContactEvent.class);
-    }
-
-    class ContactEventPage extends PageImpl<ContactEventDto> {
-
-        private static final long serialVersionUID = 3619811755902956158L;
-
-        public ContactEventPage(List<ContactEventDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
     }
 
 

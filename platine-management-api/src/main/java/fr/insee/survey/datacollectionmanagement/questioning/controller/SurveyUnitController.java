@@ -34,7 +34,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -85,15 +84,11 @@ public class SurveyUnitController {
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
 
-        switch (SurveyUnitParamEnum.fromValue(searchType)) {
-            case SurveyUnitParamEnum.IDENTIFIER:
-                return surveyUnitService.findbyIdentifier(searchParam, pageable);
-            case SurveyUnitParamEnum.CODE:
-                return surveyUnitService.findbyIdentificationCode(searchParam, pageable);
-            case SurveyUnitParamEnum.NAME:
-                return surveyUnitService.findbyIdentificationName(searchParam, pageable);
-        }
-        return new PageImpl<>(Collections.emptyList());
+        return switch (SurveyUnitParamEnum.fromValue(searchType)) {
+            case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam, pageable);
+            case SurveyUnitParamEnum.CODE -> surveyUnitService.findbyIdentificationCode(searchParam, pageable);
+            case SurveyUnitParamEnum.NAME -> surveyUnitService.findbyIdentificationName(searchParam, pageable);
+        };
     }
 
     @Operation(summary = "Search for a survey unit by its id")
@@ -141,7 +136,7 @@ public class SurveyUnitController {
         }
 
         return ResponseEntity.status(responseStatus)
-                .body(convertToDto(surveyUnitService.saveSurveyUnitAddressComments(surveyUnit)));
+                .body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
 
     }
 

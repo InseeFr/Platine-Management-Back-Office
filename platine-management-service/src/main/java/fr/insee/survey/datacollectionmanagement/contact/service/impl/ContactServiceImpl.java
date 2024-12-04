@@ -16,10 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -76,13 +73,11 @@ public class ContactServiceImpl implements ContactService {
     @Override
     @Transactional
     public Contact createContactAddressEvent(Contact contact, JsonNode payload) {
-        if (contact.getAddress() != null) {
-            addressService.saveAddress(contact.getAddress());
-        }
+        Contact contactS = saveContact(contact);
         ContactEvent newContactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.create,
                 payload);
-        contact.setContactEvents(new HashSet<>(Collections.singletonList(newContactEvent)));
-        return saveContact(contact);
+        contactEventService.saveContactEvent(newContactEvent);
+        return contactS;
     }
 
     @Override
@@ -97,12 +92,10 @@ public class ContactServiceImpl implements ContactService {
             addressService.saveAddress(contact.getAddress());
         }
 
-        Set<ContactEvent> setContactEventsContact = existingContact.getContactEvents();
         ContactEvent contactEventUpdate = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update,
                 payload);
-        setContactEventsContact.add(contactEventUpdate);
-        contact.setContactEvents(setContactEventsContact);
-        return saveContact(contact);
+        contactEventService.saveContactEvent(contactEventUpdate);
+        return contact;
     }
 
     @Override

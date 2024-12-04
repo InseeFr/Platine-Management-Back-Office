@@ -17,4 +17,7 @@ public class SurveyUnitComment {
     private String comment;
     private String author;
     private Date date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "survey_unit_id_su")
+    private SurveyUnit surveyUnit;
 }

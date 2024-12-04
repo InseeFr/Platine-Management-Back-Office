@@ -28,6 +28,7 @@ public class QuestioningEvent {
     private TypeQuestioningEvent type;
 
     @ManyToOne
+    @JoinColumn(name = "questioning_id")
     private Questioning questioning;
 
     @ManyToOne(fetch = FetchType.EAGER)

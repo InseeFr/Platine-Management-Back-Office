@@ -53,14 +53,8 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
     }
 
     @Override
-    public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
+    public SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit) {
 
-        try {
-            SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());
-            surveyUnit.setSurveyUnitComments(existingSurveyUnit.getSurveyUnitComments());
-        } catch (NotFoundException e) {
-            log.debug("Survey unit does not exist");
-        }
         if (surveyUnit.getSurveyUnitAddress() != null) {
             try {
                 SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());

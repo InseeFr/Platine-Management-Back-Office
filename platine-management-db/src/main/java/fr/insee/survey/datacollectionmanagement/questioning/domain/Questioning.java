@@ -24,19 +24,21 @@ public class Questioning {
     @NonNull
     private String idPartitioning;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
     private Set<QuestioningAccreditation> questioningAccreditations;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
     private Set<QuestioningEvent> questioningEvents;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
     private Set<QuestioningCommunication> questioningCommunications;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
+
     private Set<QuestioningComment> questioningComments;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "survey_unit_id_su")
     @NonNull
     private SurveyUnit surveyUnit;
 

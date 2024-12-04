@@ -28,7 +28,7 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     private UserRoleTypeEnum role;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "user")
     private Set<UserEvent> userEvents;
 
 }

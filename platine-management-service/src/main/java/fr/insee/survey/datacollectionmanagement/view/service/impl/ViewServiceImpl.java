@@ -79,7 +79,7 @@ public class ViewServiceImpl implements ViewService {
         view.setCampaignId(campaignId);
         view.setIdSu(idSu);
         List<View> listContactView = findViewByIdentifier(identifier);
-        listContactView.stream().forEach(v -> {
+        listContactView.forEach(v -> {
             if (v.getIdSu() == null)
                 deleteView(v);
         });
@@ -89,8 +89,8 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public int deleteViewsOfOneCampaign(Campaign campaign) {
         List<View> listtView = findViewByCampaignId(campaign.getId());
-        listtView.stream()
-                .forEach(v -> deleteView(v));
+        listtView
+                .forEach(this::deleteView);
         return listtView.size();
     }
 

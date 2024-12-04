@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +14,9 @@ public interface QuestioningEventService {
 
     QuestioningEvent findbyId(Long id);
 
-    public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent);
+    QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent);
 
-    public void deleteQuestioningEvent(Long id);
+    void deleteQuestioningEvent(Long id);
 
     /**
      * Get the last event sorted by order of importance among the event types
@@ -34,6 +33,6 @@ public interface QuestioningEventService {
 
     QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) ;
 
-    QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException;
+    QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto);
 
 }

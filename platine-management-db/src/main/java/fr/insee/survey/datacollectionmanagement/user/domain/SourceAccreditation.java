@@ -22,17 +22,8 @@ public class SourceAccreditation {
     @NonNull
     private String idUser;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "source_id")
     private Source source;
 
-    @Override
-    public String toString() {
-        return "SourceAccreditation{" +
-                "id=" + id +
-                ", creationDate=" + creationDate +
-                ", creationAuthor='" + creationAuthor + '\'' +
-                ", idUser='" + idUser + '\'' +
-                ", source=" + source +
-                '}';
-    }
 }

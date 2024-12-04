@@ -119,9 +119,6 @@ public class SurveyController {
         }
 
         survey = surveyService.insertOrUpdateSurvey(convertToEntity(surveyDto));
-        Source source = survey.getSource();
-        source.getSurveys().add(survey);
-        sourceService.insertOrUpdateSource(source);
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(survey));
     }
 
@@ -135,9 +132,6 @@ public class SurveyController {
         int nbQuestioningDeleted = 0;
         int nbViewDeleted = 0;
 
-        Source source = survey.getSource();
-        source.getSurveys().remove(survey);
-        sourceService.insertOrUpdateSource(source);
         surveyService.deleteSurveyById(id);
         List<Partitioning> listPartitionings = new ArrayList<>();
 

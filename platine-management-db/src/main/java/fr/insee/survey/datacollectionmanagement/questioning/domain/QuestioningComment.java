@@ -17,4 +17,7 @@ public class QuestioningComment {
     private String comment;
     private String author;
     private Date date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "questioning_id")
+    private Questioning questioning;
 }

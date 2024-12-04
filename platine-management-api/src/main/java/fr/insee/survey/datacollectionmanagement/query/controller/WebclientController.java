@@ -82,9 +82,9 @@ public class WebclientController {
 
     private final ViewService viewService;
 
-    private final QuestioningAccreditationService questioningAccreditationService;
-
     private final QuestioningEventService questioningEventService;
+
+    private final QuestioningAccreditationService questioningAccreditationService;
 
     private final ModelMapper modelMapper;
 
@@ -115,17 +115,7 @@ public class WebclientController {
 
         HttpStatus httpStatus = HttpStatus.OK;
         su = convertToEntity(questioningWebclientDto.getSurveyUnit());
-
-        // Create su if not exists or update
-        try {
-            SurveyUnit optSuBase = surveyUnitService.findbyId(idSu);
-            su.setQuestionings(optSuBase.getQuestionings());
-
-        } catch (NotFoundException e) {
-            log.warn("survey unit {} does not exist - Creation of the survey unit",
-                    idSu);
-            su.setQuestionings(new HashSet<>());
-        }
+        surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
         Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
@@ -137,12 +127,13 @@ public class WebclientController {
             questioning.setIdPartitioning(idPartitioning);
             questioning.setSurveyUnit(su);
             questioning.setModelName(modelName);
+            questioningService.saveQuestioning(questioning);
             QuestioningEvent questioningEvent = new QuestioningEvent();
             questioningEvent.setType(TypeQuestioningEvent.INITLA);
             questioningEvent.setDate(new Date());
             questioningEvent.setQuestioning(questioning);
-            questioning.setQuestioningEvents(new HashSet<>(List.of(questioningEvent)));
-            questioning.setQuestioningAccreditations(new HashSet<>());
+            questioningEventService.saveQuestioningEvent(questioningEvent);
+
         }
 
 
@@ -150,17 +141,11 @@ public class WebclientController {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
         }
 
-        // save questioning and su
-        questioningService.saveQuestioning(questioning);
-        su.getQuestionings().add(questioning);
-        surveyUnitService.saveSurveyUnitAddressComments(su);
-
-
         questioningReturn.setIdPartitioning(idPartitioning);
         questioningReturn.setModelName(modelName);
         questioningReturn.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations().stream()
+        questioning.getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningReturn.setContacts(listContactAccreditationDto);
@@ -180,6 +165,7 @@ public class WebclientController {
         Contact contact;
         try {
             contact = convertToEntity(contactAccreditationDto);
+            contactService.findByIdentifier(contactAccreditationDto.getIdentifier());
             if (contactAccreditationDto.getAddress() != null)
                 contact.setAddress(addressService.convertToEntity(contactAccreditationDto.getAddress()));
             contactService.updateContactAddressEvent(contact, node);
@@ -210,19 +196,21 @@ public class WebclientController {
             questioningAccreditation.setIdContact(contactAccreditationDto.getIdentifier());
             questioningAccreditation.setMain(contactAccreditationDto.isMain());
             questioningAccreditation.setQuestioning(questioning);
-            setExistingAccreditations.add(questioningAccreditation);
+            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
 
 
             // create view
             viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
                     part.getCampaign().getId());
 
-            questioning.getQuestioningAccreditations().add(questioningAccreditation);
         } else {
             // update accreditation
-            QuestioningAccreditation questioningAccreditation = listContactAccreditations.get(0);
+            QuestioningAccreditation questioningAccreditation = listContactAccreditations.getFirst();
             questioningAccreditation.setMain(contactAccreditationDto.isMain());
+            questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
+
         }
+
     }
 
     @Operation(summary = "Get questioning for webclients")
@@ -249,7 +237,7 @@ public class WebclientController {
         questioningWebclientDto.setModelName(modelName);
         questioningWebclientDto.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations().stream()
+        questioning.getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningWebclientDto.setContacts(listContactAccreditationDto);
@@ -311,33 +299,15 @@ public class WebclientController {
         campaign.setSurvey(survey);
         Partitioning partitioning = convertToEntity(metadataDto.getPartitioningDto());
         partitioning.setCampaign(campaign);
-
-        campaign = campaignService.addPartitionigToCampaign(campaign, partitioning);
-        survey = surveyService.addCampaignToSurvey(survey, campaign);
-        source = sourceService.addSurveyToSource(source, survey);
-        owner = ownerService.insertOrUpdateOwner(owner);
-        support = supportService.insertOrUpdateSupport(support);
-        source = sourceService.insertOrUpdateSource(source);
-
         source.setOwner(owner);
         source.setSupport(support);
 
-        Set<Source> sourcesOwner = (owner.getSources() == null) ? new HashSet<>()
-                : owner.getSources();
-        sourcesOwner.add(source);
-        owner.setSources(sourcesOwner);
-
-        Set<Source> sourcesSupport = (support.getSources() == null) ? new HashSet<>()
-                : support.getSources();
-        sourcesSupport.add(source);
-        support.setSources(sourcesSupport);
-
+        campaign = campaignService.insertOrUpdateCampaign(campaign);
+        survey = surveyService.insertOrUpdateSurvey(survey);
+        source = sourceService.insertOrUpdateSource(source);
         owner = ownerService.insertOrUpdateOwner(owner);
         support = supportService.insertOrUpdateSupport(support);
         source = sourceService.insertOrUpdateSource(source);
-        survey = surveyService.insertOrUpdateSurvey(survey);
-        campaign = campaignService.insertOrUpdateCampaign(campaign);
-        partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
 
         metadataReturn.setOwnerDto(convertToDto(owner));
         metadataReturn.setSupportDto(convertToDto(support));
