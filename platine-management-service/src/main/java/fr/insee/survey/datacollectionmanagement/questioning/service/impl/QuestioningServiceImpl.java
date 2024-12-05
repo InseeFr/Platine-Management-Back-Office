@@ -143,12 +143,11 @@ public class QuestioningServiceImpl implements QuestioningService {
     public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
         Page<Questioning> pageQuestionings;
         if (!StringUtils.isEmpty(param)) {
-            pageQuestionings = questioningRepository.findBySurveyUnitIdSuOrSurveyUnitIdentificationCodeOrQuestioningAccreditationsIdContact(param, param, param, pageable);
+            pageQuestionings = questioningRepository.findQuestioningByParam(param, pageable);
         } else {
             pageQuestionings = questioningRepository.findAll(pageable);
 
         }
-
 
         List<SearchQuestioningDto> searchDtos = pageQuestionings
                 .stream()
