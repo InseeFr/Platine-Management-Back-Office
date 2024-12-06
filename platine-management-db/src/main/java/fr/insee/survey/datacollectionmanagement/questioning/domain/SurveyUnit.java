@@ -30,7 +30,7 @@ public class SurveyUnit {
     private String label;
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private SurveyUnitAddress surveyUnitAddress;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "surveyUnit" )

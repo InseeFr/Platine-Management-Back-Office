@@ -77,4 +77,9 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     }
 
+    @Override
+    public Page<SearchSurveyUnitDto> findByParameter(String searchParam, Pageable pageable) {
+        return surveyUnitRepository.findByParam(searchParam.toUpperCase(), pageable);
+    }
+
 }

@@ -112,6 +112,13 @@ public class ContactServiceImpl implements ContactService {
         return contactRepository.findByFirstNameLastName(name, pageable);
     }
 
+    @Override
+    public Page<SearchContactDto> searchContactByParam(String param, Pageable pageable) {
+        return contactRepository.findByParam(param, pageable);
+    }
+
+
+
 
     @Override
     public Contact createContactAddressEvent(Contact contact, JsonNode payload) {

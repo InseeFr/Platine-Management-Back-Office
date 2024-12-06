@@ -50,6 +50,8 @@ public interface ContactService {
 
     Contact updateOrCreateContact(String id, ContactDto contactDto, JsonNode payload);
 
+    Page<SearchContactDto> searchContactByParam(String param, Pageable pageable);
+
     Contact createContactAddressEvent(Contact contact, JsonNode payload);
 
     Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;

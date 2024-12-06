@@ -105,6 +105,26 @@ public class SurveyUnitController {
 
     }
 
+    @Operation(summary = "Multi-criteria search survey-unit")
+    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH+"/V2", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public Page<SearchSurveyUnitDto> searchSurveyUnitsByParam(
+            @RequestParam(required = true) String searchParam,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pageSize) {
+        log.info(
+                "Search surveyUnit ith param = {} page = {} pageSize = {}", searchParam, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        return surveyUnitService.findByParameter(searchParam, pageable);
+    }
+
+
     @Operation(summary = "Create or update a survey unit")
     @PutMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {

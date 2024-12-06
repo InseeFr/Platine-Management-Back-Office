@@ -23,4 +23,5 @@ public interface SurveyUnitService {
 
     void deleteSurveyUnit(String id);
 
+    Page<SearchSurveyUnitDto> findByParameter(String searchParam, Pageable pageable);
 }

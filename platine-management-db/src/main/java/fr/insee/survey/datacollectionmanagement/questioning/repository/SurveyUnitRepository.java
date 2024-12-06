@@ -19,7 +19,7 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
                 FROM 
                     survey_unit su
                 WHERE
-                    UPPER(su.id_su) LIKE CONCAT(UPPER(:param), '%')                      
+                    UPPER(su.id_su) LIKE :param || '%'                      
             """)
     Page<SearchSurveyUnitDto> findByIdentifier(String param, Pageable pageable);
 
@@ -29,8 +29,8 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
                 FROM 
                     survey_unit su
                 WHERE
-                    UPPER(su.identification_code) LIKE CONCAT(UPPER(:param), '%')
-                       
+                    UPPER(su.identification_code) LIKE :param || '%'
+            
             """)
     Page<SearchSurveyUnitDto> findByIdentificationCode(String param, Pageable pageable);
 
@@ -40,8 +40,45 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
                 FROM 
                     survey_unit su
                 WHERE
-                    UPPER(su.identification_name) LIKE CONCAT(UPPER(:param), '%')
-                    
+                    UPPER(su.identification_name) LIKE :param || '%'
+            
             """)
     Page<SearchSurveyUnitDto> findByIdentificationName(String param, Pageable pageable);
+
+    @Query(nativeQuery = true,
+            value = """
+                    SELECT 
+                            *  
+                        FROM 
+                            survey_unit su
+                        WHERE
+                            UPPER(su.id_su) LIKE :param || '%'  
+                    UNION ALL
+                    SELECT 
+                            *  
+                        FROM 
+                            survey_unit su
+                        WHERE
+                            UPPER(su.identification_name) LIKE :param || '%'
+                    UNION ALL
+                    SELECT 
+                            *  
+                        FROM 
+                            survey_unit su
+                        WHERE
+                            UPPER(su.identification_code) LIKE :param || '%'
+                    """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT 1 FROM survey_unit su
+                        WHERE  UPPER(su.id_su) LIKE :param || '%'
+                        UNION ALL
+                        SELECT 1 FROM survey_unit su
+                        WHERE UPPER(su.identification_name) LIKE :param || '%'
+                        UNION ALL
+                        SELECT 1 FROM survey_unit su
+                        WHERE  UPPER(su.identification_code) LIKE :param || '%'
+                    ) AS count_query""")
+    Page<SearchSurveyUnitDto> findByParam(String param, Pageable pageable);
 }
