@@ -77,12 +77,11 @@ public class SurveyUnitController {
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name")String searchType,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize,
-            @RequestParam(defaultValue = "id_su") String sort) {
+            @RequestParam(defaultValue = "20") Integer pageSize) {
         log.info(
                 "Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+        Pageable pageable = PageRequest.of(page, pageSize);
 
         return switch (SurveyUnitParamEnum.fromValue(searchType)) {
             case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam, pageable);

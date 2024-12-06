@@ -145,13 +145,12 @@ public class ContactController {
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = false) @Valid @ValidContactParam String searchType,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "identifier") String sort) {
+            @RequestParam(defaultValue = "10") Integer pageSize) {
 
         log.info(
                 "Search contact by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+        Pageable pageable = PageRequest.of(page, pageSize);
 
         switch (ContactParamEnum.fromValue(searchType)) {
             case ContactParamEnum.IDENTIFIER:
