@@ -150,7 +150,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         }
 
         List<SearchQuestioningDto> searchDtos = pageQuestionings
-                .stream()
+                .stream().distinct()
                 .map(this::convertToSearchDto).toList();
 
         return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
