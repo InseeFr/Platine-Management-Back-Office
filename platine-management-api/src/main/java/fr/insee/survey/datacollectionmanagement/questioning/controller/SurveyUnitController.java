@@ -84,9 +84,9 @@ public class SurveyUnitController {
         Pageable pageable = PageRequest.of(page, pageSize);
 
         return switch (SurveyUnitParamEnum.fromValue(searchType)) {
-            case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam, pageable);
-            case SurveyUnitParamEnum.CODE -> surveyUnitService.findbyIdentificationCode(searchParam, pageable);
-            case SurveyUnitParamEnum.NAME -> surveyUnitService.findbyIdentificationName(searchParam, pageable);
+            case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.CODE -> surveyUnitService.findbyIdentificationCode(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.NAME -> surveyUnitService.findbyIdentificationName(searchParam.toUpperCase(), pageable);
         };
     }
 
