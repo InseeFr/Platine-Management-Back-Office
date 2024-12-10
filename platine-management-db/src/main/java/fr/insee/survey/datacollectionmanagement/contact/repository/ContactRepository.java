@@ -76,21 +76,21 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                                     contact c
                                 WHERE
                                     UPPER(c.last_name) LIKE :param || '%'
-                                UNION ALL
+                                UNION
                                 SELECT
                                    *
                                 FROM
                                     contact c
                                 WHERE
-                                    UPPER(first_name || ' ' || last_name) LIKE :param || '%' 
-                                UNION ALL
+                                    UPPER(first_name || ' ' || last_name) LIKE :param || '%'
+                                UNION
                                 SELECT
                                     *
                                 FROM
                                     contact c
                                 WHERE
                                     UPPER(c.email) LIKE :param || '%' 
-                                UNION ALL
+                                UNION
                                 SELECT
                                     *
                                 FROM
@@ -104,15 +104,15 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
                         SELECT 1
                         FROM contact c
                         WHERE UPPER(c.last_name) LIKE :param || '%'
-                        UNION ALL
+                        UNION
                         SELECT 1
                         FROM contact c
                         WHERE UPPER(c.first_name || ' ' || c.last_name) LIKE :param || '%'
-                        UNION ALL
+                        UNION
                         SELECT 1
                         FROM contact c
                         WHERE UPPER(c.email) LIKE :param || '%'
-                        UNION ALL
+                        UNION
                         SELECT 1
                         FROM contact c
                         WHERE UPPER(c.identifier) LIKE :param || '%'
