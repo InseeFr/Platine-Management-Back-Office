@@ -141,19 +141,24 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
-        Page<Questioning> pageQuestionings;
         if (!StringUtils.isEmpty(param)) {
-            pageQuestionings = questioningRepository.findQuestioningByParam(param, pageable);
-        } else {
-            pageQuestionings = questioningRepository.findAll(pageable);
+            List<Questioning> listQuestionings = questioningRepository.findQuestioningByParam(param.toUpperCase());
+            List<SearchQuestioningDto> searchDtos = listQuestionings
+                    .stream().distinct()
+                    .map(this::convertToSearchDto).toList();
 
+            return new PageImpl<>(searchDtos, pageable, searchDtos.size());
+        } else {
+            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
+            List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
+            List<SearchQuestioningDto> searchDtos = questionings
+                    .stream()
+                    .map(this::convertToSearchDto).toList();
+
+            return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
         }
 
-        List<SearchQuestioningDto> searchDtos = pageQuestionings
-                .stream().distinct()
-                .map(this::convertToSearchDto).toList();
 
-        return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
     }
 
     @Override

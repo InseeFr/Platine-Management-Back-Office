@@ -38,7 +38,7 @@ public class SearchQuestioningController {
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        return questioningService.searchQuestioning(searchParam.toUpperCase(), pageable);
+        return questioningService.searchQuestioning(searchParam, pageable);
 
     }
 
