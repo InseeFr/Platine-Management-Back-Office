@@ -161,6 +161,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     }
 
+
     @Override
     public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
         Questioning questioning = findbyId(id);
@@ -231,7 +232,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
-        SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
+        SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
         searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
