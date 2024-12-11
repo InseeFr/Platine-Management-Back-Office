@@ -233,6 +233,9 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
         SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
+        searchQuestioningDto.setQuestioningId(questioning.getId());
+        searchQuestioningDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
+        searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
         searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
