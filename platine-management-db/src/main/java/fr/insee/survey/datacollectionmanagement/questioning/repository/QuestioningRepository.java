@@ -15,7 +15,7 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
     Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
                                                       String surveyUnitIdSu);
 
-    @Query(value = """
+    /*@Query(value = """
                     (select
                                 q1_0.*
                             from
@@ -48,9 +48,30 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
                                 where
                                     qa4_0.questioning_id=q3_0.id)
                                 and qa3_0.id_contact=:searchParam)
-    """, nativeQuery = true)
-
-    Page<Questioning> findQuestioningByParam(String searchParam,Pageable pageable );
+    """, nativeQuery = true)*/
+    @Query("""
+    SELECT q FROM Questioning q
+        LEFT JOIN FETCH q.questioningAccreditations acc
+        LEFT JOIN FETCH q.questioningEvents evt
+        LEFT JOIN FETCH q.questioningCommunications comm
+    WHERE q.surveyUnit.idSu = :searchParam
+    UNION
+    SELECT q FROM Questioning q
+        LEFT JOIN FETCH q.questioningAccreditations acc
+        LEFT JOIN FETCH q.questioningEvents evt
+        LEFT JOIN FETCH q.questioningCommunications comm
+    WHERE q.surveyUnit.identificationName = :searchParam
+    UNION
+    SELECT q FROM Questioning q
+        LEFT JOIN FETCH q.questioningAccreditations acc
+        LEFT JOIN FETCH q.questioningEvents evt
+        LEFT JOIN FETCH q.questioningCommunications comm
+    WHERE EXISTS (
+        SELECT 1 FROM QuestioningAccreditation qa
+        WHERE qa.questioning = q
+    ) AND acc.idContact = :searchParam
+""")
+    Page<Questioning> findQuestioningByParam(String searchParam, Pageable pageable);
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
