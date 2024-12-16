@@ -9,6 +9,7 @@ import lombok.Setter;
 public class MoogCampaign {
 
     private String id;
+    private String shortWording;
     private String label;
     private Long collectionStartDate;
     private Long collectionEndDate;

@@ -12,6 +12,7 @@ public class SurveyDto {
     private String id;
     @NotBlank
     private String sourceId;
+    private String sourceShortWording;
     private Integer year;
     private Integer sampleSize;
     private String longWording;

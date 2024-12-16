@@ -27,6 +27,9 @@ public class Campaign {
     @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodEnum period;
+
+    @NonNull
+    private String shortWording;
     
     private String campaignWording;
 

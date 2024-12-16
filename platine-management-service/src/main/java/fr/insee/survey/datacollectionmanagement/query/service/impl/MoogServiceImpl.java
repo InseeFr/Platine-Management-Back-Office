@@ -67,6 +67,7 @@ public class MoogServiceImpl implements MoogService {
             Campaign camp = campaignService.findById(view.getCampaignId());
             MoogCampaignDto moogCampaign = new MoogCampaignDto();
             moogCampaign.setId(view.getCampaignId());
+            moogCampaign.setShortWording(camp.getShortWording());
             moogCampaign.setLabel(camp.getCampaignWording());
             moogCampaign
                     .setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());

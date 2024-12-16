@@ -9,6 +9,7 @@ public class CampaignMoogDto implements Serializable {
 
     private static final long serialVersionUID = 6628857938862106451L;
     private String id;
+    private String shortWording;
     private String label;
     private Long collectionStartDate;
     private Long collectionEndDate;

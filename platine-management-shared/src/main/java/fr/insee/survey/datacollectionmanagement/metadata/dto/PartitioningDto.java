@@ -11,6 +11,8 @@ public class PartitioningDto {
     @NotBlank
     private String id;
     private String campaignId;
+    private String campaignShortWording;
+    private String shortWording;
     private String label;
     private Date openingDate;
     private Date closingDate;

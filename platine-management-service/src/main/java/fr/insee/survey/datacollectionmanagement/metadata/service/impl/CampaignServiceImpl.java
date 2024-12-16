@@ -32,6 +32,7 @@ public class CampaignServiceImpl implements CampaignService {
         for (Campaign campaign : campaigns) {
             CampaignMoogDto campaignMoogDto = new CampaignMoogDto();
             campaignMoogDto.setId(campaign.getId());
+            campaignMoogDto.setShortWording(campaign.getShortWording());
             campaignMoogDto.setLabel(campaign.getCampaignWording());
 
             Optional<Date> dateMin = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)

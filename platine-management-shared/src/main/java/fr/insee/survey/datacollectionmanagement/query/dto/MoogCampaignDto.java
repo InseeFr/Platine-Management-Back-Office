@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class MoogCampaignDto {
     private String id;
+    private String shortWording;
     private String label;
     private Long collectionStartDate;
     private Long collectionEndDate;
