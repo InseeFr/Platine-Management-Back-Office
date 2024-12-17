@@ -1,12 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.query.repository;
 
-import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -20,88 +18,85 @@ public class MoogRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private final AddressRepository addressRepository;
-
-    final String getEventsQuery = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
+    static final String GET_EVENTS_QUERY = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
             + " FROM questioning_event qe join questioning q on qe.questioning_id=q.id join partitioning p on q.id_partitioning=p.id "
             + " WHERE survey_unit_id_su=? AND campaign_id=? ";
 
 
     public List<MoogQuestioningEventDto> getEventsByIdSuByCampaign(String idCampaign, String idSu) {
-        return jdbcTemplate.query(getEventsQuery, new RowMapper<MoogQuestioningEventDto>() {
-            public MoogQuestioningEventDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                MoogQuestioningEventDto moogEvent = new MoogQuestioningEventDto();
-                moogEvent.setIdManagementMonitoringInfo(rs.getString("id"));
-                moogEvent.setStatus(rs.getString("type"));
-                moogEvent.setDateInfo(rs.getTimestamp("date").getTime());
-                return moogEvent;
-            }
-        }, new Object[]{idSu, idCampaign});
+        return jdbcTemplate.query(GET_EVENTS_QUERY, (rs, rowNum) -> {
+            MoogQuestioningEventDto moogEvent = new MoogQuestioningEventDto();
+            moogEvent.setIdManagementMonitoringInfo(rs.getString("id"));
+            moogEvent.setStatus(rs.getString("type"));
+            moogEvent.setDateInfo(rs.getTimestamp("date").getTime());
+            return moogEvent;
+        }, idSu, idCampaign);
     }
 
-    final String extractionQuery = """
+    static final String EXTRACTION_QUERY = """
+    SELECT
+        B.id_su,
+        B.identifier AS id_contact,
+        B.first_name AS firstname,
+        B.last_name AS lastname,
+        addr.id AS address_id,
+        addr.street_number AS street_number,
+        addr.repetition_index AS repetition_index,
+        addr.street_type AS street_type,
+        addr.street_name AS street_name,
+        addr.address_supplement AS address_supplement,
+        addr.zip_code AS zip_code,
+        addr.city_name AS city_name,
+        addr.cedex_code AS cedex_code,
+        addr.cedex_name AS cedex_name,
+        addr.special_distribution AS special_distribution,
+        addr.country_code AS country_code,
+        addr.country_name AS country_name,
+        B.date AS dateinfo,
+        B.type AS status,
+        B.batch_num
+    FROM (
+        SELECT
+            q.id,
+            A.campaign_id,
+            A.id_su,
+            A.identifier,
+            A.first_name,
+            A.last_name,
+            A.address_id,
+            q.id_partitioning AS batch_num,
+            qe.date,
+            qe.type
+        FROM (
             SELECT
-                                   B.id_su,
-                                   B.identifier AS id_contact,
-                                   B.first_name AS firstname,
-                                   B.last_name AS lastname,
-                                   addr.id as address_id,
-                                   addr.street_number as street_number,
-                                   addr.repetition_index as repetition_index,
-                                   addr.street_type as street_type,
-                                   addr.street_name as street_name,
-                                   addr.address_supplement as address_supplement ,
-                           		   addr.zip_code as zip_code ,
-                                   addr.city_name as city_name,
-                                   addr.cedex_code as cedex_code,
-                                   addr.cedex_name as cedex_name,
-                                   addr.special_distribution as special_distribution,
-                                   addr.country_code as country_code,
-                                   addr.country_name as country_name,
-                                   B.date AS dateinfo,
-                                   B.type AS status,
-                                   B.batch_num
-                               FROM (
-                                   SELECT
-                                       q.id,
-                                       A.campaign_id,
-                                       A.id_su,
-                                       A.identifier,
-                                       A.first_name,
-                                       A.last_name,
-                                       A.address_id,
-                                       q.id_partitioning AS batch_num,
-                                       qe.date,
-                                       qe.type
-                                   FROM (
-                                       SELECT
-                                           v.campaign_id,
-                                           v.id_su,
-                                           contact.identifier,
-                                           contact.first_name,
-                                           contact.last_name,
-                                           contact.address_id
-                                       FROM view v
-                                       LEFT JOIN contact ON contact.identifier = v.identifier
-                                       WHERE v.campaign_id = ?
-                                   ) AS A
-                                   LEFT JOIN questioning q
-                                       ON A.id_su = q.survey_unit_id_su
-                                       AND q.id_partitioning IN (
-                                           SELECT id
-                                           FROM partitioning p
-                                           WHERE p.campaign_id = ?
-                                       )
-                                   LEFT JOIN questioning_event qe
-                                       ON q.id = qe.questioning_id
-                               ) AS B
-                               LEFT JOIN address addr
-                                   ON B.address_id = addr.id
-            """;
+                v.campaign_id,
+                v.id_su,
+                contact.identifier,
+                contact.first_name,
+                contact.last_name,
+                contact.address_id
+            FROM view v
+            LEFT JOIN contact 
+                ON contact.identifier = v.identifier
+            WHERE v.campaign_id = ?
+        ) AS A
+        LEFT JOIN questioning q 
+            ON A.id_su = q.survey_unit_id_su
+            AND q.id_partitioning IN (
+                SELECT id
+                FROM partitioning p
+                WHERE p.campaign_id = ?
+            )
+        LEFT JOIN questioning_event qe 
+            ON q.id = qe.questioning_id
+    ) AS B
+    LEFT JOIN address addr 
+        ON B.address_id = addr.id
+    """;
 
 
     public List<MoogExtractionRowDto> getExtraction(String idCampaign) {
-        return jdbcTemplate.query(extractionQuery, (rs, rowNum) -> {
+        return jdbcTemplate.query(EXTRACTION_QUERY, (rs, rowNum) -> {
             MoogExtractionRowDto ev = new MoogExtractionRowDto();
 
             ev.setAddress("addresse non connue");
@@ -113,17 +108,10 @@ public class MoogRepository {
             ev.setLastname(rs.getString("lastname"));
             ev.setFirstname(rs.getString("firstname"));
             ev.setAddress(createAddress(rs));
-            /*addressRepository
-                    .findById(rs.getString("address"))
-                    .ifPresentOrElse(
-                            address -> ev.setAddress(address.toStringMoog()),
-                            () -> log.info("Address not found")
-                    );*/
-
             ev.setBatchNumber(rs.getString("batch_num"));
 
             return ev;
-        }, new Object[]{idCampaign, idCampaign});
+        }, idCampaign, idCampaign);
     }
 
     private static String createAddress(ResultSet rs) throws SQLException {
@@ -151,7 +139,7 @@ public class MoogRepository {
         }
     }
 
-    final String surveyUnitFollowUpQuery = """
+    static final String SURVEY_UNIT_FOLLOW_UP_QUERY = """
                 select
                     distinct on
                     (id_su) id_su,
@@ -227,16 +215,13 @@ public class MoogRepository {
             """;
 
     public List<MoogExtractionRowDto> getSurveyUnitToFollowUp(String idCampaign) {
-        return jdbcTemplate.query(surveyUnitFollowUpQuery,
-                new RowMapper<>() {
-                    public MoogExtractionRowDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        MoogExtractionRowDto er = new MoogExtractionRowDto();
-                        er.setIdSu(rs.getString("id_su"));
-                        er.setPnd(rs.getInt("PND"));
-                        er.setBatchNumber(rs.getString("batch_num"));
-
-                        return er;
-                    }
-                }, new Object[]{idCampaign, idCampaign, idCampaign, idCampaign});
+        return jdbcTemplate.query(SURVEY_UNIT_FOLLOW_UP_QUERY,
+                (rs, rowNum) -> {
+                    MoogExtractionRowDto er = new MoogExtractionRowDto();
+                    er.setIdSu(rs.getString("id_su"));
+                    er.setPnd(rs.getInt("PND"));
+                    er.setBatchNumber(rs.getString("batch_num"));
+                    return er;
+                }, idCampaign, idCampaign, idCampaign, idCampaign);
     }
 }
