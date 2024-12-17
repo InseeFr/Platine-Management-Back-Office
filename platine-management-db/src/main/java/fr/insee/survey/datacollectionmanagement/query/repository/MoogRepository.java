@@ -39,165 +39,196 @@ public class MoogRepository {
         }, new Object[]{idSu, idCampaign});
     }
 
-    final String extractionQuery =
-    """
-        select
-            id_su,
-            identifier as id_contact,
-            first_name as firstname,
-            last_name as lastname,
-            address_id as address,
-            date as dateinfo,
-            type as status,
-            batch_num
-        from
-            (
-            select
-                id,
-                campaign_id,
-                A.id_su,
-                A.identifier,
-                first_name,
-                last_name,
-                address_id,
-                id_partitioning as batch_num
-            from
-                (
-                select
-                    campaign_id,
-                    id_su,
-                    contact.identifier,
-                    first_name,
-                    last_name,
-                    address_id
-                from
-                    view
-                left join contact on
-                    contact.identifier = view.identifier
-                where
-                    campaign_id = ?
-                    ) as A
-            left join questioning q on
-                A.id_su = q.survey_unit_id_su
-                and q.id_partitioning in (
-                select
-                        id
-                from
-                        partitioning p
-                where
-                        p.campaign_id = ?)
-                        ) as B
-        left join questioning_event on
-            B.id = questioning_event.questioning_id
-        """;
+    final String extractionQuery = """
+            SELECT
+                                   B.id_su,
+                                   B.identifier AS id_contact,
+                                   B.first_name AS firstname,
+                                   B.last_name AS lastname,
+                                   addr.id as address_id,
+                                   addr.street_number as street_number,
+                                   addr.repetition_index as repetition_index,
+                                   addr.street_type as street_type,
+                                   addr.street_name as street_name,
+                                   addr.address_supplement as address_supplement ,
+                           		   addr.zip_code as zip_code ,
+                                   addr.city_name as city_name,
+                                   addr.cedex_code as cedex_code,
+                                   addr.cedex_name as cedex_name,
+                                   addr.special_distribution as special_distribution,
+                                   addr.country_code as country_code,
+                                   addr.country_name as country_name,
+                                   B.date AS dateinfo,
+                                   B.type AS status,
+                                   B.batch_num
+                               FROM (
+                                   SELECT
+                                       q.id,
+                                       A.campaign_id,
+                                       A.id_su,
+                                       A.identifier,
+                                       A.first_name,
+                                       A.last_name,
+                                       A.address_id,
+                                       q.id_partitioning AS batch_num,
+                                       qe.date,
+                                       qe.type
+                                   FROM (
+                                       SELECT
+                                           v.campaign_id,
+                                           v.id_su,
+                                           contact.identifier,
+                                           contact.first_name,
+                                           contact.last_name,
+                                           contact.address_id
+                                       FROM view v
+                                       LEFT JOIN contact ON contact.identifier = v.identifier
+                                       WHERE v.campaign_id = ?
+                                   ) AS A
+                                   LEFT JOIN questioning q
+                                       ON A.id_su = q.survey_unit_id_su
+                                       AND q.id_partitioning IN (
+                                           SELECT id
+                                           FROM partitioning p
+                                           WHERE p.campaign_id = ?
+                                       )
+                                   LEFT JOIN questioning_event qe
+                                       ON q.id = qe.questioning_id
+                               ) AS B
+                               LEFT JOIN address addr
+                                   ON B.address_id = addr.id
+            """;
 
 
     public List<MoogExtractionRowDto> getExtraction(String idCampaign) {
-        return jdbcTemplate.query(extractionQuery, new RowMapper<MoogExtractionRowDto>() {
+        return jdbcTemplate.query(extractionQuery, (rs, rowNum) -> {
+            MoogExtractionRowDto ev = new MoogExtractionRowDto();
 
-            public MoogExtractionRowDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                MoogExtractionRowDto ev = new MoogExtractionRowDto();
+            ev.setAddress("addresse non connue");
 
-                ev.setAddress("addresse non connue");
+            ev.setStatus(rs.getString("status"));
+            ev.setDateInfo(rs.getString("dateinfo"));
+            ev.setIdSu(rs.getString("id_su"));
+            ev.setIdContact(rs.getString("id_contact"));
+            ev.setLastname(rs.getString("lastname"));
+            ev.setFirstname(rs.getString("firstname"));
+            ev.setAddress(createAddress(rs));
+            /*addressRepository
+                    .findById(rs.getString("address"))
+                    .ifPresentOrElse(
+                            address -> ev.setAddress(address.toStringMoog()),
+                            () -> log.info("Address not found")
+                    );*/
 
-                ev.setStatus(rs.getString("status"));
-                ev.setDateInfo(rs.getString("dateinfo"));
-                ev.setIdSu(rs.getString("id_su"));
-                ev.setIdContact(rs.getString("id_contact"));
-                ev.setLastname(rs.getString("lastname"));
-                ev.setFirstname(rs.getString("firstname"));
-                addressRepository
-                        .findById(rs.getLong("address"))
-                        .ifPresentOrElse(
-                                address -> ev.setAddress(address.toStringMoog()),
-                                () -> log.info("Address not found")
-                        );
+            ev.setBatchNumber(rs.getString("batch_num"));
 
-                ev.setBatchNumber(rs.getString("batch_num"));
-
-                return ev;
-            }
+            return ev;
         }, new Object[]{idCampaign, idCampaign});
     }
 
+    private static String createAddress(ResultSet rs) throws SQLException {
+        StringBuilder addressBuilder = new StringBuilder();
+
+        appendIfNotEmpty(addressBuilder, rs.getString("street_number"));
+        appendIfNotEmpty(addressBuilder, rs.getString("repetition_index"));
+        appendIfNotEmpty(addressBuilder, rs.getString("street_type"));
+        appendIfNotEmpty(addressBuilder, rs.getString("street_name"));
+        appendIfNotEmpty(addressBuilder, rs.getString("address_supplement"));
+        appendIfNotEmpty(addressBuilder, rs.getString("zip_code"));
+        appendIfNotEmpty(addressBuilder, rs.getString("city_name"));
+        appendIfNotEmpty(addressBuilder, rs.getString("cedex_code"));
+        appendIfNotEmpty(addressBuilder, rs.getString("cedex_name"));
+        appendIfNotEmpty(addressBuilder, rs.getString("special_distribution"));
+        appendIfNotEmpty(addressBuilder, rs.getString("country_code"));
+        appendIfNotEmpty(addressBuilder, rs.getString("country_name"));
+
+        return addressBuilder.toString().trim(); // Remove trailing spaces
+    }
+
+    private static void appendIfNotEmpty(StringBuilder builder, String value) {
+        if (value != null && !value.isEmpty()) {
+            builder.append(value.trim()).append(" ");
+        }
+    }
+
     final String surveyUnitFollowUpQuery = """
-        select
-            distinct on
-            (id_su) id_su,
-            batch_num,
-            case
-                when type in ('PND') then 1
-                else 0
-            end as PND
-        from
-            (
-            select
-                A.id_su,
-                A.identifier,
-                q.id,
-                q.id_partitioning as batch_num
-            from
-                (
                 select
-                    id_su,
-                    identifier
-                from
-                    public.view v
-                where
-                    campaign_id = ?)as A
-            left join questioning q on
-                q.survey_unit_id_su = A.id_su
-                and q.id_partitioning in (
-                select
-                    id
-                from
-                    partitioning p
-                where
-                    p.campaign_id = ?)) as B
-        left join questioning_event qe on
-            B.id = qe.questioning_id
-        where
-            B.id_su not in (
-            select
-                distinct on
-                (id_su) id_su
-            from
-                (
-                select
-                    id_su,
-                    identifier,
-                    id,
-                    id_partitioning as batch_num
+                    distinct on
+                    (id_su) id_su,
+                    batch_num,
+                    case
+                        when type in ('PND') then 1
+                        else 0
+                    end as PND
                 from
                     (
                     select
-                        id_su,
-                        identifier
+                        A.id_su,
+                        A.identifier,
+                        q.id,
+                        q.id_partitioning as batch_num
                     from
-                        public.view
-                    where
-                        campaign_id = ?)as A
-                left join questioning q on
-                    q.survey_unit_id_su = A.id_su
-                    and q.id_partitioning in (
+                        (
+                        select
+                            id_su,
+                            identifier
+                        from
+                            public.view v
+                        where
+                            campaign_id = ?)as A
+                    left join questioning q on
+                        q.survey_unit_id_su = A.id_su
+                        and q.id_partitioning in (
+                        select
+                            id
+                        from
+                            partitioning p
+                        where
+                            p.campaign_id = ?)) as B
+                left join questioning_event qe on
+                    B.id = qe.questioning_id
+                where
+                    B.id_su not in (
                     select
-                        id
+                        distinct on
+                        (id_su) id_su
                     from
-                        partitioning p
+                        (
+                        select
+                            id_su,
+                            identifier,
+                            id,
+                            id_partitioning as batch_num
+                        from
+                            (
+                            select
+                                id_su,
+                                identifier
+                            from
+                                public.view
+                            where
+                                campaign_id = ?)as A
+                        left join questioning q on
+                            q.survey_unit_id_su = A.id_su
+                            and q.id_partitioning in (
+                            select
+                                id
+                            from
+                                partitioning p
+                            where
+                                p.campaign_id = ?)) as B
+                    left join questioning_event on
+                        B.id = questioning_event.questioning_id
                     where
-                        p.campaign_id = ?)) as B
-            left join questioning_event on
-                B.id = questioning_event.questioning_id
-            where
-                type in ('VALINT', 'VALPAP', 'HC', 'REFUSAL', 'WASTE'))
-        order by
-            id_su,
-            pnd desc;
-    """;
+                        type in ('VALINT', 'VALPAP', 'HC', 'REFUSAL', 'WASTE'))
+                order by
+                    id_su,
+                    pnd desc;
+            """;
 
     public List<MoogExtractionRowDto> getSurveyUnitToFollowUp(String idCampaign) {
         return jdbcTemplate.query(surveyUnitFollowUpQuery,
-                new RowMapper<MoogExtractionRowDto>() {
+                new RowMapper<>() {
                     public MoogExtractionRowDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                         MoogExtractionRowDto er = new MoogExtractionRowDto();
                         er.setIdSu(rs.getString("id_su"));
