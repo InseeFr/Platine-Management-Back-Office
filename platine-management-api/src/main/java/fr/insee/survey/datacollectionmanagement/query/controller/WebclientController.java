@@ -174,7 +174,7 @@ public class WebclientController {
             contact = convertToEntityNewContact(contactAccreditationDto);
             if (contactAccreditationDto.getAddress() != null)
                 contact.setAddress(addressService.convertToEntity(contactAccreditationDto.getAddress()));
-            contactService.createContactAddressEvent(contact, node);
+            contactService.createAddressAndEvent(contact, node);
         }
 
         // Create accreditations if not exists

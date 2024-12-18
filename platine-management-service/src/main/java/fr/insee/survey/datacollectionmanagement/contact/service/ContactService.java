@@ -52,7 +52,7 @@ public interface ContactService {
 
     Page<SearchContactDto> searchContactByParam(String param, Pageable pageable);
 
-    Contact createContactAddressEvent(Contact contact, JsonNode payload);
+    Contact createAddressAndEvent(Contact contact, JsonNode payload);
 
     Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 

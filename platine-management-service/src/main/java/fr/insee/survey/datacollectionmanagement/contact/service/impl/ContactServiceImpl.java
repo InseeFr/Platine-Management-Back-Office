@@ -66,34 +66,28 @@ public class ContactServiceImpl implements ContactService {
     @Override
     @Transactional
     public Contact updateOrCreateContact(String id, ContactDto contactDto, JsonNode payload) {
-        // Vérifier si le contact existe
         Optional<Contact> existingContact = contactRepository.findById(id);
 
         if (existingContact.isPresent()) {
-            // Mise à jour du contact existant
             Contact contact = convertToEntity(contactDto);
-
             if (contactDto.getAddress() != null) {
                 contact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
             }
-
             return updateContactAddressEvent(contact, payload);
 
-        } else {
-            // Création d'un nouveau contact
+        }
             Contact newContact = convertToEntityNewContact(contactDto);
 
             if (contactDto.getAddress() != null) {
                 newContact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
             }
 
-            Contact createdContact = createContactAddressEvent(newContact, payload);
+            Contact createdContact = createAddressAndEvent(newContact, payload);
 
-            // Créer une vue pour le nouveau contact
             viewService.createView(id, null, null);
 
             return createdContact;
-        }
+
     }
 
 
@@ -121,7 +115,7 @@ public class ContactServiceImpl implements ContactService {
 
 
     @Override
-    public Contact createContactAddressEvent(Contact contact, JsonNode payload) {
+    public Contact createAddressAndEvent(Contact contact, JsonNode payload) {
         if (contact.getAddress() != null) {
             addressService.saveAddress(contact.getAddress());
         }
