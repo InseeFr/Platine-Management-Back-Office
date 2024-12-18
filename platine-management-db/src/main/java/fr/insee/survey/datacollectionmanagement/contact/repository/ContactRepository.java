@@ -71,52 +71,18 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
     @Query(
             value = """
                                 SELECT
-                                    *
+                                    c.identifier as identifier,
+                                    c.email as email,
+                                    c.first_name as firstName,
+                                    c.last_name as lastName
                                 FROM
                                     contact c
                                 WHERE
                                     UPPER(c.last_name) LIKE :param || '%'
-                                UNION
-                                SELECT
-                                   *
-                                FROM
-                                    contact c
-                                WHERE
-                                    UPPER(first_name || ' ' || last_name) LIKE :param || '%'
-                                UNION
-                                SELECT
-                                    *
-                                FROM
-                                    contact c
-                                WHERE
-                                    UPPER(c.email) LIKE :param || '%' 
-                                UNION
-                                SELECT
-                                    *
-                                FROM
-                                    contact c
-                                WHERE
-                                    UPPER(c.identifier) LIKE :param || '%'
+                                    OR UPPER(first_name || ' ' || last_name) LIKE :param || '%'
+                                    OR UPPER(c.email) LIKE :param || '%'
+                                    OR UPPER(c.identifier) LIKE :param || '%'
                     """,
-            countQuery = """
-                    SELECT COUNT(*)
-                    FROM (
-                        SELECT 1
-                        FROM contact c
-                        WHERE UPPER(c.last_name) LIKE :param || '%'
-                        UNION
-                        SELECT 1
-                        FROM contact c
-                        WHERE UPPER(c.first_name || ' ' || c.last_name) LIKE :param || '%'
-                        UNION
-                        SELECT 1
-                        FROM contact c
-                        WHERE UPPER(c.email) LIKE :param || '%'
-                        UNION
-                        SELECT 1
-                        FROM contact c
-                        WHERE UPPER(c.identifier) LIKE :param || '%'
-                    ) AS count_query""",
             nativeQuery = true
     )
     Page<SearchContactDto> findByParam(String param, Pageable pageable);

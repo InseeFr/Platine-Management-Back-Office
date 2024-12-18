@@ -23,21 +23,21 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
                     LEFT JOIN FETCH q.questioningEvents evt
                     LEFT JOIN FETCH q.questioningCommunications comm
                     JOIN FETCH q.surveyUnit su
-                WHERE UPPER(q.surveyUnit.idSu) = :searchParam
+                WHERE q.surveyUnit.idSu = :searchParam
                 UNION
                 SELECT q FROM Questioning q
                     LEFT JOIN FETCH q.questioningAccreditations acc
                     LEFT JOIN FETCH q.questioningEvents evt
                     LEFT JOIN FETCH q.questioningCommunications comm
                     JOIN FETCH  q.surveyUnit su
-                WHERE UPPER(q.surveyUnit.identificationName) = :searchParam
+                WHERE q.surveyUnit.identificationName = :searchParam
                 UNION
                 SELECT q FROM Questioning q
                     LEFT JOIN FETCH q.questioningAccreditations acc
                     LEFT JOIN FETCH q.questioningEvents evt
                     LEFT JOIN FETCH q.questioningCommunications comm
                     JOIN FETCH q.surveyUnit su
-                WHERE UPPER(q.surveyUnit.identificationCode) = :searchParam
+                WHERE q.surveyUnit.identificationCode = :searchParam
                 UNION
                 SELECT q FROM Questioning q
                     LEFT JOIN FETCH q.questioningAccreditations acc
@@ -47,7 +47,7 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
                 WHERE EXISTS (
                     SELECT 1 FROM QuestioningAccreditation qa
                     WHERE qa.questioning = q
-                    AND UPPER(qa.idContact) = :searchParam)
+                    AND qa.idContact = :searchParam)
             """)
     List<Questioning> findQuestioningByParam(String searchParam);
 
