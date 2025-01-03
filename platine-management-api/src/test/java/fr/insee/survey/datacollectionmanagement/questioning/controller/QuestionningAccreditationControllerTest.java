@@ -110,7 +110,7 @@ class QuestionningAccreditationControllerTest {
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonAccreditation, false));
-        Questioning questioning = questioningService.findbyId((long) idQuestioning);
+        Questioning questioning = questioningService.findbyId(idQuestioning);
         Set<QuestioningAccreditation> setAccreditationFound = questioning.getQuestioningAccreditations();
         QuestioningAccreditation accreditationFound = setAccreditationFound.stream()
                 .filter(acc -> acc.getIdContact().equals(idContact))
@@ -127,7 +127,7 @@ class QuestionningAccreditationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonAccreditationUpdate, false));
 
-        QuestioningAccreditation accreditationFoundAfterUpdate = questioningService.findbyId((long) idQuestioning)
+        QuestioningAccreditation accreditationFoundAfterUpdate = questioningService.findbyId(idQuestioning)
                 .getQuestioningAccreditations().stream().filter(acc -> acc.getIdContact().equals(idContact))
                 .toList().getFirst();
         assertTrue(accreditationFoundAfterUpdate.isMain());
