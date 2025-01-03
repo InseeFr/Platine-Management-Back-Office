@@ -45,7 +45,7 @@ class QuestionningEventControllerTest {
     void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
-        String json = createJsonQuestioningEvent(id);
+        String json = createJsonQuestioningEvent();
         this.mockMvc.perform(get(Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, id)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
@@ -58,7 +58,7 @@ class QuestionningEventControllerTest {
 
     }
 
-    private String createJsonQuestioningEvent(Long identifier) throws JSONException {
+    private String createJsonQuestioningEvent() throws JSONException {
         JSONObject joEventInitla = new JSONObject();
         joEventInitla.put("type", "INITLA");
 

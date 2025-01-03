@@ -23,9 +23,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -54,7 +54,7 @@ class QuestionningAccreditationControllerTest {
     void getQuestioningAccreditationOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long identifier = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
-        String json = createJsonQuestioningAcreditation(identifier);
+        String json = createJsonQuestioningAcreditation();
         this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
@@ -109,12 +109,12 @@ class QuestionningAccreditationControllerTest {
                         post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonAccreditation.toString(), false));
+                .andExpect(content().json(jsonAccreditation, false));
         Questioning questioning = questioningService.findbyId((long) idQuestioning);
         Set<QuestioningAccreditation> setAccreditationFound = questioning.getQuestioningAccreditations();
         QuestioningAccreditation accreditationFound = setAccreditationFound.stream()
                 .filter(acc -> acc.getIdContact().equals(idContact))
-                .collect(Collectors.toList()).get(0);
+                .toList().getFirst();
         assertEquals(accreditationFound.getCreationAuthor(), accreditation.getCreationAuthor());
         assertEquals(accreditationFound.getIdContact(), accreditation.getIdContact());
 
@@ -125,12 +125,12 @@ class QuestionningAccreditationControllerTest {
                         post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditationUpdate).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(jsonAccreditationUpdate.toString(), false));
+                .andExpect(content().json(jsonAccreditationUpdate, false));
 
         QuestioningAccreditation accreditationFoundAfterUpdate = questioningService.findbyId((long) idQuestioning)
                 .getQuestioningAccreditations().stream().filter(acc -> acc.getIdContact().equals(idContact))
-                .toList().get(0);
-        assertEquals(true, accreditationFoundAfterUpdate.isMain());
+                .toList().getFirst();
+        assertTrue(accreditationFoundAfterUpdate.isMain());
 
     }
 
@@ -150,7 +150,7 @@ class QuestionningAccreditationControllerTest {
         return jo.toString();
     }
 
-    private String createJsonQuestioningAcreditation(Long identifier) throws JSONException {
+    private String createJsonQuestioningAcreditation() throws JSONException {
         JSONObject jo1 = new JSONObject();
         jo1.put("idContact", "CONT1");
 

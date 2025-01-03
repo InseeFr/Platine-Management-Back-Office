@@ -48,11 +48,6 @@ class QuestionningControllerTest {
 
     }
 
-    private JSONObject createJson(Long id) throws JSONException {
-        JSONObject jo = new JSONObject();
-        jo.put("id", id);
-        return jo;
-    }
 
     private String createJsonQuestionings(String id) throws JSONException {
         JSONObject jo = new JSONObject();

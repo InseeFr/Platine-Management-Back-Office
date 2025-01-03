@@ -10,6 +10,7 @@ class DatacollectionManagementApplicationTests {
 
     @Test
     void contextLoads() {
+        // default test spring
     }
 
 }
