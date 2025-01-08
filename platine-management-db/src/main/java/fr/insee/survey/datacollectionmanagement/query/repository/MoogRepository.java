@@ -18,9 +18,23 @@ public class MoogRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    static final String GET_EVENTS_QUERY = "SELECT qe.id, date, type, survey_unit_id_su, campaign_id "
-            + " FROM questioning_event qe join questioning q on qe.questioning_id=q.id join partitioning p on q.id_partitioning=p.id "
-            + " WHERE survey_unit_id_su=? AND campaign_id=? ";
+    static final String GET_EVENTS_QUERY = """
+            select
+                qe.id,
+                date,
+                type,
+                survey_unit_id_su,
+                campaign_id
+            from
+                questioning_event qe
+            join questioning q on
+                qe.questioning_id = q.id
+            join partitioning p on
+                q.id_partitioning = p.id
+            where
+                survey_unit_id_su =?
+                and campaign_id =?
+            """;
 
 
     public List<MoogQuestioningEventDto> getEventsByIdSuByCampaign(String idCampaign, String idSu) {
@@ -211,7 +225,7 @@ public class MoogRepository {
                         type in ('VALINT', 'VALPAP', 'HC', 'REFUSAL', 'WASTE'))
                 order by
                     id_su,
-                    pnd desc;
+                    pnd desc
             """;
 
     public List<MoogExtractionRowDto> getSurveyUnitToFollowUp(String idCampaign) {
