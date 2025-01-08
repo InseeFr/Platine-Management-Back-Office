@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.user.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import org.json.JSONArray;
 import org.json.JSONException;

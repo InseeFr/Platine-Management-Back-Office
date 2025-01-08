@@ -42,6 +42,7 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView mv) {
+        // no need to posthandle things for this interceptor
 
     }
 

@@ -271,7 +271,6 @@ public class DataloaderTest {
                             Date openingDate = sdf.parse("01/01/" + year);
                             Date closingDate = sdf.parse("31/12/" + year);
                             Date returnDate = sdf.parse("01/06/" + year);
-                            Date today = sdf.parse("31/12/" + year);
 
                             part.setOpeningDate(openingDate);
                             part.setClosingDate(closingDate);
@@ -313,7 +312,6 @@ public class DataloaderTest {
         QuestioningAccreditation accreditation;
         Set<QuestioningAccreditation> questioningAccreditations;
         String fakeSiren;
-        Random qeRan = new Random();
 
         for (Long i = surveyUnitRepository.count(); i < 10; i++) {
             SurveyUnit su = new SurveyUnit();
@@ -326,7 +324,6 @@ public class DataloaderTest {
         }
         for (Long i = nbExistingQuestionings; i < 10; i++) {
             qu = new Questioning();
-            qe = new QuestioningEvent();
             List<QuestioningEvent> qeList = new ArrayList<>();
             questioningAccreditations = new HashSet<>();
 
@@ -344,7 +341,6 @@ public class DataloaderTest {
             // questioning events
             // everybody in INITLA
             Optional<Partitioning> part = partitioningRepository.findById(qu.getIdPartitioning());
-            Date eventDate = today;
 
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),

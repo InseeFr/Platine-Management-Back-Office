@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 @Service
 public interface AddressService {
 
-    public Address findById(Long id);
+    Address findById(Long id);
 
-    public Page<Address> findAll(Pageable pageable);
+    Page<Address> findAll(Pageable pageable);
 
-    public Address saveAddress(Address address);
+    Address saveAddress(Address address);
 
-    public void deleteAddressById(Long id);
+    void deleteAddressById(Long id);
 
-    public AddressDto convertToDto(Address address);
+    AddressDto convertToDto(Address address);
 
-    public Address convertToEntity(AddressDto addressDto);
+    Address convertToEntity(AddressDto addressDto);
 
 }

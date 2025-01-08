@@ -103,7 +103,6 @@ class ContactControllerTest {
         assertEquals(contact.getFirstName(), contactFound.getFirstName());
         assertEquals(contact.getEmail(), contactFound.getEmail());
         List<ContactEvent> list = new ArrayList<>(contactEventService.findContactEventsByContact(contactFound));
-        // List<ContactEvent> list = new ArrayList<>(contactFound.getContactEvents());
         assertEquals(1, list.size());
         assertEquals(ContactEventTypeEnum.create, list.get(0).getType());
 

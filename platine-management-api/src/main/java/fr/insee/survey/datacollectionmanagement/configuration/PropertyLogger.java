@@ -29,7 +29,7 @@ public class PropertyLogger  {
             log.info("================================ Properties ================================");
             final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
             StreamSupport.stream(sources.spliterator(), false)
-                    .filter(ps -> ps instanceof EnumerablePropertySource)
+                    .filter(EnumerablePropertySource.class::isInstance)
                     .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames())
                     .flatMap(Arrays::stream)
                     .distinct()
