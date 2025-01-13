@@ -23,7 +23,7 @@ public class BusinessContactController {
 
     private final BusinessContactService businessContactService;
 
-    @Operation(summary = "Search for a contact by its id")
+    @Operation(summary = "Search for the main contact by campaign and survey unit")
     @GetMapping(value = Constants.API_WEBCLIENT_BUSINESS_MAIN_CONTACT)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public BusinessContactsDto getListBusinessContact(@PathVariable("campaignId") String campaignId,
