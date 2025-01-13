@@ -114,6 +114,8 @@ public class Constants {
     public static final String API_WEBCLIENT_METADATA_ID = "/api/metadata/{id}";
     public static final String API_WEBCLIENT_QUESTIONINGS = "/api/questionings";
     public static final String API_WEBCLIENT_INFORMATIONS = "api/questioning/informations/{idCampaign}/{idUE}";
+    public static final String API_WEBCLIENT_BUSINESS_MAIN_CONTACT ="/api/main-contact/{campaignId}/{surveyUnitId}";
+
 
     public static final String API_HEALTHCHECK = "/api/healthcheck";
     public static final String ACTUATOR = "/actuator/**";
