@@ -34,8 +34,8 @@ public class BusinessContactServiceImpl implements BusinessContactService {
         Set<Partitioning> setParts = campaignService.findById(campaignId).getPartitionings();
         List<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
         for (Partitioning part : setParts) {
-            questioningAccreditationList = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId).
-                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList();
+            questioningAccreditationList.addAll(questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId).
+                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList());
 
         }
         int size = questioningAccreditationList.size();
