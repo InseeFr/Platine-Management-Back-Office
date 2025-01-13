@@ -68,23 +68,5 @@ public interface ContactRepository extends PagingAndSortingRepository<Contact, S
     )
     Page<SearchContactDto> findByFirstNameLastName(String param, Pageable pageable);
 
-    @Query(
-            value = """
-                                SELECT
-                                    c.identifier as identifier,
-                                    c.email as email,
-                                    c.first_name as firstName,
-                                    c.last_name as lastName
-                                FROM
-                                    contact c
-                                WHERE
-                                    UPPER(c.last_name) LIKE :param || '%'
-                                    OR UPPER(first_name || ' ' || last_name) LIKE :param || '%'
-                                    OR UPPER(c.email) LIKE :param || '%'
-                                    OR UPPER(c.identifier) LIKE :param || '%'
-                    """,
-            nativeQuery = true
-    )
-    Page<SearchContactDto> findByParam(String param, Pageable pageable);
 
 }

@@ -163,27 +163,7 @@ public class ContactController {
         return new PageImpl<>(Collections.emptyList());
 
     }
-
-    @GetMapping(path = Constants.API_CONTACTS_SEARCH+"/V2", produces = "application/json")
-    @Operation(summary = "Search contact by parameter (identifier, email, name, firstName lastName)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public Page<SearchContactDto> searchContactByParam(
-            @RequestParam(required = true) String searchParam,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-
-        log.info(
-                "Search contact with param = {} page = {} pageSize = {}", searchParam, page, pageSize);
-
-        Pageable pageable = PageRequest.of(page, pageSize);
-
-        return contactService.searchContactByParam(searchParam.toUpperCase(), pageable);
-
-    }
-
+    
 
     static class ContactPage extends PageImpl<ContactDto> {
 
