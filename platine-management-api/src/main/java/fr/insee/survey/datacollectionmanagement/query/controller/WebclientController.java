@@ -103,7 +103,7 @@ public class WebclientController {
 
         log.info("Put questioning for webclients {}", questioningWebclientDto.toString());
         String modelName = questioningWebclientDto.getModelName();
-        String idSu = StringUtils.upperCase(questioningWebclientDto.getSurveyUnit().getIdSu());
+        String idSu = questioningWebclientDto.getSurveyUnit().getIdSu();
         String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
 
 
@@ -115,10 +115,10 @@ public class WebclientController {
 
         HttpStatus httpStatus = HttpStatus.OK;
         su = convertToEntity(questioningWebclientDto.getSurveyUnit());
-        surveyUnitService.saveSurveyUnitAndAddress(su);
+        su = surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
+        Questioning questioning= questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
         if (questioning == null) {
             httpStatus = HttpStatus.CREATED;
             log.info("Create questioning for partitioning={} model={} surveyunit={} ", idPartitioning, modelName,
@@ -197,7 +197,8 @@ public class WebclientController {
             questioningAccreditation.setMain(contactAccreditationDto.isMain());
             questioningAccreditation.setQuestioning(questioning);
             questioningAccreditationService.saveQuestioningAccreditation(questioningAccreditation);
-
+            setExistingAccreditations.add(questioningAccreditation);
+            questioning.setQuestioningAccreditations(setExistingAccreditations);
 
             // create view
             viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
