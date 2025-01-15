@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.enums.UrlTypeEnum.*;
+import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.*;
 
 
 @Service
@@ -49,6 +50,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final QuestioningCommunicationService questioningCommunicationService;
 
     private final QuestioningCommentService questioningCommentService;
+
+    private final ParametersService parametersService;
 
     private final ModelMapper modelMapper;
 
@@ -267,8 +270,8 @@ public class QuestioningServiceImpl implements QuestioningService {
         Partitioning part = partitioningService.findById(idPart);
         Questioning questioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
         if (questioning != null) {
-            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-            String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
+            String accessBaseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
+            String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
             return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
 

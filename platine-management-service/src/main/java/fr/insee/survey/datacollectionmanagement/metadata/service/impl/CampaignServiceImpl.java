@@ -51,28 +51,18 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<Campaign> findbyPeriod(String period) {
-        return campaignRepository.findByPeriod(period);
-    }
-
-    @Override
     public Campaign findById(String idCampaign) {
         return campaignRepository.findById(idCampaign).orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
     }
 
     @Override
-    public List<Campaign> findbySourceYearPeriod(String source, Integer year, String period) {
-        return campaignRepository.findBySourceYearPeriod(source, year, period);
-    }
-
-    @Override
-    public List<Campaign> findbySourcePeriod(String source, String period) {
-        return campaignRepository.findBySourcePeriod(source, period);
-    }
-
-    @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return campaignRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Campaign> findAll() {
+        return campaignRepository.findAll();
     }
 
     @Override
@@ -123,13 +113,8 @@ public class CampaignServiceImpl implements CampaignService {
         Campaign camp = findById(idCampaign);
 
         Date now = new Date();
-        return camp.getPartitionings().stream().anyMatch(part -> isPartitionOngoing(part, now));
+        return camp.getPartitionings().stream().anyMatch(part -> partitioningService.isOnGoing(part, now));
     }
 
-    private boolean isPartitionOngoing (Partitioning part, Date now) {
 
-        boolean ongoing = partitioningService.isOnGoing(part, now);
-        log.info("Partitioning {} of campaign {} is {}", part.getId(), part.getCampaign().getId(), ongoing ? "ongoing" : "closed");
-        return ongoing;
-    }
 }

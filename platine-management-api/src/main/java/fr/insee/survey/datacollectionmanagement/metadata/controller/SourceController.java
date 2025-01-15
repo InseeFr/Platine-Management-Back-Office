@@ -4,17 +4,13 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.user.Authorit
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.*;
+import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +32,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -58,6 +55,8 @@ public class SourceController {
     private final QuestioningService questioningService;
 
     private final CampaignService campaignService;
+
+    private final ParametersService parametersService;
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
@@ -130,9 +129,9 @@ public class SourceController {
         List<Campaign> listCampaigns = new ArrayList<>();
         List<Partitioning> listPartitionings = new ArrayList<>();
 
-        source.getSurveys().stream().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
-        source.getSurveys().stream().forEach(
-                su -> su.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings())));
+        source.getSurveys().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
+        source.getSurveys().forEach(
+                su -> su.getCampaigns().forEach(c -> listPartitionings.addAll(c.getPartitionings())));
 
         for (Campaign campaign : listCampaigns) {
             nbViewDeleted += viewService.deleteViewsOfOneCampaign(campaign);
@@ -173,6 +172,30 @@ public class SourceController {
 
     }
 
+    @Operation(summary = "Get source parameters")
+    @GetMapping(value = Constants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
+        Source source = sourceService.findById(StringUtils.upperCase(id));
+        List<ParamsDto> listParams = source.getParams().stream().map(parametersService::convertToDto).toList();
+        return ResponseEntity.ok().body(listParams);
+    }
+
+
+    @Operation(summary = "Create a parameter for a source")
+    @PutMapping(value = Constants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+        Source source = sourceService.findById(StringUtils.upperCase(id));
+
+        ParamValidator.validateParams(paramsDto);
+        Parameters param = parametersService.convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(id));
+        Set<Parameters> updatedParams = parametersService.updateSourceParams(source,param);
+        source.setParams(updatedParams);
+        sourceService.insertOrUpdateSource(source);
+    }
+
+
+
     private SourceDto convertToDto(Source source) {
         return modelmapper.map(source, SourceDto.class);
     }
@@ -186,7 +209,7 @@ public class SourceController {
         return modelmapper.map(sourceOnlineStatusDto, Source.class);
     }
 
-    class SourcePage extends PageImpl<SourceDto> {
+    static class SourcePage extends PageImpl<SourceDto> {
 
         public SourcePage(List<SourceDto> content, Pageable pageable, long total) {
             super(content, pageable, total);

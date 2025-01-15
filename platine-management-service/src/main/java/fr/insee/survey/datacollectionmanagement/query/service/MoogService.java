@@ -18,7 +18,7 @@ public interface MoogService {
 
     List<MoogSearchDto> transformListViewToListMoogSearchDto(List<View> listView);
 
-    List<MoogQuestioningEventDto> getMoogEvents(String Campaign, String idSu);
+    List<MoogQuestioningEventDto> getMoogEvents(String campaign, String idSu);
 
     JSONCollectionWrapper<MoogExtractionRowDto> getExtraction(String idCampaign);
 

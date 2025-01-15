@@ -9,7 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogCampaignDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
@@ -36,8 +36,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class MoogServiceImpl implements MoogService {
 
-    public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
-    public static final String UNITE_ENQUETEE = "/unite-enquetee/";
     private final ViewService viewService;
 
     private final ContactService contactService;
@@ -48,7 +46,7 @@ public class MoogServiceImpl implements MoogService {
 
     private final QuestioningService questioningService;
 
-    private final PartitioningService partitioningService;
+    private final ParametersService parametersService;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -129,8 +127,8 @@ public class MoogServiceImpl implements MoogService {
         for (Partitioning part : setParts) {
             Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
             if (questioning != null) {
-                String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-                String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
+                String accessBaseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
+                String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
                 String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
                 return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
             }
