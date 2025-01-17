@@ -144,21 +144,26 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
-        Page<Questioning> pageQuestionings;
         if (!StringUtils.isEmpty(param)) {
-            pageQuestionings = questioningRepository.findBySurveyUnitIdSuOrSurveyUnitIdentificationCodeOrQuestioningAccreditationsIdContact(param, param, param, pageable);
-        } else {
-            pageQuestionings = questioningRepository.findAll(pageable);
+            List<Questioning> listQuestionings = questioningRepository.findQuestioningByParam(param.toUpperCase());
+            List<SearchQuestioningDto> searchDtos = listQuestionings
+                    .stream().distinct()
+                    .map(this::convertToSearchDto).toList();
 
+            return new PageImpl<>(searchDtos, pageable, searchDtos.size());
+        } else {
+            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
+            List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
+            List<SearchQuestioningDto> searchDtos = questionings
+                    .stream()
+                    .map(this::convertToSearchDto).toList();
+
+            return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
         }
 
 
-        List<SearchQuestioningDto> searchDtos = pageQuestionings
-                .stream()
-                .map(this::convertToSearchDto).toList();
-
-        return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
     }
+
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
@@ -230,7 +235,10 @@ public class QuestioningServiceImpl implements QuestioningService {
 
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
-        SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
+        SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
+        searchQuestioningDto.setQuestioningId(questioning.getId());
+        searchQuestioningDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
+        searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
         searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);

@@ -9,6 +9,9 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@Table(indexes = {
+        @Index(name = "idQuestioningComment_index", columnList = "questioning_id")
+})
 public class QuestioningComment {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "quest_comment_seq")
@@ -17,4 +20,7 @@ public class QuestioningComment {
     private String comment;
     private String author;
     private Date date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "questioning_id")
+    private Questioning questioning;
 }

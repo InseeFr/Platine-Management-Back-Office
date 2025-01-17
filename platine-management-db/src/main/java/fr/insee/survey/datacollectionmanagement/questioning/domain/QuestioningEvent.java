@@ -28,9 +28,10 @@ public class QuestioningEvent {
     private TypeQuestioningEvent type;
 
     @ManyToOne
+    @JoinColumn(name = "questioning_id")
     private Questioning questioning;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_upload")
     @JsonManagedReference
     private Upload upload;

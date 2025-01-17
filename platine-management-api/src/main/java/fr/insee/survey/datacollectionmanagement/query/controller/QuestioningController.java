@@ -64,8 +64,6 @@ public class QuestioningController {
         Questioning questioning = convertToEntity(questioningDto);
         questioning.setSurveyUnit(su);
         questioning = questioningService.saveQuestioning(questioning);
-        su.getQuestionings().add(questioning);
-        surveyUnitService.saveSurveyUnit(su);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
         return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(questioning));

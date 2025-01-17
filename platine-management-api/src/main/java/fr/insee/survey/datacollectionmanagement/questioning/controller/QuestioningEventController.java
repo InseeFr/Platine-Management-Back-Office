@@ -19,17 +19,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,12 +48,10 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
+    public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
         Questioning questioning = questioningService.findbyId(id);
         Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(setQe.stream()
-                        .map(questioningEventService::convertToDto).toList());
+        return setQe.stream().map(questioningEventService::convertToDto).toList();
 
     }
 
@@ -69,27 +61,14 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<?> postQuestioningEvent(@Parameter(description = "questioning id") Long id,
-                                                  @RequestBody QuestioningEventDto questioningEventDto) {
-        Questioning questioning = questioningService.findbyId(id);
+    @ResponseStatus(HttpStatus.CREATED)
+    public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") Long id,
+                                                    @RequestBody QuestioningEventDto questioningEventDto) {
+        questioningService.findbyId(id);
+        QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
+        QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
+        return questioningEventService.convertToDto(newQuestioningEvent);
 
-        try {
-            QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
-            QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
-            Set<QuestioningEvent> setQuestioningEvents = questioning.getQuestioningEvents();
-            setQuestioningEvents.add(newQuestioningEvent);
-            questioning.setQuestioningEvents(setQuestioningEvents);
-            questioningService.saveQuestioning(questioning);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.LOCATION,
-                    ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-            return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                    .body(questioningEventService.convertToDto(newQuestioningEvent));
-
-        } catch (ParseException e) {
-            log.error(e.getMessage(),e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
-        }
 
     }
 
@@ -103,31 +82,18 @@ public class QuestioningEventController {
     public ResponseEntity<?> deleteQuestioningEvent(@PathVariable("id") Long id) {
         QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
 
-        try {
-            Upload upload = (questioningEvent.getUpload() != null ? questioningEvent.getUpload() : null);
-            Questioning quesitoning = questioningEvent.getQuestioning();
-            quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
-                    .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
-            questioningService.saveQuestioning(quesitoning);
-            questioningEventService.deleteQuestioningEvent(id);
-            if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
-                uploadService.delete(upload);
-            }
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
-
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
+        Upload upload = (questioningEvent.getUpload() != null ? questioningEvent.getUpload() : null);
+        Questioning quesitoning = questioningEvent.getQuestioning();
+        quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
+                .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
+        questioningService.saveQuestioning(quesitoning);
+        questioningEventService.deleteQuestioningEvent(id);
+        if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
+            uploadService.delete(upload);
         }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
+
+
     }
 
-
-    class QuestioningEventPage extends PageImpl<QuestioningEventDto> {
-
-        private static final long serialVersionUID = 656181199902518234L;
-
-        public QuestioningEventPage(List<QuestioningEventDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
-    }
 }

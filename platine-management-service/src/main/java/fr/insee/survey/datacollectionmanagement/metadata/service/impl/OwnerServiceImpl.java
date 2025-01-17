@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.OwnerRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
 import lombok.RequiredArgsConstructor;
@@ -32,35 +31,14 @@ public class OwnerServiceImpl implements OwnerService {
 
         try {
             Owner ownerBase = findById(owner.getId());
-            log.info("Update owner with the id {}", owner.getId());
-            owner.setSources(ownerBase.getSources());
+            log.info("Update owner with the id {}", ownerBase.getId());
+            return ownerRepository.save(owner);
         } catch (NotFoundException e) {
             log.info("Create owner with the id {}", owner.getId());
             return ownerRepository.save(owner);
         }
 
 
-        return ownerRepository.save(owner);
-    }
-
-    @Override
-    public void deleteOwnerById(String id) {
-        ownerRepository.deleteById(id);
-
-    }
-
-    @Override
-    public void removeSourceFromOwner(Owner owner, Source source) {
-        if (owner != null && owner.getSources() != null) {
-            owner.getSources().remove(source);
-            ownerRepository.save(owner);
-        }
-    }
-
-    @Override
-    public void addSourceFromOwner(Owner owner, Source source) {
-        owner.getSources().add(source);
-        ownerRepository.save(owner);
     }
 
 }

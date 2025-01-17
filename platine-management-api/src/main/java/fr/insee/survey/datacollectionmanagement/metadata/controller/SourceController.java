@@ -102,11 +102,6 @@ public class SourceController {
 
 
         source = sourceService.insertOrUpdateSource(convertToEntity(sourceOnlineStatusDto));
-        if (source.getOwner() != null && httpStatus.equals(HttpStatus.CREATED))
-            ownerService.addSourceFromOwner(source.getOwner(), source);
-        if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
-            supportService.addSourceFromSupport(source.getSupport(), source);
-
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToCompleteDto(source));
     }
 
@@ -119,13 +114,6 @@ public class SourceController {
         int nbViewDeleted = 0;
         Source source = sourceService.findById(id);
 
-        if (source.getOwner() != null)
-            ownerService.removeSourceFromOwner(source.getOwner(), source);
-
-        if (source.getSupport() != null)
-            supportService.removeSourceFromSupport(source.getSupport(), source);
-
-        sourceService.deleteSourceById(id);
         List<Campaign> listCampaigns = new ArrayList<>();
         List<Partitioning> listPartitionings = new ArrayList<>();
 
@@ -139,6 +127,8 @@ public class SourceController {
         for (Partitioning partitioning : listPartitionings) {
             nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
         }
+        sourceService.deleteSourceById(id);
+
         log.info("Source {} deleted with all its metadata children - {} questioning deleted - {} view deleted", id,
                 nbQuestioningDeleted, nbViewDeleted);
 

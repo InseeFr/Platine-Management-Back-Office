@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +15,5 @@ public interface SurveyService {
     Survey insertOrUpdateSurvey(Survey survey);
 
     void deleteSurveyById(String id);
-
-    Survey addCampaignToSurvey(Survey survey, Campaign campaign);
 
 }

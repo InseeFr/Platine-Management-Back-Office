@@ -19,8 +19,9 @@ public interface SurveyUnitService {
 
     SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     
-    SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit);
+    SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit);
 
     void deleteSurveyUnit(String id);
 
+    Page<SearchSurveyUnitDto> findByParameter(String searchParam, Pageable pageable);
 }

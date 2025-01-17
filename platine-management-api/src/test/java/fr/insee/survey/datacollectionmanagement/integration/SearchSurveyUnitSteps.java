@@ -5,15 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.SurveyUnitParamEnum;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,30 +36,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SearchSurveyUnitSteps {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    ObjectMapper objectMapper;
 
     private MvcResult mvcResult;
     private Page<SearchSurveyUnitDtoImpl> pageSearchSurveyUnit;
     private String role;
 
-    @Transactional
-    @Given("the following survey units exist")
-    public void createSurveyUnits(DataTable dataTable) {
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> row : rows) {
-            SurveyUnit surveyUnit = new SurveyUnit();
-            surveyUnit.setIdSu(row.get("IDmetier"));
-            surveyUnit.setIdentificationName(row.get("Raison sociale"));
-            surveyUnit.setIdentificationCode(row.get("IDmetier"));
-            surveyUnitRepository.save(surveyUnit);
-        }
-    }
 
     @Given("I am a survey manager for survey unit")
     public void setRole() {

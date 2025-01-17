@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.6.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [] # optional: list of Conventional Commits types to allow e.g. [feat, fix, ci, chore, test]
+
+  - repo: local
+    hooks:
+      - id: trivy-scan
+        stages: [pre-push]
+        name: Trivy scan
+        entry: trivy fs . --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 --db-repository public.ecr.aws/aquasecurity/trivy-db:2
+        language: system
+        pass_filenames: false
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.1
+    hooks:
+      - id: gitleaks
+        name: Detect hardcoded secrets
+        description: Detect hardcoded secrets using Gitleaks
+        entry: gitleaks git --verbose -l trace --staged -c .gitleaks.toml
+        language: golang
+        pass_filenames: false

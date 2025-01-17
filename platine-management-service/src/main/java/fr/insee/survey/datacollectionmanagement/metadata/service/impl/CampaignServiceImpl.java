@@ -67,14 +67,6 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
-        try {
-            Campaign campaignBase = findById(campaign.getId());
-            log.info("Update campaign with the id {}", campaign.getId());
-            campaign.setPartitionings(campaignBase.getPartitionings());
-
-        } catch (NotFoundException e) {
-            log.info("Create campaign with the id {}", campaign.getId());
-        }
         return campaignRepository.save(campaign);
 
     }
@@ -84,29 +76,7 @@ public class CampaignServiceImpl implements CampaignService {
         campaignRepository.deleteById(id);
     }
 
-    @Override
-    public Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning) {
-        Set<Partitioning> partitionings;
-        try {
-            Campaign campaignBase = findById(campaign.getId());
-            partitionings = campaignBase.getPartitionings();
-            if (!isPartitioningPresent(partitioning, campaignBase))
-                partitionings.add(partitioning);
-        } catch (NotFoundException e) {
-            partitionings = Set.of(partitioning);
-        }
-        campaign.setPartitionings(partitionings);
-        return campaign;
-    }
 
-    private boolean isPartitioningPresent(Partitioning p, Campaign c) {
-        for (Partitioning part : c.getPartitionings()) {
-            if (part.getId().equals(p.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean isCampaignOngoing(String idCampaign)  {

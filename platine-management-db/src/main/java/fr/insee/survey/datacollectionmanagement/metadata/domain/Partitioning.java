@@ -23,6 +23,7 @@ public class Partitioning {
     private Date returnDate;
 
     @ManyToOne
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
