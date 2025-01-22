@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -12,75 +13,78 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SurveyUnitServiceImpl implements SurveyUnitService {
 
-    private final SurveyUnitRepository surveyUnitRepository;
+	private final SurveyUnitRepository surveyUnitRepository;
 
-    private final SurveyUnitAddressRepository surveyUnitAddressRepository;
+	private final SurveyUnitAddressRepository surveyUnitAddressRepository;
 
-    @Override
-    public SurveyUnit findbyId(String idSu) {
-        return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit %s not found", idSu)));
-    }
+	@Override
+	public SurveyUnit findbyId(String idSu) {
+		return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit" +
+				" " +
+				"%s not found", idSu)));
+	}
 
-    @Override
-    public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
-        return surveyUnitRepository.findByIdentifier(id, pageable);
-    }
-
-    @Override
-    public Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable) {
-        return surveyUnitRepository.findByIdentificationCode(identificationCode, pageable);
-    }
-
-    @Override
-    public Page<SearchSurveyUnitDto> findbyIdentificationName(String identificationName, Pageable pageable) {
-        return surveyUnitRepository.findByIdentificationName(identificationName, pageable);
-    }
+	@Override
+	public Optional<SurveyUnit> findOptionalById(String idSu) {
+		return surveyUnitRepository.findById(idSu);
+	}
 
 
-    @Override
-    public Page<SurveyUnit> findAll(Pageable pageable) {
-        return surveyUnitRepository.findAll(pageable);
-    }
+	@Override
+	public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
+		return surveyUnitRepository.findByIdentifier(id, pageable);
+	}
 
-    @Override
-    public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit) {
-        return surveyUnitRepository.save(surveyUnit);
-    }
+	@Override
+	public Page<SearchSurveyUnitDto> findbyIdentificationCode(String identificationCode, Pageable pageable) {
+		return surveyUnitRepository.findByIdentificationCode(identificationCode, pageable);
+	}
 
-    @Override
-    public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
+	@Override
+	public Page<SearchSurveyUnitDto> findbyIdentificationName(String identificationName, Pageable pageable) {
+		return surveyUnitRepository.findByIdentificationName(identificationName, pageable);
+	}
 
-        try {
-            SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());
-            surveyUnit.setSurveyUnitComments(existingSurveyUnit.getSurveyUnitComments());
-        } catch (NotFoundException e) {
-            log.debug("Survey unit does not exist");
-        }
-        if (surveyUnit.getSurveyUnitAddress() != null) {
-            try {
-                SurveyUnit existingSurveyUnit = findbyId(surveyUnit.getIdSu());
-                if (existingSurveyUnit.getSurveyUnitAddress() != null) {
-                    surveyUnit.getSurveyUnitAddress().setId(existingSurveyUnit.getSurveyUnitAddress().getId());
-                }
-            } catch (NotFoundException e) {
-                log.debug("Survey unit does not exist");
-            }
-            surveyUnitAddressRepository.save(surveyUnit.getSurveyUnitAddress());
 
-        }
-        return surveyUnitRepository.save(surveyUnit);
+	@Override
+	public Page<SurveyUnit> findAll(Pageable pageable) {
+		return surveyUnitRepository.findAll(pageable);
+	}
 
-    }
+	@Override
+	public SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit) {
+		return surveyUnitRepository.save(surveyUnit);
+	}
 
-    @Override
-    public void deleteSurveyUnit(String id) {
-        surveyUnitRepository.deleteById(id);
+	@Override
+	public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
 
-    }
+		findOptionalById(surveyUnit.getIdSu())
+				.ifPresent(suInRepo -> {
+					surveyUnit.setSurveyUnitComments(suInRepo.getSurveyUnitComments());
+					SurveyUnitAddress suAddress = surveyUnit.getSurveyUnitAddress();
+					if (suAddress != null && suInRepo.getSurveyUnitAddress() != null) {
+						suAddress.setId(suInRepo.getSurveyUnitAddress().getId());
+						surveyUnitAddressRepository.save(suAddress);
+					}
+
+				});
+
+		return surveyUnitRepository.save(surveyUnit);
+
+	}
+
+	@Override
+	public void deleteSurveyUnit(String id) {
+		surveyUnitRepository.deleteById(id);
+
+	}
 
 }
