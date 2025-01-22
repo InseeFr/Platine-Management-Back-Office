@@ -66,16 +66,15 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 	@Override
 	public SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit) {
 
-		findOptionalById(surveyUnit.getIdSu())
-				.ifPresent(suInRepo -> {
-					surveyUnit.setSurveyUnitComments(suInRepo.getSurveyUnitComments());
-					SurveyUnitAddress suAddress = surveyUnit.getSurveyUnitAddress();
-					if (suAddress != null && suInRepo.getSurveyUnitAddress() != null) {
-						suAddress.setId(suInRepo.getSurveyUnitAddress().getId());
-						surveyUnitAddressRepository.save(suAddress);
-					}
+		findOptionalById(surveyUnit.getIdSu()).ifPresent(suInRepo -> {
+			surveyUnit.setSurveyUnitComments(suInRepo.getSurveyUnitComments());
+			SurveyUnitAddress suAddress = surveyUnit.getSurveyUnitAddress();
+			if (suAddress != null && suInRepo.getSurveyUnitAddress() != null) {
+				suAddress.setId(suInRepo.getSurveyUnitAddress().getId());
+				surveyUnitAddressRepository.save(suAddress);
+			}
 
-				});
+		});
 
 		return surveyUnitRepository.save(surveyUnit);
 

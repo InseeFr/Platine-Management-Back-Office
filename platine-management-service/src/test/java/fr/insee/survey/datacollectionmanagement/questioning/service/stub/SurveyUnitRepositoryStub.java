@@ -3,24 +3,24 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Setter
 public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
-	@Setter
 	private boolean shouldThrow = false;
-
-	@Setter
+	@Getter
 	private SurveyUnit surveyUnit;
+	private List<SearchSurveyUnitDto> echoes;
+	private List<SurveyUnit> surveyUnits;
+
 
 	@Override
 	public List<SurveyUnit> findAllByIdentificationCode(String identificationCode) {
@@ -29,22 +29,27 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
 	@Override
 	public Page<SearchSurveyUnitDto> findByIdentifier(String param, Pageable pageable) {
-		return null;
+		List<SearchSurveyUnitDto> searches = echoes.stream().filter(search -> param.equals(search.getIdSu())).toList();
+		return new PageImpl<>(searches, pageable, searches.size());
 	}
 
 	@Override
 	public Page<SearchSurveyUnitDto> findByIdentificationCode(String param, Pageable pageable) {
-		return null;
+		List<SearchSurveyUnitDto> searches =
+				echoes.stream().filter(search -> param.equals(search.getIdentificationCode())).toList();
+		return new PageImpl<>(searches, pageable, searches.size());
 	}
 
 	@Override
 	public Page<SearchSurveyUnitDto> findByIdentificationName(String param, Pageable pageable) {
-		return null;
+		List<SearchSurveyUnitDto> searches =
+				echoes.stream().filter(search -> param.equals(search.getIdentificationName())).toList();
+		return new PageImpl<>(searches, pageable, searches.size());
 	}
 
 	@Override
 	public void flush() {
-
+		//not used
 	}
 
 	@Override
@@ -59,17 +64,17 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
 	@Override
 	public void deleteAllInBatch(Iterable<SurveyUnit> entities) {
-
+		//not used
 	}
 
 	@Override
 	public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+		//not used
 	}
 
 	@Override
 	public void deleteAllInBatch() {
-
+		//not used
 	}
 
 	@Override
@@ -166,27 +171,30 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
 	@Override
 	public void deleteById(String s) {
-
+		if (s.equals(surveyUnit.getIdSu())) {
+			surveyUnit = null;
+		}
 	}
 
 	@Override
 	public void delete(SurveyUnit entity) {
-
+		//not used
 	}
+
 
 	@Override
 	public void deleteAllById(Iterable<? extends String> strings) {
-
+		//not used
 	}
 
 	@Override
 	public void deleteAll(Iterable<? extends SurveyUnit> entities) {
-
+		//not used
 	}
 
 	@Override
 	public void deleteAll() {
-
+		//not used
 	}
 
 	@Override
@@ -196,6 +204,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
 	@Override
 	public Page<SurveyUnit> findAll(Pageable pageable) {
-		return null;
+		List<SurveyUnit> pagedSurveyUnits = surveyUnits.stream().limit(pageable.getPageSize()).toList();
+		return new PageImpl<>(pagedSurveyUnits, pageable, pageable.getPageSize());
 	}
 }
