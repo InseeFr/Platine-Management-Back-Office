@@ -7,6 +7,14 @@ public class MoogRowProgressDto {
 
     private String batchNum;
 
+    public MoogRowProgressDto() {}
+
+    public MoogRowProgressDto(int total, String status, String batchNum) {
+        this.total = total;
+        this.status = status;
+        this.batchNum = batchNum;
+    }
+
     public int getTotal() {
         return total;
     }

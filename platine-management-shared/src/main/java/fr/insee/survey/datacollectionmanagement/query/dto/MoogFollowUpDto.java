@@ -7,6 +7,16 @@ public class MoogFollowUpDto implements Serializable {
     private int freq;
     private String batchNum;
 
+    public MoogFollowUpDto(int nb, int freq, String batchNum) {
+        this.nb = nb;
+        this.freq = freq;
+        this.batchNum = batchNum;
+    }
+
+    public MoogFollowUpDto() {
+
+    }
+
     public int getNb() {
         return nb;
     }
