@@ -74,8 +74,8 @@ class MonitoringServiceImplTest {
         String idCampaign = "testCampaign";
 
         List<MoogFollowUpDto> mockFollowUp = Arrays.asList(
-                new MoogFollowUpDto(10, 5, "FollowUp1"),  // Correct constructor usage
-                new MoogFollowUpDto(20, 10, "FollowUp2")  // Correct constructor usage
+                new MoogFollowUpDto(10, 5, "FollowUp1"),
+                new MoogFollowUpDto(20, 10, "FollowUp2")
         );
 
         when(monitoringRepository.getFollowUp(idCampaign)).thenReturn(mockFollowUp);
