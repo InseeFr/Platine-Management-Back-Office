@@ -3,10 +3,10 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.EventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.EventOrderService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,15 +20,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EventOrderServiceImplTest {
 
-    private EventOrderService service;
+    @InjectMocks
+    private EventOrderServiceImpl service;
 
     @Mock
     private EventOrderRepository eventOrderRepository;
-
-    @BeforeEach
-    void setUp() {
-         service = new EventOrderServiceImpl(eventOrderRepository);
-    }
 
     @Test
     @DisplayName("Should find event order by status")
