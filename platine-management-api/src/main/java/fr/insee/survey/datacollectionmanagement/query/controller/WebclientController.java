@@ -111,12 +111,8 @@ public class WebclientController {
 
         Partitioning part = partitioningService.findById(idPartitioning);
 
-
-        QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
-        SurveyUnit su;
-
         HttpStatus httpStatus = HttpStatus.OK;
-        su = convertToEntity(questioningWebclientDto.getSurveyUnit());
+        SurveyUnit su = convertToEntity(questioningWebclientDto.getSurveyUnit());
 
         // Create su if not exists or update
         try {
@@ -147,7 +143,6 @@ public class WebclientController {
             questioning.setQuestioningAccreditations(new HashSet<>());
         }
 
-
         for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()) {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
         }
@@ -157,12 +152,12 @@ public class WebclientController {
         su.getQuestionings().add(questioning);
         surveyUnitService.saveSurveyUnitAddressComments(su);
 
-
+        QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
         questioningReturn.setIdPartitioning(idPartitioning);
         questioningReturn.setModelName(modelName);
         questioningReturn.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations().stream()
+        questioning.getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningReturn.setContacts(listContactAccreditationDto);
@@ -294,8 +289,6 @@ public class WebclientController {
             throw new NotMatchException("id and idPartitioning don't match");
         }
 
-        MetadataDto metadataReturn = new MetadataDto();
-
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
                 ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(id).toUriString());
@@ -340,6 +333,7 @@ public class WebclientController {
         campaign = campaignService.insertOrUpdateCampaign(campaign);
         partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
 
+        final MetadataDto metadataReturn = new MetadataDto();
         metadataReturn.setOwnerDto(convertToDto(owner));
         metadataReturn.setSupportDto(convertToDto(support));
         metadataReturn.setSourceDto(convertToDto(source));
@@ -426,7 +420,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<EligibleDto> isToFollwUp(
+    public ResponseEntity<EligibleDto> isToFollowUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) {
 
@@ -452,7 +446,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @Transactional
-    public ResponseEntity<StateDto> postFollwUp(
+    public ResponseEntity<StateDto> postFollowUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) throws JsonProcessingException {
 
