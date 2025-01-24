@@ -1,5 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class MoogRowProgressDto {
     private int total;
 
@@ -7,35 +14,9 @@ public class MoogRowProgressDto {
 
     private String batchNum;
 
-    public MoogRowProgressDto() {}
-
     public MoogRowProgressDto(int total, String status, String batchNum) {
         this.total = total;
         this.status = status;
-        this.batchNum = batchNum;
-    }
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getBatchNum() {
-        return batchNum;
-    }
-
-    public void setBatchNum(String batchNum) {
         this.batchNum = batchNum;
     }
 }
