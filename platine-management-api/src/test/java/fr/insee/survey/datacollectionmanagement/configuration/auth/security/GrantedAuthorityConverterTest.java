@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -40,6 +41,7 @@ class GrantedAuthorityConverterTest {
         applicationConfig.setRoleAdmin(List.of(""));
         applicationConfig.setRoleInternalUser(List.of());
         applicationConfig.setRoleWebClient(List.of(""));
+        applicationConfig.setRoleClaim("role-claim");
         List<String> nullList = new ArrayList<>();
         nullList.add(null);
         applicationConfig.setRoleRespondent(nullList);
@@ -53,9 +55,42 @@ class GrantedAuthorityConverterTest {
         assertThat(authorities).isEmpty();
     }
 
+    @ParameterizedTest
+    @NullAndEmptySource
+    @DisplayName("Given a JWT, when converting to roles using no specific role-claim, use default claims")
+    void testConverter01(String roleClaim) {
+        // given
+        applicationConfig.setRoleClaim(roleClaim);
+        applicationConfig.setRoleAdmin(JWT_ROLE_ADMIN);
+        applicationConfig.setRoleWebClient(List.of(""));
+        applicationConfig.setRoleInternalUser(JWT_ROLE_INTERNAL_USER);
+        converter = new GrantedAuthorityConverter(applicationConfig);
+        List<String> tokenRoles = List.of("internal_user", "adm");
+
+        Map<String, Object> jwtHeaders = new HashMap<>();
+        jwtHeaders.put("header", "headerValue");
+
+        Map<String, Object> claims = new HashMap<>();
+        Map<String, List<String>> realmRoles = new HashMap<>();
+        realmRoles.put(GrantedAuthorityConverter.REALM_ACCESS_ROLE, tokenRoles);
+        claims.put(GrantedAuthorityConverter.REALM_ACCESS, realmRoles);
+        Jwt jwt = new Jwt("user-id", Instant.now(), Instant.MAX, jwtHeaders, claims);
+
+        // when
+        Collection<GrantedAuthority> authorities = converter.convert(jwt);
+
+        // then
+        assertThat(authorities)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        new SimpleGrantedAuthority(AuthorityRoleEnum.INTERNAL_USER.securityRole()),
+                        new SimpleGrantedAuthority(AuthorityRoleEnum.ADMIN.securityRole()));
+    }
+
     @Test
     @DisplayName("Given a JWT, when converting roles, then convert only JWT roles matching roles in role properties")
     void testConverter02() {
+        applicationConfig.setRoleClaim("role-claim");
         applicationConfig.setRoleAdmin(JWT_ROLE_ADMIN);
         applicationConfig.setRoleInternalUser(JWT_ROLE_INTERNAL_USER);
         applicationConfig.setRoleWebClient(List.of("webclient", "adm"));
@@ -78,6 +113,7 @@ class GrantedAuthorityConverterTest {
     void testConverter03() {
         String dummyRole = "dummyRole";
         String dummyRole2 = "dummyRole2";
+        applicationConfig.setRoleClaim("role-claim");
         applicationConfig.setRoleAdmin(List.of(dummyRole));
         applicationConfig.setRoleInternalUser(List.of(dummyRole2));
         applicationConfig.setRoleWebClient(List.of(dummyRole));
@@ -100,6 +136,7 @@ class GrantedAuthorityConverterTest {
     @MethodSource("provideJWTRoleWithAppRoleAssociated")
     @DisplayName("Given a JWT, when converting roles, then assure each JWT role is converted to equivalent app role")
     void testConverter04(List<String> jwtRoles, AuthorityRoleEnum appRole) {
+        applicationConfig.setRoleClaim("role-claim");
         applicationConfig.setRoleAdmin(JWT_ROLE_ADMIN);
         applicationConfig.setRoleInternalUser(JWT_ROLE_INTERNAL_USER);
         applicationConfig.setRoleWebClient(JWT_ROLE_WEBCLIENT);
