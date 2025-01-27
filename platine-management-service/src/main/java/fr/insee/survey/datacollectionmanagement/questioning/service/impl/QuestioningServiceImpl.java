@@ -121,19 +121,20 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated access URL.
      */
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
+    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, Partitioning part) {
         // Set default values if baseUrl or typeUrl is empty
         baseUrl = StringUtils.defaultIfEmpty(baseUrl, questioningUrl);
         typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
         if (typeUrl.equalsIgnoreCase(V1.name())) {
-            return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+            String campaignName = part.getCampaign().getSurvey().getSource().getId() + "-" + part.getCampaign().getSurvey().getYear() + "-" + part.getCampaign().getPeriod();
+            return buildV1Url(baseUrl, role, campaignName, surveyUnitId);
         }
         if (typeUrl.equalsIgnoreCase(V2.name())) {
             return buildV2Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
         }
         if (typeUrl.equalsIgnoreCase(V3.name())) {
-            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId, part.getCampaign().getSurvey().getSource().getId(), questioning.getId());
         }
 
         return "";
@@ -269,8 +270,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         if (questioning != null) {
             String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
             String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+            return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, partitioningService.findById(idPart));
 
         }
         return "";

@@ -131,8 +131,7 @@ public class MoogServiceImpl implements MoogService {
             if (questioning != null) {
                 String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
                 String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-                String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
-                return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+                return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, part);
             }
         }
         String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;
