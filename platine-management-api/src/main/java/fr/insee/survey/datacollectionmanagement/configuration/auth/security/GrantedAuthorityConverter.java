@@ -15,8 +15,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GrantedAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
+    public static final String REALM_ACCESS_ROLE = "roles";
+    public static final String REALM_ACCESS = "realm_access";
     private final Map<String, List<SimpleGrantedAuthority>> roles;
-    ApplicationConfig applicationConfig;
+    private ApplicationConfig applicationConfig;
 
     public GrantedAuthorityConverter(ApplicationConfig applicationConfig) {
         this.applicationConfig = applicationConfig;
@@ -30,8 +32,7 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
     @SuppressWarnings("unchecked")
     @Override
     public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
-        Map<String, Object> claims = jwt.getClaims();
-        List<String> userRoles = (List<String>) claims.get(applicationConfig.getRoleClaim());
+        List<String> userRoles = getUserRoles(jwt);
 
         if(userRoles == null) {
             return new ArrayList<>();
@@ -49,6 +50,10 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
 
     private void fillGrantedRoles(List<String> configRoles, AuthorityRoleEnum authorityRole) {
 
+        if(configRoles == null) {
+            return;
+        }
+        
         for (String configRole : configRoles ) {
             if(configRole == null || configRole.isBlank()) {
                 return;
@@ -62,6 +67,17 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
                 return grantedAuthorities;
             });
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> getUserRoles(Jwt jwt) {
+        Map<String, Object> claims = jwt.getClaims();
+
+        if(applicationConfig.getRoleClaim() == null || applicationConfig.getRoleClaim().isBlank()) {
+            Map<String, Object> realmAccess = jwt.getClaim(REALM_ACCESS);
+            return (List<String>) realmAccess.get(REALM_ACCESS_ROLE);
+        }
+        return (List<String>) claims.get(applicationConfig.getRoleClaim());
     }
 }
 

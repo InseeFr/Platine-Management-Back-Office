@@ -27,34 +27,31 @@ public class OpenAPIConfiguration {
 
     @Bean public OpenAPI customOpenAPI() {
 
-        switch(applicationConfig.getAuthType()) {
+        if (applicationConfig.getAuthType().equals(AuthConstants.OIDC)) {
+            OAuthFlows flows = getoAuthFlows();
 
-            case AuthConstants.OIDC:
-
-                OAuthFlows flows = new OAuthFlows();
-                OAuthFlow flow = new OAuthFlow();
-
-                flow.setAuthorizationUrl(applicationConfig.getKeyCloakUrl() + "/realms/" + applicationConfig.getKeycloakRealm() + "/protocol/openid-connect/auth");
-                flow.setTokenUrl(applicationConfig.getKeyCloakUrl() + "/realms/" + applicationConfig.getKeycloakRealm() + "/protocol/openid-connect/token");
-                Scopes scopes = new Scopes();
-                // scopes.addString("global", "accessEverything");
-                flow.setScopes(scopes);
-                flows = flows.authorizationCode(flow);
-
-                return new OpenAPI()
-                        .components(
-                        new Components().addSecuritySchemes("oauth2", new SecurityScheme().type(SecurityScheme.Type.OAUTH2).flows(flows)))
-                        .info(new Info().title(buildProperties.getName()).version(buildProperties.getVersion()))
-                        .addSecurityItem(new SecurityRequirement().addList("oauth2", Arrays.asList("read", "write")));
-
-            default:
-                return new OpenAPI()
-                        .info(new Info().title(buildProperties.getName()).version(buildProperties.getVersion()));
-
+            return new OpenAPI()
+                    .components(
+                            new Components().addSecuritySchemes("oauth2", new SecurityScheme().type(SecurityScheme.Type.OAUTH2).flows(flows)))
+                    .info(new Info().title(buildProperties.getName()).version(buildProperties.getVersion()))
+                    .addSecurityItem(new SecurityRequirement().addList("oauth2", Arrays.asList("read", "write")));
         }
+        return new OpenAPI()
+                .info(new Info().title(buildProperties.getName()).version(buildProperties.getVersion()));
 
     }
 
+    private OAuthFlows getoAuthFlows() {
+        OAuthFlows flows = new OAuthFlows();
+        OAuthFlow flow = new OAuthFlow();
+
+        flow.setAuthorizationUrl(applicationConfig.getKeyCloakUrl() + "/realms/" + applicationConfig.getKeycloakRealm() + "/protocol/openid-connect/auth");
+        flow.setTokenUrl(applicationConfig.getKeyCloakUrl() + "/realms/" + applicationConfig.getKeycloakRealm() + "/protocol/openid-connect/token");
+        Scopes scopes = new Scopes();
+        flow.setScopes(scopes);
+        flows = flows.authorizationCode(flow);
+        return flows;
+    }
 
 
 }

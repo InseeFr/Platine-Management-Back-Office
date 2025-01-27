@@ -99,13 +99,6 @@ class AddressControllerTest {
         assertEquals(contactAfterUpdate.getAddress().getStreetName(), addressUpdated.getStreetName());
         assertEquals(contactAfterUpdate.getAddress().getCountryName(), addressUpdated.getCountryName());
 
-        // back to before
-        contact.setAddress(addressBefore);
-        addressService.saveAddress(addressBefore);
-        contactService.saveContact(contact);
-        assertEquals(contact.getAddress().getCityName(), addressBefore.getCityName());
-        assertEquals(contact.getAddress().getStreetName(), addressBefore.getStreetName());
-        assertEquals(contact.getAddress().getCountryName(), addressBefore.getCountryName());
 
     }
 

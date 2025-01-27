@@ -55,10 +55,11 @@ public class QuestioningInformationsController {
         String userId = authentication.getName().toUpperCase();
         boolean habilitated = checkHabilitationService.checkHabilitation(role, idsu, idCampaign, userRoles, userId);
         if (habilitated) {
-            String idContact = authentication.getName().toUpperCase();
-            if (StringUtils.equalsIgnoreCase(role, UserRoles.INTERVIEWER) && contactService.findByIdentifier(idContact) != null) {
+            if (StringUtils.equalsIgnoreCase(role, UserRoles.INTERVIEWER)) {
+                String idContact = authentication.getName().toUpperCase();
                 log.info("Get orbeon questioning informations for interviewer {} : campaign = {} and survey unit = {}", idContact, idCampaign, idsu);
                 return questioningInformationsService.findQuestioningInformationsDtoInterviewer(idCampaign, idsu, idContact);
+
             }
             log.info("Get orbeon questioning informations for reviewer : campaign = {} and survey unit = {}", idCampaign, idsu);
             return questioningInformationsService.findQuestioningInformationsDtoReviewer(idCampaign, idsu);

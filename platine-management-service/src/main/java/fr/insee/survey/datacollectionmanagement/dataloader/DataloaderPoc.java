@@ -10,13 +10,14 @@ import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import jakarta.annotation.PostConstruct;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-@Profile(("demo"))
+@Profile("demo")
 @RequiredArgsConstructor
 public class DataloaderPoc {
 
@@ -84,12 +85,13 @@ public class DataloaderPoc {
         Faker faker = new Faker();
 
         initOrder();
-        //initContact(faker);
-
-        /*initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3, 1);
-        initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2, 1);
-        initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2, 1);
-        initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1, 1);*/
+        if (contactRepository.count() == 0) {
+            initContact(faker);
+            initDataForOneSource(faker, "DVM", 2, PeriodicityEnum.M, 12, 3);
+            initDataForOneSource(faker, "DVT", 3, PeriodicityEnum.T, 4, 2);
+            initDataForOneSource(faker, "DVX", 2, PeriodicityEnum.X, 1, 2);
+            initDataForOneSource(faker, "DVB", 2, PeriodicityEnum.B, 6, 1);
+        }
     }
 
 
@@ -223,9 +225,7 @@ public class DataloaderPoc {
             listContact.add(c);
 
             if ((i + 1) % 10000 == 0) {
-                //addressRepository.saveAll(listAddresses);
                 contactRepository.saveAll(listContact);
-                //listAddresses = new ArrayList<>();
                 listContact = new ArrayList<>();
                 long end = System.currentTimeMillis();
 
@@ -267,7 +267,6 @@ public class DataloaderPoc {
         a.setZipCode(fakeAddress.zipCode());
         a.setCityName(fakeAddress.cityName());
         addressRepository.save(a);
-        //listAddresses.add(a);
 
         c.setIdentifier(randomString(7).toUpperCase());
         c.setLastName(name);
@@ -283,7 +282,7 @@ public class DataloaderPoc {
     }
 
     private void initDataForOneSource(Faker faker, String sourceName, int nbSurveysBySource, PeriodicityEnum periodicity,
-                                      int nbCampaignsBySource, int nbPartByCampaign, int nbQuestioningsByPart) {
+                                      int nbCampaignsBySource, int nbPartByCampaign) {
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
@@ -316,23 +315,19 @@ public class DataloaderPoc {
 
         log.info("{} campaigns exist in database", campaignRepository.count());
 
-        // while (sourceRepository.count() < 10) {
-
         Source source = new Source();
 
-        String nameSource = sourceName;
+        if (!StringUtils.contains(sourceName, " ") && sourceRepository.findById(sourceName).isEmpty()) {
 
-        if (!StringUtils.contains(nameSource, " ") && sourceRepository.findById(nameSource).isEmpty()) {
-
-            source.setId(nameSource);
-            source.setLongWording("Have you ever heard about " + nameSource + " ?");
-            source.setShortWording("Source about " + nameSource);
+            source.setId(sourceName);
+            source.setLongWording("Have you ever heard about " + sourceName + " ?");
+            source.setShortWording("Source about " + sourceName);
             source.setPeriodicity(periodicity);
             source.setMandatoryMySurveys(false);
 
             sourceRepository.save(source);
             Set<Survey> setSurveys = new HashSet<>();
-            Integer i = rnd.nextInt();
+            int i = rnd.nextInt();
             if (i % 2 == 0) {
                 setSourcesInsee.add(source);
                 source.setOwner(ownerInsee);
@@ -348,11 +343,11 @@ public class DataloaderPoc {
             for (int j = 0; j < nbSurveysBySource; j++) {
 
                 Survey survey = new Survey();
-                String id = nameSource + (year - j);
+                String id = sourceName + (year - j);
                 survey.setId(id);
                 survey.setYear(year - j);
                 survey.setLongObjectives("The purpose of this survey is to find out everything you can about "
-                        + nameSource
+                        + sourceName
                         + ". Your response is essential to ensure the quality and reliability of the results of this survey.");
                 survey.setShortObjectives("All about " + id);
                 survey.setCommunication("Communication around " + id);
@@ -361,7 +356,7 @@ public class DataloaderPoc {
                 survey.setCnisUrl("http://cnis/" + id);
                 survey.setNoticeUrl("http://notice/" + id);
                 survey.setVisaNumber(year + randomString(6).toUpperCase());
-                survey.setLongWording("Survey " + nameSource + " " + (year - j));
+                survey.setLongWording("Survey " + sourceName + " " + (year - j));
                 survey.setShortWording(id);
                 setSurveys.add(survey);
                 surveyRepository.save(survey);
@@ -374,10 +369,10 @@ public class DataloaderPoc {
                     String period = periodValue < 10 ? periodicity + "0" + periodValue : periodicity + String.valueOf(periodValue);
                     campaign.setYear(year - j);
                     campaign.setPeriod(PeriodEnum.valueOf(period));
-                    String idampaign = nameSource + (year - j) + period;
+                    String idampaign = sourceName + (year - j) + period;
                     campaign.setId(idampaign);
                     campaign.setCampaignWording(
-                            "Campaign about " + nameSource + " in " + (year - j) + " and period " + period);
+                            "Campaign about " + sourceName + " in " + (year - j) + " and period " + period);
 
                     if (campaignRepository.findById(idampaign).isEmpty()) {
 
@@ -398,7 +393,7 @@ public class DataloaderPoc {
                             setParts.add(part);
                             part.setCampaign(campaign);
                             partitioningRepository.save(part);
-                            initQuestionning(faker, part, nbQuestioningsByPart);
+                            initQuestionning(faker, part);
                         }
                         campaign.setSurvey(survey);
                         campaign.setPartitionings(setParts);
@@ -425,11 +420,7 @@ public class DataloaderPoc {
         }
     }
 
-    private void initQuestionning(Faker faker, Partitioning part, int nbQuestionings) {
-
-        //Long nbExistingQuestionings = questioningRepository.count();
-
-        //log.info("{} questionings exist in database", nbExistingQuestionings);
+    private void initQuestionning(Faker faker, Partitioning part) {
 
         long start = System.currentTimeMillis();
         Questioning qu;
@@ -441,7 +432,7 @@ public class DataloaderPoc {
 
         log.info("{} survey units exist in database", surveyUnitRepository.count());
 
-        for (int i = 0; i < nbQuestionings; i++) {
+        for (int i = 0; i < 1; i++) {
             SurveyUnit su = new SurveyUnit();
             fakeSiren = randomNumeric(9);
 
@@ -522,9 +513,8 @@ public class DataloaderPoc {
 
             }
 
-            questioningEvents.stream().forEach(questioningEventRepository::save);
+            questioningEvents.forEach(questioningEventRepository::save);
 
-            //for (int j = 0; j < 4; j++) {
             accreditation = new QuestioningAccreditation();
             accreditation.setIdContact(initOneContact(faker).getIdentifier());
             accreditation.setQuestioning(qu);
@@ -543,7 +533,6 @@ public class DataloaderPoc {
             questioningAccreditations.add(accreditation);
             questioningAccreditationRepository.save(accreditation);
             initOneView(accreditation);
-            // }
             qu.setQuestioningEvents(questioningEvents);
             qu.setQuestioningAccreditations(questioningAccreditations);
             questioningRepository.save(qu);
@@ -557,31 +546,15 @@ public class DataloaderPoc {
     }
 
 
-    private void initView() {
-        if (viewRepository.count() == 0) {
-
-            List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findAll();
-            listAccreditations.stream().forEach(this::initOneView);
-
-            Iterable<Contact> listContacts = contactRepository.findAll();
-            for (Contact contact : listContacts) {
-                if (viewRepository.findByIdentifier(contact.getIdentifier()).isEmpty()) {
-                    View view = new View();
-                    view.setIdentifier(contact.getIdentifier());
-                    viewRepository.save(view);
-
-                }
-            }
-        }
-    }
-
     private void initOneView(QuestioningAccreditation a) {
         Partitioning p = partitioningRepository.findById(a.getQuestioning().getIdPartitioning()).orElse(null);
         View view = new View();
-        view.setIdentifier(contactRepository.findById(a.getIdContact()).orElse(null).getIdentifier());
-        view.setCampaignId(p.getCampaign().getId());
-        view.setIdSu(a.getQuestioning().getSurveyUnit().getIdSu());
-        viewRepository.save(view);
+        view.setIdentifier(contactRepository.findById(a.getIdContact()).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", a.getIdContact()))).getIdentifier());
+        if (p != null) {
+            view.setCampaignId(p.getCampaign().getId());
+            view.setIdSu(a.getQuestioning().getSurveyUnit().getIdSu());
+            viewRepository.save(view);
+        }
     }
 
 

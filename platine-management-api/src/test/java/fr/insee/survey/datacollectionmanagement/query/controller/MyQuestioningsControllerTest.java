@@ -5,12 +5,10 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
-import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,11 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MyQuestioningsControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private CheckHabilitationService checkAccreditationService;
-
+    MockMvc mockMvc;
 
     @Test
     void myQuestioningsContactNotExist() throws Exception {
