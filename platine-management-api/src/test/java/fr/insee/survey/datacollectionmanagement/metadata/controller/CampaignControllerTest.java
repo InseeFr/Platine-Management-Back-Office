@@ -27,13 +27,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -59,7 +63,6 @@ class CampaignControllerTest {
         String identifier = "CAMPAIGNNOTFOUND";
         this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
-
     }
 
 
@@ -73,7 +76,6 @@ class CampaignControllerTest {
         mockMvc.perform(put(Constants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andExpect(content().json(jsonError, false));
-
     }
 
     @Test
@@ -86,7 +88,6 @@ class CampaignControllerTest {
                 .andExpect(content().json("""
                         {"ongoing": true}
                         """, false));
-
     }
 
     @Test
@@ -108,12 +109,10 @@ class CampaignControllerTest {
         Campaign campaign = initFutureCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": false}
                         """, false));
-
     }
 
     @Test
@@ -128,12 +127,29 @@ class CampaignControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonCampaign.toString(), false));
 
-
         this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": false}
                         """, false));
+    }
 
+    @Test
+    void deleteCampaign() throws Exception {
+        String identifier = "CLOSED";
+        Campaign campaign = initClosedCampaign(identifier);
+        initCampaignAndPartitionings(identifier, campaign);
+
+        this.mockMvc.perform(delete(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getCampaigns() throws Exception {
+        String identifier = "OPENED";
+
+        this.mockMvc.perform(get(Constants.API_CAMPAIGNS, identifier)).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(16)));
     }
 
     private void initCampaignAndPartitionings(String identifier, Campaign campaign) throws Exception {
@@ -143,16 +159,17 @@ class CampaignControllerTest {
                         put(Constants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonCampaign.toString(), false));
+                .andExpect(content().json(jsonCampaign, false));
 
-        Partitioning part1 = campaign.getPartitionings().stream().toList().get(0);
+        List<Partitioning> partitions = campaign.getPartitionings().stream().toList();
+        Partitioning part1 = partitions.get(0);
         String jsonPart1 = createJsonPart(part1);
 
         mockMvc.perform(
                         put(Constants.API_PARTITIONINGS_ID, part1.getId()).content(jsonPart1)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        Partitioning part2 = campaign.getPartitionings().stream().toList().get(1);
+        Partitioning part2 = partitions.get(1);
         String jsonPart2 = createJsonPart(part2);
 
         mockMvc.perform(
@@ -179,7 +196,6 @@ class CampaignControllerTest {
         return empty;
     }
 
-
     private Campaign initCampaign(String identifier, Date openingDate, Date closingDate) {
         Campaign campaignMock = new Campaign();
         campaignMock.setYear(2023);
@@ -190,11 +206,8 @@ class CampaignControllerTest {
                 initPartitioning(identifier, "012", openingDate, closingDate, campaignMock)
         ));
         campaignMock.setCampaignWording("Short wording about " + identifier);
-
-
         return campaignMock;
     }
-
 
     private Partitioning initPartitioning(String campaignId, String s, Date openingDate, Date closingDate, Campaign campaignMock) {
         Partitioning part = new Partitioning();
@@ -238,6 +251,4 @@ class CampaignControllerTest {
         this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
-
-
 }
