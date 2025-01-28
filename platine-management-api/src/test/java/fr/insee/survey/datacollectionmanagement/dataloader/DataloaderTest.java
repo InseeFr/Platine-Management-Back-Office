@@ -35,7 +35,6 @@ import org.springframework.context.annotation.Profile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Configuration
 @Profile("test")
@@ -98,7 +97,7 @@ public class DataloaderTest {
         initOrder();
         initContact();
         initMetadata();
-        initQuestionning(faker);
+        initQuestioning(faker);
         initView();
         initUser();
 
@@ -290,21 +289,19 @@ public class DataloaderTest {
                 }
                 source.setSurveys(setSurveys);
                 sourceRepository.save(source);
-                log.info("Source created : " + source.toString());
+                log.info("Source created : " + source);
                 ownerInsee.setSources(setSourcesInsee);
-                ownerRepository.saveAll(Arrays.asList(new Owner[]{
-                        ownerInsee}));
+                ownerRepository.saveAll(Arrays.asList(ownerInsee));
             }
 
         }
 
     }
 
-    private void initQuestionning(Faker faker) {
+    private void initQuestioning(Faker faker) {
 
         Long nbExistingQuestionings = questioningRepository.count();
         int year = 2023;
-        Date today = new Date();
 
         Questioning qu;
         QuestioningEvent qe;
@@ -356,15 +353,18 @@ public class DataloaderTest {
 
             for (int j = 0; j < 4; j++) {
                 accreditation = new QuestioningAccreditation();
-                accreditation.setIdContact("CONT" + Integer.toString(j + 1));
+                accreditation.setIdContact("CONT" + (j + 1));
                 accreditation.setQuestioning(qu);
+                if (j == 0) {
+                    accreditation.setMain(true);
+                }
                 questioningAccreditations.add(accreditation);
                 questioningAccreditationRepository.save(accreditation);
             }
-            qu.setQuestioningEvents(qeList.stream().collect(Collectors.toSet()));
+            qu.setQuestioningEvents(new HashSet<>(qeList));
             qu.setQuestioningAccreditations(questioningAccreditations);
             questioningRepository.save(qu);
-            log.info("Questioning created : {}", qu.toString());
+            log.info("Questioning created : {}", qu);
 
         }
     }

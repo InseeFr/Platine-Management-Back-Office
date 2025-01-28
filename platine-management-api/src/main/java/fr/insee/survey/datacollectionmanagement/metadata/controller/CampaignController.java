@@ -52,7 +52,7 @@ import static java.util.stream.Collectors.joining;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "3 - Metadata", description = "Endpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @Validated
 @RequiredArgsConstructor
@@ -70,10 +70,9 @@ public class CampaignController {
 
     private final ModelMapper modelmapper;
 
-
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = Constants.API_CAMPAIGNS, produces = "application/json")
-    public ResponseEntity<CampaignPage> getSources(
+    public ResponseEntity<CampaignPage> getCampaigns(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "id") String sort) {
@@ -117,7 +116,6 @@ public class CampaignController {
 
     }
 
-
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
@@ -125,7 +123,6 @@ public class CampaignController {
         List<ParamsDto> listParams = campaign.getParams().stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(listParams);
     }
-
 
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
@@ -152,7 +149,6 @@ public class CampaignController {
         campaign.setParams(setParams);
         campaignService.insertOrUpdateCampaign(campaign);
     }
-
 
     @Operation(summary = "Update or create a campaign")
     @PutMapping(value = Constants.API_CAMPAIGNS_ID, produces = "application/json", consumes = "application/json")
@@ -188,9 +184,8 @@ public class CampaignController {
 
     @Operation(summary = "Delete a campaign, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = {Constants.API_CAMPAIGNS_ID, Constants.MOOG_API_CAMPAIGNS_ID})
-
     @Transactional
-    public void deleteCampaign(@PathVariable("id") String id) throws fr.insee.survey.datacollectionmanagement.exception.NotFoundException {
+    public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
 
         if (campaignService.isCampaignOngoing(id)) {
             throw new ImpossibleToDeleteException("Campaign is still ongoing and can't be deleted");

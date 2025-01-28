@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -28,8 +28,13 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public Survey findById(String id) {
-        return surveyRepository.findById(id)
+        return findOptionalById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Survey %s not found", id)));
+    }
+
+    @Override
+    public Optional<Survey> findOptionalById(String id) {
+        return surveyRepository.findById(id);
     }
 
     @Override
@@ -59,20 +64,19 @@ public class SurveyServiceImpl implements SurveyService {
     public Survey addCampaignToSurvey(Survey survey, Campaign campaign) {
 
         Set<Campaign> campaigns;
-        try {
-            Survey surveyBase = findById(survey.getId());
+        Optional<Survey> optionalSurveyBase = findOptionalById(survey.getId());
+
+        if(optionalSurveyBase.isPresent()) {
+            Survey surveyBase = optionalSurveyBase.get();
             campaigns = surveyBase.getCampaigns();
-            if(!isCampaignPresent(campaign, surveyBase)) {
+            if (!isCampaignPresent(campaign, surveyBase)) {
                 campaigns.add(campaign);
             }
-        }
-        catch (NotFoundException e){
+        } else {
             campaigns = Set.of(campaign);
-
         }
         survey.setCampaigns(campaigns);
         return survey;
-
     }
 
 

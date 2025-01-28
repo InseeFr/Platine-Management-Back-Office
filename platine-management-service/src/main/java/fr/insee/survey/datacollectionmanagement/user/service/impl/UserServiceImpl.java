@@ -40,7 +40,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByIdentifier(String identifier) {
-        return userRepository.findByIdentifierIgnoreCase(identifier).orElseThrow(()-> new NotFoundException(String.format("User %s not found", identifier)));
+        return findOptionalByIdentifier(identifier)
+                .orElseThrow(()->
+                        new NotFoundException(
+                                String.format("User %s not found", identifier)
+                        )
+                );
+    }
+
+    @Override
+    public Optional<User> findOptionalByIdentifier(String identifier) {
+        return userRepository.findByIdentifierIgnoreCase(identifier);
     }
 
     @Override

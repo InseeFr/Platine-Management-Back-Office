@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -42,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +56,7 @@ import java.util.*;
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
-@Tag(name = "6 - Webclients", description = "Enpoints for webclients")
+@Tag(name = "6 - Webclients", description = "Endpoints for webclients")
 @RequiredArgsConstructor
 @Validated
 public class WebclientController {
@@ -89,7 +91,7 @@ public class WebclientController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Create or update questioning for webclients - Returns the questioning and all its accreditations")
-    @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
@@ -109,12 +111,8 @@ public class WebclientController {
 
         Partitioning part = partitioningService.findById(idPartitioning);
 
-
-        QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
-        SurveyUnit su;
-
         HttpStatus httpStatus = HttpStatus.OK;
-        su = convertToEntity(questioningWebclientDto.getSurveyUnit());
+        SurveyUnit su = convertToEntity(questioningWebclientDto.getSurveyUnit());
 
         // Create su if not exists or update
         try {
@@ -145,7 +143,6 @@ public class WebclientController {
             questioning.setQuestioningAccreditations(new HashSet<>());
         }
 
-
         for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()) {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
         }
@@ -155,12 +152,12 @@ public class WebclientController {
         su.getQuestionings().add(questioning);
         surveyUnitService.saveSurveyUnitAddressComments(su);
 
-
+        QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
         questioningReturn.setIdPartitioning(idPartitioning);
         questioningReturn.setModelName(modelName);
         questioningReturn.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations().stream()
+        questioning.getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningReturn.setContacts(listContactAccreditationDto);
@@ -226,7 +223,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get questioning for webclients")
-    @GetMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = "application/json")
+    @GetMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -257,8 +254,8 @@ public class WebclientController {
 
     }
 
-    @Operation(summary = "Search for a partitiong and metadata by partitioning id")
-    @GetMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = "application/json")
+    @Operation(summary = "Search for a partitioning and metadata by partitioning id")
+    @GetMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -271,16 +268,15 @@ public class WebclientController {
         metadataDto.setPartitioningDto(convertToDto(part));
         metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
         metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
-        metadataDto.setSourceDto(convertToDto(part.getCampaign().getSurvey().getSource()));
-        metadataDto.setOwnerDto(convertToDto(part.getCampaign().getSurvey().getSource().getOwner()));
-        metadataDto.setSupportDto(convertToDto(part.getCampaign().getSurvey().getSource().getSupport()));
+        final Source source = part.getCampaign().getSurvey().getSource();
+        metadataDto.setSourceDto(convertToDto(source));
+        metadataDto.setOwnerDto(convertToDto(source.getOwner()));
+        metadataDto.setSupportDto(convertToDto(source.getSupport()));
         return ResponseEntity.ok().body(metadataDto);
-
-
     }
 
     @Operation(summary = "Insert or update a partitiong and metadata by partitioning id")
-    @PutMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
@@ -292,8 +288,6 @@ public class WebclientController {
         if (!metadataDto.getPartitioningDto().getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idPartitioning don't match");
         }
-
-        MetadataDto metadataReturn = new MetadataDto();
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
@@ -339,6 +333,7 @@ public class WebclientController {
         campaign = campaignService.insertOrUpdateCampaign(campaign);
         partitioning = partitioningService.insertOrUpdatePartitioning(partitioning);
 
+        final MetadataDto metadataReturn = new MetadataDto();
         metadataReturn.setOwnerDto(convertToDto(owner));
         metadataReturn.setSupportDto(convertToDto(support));
         metadataReturn.setSourceDto(convertToDto(source));
@@ -366,7 +361,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Search for main contact")
-    @GetMapping(value = Constants.API_MAIN_CONTACT, produces = "application/json")
+    @GetMapping(value = Constants.API_MAIN_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -382,13 +377,11 @@ public class WebclientController {
                     .findByIdPartitioningAndSurveyUnitIdSu(partitioningId,
                             surveyUnitId);
             if (questioning != null) {
-                List<QuestioningAccreditation> listQa = questioning.getQuestioningAccreditations().stream()
-                        .filter(qa -> qa.isMain()).toList();
-                if (listQa != null && !listQa.isEmpty()) {
-                    Contact c = contactService.findByIdentifier(listQa.get(0).getIdContact());
+                List<QuestioningAccreditation> questioningAccreditations = questioning.getQuestioningAccreditations().stream()
+                        .filter(QuestioningAccreditation::isMain).toList();
+                if (CollectionUtils.isNotEmpty(questioningAccreditations)) {
+                    Contact c = contactService.findByIdentifier(questioningAccreditations.getFirst().getIdContact());
                     return ResponseEntity.status(HttpStatus.OK).body(convertToDto((c)));
-
-
                 }
             }
             throw new NotFoundException("Contact does not exist");
@@ -399,7 +392,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get state of the last questioningEvent")
-    @GetMapping(value = Constants.API_WEBCLIENT_STATE, produces = "application/json")
+    @GetMapping(value = Constants.API_WEBCLIENT_STATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -421,13 +414,13 @@ public class WebclientController {
     }
 
     @Operation(summary = "Indicates whether a questioning should be follow up or not")
-    @GetMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = "application/json")
+    @GetMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<EligibleDto> isToFollwUp(
+    public ResponseEntity<EligibleDto> isToFollowUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) {
 
@@ -446,14 +439,14 @@ public class WebclientController {
     }
 
     @Operation(summary = "Add a FOLLWUP state to a questioning")
-    @PostMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = "application/json")
+    @PostMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @Transactional
-    public ResponseEntity<StateDto> postFollwUp(
+    public ResponseEntity<StateDto> postFollowUp(
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) throws JsonProcessingException {
 
@@ -486,7 +479,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Indicates whether a questioning should be extract or not (VALINT and PARTIELINT)")
-    @GetMapping(value = Constants.API_WEBCLIENT_EXTRACT, produces = "application/json")
+    @GetMapping(value = Constants.API_WEBCLIENT_EXTRACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -561,6 +554,9 @@ public class WebclientController {
     }
 
     private SupportDto convertToDto(Support support) {
+        if(support == null) {
+            return null;
+        }
         return modelMapper.map(support, SupportDto.class);
     }
 
@@ -575,6 +571,9 @@ public class WebclientController {
     }
 
     private OwnerDto convertToDto(Owner owner) {
+        if(owner == null) {
+            return null;
+        }
         return modelMapper.map(owner, OwnerDto.class);
     }
 

@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
@@ -15,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +27,11 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
     private final UserService userService;
 
     @Override
-    public boolean checkHabilitation(String role, String idSu, String campaignId, List<String> userRoles, String userId) {
-
+    public boolean checkHabilitation(String role,
+                                     String idSu,
+                                     String campaignId,
+                                     List<String> userRoles,
+                                     String userId) {
 
         //admin
         if (isUserInRole(userRoles, AuthorityRoleEnum.ADMIN.securityRole())) {
@@ -53,29 +56,24 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }
-        User user;
-        try {
-            user = userService.findByIdentifier(userId);
-        } catch (NotFoundException e) {
+
+        Optional<User> optionalUser = userService.findOptionalByIdentifier(userId);
+        if(optionalUser.isEmpty()) {
             log.warn("User '{}' doesn't exists", userId);
             return false;
         }
 
-
         if (isUserInRole(userRoles, AuthorityRoleEnum.INTERNAL_USER.securityRole())) {
-            String userRole = user.getRole().toString();
+            String userRole = optionalUser.get().getRole().toString();
             if (userRole.equals(UserRoleTypeEnum.ASSISTANCE.toString())) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
                 return false;
             }
             log.warn("User '{}' has {} profile - check habilitation: true", userId, userRole);
             return true;
-
-
         }
         log.warn("Only '{}' and '{}' are accepted as a role in query argument", UserRoles.REVIEWER, UserRoles.INTERVIEWER);
         return false;
-
     }
 
     private boolean isUserInRole(List<String> userRoles, String targetRole) {
