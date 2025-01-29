@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.metadata.util;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.UrlRedirectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ class ParamValidatorTest {
     void testValidateParams_WithValidUrlRedirection_ShouldNotThrowException() {
         ParamsDto dto = new ParamsDto();
         dto.setParamId("URL_REDIRECTION");
-        dto.setParamValue(UrlRedirectionEnum.POOL1.name());
+        dto.setParamValue("http://test.fr");
 
         assertDoesNotThrow(() -> ParamValidator.validateParams(dto));
     }

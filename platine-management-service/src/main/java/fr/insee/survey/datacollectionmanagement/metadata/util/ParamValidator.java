@@ -4,9 +4,9 @@ import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.UrlRedirectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum;
 import fr.insee.survey.datacollectionmanagement.util.EmailValidatorRegex;
+import fr.insee.survey.datacollectionmanagement.util.UrlValidator;
 
 import java.util.Arrays;
 
@@ -17,6 +17,11 @@ public class ParamValidator {
     private ParamValidator() {
         throw new IllegalStateException("Validation class");
     }
+    private String regexUrl = "((http|https)://)(www.)?"
+            + "[a-zA-Z0-9@:%._\\+~#?&//=]"
+            + "{2,256}\\.[a-z]"
+            + "{2,6}\\b([-a-zA-Z0-9@:%"
+            + "._\\+~#?&//=]*)";
 
     public static void validateParams(ParamsDto paramsDto) {
         if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.URL_TYPE.name())
@@ -26,10 +31,9 @@ public class ParamValidator {
                     .collect(joining(" "))));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.URL_REDIRECTION.name())
-                && Arrays.stream(UrlRedirectionEnum.values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
+                && !UrlValidator.isValidUrl(paramsDto.getParamValue())) {
 
-            throw new NotMatchException(String.format("Only %s are valid values for URL_REDIRECTION", Arrays.stream(UrlRedirectionEnum.values()).map(Enum::name)
-                    .collect(joining(" "))));
+            throw new NotMatchException(String.format("Url %s is not valid", paramsDto.getParamValue()));
         }
         if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.MAIL_ASSISTANCE.name())
                 && !EmailValidatorRegex.isValidEmail(paramsDto.getParamValue())) {
@@ -43,4 +47,6 @@ public class ParamValidator {
             throw new NotMatchException(String.format("Only %s are valid values for SENSITIVITY", Arrays.stream(SensitivityEnum.values()).map(Enum::name)
                     .collect(joining(" "))));        }
     }
+
+
 }
