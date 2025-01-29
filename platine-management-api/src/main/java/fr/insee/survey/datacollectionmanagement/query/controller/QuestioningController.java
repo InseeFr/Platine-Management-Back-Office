@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
@@ -62,8 +61,6 @@ public class QuestioningController {
         Questioning questioning = convertToEntity(questioningDto);
         questioning.setSurveyUnit(su);
         questioning = questioningService.saveQuestioning(questioning);
-        su.getQuestionings().add(questioning);
-        surveyUnitService.saveSurveyUnit(su);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
         return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(questioning));

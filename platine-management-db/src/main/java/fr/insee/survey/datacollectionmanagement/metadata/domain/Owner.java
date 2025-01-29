@@ -1,8 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +18,7 @@ public class Owner {
     private String ministry;
     private String logo;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private Set<Source> sources;
 
 }

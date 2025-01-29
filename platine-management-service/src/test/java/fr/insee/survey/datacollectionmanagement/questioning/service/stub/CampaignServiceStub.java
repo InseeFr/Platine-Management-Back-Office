@@ -33,21 +33,6 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public List<Campaign> findbyPeriod(String period) {
-        return List.of();
-    }
-
-    @Override
-    public List<Campaign> findbySourceYearPeriod(String source, Integer year, String period) {
-        return List.of();
-    }
-
-    @Override
-    public List<Campaign> findbySourcePeriod(String source, String period) {
-        return List.of();
-    }
-
-    @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return null;
     }
@@ -60,11 +45,6 @@ public class CampaignServiceStub implements CampaignService {
     @Override
     public void deleteCampaignById(String id) {
 
-    }
-
-    @Override
-    public Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning) {
-        return null;
     }
 
     @Override

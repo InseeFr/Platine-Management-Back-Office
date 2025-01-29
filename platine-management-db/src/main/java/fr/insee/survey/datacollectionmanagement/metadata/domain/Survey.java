@@ -36,7 +36,7 @@ public class Survey {
     private String specimenUrl;
     private String communication;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "survey")
     private Set<Campaign> campaigns;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -44,6 +44,7 @@ public class Survey {
     private Set<Parameters> params;
 
     @ManyToOne
+    @JoinColumn(name = "source_id")
     private Source source;
 
 }

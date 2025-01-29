@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SupportRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
@@ -42,24 +41,5 @@ public class SupportServiceImpl implements SupportService {
 
     }
 
-    @Override
-    public void deleteSupportById(String id) {
-        supportRepository.deleteById(id);
-
-    }
-
-    @Override
-    public void removeSourceFromSupport(Support support, Source source) {
-        if (support != null && support.getSources() != null) {
-            support.getSources().remove(source);
-            supportRepository.save(support);
-        }
-    }
-
-    @Override
-    public void addSourceFromSupport(Support support, Source source) {
-        support.getSources().add(source);
-        supportRepository.save(support);
-    }
 
 }

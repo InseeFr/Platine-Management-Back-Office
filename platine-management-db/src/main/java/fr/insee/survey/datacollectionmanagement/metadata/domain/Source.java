@@ -27,18 +27,20 @@ public class Source {
     @NonNull
     private Boolean mandatoryMySurveys;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "source")
     private Set<Survey> surveys;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "source")
     private Set<SourceAccreditation> sourceAccreditations;
 
     @ManyToOne
     @NonNull
+    @JoinColumn(name = "owner_id")
     private Owner owner;
 
     @ManyToOne
     @NonNull
+    @JoinColumn(name = "support_id")
     private Support support;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

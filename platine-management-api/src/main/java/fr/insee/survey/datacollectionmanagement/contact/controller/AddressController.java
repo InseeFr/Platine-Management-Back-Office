@@ -16,8 +16,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +23,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.util.List;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -91,15 +87,6 @@ public class AddressController {
                 .body(addressService.convertToDto(addressUpdate));
 
 
-    }
-
-    class AddressPage extends PageImpl<AddressDto> {
-
-        private static final long serialVersionUID = -5570255373624396569L;
-
-        public AddressPage(List<AddressDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
     }
 
 }

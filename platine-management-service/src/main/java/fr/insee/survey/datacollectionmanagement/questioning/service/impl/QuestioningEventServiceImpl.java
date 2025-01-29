@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +61,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         return modelMapper.map(questioningEvent, QuestioningEventDto.class);
     }
 
-    public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException {
+    public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) {
         return modelMapper.map(questioningEventDto, QuestioningEvent.class);
     }
 }

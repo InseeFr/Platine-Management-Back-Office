@@ -2,6 +2,8 @@ package fr.insee.survey.datacollectionmanagement.contact.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import org.springframework.data.domain.Page;
@@ -46,7 +48,9 @@ public interface ContactService {
      */
     void deleteContact(String identifier);
 
-    Contact createContactAddressEvent(Contact contact, JsonNode payload);
+    Contact updateOrCreateContact(String id, ContactDto contactDto, JsonNode payload);
+
+    Contact createAddressAndEvent(Contact contact, JsonNode payload);
 
     Contact updateContactAddressEvent(Contact contact, JsonNode payload) throws NotFoundException;
 
@@ -59,4 +63,11 @@ public interface ContactService {
     Page<SearchContactDto> searchContactByName(String name, Pageable pageable);
 
 
+    ContactDto convertToDto(Contact contact);
+
+    ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns);
+
+    Contact convertToEntity(ContactDto contactDto);
+
+    Contact convertToEntityNewContact(ContactDto contactDto);
 }

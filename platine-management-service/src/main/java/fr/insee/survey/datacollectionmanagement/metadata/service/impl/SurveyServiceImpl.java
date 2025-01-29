@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -23,7 +21,7 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity) {
-        return surveyRepository.findBySourceIdYearPeriodicity(pageable,sourceId, year, periodicity);
+        return surveyRepository.findBySourceIdYearPeriodicity(pageable, sourceId, year, periodicity);
     }
 
     @Override
@@ -58,35 +56,6 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public void deleteSurveyById(String id) {
         surveyRepository.deleteById(id);
-    }
-
-    @Override
-    public Survey addCampaignToSurvey(Survey survey, Campaign campaign) {
-
-        Set<Campaign> campaigns;
-        Optional<Survey> optionalSurveyBase = findOptionalById(survey.getId());
-
-        if(optionalSurveyBase.isPresent()) {
-            Survey surveyBase = optionalSurveyBase.get();
-            campaigns = surveyBase.getCampaigns();
-            if (!isCampaignPresent(campaign, surveyBase)) {
-                campaigns.add(campaign);
-            }
-        } else {
-            campaigns = Set.of(campaign);
-        }
-        survey.setCampaigns(campaigns);
-        return survey;
-    }
-
-
-    private boolean isCampaignPresent(Campaign c, Survey s) {
-        for (Campaign camp : s.getCampaigns()) {
-            if (camp.getId().equals(c.getId())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

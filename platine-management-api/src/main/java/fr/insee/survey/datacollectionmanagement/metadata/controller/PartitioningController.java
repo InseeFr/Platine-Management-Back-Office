@@ -20,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,12 +92,7 @@ public class PartitioningController {
             log.info("Create partitioning with the id {}", partitioningDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
-
-
         partitioning = partitioningService.insertOrUpdatePartitioning(convertToEntity(partitioningDto));
-        Campaign campaign = partitioning.getCampaign();
-        campaign.getPartitionings().add(partitioning);
-        campaignService.insertOrUpdateCampaign(campaign);
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(partitioning));
     }
 
@@ -108,9 +101,6 @@ public class PartitioningController {
     @Transactional
     public void deletePartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(id);
-        Campaign campaign = partitioning.getCampaign();
-        campaign.getPartitionings().remove(partitioning);
-        campaignService.insertOrUpdateCampaign(campaign);
         partitioningService.deletePartitioningById(id);
 
         int nbQuestioningDeleted = questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
@@ -124,13 +114,6 @@ public class PartitioningController {
 
     private Partitioning convertToEntity(PartitioningDto partitioningDto) {
         return modelmapper.map(partitioningDto, Partitioning.class);
-    }
-
-    class PartitioningPage extends PageImpl<PartitioningDto> {
-
-        public PartitioningPage(List<PartitioningDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
     }
 
 }

@@ -51,24 +51,10 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<Campaign> findbyPeriod(String period) {
-        return campaignRepository.findByPeriod(period);
-    }
-
-    @Override
     public Campaign findById(String idCampaign) {
         return campaignRepository.findById(idCampaign).orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
     }
 
-    @Override
-    public List<Campaign> findbySourceYearPeriod(String source, Integer year, String period) {
-        return campaignRepository.findBySourceYearPeriod(source, year, period);
-    }
-
-    @Override
-    public List<Campaign> findbySourcePeriod(String source, String period) {
-        return campaignRepository.findBySourcePeriod(source, period);
-    }
 
     @Override
     public Page<Campaign> findAll(Pageable pageable) {
@@ -77,14 +63,6 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
-        try {
-            Campaign campaignBase = findById(campaign.getId());
-            log.info("Update campaign with the id {}", campaign.getId());
-            campaign.setPartitionings(campaignBase.getPartitionings());
-
-        } catch (NotFoundException e) {
-            log.info("Create campaign with the id {}", campaign.getId());
-        }
         return campaignRepository.save(campaign);
 
     }
@@ -94,29 +72,7 @@ public class CampaignServiceImpl implements CampaignService {
         campaignRepository.deleteById(id);
     }
 
-    @Override
-    public Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning) {
-        Set<Partitioning> partitionings;
-        try {
-            Campaign campaignBase = findById(campaign.getId());
-            partitionings = campaignBase.getPartitionings();
-            if (!isPartitioningPresent(partitioning, campaignBase))
-                partitionings.add(partitioning);
-        } catch (NotFoundException e) {
-            partitionings = Set.of(partitioning);
-        }
-        campaign.setPartitionings(partitionings);
-        return campaign;
-    }
 
-    private boolean isPartitioningPresent(Partitioning p, Campaign c) {
-        for (Partitioning part : c.getPartitionings()) {
-            if (part.getId().equals(p.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public boolean isCampaignOngoing(String idCampaign)  {

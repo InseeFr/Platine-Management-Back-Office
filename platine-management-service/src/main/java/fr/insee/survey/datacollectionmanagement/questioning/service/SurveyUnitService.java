@@ -8,13 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface SurveyUnitService {
-    /***
-     * Should be replaced with findOptionalById
-     * @deprecated
-     * @param idSu inputted id
-     * @return
-     */
-    @Deprecated()
+
     SurveyUnit findbyId(String idSu);
 
     Optional<SurveyUnit>  findOptionalById(String idSu);
@@ -29,8 +23,9 @@ public interface SurveyUnitService {
 
     SurveyUnit saveSurveyUnit(SurveyUnit surveyUnit);
     
-    SurveyUnit saveSurveyUnitAddressComments(SurveyUnit surveyUnit);
+    SurveyUnit saveSurveyUnitAndAddress(SurveyUnit surveyUnit);
 
     void deleteSurveyUnit(String id);
 
+    Page<SearchSurveyUnitDto> findByParameter(String searchParam, Pageable pageable);
 }

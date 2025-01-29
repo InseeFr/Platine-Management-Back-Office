@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitComment;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitCommentService;
@@ -17,14 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -34,10 +29,8 @@ import java.util.Set;
 @Validated
 public class SurveyUnitCommentController {
 
-    private final SurveyUnitService surveyUnitService;
     private final SurveyUnitCommentService surveyUnitCommentService;
-    private final ModelMapper modelMapper;
-
+    private final SurveyUnitService surveyUnitService;
 
     @Operation(summary = "Create a survey unit comment")
     @PostMapping(value = Constants.API_SURVEY_UNITS_ID_COMMENT, produces = "application/json", consumes = "application/json")
@@ -50,14 +43,7 @@ public class SurveyUnitCommentController {
     public SurveyUnitCommentOutputDto postSurveyUnitComment(@PathVariable String id, @Valid @RequestBody SurveyUnitCommentInputDto surveyUnitCommentDto) {
 
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
-        SurveyUnitComment surveyUnitComment = surveyUnitCommentService.convertToEntity(surveyUnitCommentDto);
-        surveyUnitComment.setDate(new Date());
-        SurveyUnitComment newSurveyUnitComment = surveyUnitCommentService.saveSurveyUnitComment(surveyUnitComment);
-        Set<SurveyUnitComment> setSurveyUnitComments = surveyUnit.getSurveyUnitComments();
-        setSurveyUnitComments.add(newSurveyUnitComment);
-        surveyUnit.setSurveyUnitComments(setSurveyUnitComments);
-        surveyUnitService.saveSurveyUnit(surveyUnit);
-        return surveyUnitCommentService.convertToOutputDto(surveyUnit);
+        return  surveyUnitCommentService.saveSurveyUnitComment(surveyUnit, surveyUnitCommentDto);
 
     }
 

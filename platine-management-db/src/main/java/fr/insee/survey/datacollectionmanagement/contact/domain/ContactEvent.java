@@ -25,6 +25,7 @@ public class ContactEvent {
     private ContactEventTypeEnum type;
 
     @ManyToOne
+    @JoinColumn(name="contact_identifier")
     private Contact contact;
 
     @JdbcTypeCode(SqlTypes.JSON)

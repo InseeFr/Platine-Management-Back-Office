@@ -27,6 +27,7 @@ public class UserEvent {
     private UserEventTypeEnum type;
 
     @ManyToOne
+    @JoinColumn(name="user_identifier")
     private User user;
 
     @JdbcTypeCode(SqlTypes.JSON)

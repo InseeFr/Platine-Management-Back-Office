@@ -141,44 +141,5 @@ class SourceServiceImplTest {
         verify(sourceRepository, times(1)).deleteById(sourceId);
     }
 
-    @Test
-    @DisplayName("Should add Survey to an existing Source")
-    void shouldAddSurveyToExistingSource() {
-        // Given
-        Source existingSource = new Source();
-        existingSource.setId("source-1");
-        existingSource.setSurveys(new HashSet<>());
-        Survey newSurvey = new Survey();
-        newSurvey.setId("survey-1");
-        when(sourceRepository.findById("source-1")).thenReturn(Optional.of(existingSource));
 
-        // When
-        Source result = sourceService.addSurveyToSource(existingSource, newSurvey);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getSurveys()).hasSize(1);  // Vérification qu'il y a un survey
-        assertThat(result.getSurveys()).contains(newSurvey);  // Vérification que le survey a bien été ajouté
-        verify(sourceRepository, never()).save(any());  // Vérification que save() n'est pas appelé
-    }
-
-    @Test
-    @DisplayName("Should add Survey to a new Source")
-    void shouldAddSurveyToNewSource() {
-        // Given
-        Source newSource = new Source();
-        newSource.setId("source-2");
-
-        Survey newSurvey = new Survey();
-        newSurvey.setId("survey-2");
-
-        when(sourceRepository.findById("source-2")).thenThrow(NotFoundException.class);
-
-        // When
-        Source result = sourceService.addSurveyToSource(newSource, newSurvey);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getSurveys()).hasSize(1);
-    }
 }

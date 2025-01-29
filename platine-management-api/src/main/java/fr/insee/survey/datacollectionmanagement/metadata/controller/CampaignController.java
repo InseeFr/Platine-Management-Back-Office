@@ -176,9 +176,6 @@ public class CampaignController {
         }
 
         Campaign campaign = campaignService.insertOrUpdateCampaign(convertToEntity(campaignDto));
-        Survey survey = campaign.getSurvey();
-        survey.getCampaigns().add(campaign);
-        surveyService.insertOrUpdateSurvey(survey);
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(campaign));
     }
 
@@ -194,9 +191,6 @@ public class CampaignController {
         Campaign campaign = campaignService.findById(id);
 
         int nbQuestioningDeleted = 0;
-        Survey survey = campaign.getSurvey();
-        survey.getCampaigns().remove(campaign);
-        surveyService.insertOrUpdateSurvey(survey);
         List<Upload> uploadsCamp = uploadService.findAllByIdCampaign(id);
         campaignService.deleteCampaignById(id);
         Set<Partitioning> listPartitionings = campaign.getPartitionings();

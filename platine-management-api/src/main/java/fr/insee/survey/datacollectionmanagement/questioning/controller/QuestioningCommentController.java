@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommentService;
@@ -17,14 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -34,10 +29,8 @@ import java.util.Set;
 @Validated
 public class QuestioningCommentController {
 
-    private final QuestioningService questioningService;
     private final QuestioningCommentService questioningCommentService;
-    private final ModelMapper modelMapper;
-
+    private final QuestioningService questioningService;
 
     @Operation(summary = "Create a questioning comment")
     @PostMapping(value = Constants.API_QUESTIONING_ID_COMMENT, produces = "application/json", consumes = "application/json")
@@ -47,21 +40,10 @@ public class QuestioningCommentController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentDto) {
-
+    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
         Questioning questioning = questioningService.findbyId(id);
-        QuestioningComment questioningComment = questioningCommentService.convertToEntity(questioningCommentDto);
-        questioningComment.setDate(new Date());
-        QuestioningComment newQuestioningComment = questioningCommentService.saveQuestioningComment(questioningComment);
-        Set<QuestioningComment> setQuestioningComments = questioning.getQuestioningComments();
-        setQuestioningComments.add(newQuestioningComment);
-        questioning.setQuestioningComments(setQuestioningComments);
-        questioningService.saveQuestioning(questioning);
-        return questioningCommentService.convertToOutputDto(newQuestioningComment);
+        return questioningCommentService.saveQuestioningComment(questioning, questioningCommentInputDto);
 
     }
-
-
-
 
 }

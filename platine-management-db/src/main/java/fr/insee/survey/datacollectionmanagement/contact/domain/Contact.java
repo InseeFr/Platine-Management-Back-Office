@@ -38,7 +38,7 @@ public class Contact {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "contact")
     private Set<ContactEvent> contactEvents;
 
     @Enumerated(EnumType.STRING)

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -19,17 +21,20 @@ public class SurveyUnitCommentServiceImpl implements SurveyUnitCommentService {
     private final SurveyUnitCommentRepository surveyUnitCommentRepository;
     private final ModelMapper modelMapper;
     @Override
-    public SurveyUnitComment saveSurveyUnitComment(SurveyUnitComment surveyUnitComment) {
-        return surveyUnitCommentRepository.save(surveyUnitComment);
+    public SurveyUnitCommentOutputDto saveSurveyUnitComment(SurveyUnit surveyUnit, SurveyUnitCommentInputDto surveyUnitCommentInputDto) {
+
+        SurveyUnitComment surveyUnitComment = convertToEntity(surveyUnitCommentInputDto);
+        surveyUnitComment.setDate(new Date());
+        surveyUnitComment.setSurveyUnit(surveyUnit);
+        SurveyUnitComment newSurveyUnitComment = surveyUnitCommentRepository.save(surveyUnitComment);
+        return convertToOutputDto(newSurveyUnitComment);
     }
 
-    @Override
     public SurveyUnitComment convertToEntity(SurveyUnitCommentInputDto surveyUnitCommentDto) {
         return modelMapper.map(surveyUnitCommentDto, SurveyUnitComment.class);
     }
 
-    @Override
-    public SurveyUnitCommentOutputDto convertToOutputDto(SurveyUnit surveyUnit) {
-        return modelMapper.map(surveyUnit, SurveyUnitCommentOutputDto.class);
+    public SurveyUnitCommentOutputDto convertToOutputDto(SurveyUnitComment surveyUnitComment) {
+        return modelMapper.map(surveyUnitComment, SurveyUnitCommentOutputDto.class);
     }
 }

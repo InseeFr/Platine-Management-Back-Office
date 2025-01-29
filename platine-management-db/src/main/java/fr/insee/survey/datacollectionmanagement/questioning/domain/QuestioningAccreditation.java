@@ -26,6 +26,7 @@ public class QuestioningAccreditation {
     private String idContact;
 
     @ManyToOne
+    @JoinColumn(name = "questioning_id")
     private Questioning questioning;
 
     @Override

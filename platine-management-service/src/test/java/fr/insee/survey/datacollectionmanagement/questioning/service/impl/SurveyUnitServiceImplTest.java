@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitComment;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SearchSurveyUnitFixture;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SurveyUnitAddressRepositoryStub;
@@ -59,14 +58,14 @@ class SurveyUnitServiceImplTest {
 
 	@Test
 	@DisplayName("Should save survey unit if not already present in repository")
-	void saveSurveyUnitddressComments_when_survey_unit_does_not_exist_and_has_no_address() {
+	void saveSurveyUnitddress_when_survey_unit_does_not_exist_and_has_no_address() {
 		//given
 		SurveyUnit surveyUnit = new SurveyUnit();
 		surveyUnit.setIdSu("id1");
 		surveyUnitRepositoryStub.setShouldThrow(true);
 
 		//when
-		SurveyUnit result = surveyUnitService.saveSurveyUnitAddressComments(surveyUnit);
+		SurveyUnit result = surveyUnitService.saveSurveyUnitAndAddress(surveyUnit);
 
 		//then
 		assertThat(result).isNotNull();
@@ -74,31 +73,8 @@ class SurveyUnitServiceImplTest {
 	}
 
 	@Test
-	@DisplayName("Should update survey unit comments with existing survey unit's comments in repo")
-	void saveSurveyUnitddressComments_when_survey_unit_exists_and_has_no_address() {
-		//given
-		SurveyUnit surveyUnitWithComments = new SurveyUnit();
-		surveyUnitWithComments.setIdSu("id1");
-		SurveyUnitComment comment1 = new SurveyUnitComment();
-		comment1.setId(1L);
-		surveyUnitWithComments.setSurveyUnitComments(Set.of(comment1));
-		surveyUnitRepositoryStub.setSurveyUnit(surveyUnitWithComments);
-
-		SurveyUnit surveyUnit = new SurveyUnit();
-		surveyUnit.setIdSu("id1");
-
-		//when
-		SurveyUnit result = surveyUnitService.saveSurveyUnitAddressComments(surveyUnit);
-
-		//then
-		assertThat(result.getSurveyUnitComments())
-				.hasSize(1);
-		assertThat(result.getSurveyUnitComments()).singleElement().extracting("id").isEqualTo(1L);
-	}
-
-	@Test
 	@DisplayName("Should update survey unit address with existing survey unit's address in repo")
-	void saveSurveyUnitddressComments_when_survey_unit_has_no_address_and_exists_with_address_in_repo() {
+	void saveSurveyUnitddress_when_survey_unit_has_no_address_and_exists_with_address_in_repo() {
 		//given
 		SurveyUnit surveyUnitWithAddress = new SurveyUnit();
 		surveyUnitWithAddress.setIdSu("id1");
@@ -115,7 +91,7 @@ class SurveyUnitServiceImplTest {
 		surveyUnit.setSurveyUnitAddress(surveyUnitAddress);
 
 		//when
-		SurveyUnit result = surveyUnitService.saveSurveyUnitAddressComments(surveyUnit);
+		SurveyUnit result = surveyUnitService.saveSurveyUnitAndAddress(surveyUnit);
 
 		//then
 		assertThat(result.getSurveyUnitAddress()).extracting("id").isEqualTo(2L);
@@ -123,7 +99,7 @@ class SurveyUnitServiceImplTest {
 
 	@Test
 	@DisplayName("Should persist survey unit address when survey unit exists in repo without address")
-	void saveSurveyUnitddressComments_when_survey_unit_has_address_and_exists_without_address_in_repo() {
+	void saveSurveyUnitddress_when_survey_unit_has_address_and_exists_without_address_in_repo() {
 		//given
 		SurveyUnit surveyUnitWithAddress = new SurveyUnit();
 		surveyUnitWithAddress.setIdSu("id1");
@@ -137,7 +113,7 @@ class SurveyUnitServiceImplTest {
 		surveyUnit.setSurveyUnitAddress(surveyUnitAddress);
 
 		//when
-		SurveyUnit result = surveyUnitService.saveSurveyUnitAddressComments(surveyUnit);
+		SurveyUnit result = surveyUnitService.saveSurveyUnitAndAddress(surveyUnit);
 
 		//then
 		assertThat(result.getSurveyUnitAddress()).extracting("id").isEqualTo(1L);

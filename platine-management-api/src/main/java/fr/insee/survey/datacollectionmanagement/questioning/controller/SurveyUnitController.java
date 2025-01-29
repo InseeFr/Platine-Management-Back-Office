@@ -33,7 +33,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -77,22 +76,17 @@ public class SurveyUnitController {
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name")String searchType,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize,
-            @RequestParam(defaultValue = "id_su") String sort) {
+            @RequestParam(defaultValue = "20") Integer pageSize) {
         log.info(
                 "Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+        Pageable pageable = PageRequest.of(page, pageSize);
 
-        switch (SurveyUnitParamEnum.fromValue(searchType)) {
-            case SurveyUnitParamEnum.IDENTIFIER:
-                return surveyUnitService.findbyIdentifier(searchParam, pageable);
-            case SurveyUnitParamEnum.CODE:
-                return surveyUnitService.findbyIdentificationCode(searchParam, pageable);
-            case SurveyUnitParamEnum.NAME:
-                return surveyUnitService.findbyIdentificationName(searchParam, pageable);
-        }
-        return new PageImpl<>(Collections.emptyList());
+        return switch (SurveyUnitParamEnum.fromValue(searchType)) {
+            case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.CODE -> surveyUnitService.findbyIdentificationCode(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.NAME -> surveyUnitService.findbyIdentificationName(searchParam.toUpperCase(), pageable);
+        };
     }
 
     @Operation(summary = "Search for a survey unit by its id")
@@ -109,6 +103,26 @@ public class SurveyUnitController {
         return surveyUnitDetailsDto;
 
     }
+
+    @Operation(summary = "Multi-criteria search survey-unit")
+    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH+"/V2", produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "400", description = "Bad Request")
+    })
+    public Page<SearchSurveyUnitDto> searchSurveyUnitsByParam(
+            @RequestParam(required = true) String searchParam,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pageSize) {
+        log.info(
+                "Search surveyUnit ith param = {} page = {} pageSize = {}", searchParam, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        return surveyUnitService.findByParameter(searchParam, pageable);
+    }
+
 
     @Operation(summary = "Create or update a survey unit")
     @PutMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
@@ -140,7 +154,7 @@ public class SurveyUnitController {
         }
 
         return ResponseEntity.status(responseStatus)
-                .body(convertToDto(surveyUnitService.saveSurveyUnitAddressComments(surveyUnit)));
+                .body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
 
     }
 
