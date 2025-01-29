@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,12 +42,14 @@ class PartioningServiceImplTest {
     void isOnGoingFalse_WhenPartitioningOpensTomorrowAndCloseAnytime() {
         Partitioning part = new Partitioning();
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -1);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
         Date openingDate = cal.getTime();
         part.setOpeningDate(openingDate);
 
+        Random rand = new Random();
+        int nbDays = rand.nextInt(1000);
         cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, Mockito.anyInt());
+        cal.add(Calendar.DAY_OF_MONTH, nbDays);
         Date closingDate = cal.getTime();
         part.setClosingDate(closingDate);
 
@@ -55,9 +58,11 @@ class PartioningServiceImplTest {
 
     @Test
     void isOnGoingFalse_WhenPartitioningOpensAnytimeAndCloseYesterday() {
+        Random rand = new Random();
+        int nbDays = rand.nextInt(1000);
         Partitioning part = new Partitioning();
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, Mockito.anyInt());
+        cal.add(Calendar.DAY_OF_MONTH, nbDays);
         Date openingDate = cal.getTime();
         part.setOpeningDate(openingDate);
 
