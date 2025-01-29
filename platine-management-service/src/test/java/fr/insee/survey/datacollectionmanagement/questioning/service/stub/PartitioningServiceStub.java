@@ -27,8 +27,4 @@ public class PartitioningServiceStub implements PartitioningService {
         return false;
     }
 
-    @Override
-    public String findSuitableParameterValue(Partitioning part, ParameterEnum paramValue) {
-        return "";
-    }
 }

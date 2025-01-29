@@ -38,6 +38,11 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
+    public List<Campaign> findAll() {
+        return List.of();
+    }
+
+    @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
         return null;
     }
