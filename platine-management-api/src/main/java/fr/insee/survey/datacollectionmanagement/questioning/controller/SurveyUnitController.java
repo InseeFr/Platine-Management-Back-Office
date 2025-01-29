@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
@@ -98,7 +97,7 @@ public class SurveyUnitController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
-        SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
+        SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
         SurveyUnitDetailsDto surveyUnitDetailsDto =  convertToDetailsDto(surveyUnit);
         surveyUnitDetailsDto.setHasQuestionings(!viewService.findViewByIdSu(id).isEmpty());
         return surveyUnitDetailsDto;
@@ -168,7 +167,7 @@ public class SurveyUnitController {
     })
     @Deprecated(since="2.6.0", forRemoval=true)
     public void deleteSurveyUnit(@PathVariable("id") String id) {
-        SurveyUnit surveyUnit = surveyUnitService.findbyId(StringUtils.upperCase(id));
+        SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
 
         if (!surveyUnit.getQuestionings().isEmpty()) {
             log.warn("Some questionings exist for the survey unit {}, the survey unit can't be deleted", id);

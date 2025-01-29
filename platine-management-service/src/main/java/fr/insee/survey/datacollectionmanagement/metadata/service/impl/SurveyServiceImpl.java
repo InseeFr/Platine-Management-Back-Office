@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -19,13 +21,18 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity) {
-        return surveyRepository.findBySourceIdYearPeriodicity(pageable,sourceId, year, periodicity);
+        return surveyRepository.findBySourceIdYearPeriodicity(pageable, sourceId, year, periodicity);
     }
 
     @Override
     public Survey findById(String id) {
-        return surveyRepository.findById(id)
+        return findOptionalById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Survey %s not found", id)));
+    }
+
+    @Override
+    public Optional<Survey> findOptionalById(String id) {
+        return surveyRepository.findById(id);
     }
 
     @Override
@@ -51,4 +58,4 @@ public class SurveyServiceImpl implements SurveyService {
         surveyRepository.deleteById(id);
     }
 
-    }
+}
