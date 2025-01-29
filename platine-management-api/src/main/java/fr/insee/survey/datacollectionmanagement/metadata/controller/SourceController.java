@@ -146,7 +146,7 @@ public class SourceController {
         if (source.getSurveys().isEmpty())
             return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
-        boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign);
+        boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaignService::isCampaignOngoing);
 
         return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
