@@ -8,13 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface SurveyUnitService {
-    /***
-     * Should be replaced with findOptionalById
-     * @deprecated
-     * @param idSu inputted id
-     * @return
-     */
-    @Deprecated()
+
     SurveyUnit findbyId(String idSu);
 
     Optional<SurveyUnit>  findOptionalById(String idSu);

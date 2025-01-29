@@ -43,7 +43,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) throws ParseException {
+    public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) {
         return null;
     }
 }

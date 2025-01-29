@@ -10,12 +10,6 @@ public interface SurveyService {
 
     Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity);
 
-    /**
-     * @deprecated use findOptionalById instead
-     * @param id survey id
-     * @return survey
-     */
-    @Deprecated(forRemoval = true)
     Survey findById(String id);
 
     Optional<Survey> findOptionalById(String id);

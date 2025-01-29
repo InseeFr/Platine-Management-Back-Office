@@ -48,6 +48,11 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	}
 
 	@Override
+	public Page<SearchSurveyUnitDto> findByParam(String param, Pageable pageable) {
+		return null;
+	}
+
+	@Override
 	public void flush() {
 		//not used
 	}

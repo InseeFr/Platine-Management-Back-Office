@@ -34,9 +34,9 @@ public class MetadataController {
 
     @PutMapping(value = Constants.MOOG_API_CAMPAIGNS_ID)
     public void updateCampaignInProgressMoog(@PathVariable("id") String id, @RequestBody CampaignMoogDto campaignMoogDto) {
-        log.info("Updating Moog campaign with id " + id);
+        log.info("Updating Moog campaign with id {}", id);
         Campaign campaign = campaignService.findById(id);
-        campaign.getPartitionings().stream().forEach(p->{
+        campaign.getPartitionings().forEach(p->{
             p.setClosingDate(new Date(campaignMoogDto.getCollectionEndDate()));
             p.setOpeningDate(new Date(campaignMoogDto.getCollectionStartDate()));
             partitioningService.insertOrUpdatePartitioning(p);
