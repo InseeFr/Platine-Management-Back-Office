@@ -3,14 +3,18 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ParametersServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.PartitioningServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -19,14 +23,14 @@ import static org.mockito.Mockito.when;
 
 class CampaignServiceImplTest {
 
-//    Stub
     private CampaignRepositoryStub campaignRepositoryStub;
     private PartitioningServiceStub partitioningServiceStub;
-//    Mockito
-//    private CampaignRepository campaignRepositoryMock;
-//    private PartitioningService partitioningServiceMock;
-
+    private ParametersServiceStub parametersServiceStub;
+    @Autowired
+    ModelMapper modelMapper;
     private CampaignServiceImpl campaignServiceImpl;
+
+    private Campaign campaign;
 
     @BeforeEach
     void init() {
@@ -59,17 +63,13 @@ class CampaignServiceImplTest {
 
         List<Campaign> campaigns = List.of(c1,c2,c3);
 
-//    Stub
+        campaign = new Campaign();
+        campaign.setId("testCampaign");
+
         campaignRepositoryStub = new CampaignRepositoryStub();
         campaignRepositoryStub.setCampaigns(campaigns);
-        campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryStub, partitioningServiceStub);
-
-//    Mockito
-//       partitioningServiceMock = Mockito.mock(PartitioningService.class);
-//       campaignRepositoryMock = Mockito.mock(CampaignRepository.class);
-//       when(campaignRepositoryMock.findAll()).thenReturn(campaigns);
-//       campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryMock, partitioningServiceMock);
-
+        parametersServiceStub = new ParametersServiceStub();
+        campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryStub, partitioningServiceStub, parametersServiceStub, modelMapper);
 
     }
 
@@ -85,41 +85,57 @@ class CampaignServiceImplTest {
         assertThat(result).hasSize(3);
     }
 
-    @Test
-    void findbyPeriod() {
 
+    @Test
+    void testIsCampaignInType_WithEmptyCampaignType() {
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, "");
+        assertThat(result).isTrue();
     }
 
     @Test
-    void findById() {
+    void testIsCampaignInType_WithNullCampaignType() {
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, null);
+        assertThat(result).isTrue();
+    }
 
+
+    @Test
+    void testIsCampaignInType_WithMatchingV3AndNonEmptyUrlType() {
+        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V3");
+
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
+        assertThat(result).isTrue();
     }
 
     @Test
-    void findbySourceYearPeriod() {
+    void testIsCampaignInType_WithV3ButEmptyUrlType() {
+        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "");
+
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
+        assertThat(result).isTrue();
     }
 
     @Test
-    void findbySourcePeriod() {
+    void testIsCampaignInType_WithNonMatchingCampaignType() {
+        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V1");
+
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
+        assertThat(result).isFalse();
     }
 
     @Test
-    void findAll() {
+    void testIsCampaignInType_WithMatchingNonV3CampaignType() {
+        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V1");
+
+        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V1");
+        assertThat(result).isTrue();
     }
 
-    @Test
-    void insertOrUpdateCampaign() {
-    }
 
     @Test
-    void deleteCampaignById() {
-    }
+    void testIsCampaignOngoingFalse_WhenCampaignHasNoPartitioning(){
+        Campaign camp = new Campaign();
+        assertThat(campaignServiceImpl.isCampaignOngoing(camp)).isFalse();
 
-    @Test
-    void addPartitionigToCampaign() {
-    }
-
-    @Test
-    void isCampaignOngoing() {
     }
 }

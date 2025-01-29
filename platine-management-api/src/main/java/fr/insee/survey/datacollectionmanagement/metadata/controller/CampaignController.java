@@ -10,7 +10,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -42,8 +41,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
-
-import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.V3;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -125,13 +122,8 @@ public class CampaignController {
     @PutMapping(value = Constants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
     public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-
         ParamValidator.validateParams(paramsDto);
-        Parameters param = parametersService.convertToEntity(paramsDto);
-        param.setMetadataId(StringUtils.upperCase(id));
-        Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
-        campaign.setParams(updatedParams);
-        campaignService.insertOrUpdateCampaign(campaign);
+        campaignService.saveParameterForCampaign(campaign, paramsDto);
     }
 
     @Operation(summary = "Update or create a campaign")
@@ -168,11 +160,12 @@ public class CampaignController {
     @Transactional
     public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
 
-        if (campaignService.isCampaignOngoing(id)) {
+        Campaign campaign = campaignService.findById(id);
+
+        if (campaignService.isCampaignOngoing(campaign)) {
             throw new ImpossibleToDeleteException("Campaign is still ongoing and can't be deleted");
         }
 
-        Campaign campaign = campaignService.findById(id);
 
         int nbQuestioningDeleted = 0;
         List<Upload> uploadsCamp = uploadService.findAllByIdCampaign(id);
@@ -198,36 +191,19 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public OnGoingDto isOnGoingCampaign(@PathVariable("id") String id) {
-        boolean isOnGoing = campaignService.isCampaignOngoing(id);
+        Campaign campaign = campaignService.findById(id);
+        boolean isOnGoing = campaignService.isCampaignOngoing(campaign);
         return new OnGoingDto(isOnGoing);
 
     }
 
     @Operation(summary = "get ongoing campaigns")
     @GetMapping(value = Constants.API_CAMPAIGNS_ONGOING, produces = "application/json")
-    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false, defaultValue = "V3") String campaignType) {
-        List<Campaign> listCampaigns = campaignService.findAll();
-        return listCampaigns.stream().filter(c -> campaignService.isCampaignOngoing(c.getId())
-                        && isCampaignInType(c, campaignType)).
-                map(this::convertToCampaignOngoingDto).toList();
-
-
+    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false) String campaignType) {
+        return campaignService.getCampaignOngoingDtos(campaignType);
     }
 
-    private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
-        CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
-        result.setSourceId(campaign.getSurvey().getSource().getId());
-        return result;
-    }
 
-    private boolean isCampaignInType(Campaign c, String campaignType) {
-        if (StringUtils.isEmpty(campaignType))
-            return true;
-        if (campaignType.equalsIgnoreCase(V3.name()))
-            return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType)
-                    || parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).isEmpty();
-        return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType);
-    }
 
     private CampaignDto convertToDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignDto.class);
@@ -245,12 +221,6 @@ public class CampaignController {
         return modelmapper.map(campaignDto, Campaign.class);
     }
 
-    private Parameters convertToEntity(ParamsDto paramsDto) {
-
-        Parameters params = modelmapper.map(paramsDto, Parameters.class);
-        params.setParamId(ParameterEnum.valueOf(paramsDto.getParamId()));
-        return params;
-    }
 
     class CampaignPage extends PageImpl<CampaignDto> {
 

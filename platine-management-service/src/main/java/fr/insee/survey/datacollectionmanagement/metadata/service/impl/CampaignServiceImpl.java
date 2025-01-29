@@ -2,18 +2,27 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.V3;
 
 @Service
 @Slf4j
@@ -23,6 +32,11 @@ public class CampaignServiceImpl implements CampaignService {
     private final CampaignRepository campaignRepository;
 
     private final PartitioningService partitioningService;
+
+    private final ParametersService parametersService;
+
+    private final ModelMapper modelmapper;
+
 
     public Collection<CampaignMoogDto> getCampaigns() {
 
@@ -56,7 +70,6 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
 
-
     @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return campaignRepository.findAll(pageable);
@@ -79,14 +92,49 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
 
+    @Override
+    public boolean isCampaignOngoing(Campaign campaign) {
+        Date now = new Date();
+        if (campaign.getPartitionings()!=null) {
+            return campaign.getPartitionings().stream().anyMatch(part -> partitioningService.isOnGoing(part, now));
+        }
+        return false;
+    }
 
     @Override
-    public boolean isCampaignOngoing(String idCampaign)  {
-        Campaign camp = findById(idCampaign);
+    public List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType) {
+        List<Campaign> listCampaigns = findAll();
+        return listCampaigns.stream().filter(c -> isCampaignOngoing(c)
+                        && isCampaignInType(c, campaignType)).
+                map(this::convertToCampaignOngoingDto).toList();
 
-        Date now = new Date();
-        return camp.getPartitionings().stream().anyMatch(part -> partitioningService.isOnGoing(part, now));
+
     }
+
+    @Override
+    public void saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
+        Parameters param = parametersService.convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(campaign.getId()));
+        Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
+        campaign.setParams(updatedParams);
+        insertOrUpdateCampaign(campaign);
+    }
+
+    private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
+        CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
+        result.setSourceId(campaign.getSurvey().getSource().getId());
+        return result;
+    }
+
+    boolean isCampaignInType(Campaign c, String campaignType) {
+        if (StringUtils.isEmpty(campaignType))
+            return true;
+        if (campaignType.equalsIgnoreCase(V3.name()))
+            return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType)
+                    || parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).isEmpty();
+        return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).equalsIgnoreCase(campaignType);
+    }
+
 
 
 }

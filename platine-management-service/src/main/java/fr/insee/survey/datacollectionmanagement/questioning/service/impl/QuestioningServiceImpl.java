@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -141,7 +142,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         if (typeUrl.equalsIgnoreCase(V3.name())) {
             String sensitivity = parametersService.findSuitableParameterValue(part, ParameterEnum.SENSITIVITY);
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            if (sensitivity.equalsIgnoreCase(SensitivityEnum.SENSITIVE.name()))
+            if (SensitivityEnum.SENSITIVE.name().equalsIgnoreCase(sensitivity))
                 return buildV3Url(questioningSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
             return buildV3Url(questioningUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
