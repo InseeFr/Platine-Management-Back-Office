@@ -55,6 +55,8 @@ public class CampaignServiceImpl implements CampaignService {
         return campaignRepository.findById(idCampaign).orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
     }
 
+
+
     @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return campaignRepository.findAll(pageable);
