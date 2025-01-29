@@ -205,7 +205,7 @@ public class CampaignController {
 
     @Operation(summary = "get ongoing campaigns")
     @GetMapping(value = Constants.API_CAMPAIGNS_ONGOING, produces = "application/json")
-    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false) String campaignType) {
+    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false, defaultValue = "V3") String campaignType) {
         List<Campaign> listCampaigns = campaignService.findAll();
         return listCampaigns.stream().filter(c -> campaignService.isCampaignOngoing(c.getId())
                         && isCampaignInType(c, campaignType)).

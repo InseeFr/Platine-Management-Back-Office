@@ -7,9 +7,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogCampaignDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
@@ -45,8 +43,6 @@ public class MoogServiceImpl implements MoogService {
     private final MoogRepository moogRepository;
 
     private final QuestioningService questioningService;
-
-    private final ParametersService parametersService;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -127,10 +123,7 @@ public class MoogServiceImpl implements MoogService {
         for (Partitioning part : setParts) {
             Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
             if (questioning != null) {
-                String accessBaseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-                String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-                String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
-                return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+                return questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
             }
         }
         String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;

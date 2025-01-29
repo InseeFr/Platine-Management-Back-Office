@@ -33,7 +33,7 @@ public interface QuestioningService {
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
-    String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId);
+    String getAccessUrl(String role, Questioning questioning, Partitioning part);
 
     Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable);
 

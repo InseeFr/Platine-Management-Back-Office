@@ -52,7 +52,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
+    public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
         return "";
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ResultUpload {
 
@@ -48,6 +49,11 @@ public class ResultUpload {
         ResultUpload toCompare = (ResultUpload) objectToCompare;
 
         return (this.toString().equals(toCompare.toString()));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(listIdOK, listIdKO);
     }
 
     public class ResultUploadValidInfo {

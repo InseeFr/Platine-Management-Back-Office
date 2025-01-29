@@ -29,4 +29,9 @@ public class WebConfig implements WebMvcConfigurer {
     public String questioningUrl() {
         return applicationConfig.getQuestioningUrl();
     }
+
+    @Bean
+    public String questioningSensitiveUrl() {
+        return applicationConfig.getQuestioningSensitiveUrl();
+    }
 }

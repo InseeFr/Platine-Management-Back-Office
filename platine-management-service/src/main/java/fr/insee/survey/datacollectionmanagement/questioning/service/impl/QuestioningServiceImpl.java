@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
@@ -56,6 +57,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final ModelMapper modelMapper;
 
     private final String questioningUrl;
+
+    private final String questioningSensitiveUrl;
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
@@ -117,26 +120,30 @@ public class QuestioningServiceImpl implements QuestioningService {
     /**
      * Generates an access URL based on the provided parameters.
      *
-     * @param baseUrl      The base URL for the access.
-     * @param typeUrl      The type of URL (V1 or V2).
      * @param role         The user role (REVIEWER or INTERVIEWER).
      * @param questioning  The questioning object.
-     * @param surveyUnitId The survey unit ID.
+     * @param part          Part of questioning
      * @return The generated access URL.
      */
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
+    public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
+        String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
+        String surveyUnitId = questioning.getSurveyUnit().getIdSu();
         // Set default values if baseUrl or typeUrl is empty
-        baseUrl = StringUtils.defaultIfEmpty(baseUrl, questioningUrl);
         typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
         if (typeUrl.equalsIgnoreCase(V1.name())) {
+            String baseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
             return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
         }
         if (typeUrl.equalsIgnoreCase(V2.name())) {
-            return buildV2Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+            return buildV2Url(questioningUrl, role, questioning.getModelName(), surveyUnitId);
         }
         if (typeUrl.equalsIgnoreCase(V3.name())) {
-            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            String sensitivity = parametersService.findSuitableParameterValue(part, ParameterEnum.SENSITIVITY);
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            if (sensitivity.equalsIgnoreCase(SensitivityEnum.SENSITIVE.name()))
+                return buildV3Url(questioningSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            return buildV3Url(questioningUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
 
         return "";
@@ -278,10 +285,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         Partitioning part = partitioningService.findById(idPart);
         Questioning questioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
         if (questioning != null) {
-            String accessBaseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-            String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+            return getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
         }
         return "";
