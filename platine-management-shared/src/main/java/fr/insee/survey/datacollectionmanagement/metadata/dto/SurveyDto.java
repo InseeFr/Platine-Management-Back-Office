@@ -24,4 +24,14 @@ public class SurveyDto {
     private String noticeUrl;
     private String specimenUrl;
     private String communication;
+    private boolean compulsoryNature;
+    private String rgpdBlock;
+    private String sendPaperQuestionnaire;
+    private boolean reExpedition;
+    private String managementApplicationName;
+    private boolean contactExtraction;
+    private String contactExtractionNb;
+    private String surveyStatus;
+    private boolean sviUse;
+    private String sviNumber;
 }
