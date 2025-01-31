@@ -2,7 +2,9 @@ package fr.insee.survey.datacollectionmanagement.metadata.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -27,4 +29,6 @@ public interface CampaignService {
      * @return true
      */
     boolean isCampaignOngoing(String idCampaign) ;
+
+    Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of);
 }

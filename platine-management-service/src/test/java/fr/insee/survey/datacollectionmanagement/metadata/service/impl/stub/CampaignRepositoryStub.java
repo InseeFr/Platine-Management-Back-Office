@@ -1,12 +1,10 @@
-package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
+package fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import lombok.Setter;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.List;
@@ -31,6 +29,26 @@ public class CampaignRepositoryStub implements CampaignRepository {
     @Override
     public List<Campaign> findBySourcePeriod(String source, String period) {
         return List.of();
+    }
+
+    @Override
+    public Page<Campaign> findBySource(String source, Pageable pageable) {
+
+        if (campaigns == null || campaigns.isEmpty()) {
+            return Page.empty();
+        }
+
+        List<Campaign> filtered = StringUtils.isBlank(source)
+                ? campaigns
+                : campaigns.stream()
+                .filter(c -> c.getSurvey().getSource().getId().equalsIgnoreCase(source))
+                .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<Campaign> pagedList = filtered.subList(start, end);
+
+        return new PageImpl<>(pagedList, pageable, filtered.size());
     }
 
     @Override
@@ -125,7 +143,12 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public Optional<Campaign> findById(String s) {
-        return Optional.empty();
+        if (StringUtils.isBlank(s)) {
+            return Optional.empty();
+        }
+        return campaigns.stream()
+                .filter(c -> s.equals(c.getId()))
+                .findFirst();
     }
 
     @Override

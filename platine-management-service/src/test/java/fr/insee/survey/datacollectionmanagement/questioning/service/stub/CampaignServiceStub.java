@@ -3,8 +3,10 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
@@ -50,5 +52,10 @@ public class CampaignServiceStub implements CampaignService {
     @Override
     public boolean isCampaignOngoing(String idCampaign) {
         return false;
+    }
+
+    @Override
+    public Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of) {
+        return Page.empty();
     }
 }
