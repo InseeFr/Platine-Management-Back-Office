@@ -11,4 +11,5 @@ public class CampaignOngoingDto {
     private String sourceId;
     private int year;
     private String period;
+    private String sensitivity;
 }
