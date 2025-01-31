@@ -9,19 +9,18 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.util.EmailValidatorRegex;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -217,6 +216,18 @@ public class CampaignController {
         boolean isOnGoing = campaignService.isCampaignOngoing(id);
         return ResponseEntity.ok().body(new OnGoingDto(isOnGoing));
 
+    }
+
+    @Operation(summary = "Search campaigns")
+    @GetMapping(value = Constants.API_CAMPAIGNS_SEARCH, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CampaignSummaryDto.class))))
+    })
+    public Page<CampaignSummaryDto> searchCampaigns(@RequestParam(required = false) String searchParam,
+                                                    @RequestParam(defaultValue = "0") Integer page,
+                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
+        log.info("Search campaigns by {} with page = {} pageSize = {}", searchParam, page, pageSize);
+        return campaignService.searchCampaigns(searchParam, PageRequest.of(page, pageSize));
     }
 
     private CampaignDto convertToDto(Campaign campaign) {
