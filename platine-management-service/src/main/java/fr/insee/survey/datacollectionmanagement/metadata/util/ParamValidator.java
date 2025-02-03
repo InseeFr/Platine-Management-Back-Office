@@ -17,11 +17,7 @@ public class ParamValidator {
     private ParamValidator() {
         throw new IllegalStateException("Validation class");
     }
-    private String regexUrl = "((http|https)://)(www.)?"
-            + "[a-zA-Z0-9@:%._\\+~#?&//=]"
-            + "{2,256}\\.[a-z]"
-            + "{2,6}\\b([-a-zA-Z0-9@:%"
-            + "._\\+~#?&//=]*)";
+
 
     public static void validateParams(ParamsDto paramsDto) {
         if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.URL_TYPE.name())
@@ -45,7 +41,8 @@ public class ParamValidator {
                 && Arrays.stream(SensitivityEnum.values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
 
             throw new NotMatchException(String.format("Only %s are valid values for SENSITIVITY", Arrays.stream(SensitivityEnum.values()).map(Enum::name)
-                    .collect(joining(" "))));        }
+                    .collect(joining(" "))));
+        }
     }
 
 

@@ -5,7 +5,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.PartitioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -13,7 +12,7 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PartioningServiceImplTest {
+class PartitioningServiceImplTest {
 
     PartitioningRepositoryStub partitioningRepositoryStub;
     PartitioningService partitioningService;
@@ -62,7 +61,7 @@ class PartioningServiceImplTest {
         int nbDays = rand.nextInt(1000);
         Partitioning part = new Partitioning();
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, nbDays);
+        cal.add(Calendar.DAY_OF_MONTH, -nbDays);
         Date openingDate = cal.getTime();
         part.setOpeningDate(openingDate);
 

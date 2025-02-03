@@ -9,14 +9,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignPartitioningsDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
@@ -31,31 +25,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -76,8 +61,6 @@ public class CampaignController {
     private final UploadService uploadService;
 
     private final ModelMapper modelmapper;
-
-    private final ParametersService parametersService;
 
 
     @Operation(summary = "Search for campaigns, paginated")
@@ -127,18 +110,17 @@ public class CampaignController {
 
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = Constants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
-    public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
+    public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
-        List<ParamsDto> listParams = campaign.getParams().stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(listParams);
+        return campaign.getParams().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = Constants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
-    public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+    public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);
-        campaignService.saveParameterForCampaign(campaign, paramsDto);
+        return campaignService.saveParameterForCampaign(campaign, paramsDto);
     }
 
     @Operation(summary = "Update or create a campaign")
@@ -219,7 +201,6 @@ public class CampaignController {
     }
 
 
-
     @Operation(summary = "Search campaigns")
     @GetMapping(value = Constants.API_CAMPAIGNS_SEARCH, produces = "application/json")
     @ApiResponses(value = {
@@ -248,8 +229,7 @@ public class CampaignController {
         return modelmapper.map(campaignDto, Campaign.class);
     }
 
-
-    class CampaignPage extends PageImpl<CampaignDto> {
+    public static class CampaignPage extends PageImpl<CampaignDto> {
 
         public CampaignPage(List<CampaignDto> content, Pageable pageable, long total) {
             super(content, pageable, total);

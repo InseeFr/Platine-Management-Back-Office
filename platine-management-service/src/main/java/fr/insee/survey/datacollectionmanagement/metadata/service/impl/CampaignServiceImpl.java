@@ -1,13 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.V3;
-
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
@@ -19,14 +13,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepo
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +21,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.V3;
 
 @Service
 @Slf4j
@@ -129,12 +119,13 @@ public class CampaignServiceImpl implements CampaignService {
   }
 
   @Override
-  public void saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
+  public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
     Parameters param = parametersService.convertToEntity(paramsDto);
     param.setMetadataId(StringUtils.upperCase(campaign.getId()));
     Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
     campaign.setParams(updatedParams);
     insertOrUpdateCampaign(campaign);
+    return updatedParams.stream().map(parametersService::convertToDto).toList();
   }
 
   private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
@@ -222,10 +213,4 @@ public class CampaignServiceImpl implements CampaignService {
         return CollectionStatus.CLOSED;
     }
 
-    private boolean isPartitionOngoing (Partitioning part, Date now) {
-
-        boolean ongoing = partitioningService.isOnGoing(part, now);
-        log.info("Partitioning {} of campaign {} is {}", part.getId(), part.getCampaign().getId(), ongoing ? "ongoing" : "closed");
-        return ongoing;
-    }
 }

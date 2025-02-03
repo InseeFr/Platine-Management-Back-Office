@@ -7,14 +7,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.util.*;
 
 public class CampaignServiceStub implements CampaignService {
     @Override
@@ -56,7 +53,7 @@ public class CampaignServiceStub implements CampaignService {
 
     @Override
     public void deleteCampaignById(String id) {
-
+        // stub method
     }
 
     @Override
@@ -70,8 +67,9 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public void saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
+    public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
 
+        return null;
     }
 
     @Override
