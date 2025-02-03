@@ -10,12 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,22 +61,19 @@ class SourceServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return paged Sources")
-    void shouldReturnPagedSources() {
+    @DisplayName("Should return list Sources")
+    void shouldReturnListSources() {
         // Given
         Source source1 = new Source();
         Source source2 = new Source();
-        Page<Source> page = new PageImpl<>(Set.of(source1, source2).stream().toList());
-        Pageable pageable = PageRequest.of(0, 10);
-        when(sourceRepository.findAll(pageable)).thenReturn(page);
+        List<Source> listSources = List.of(source1, source2);
+        when(sourceRepository.findAll()).thenReturn(listSources);
 
         // When
-        Page<Source> result = sourceService.findAll(pageable);
+        List<Source> result = sourceService.findAll();
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(2);
-        verify(sourceRepository, times(1)).findAll(pageable);
+        assertThat(result).isNotNull().hasSize(2);
     }
 
     @Test
