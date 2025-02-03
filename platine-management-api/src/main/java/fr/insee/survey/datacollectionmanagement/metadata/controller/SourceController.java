@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,14 +59,8 @@ public class SourceController {
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
-    public ResponseEntity<SourcePage> getSources(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(defaultValue = "id") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<Source> pageSource = sourceService.findAll(pageable);
-        List<SourceDto> listSources = pageSource.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new SourcePage(listSources, pageable, pageSource.getTotalElements()));
+    public List<SourceDto> getSources() {
+        return sourceService.findAll().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Search for a source by its id")
@@ -199,11 +192,5 @@ public class SourceController {
         return modelmapper.map(sourceOnlineStatusDto, Source.class);
     }
 
-    static class SourcePage extends PageImpl<SourceDto> {
-
-        public SourcePage(List<SourceDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
-    }
 
 }
