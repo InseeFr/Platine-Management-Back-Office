@@ -6,9 +6,13 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
@@ -20,6 +24,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -156,4 +162,70 @@ public class CampaignServiceImpl implements CampaignService {
   }
 
 
+
+    @Override
+    public Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of) {
+        Page<Campaign> campaigns = campaignRepository.findBySource(searchParam, of);
+        if (campaigns.isEmpty()) {
+            return Page.empty();
+        }
+        return campaigns.map(this::convertToCampaignSummaryDto);
+    }
+
+    private CampaignSummaryDto convertToCampaignSummaryDto(Campaign c) {
+        CampaignSummaryDto campaignSummaryDto = new CampaignSummaryDto();
+        campaignSummaryDto.setCampaignId(c.getId());
+        String source = Optional.ofNullable(c.getSurvey())
+                .map(Survey::getSource)
+                .map(Source::getId)
+                .orElse(null);
+        campaignSummaryDto.setSource(source);
+        campaignSummaryDto.setYear(c.getYear());
+        campaignSummaryDto.setPeriod(c.getPeriod().getValue());
+        campaignSummaryDto.setStatus(getCollectionStatus(c));
+        Date openingDate = getEarliestOpeningDate(c.getPartitionings());
+        Date closingDate = getLatestClosingDate(c.getPartitionings());
+        campaignSummaryDto.setOpeningDate(openingDate);
+        campaignSummaryDto.setClosingDate(closingDate);
+        return campaignSummaryDto;
+    }
+
+    private Date getEarliestOpeningDate(Set<Partitioning> partitionings) {
+        if (partitionings == null) {
+            return null;
+        }
+        return partitionings.stream()
+                .map(Partitioning::getOpeningDate)
+                .filter(Objects::nonNull)
+                .min(Comparator.comparingLong(Date::getTime))
+                .orElse(null);
+    }
+
+    private Date getLatestClosingDate(Set<Partitioning> partitionings) {
+        if (partitionings == null) {
+            return null;
+        }
+        return partitionings.stream()
+                .map(Partitioning::getClosingDate)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparingLong(Date::getTime))
+                .orElse(null);
+    }
+
+    private CollectionStatus getCollectionStatus(Campaign c) {
+        if (c.getPartitionings() == null || c.getPartitionings().isEmpty()) {
+            return CollectionStatus.UNDEFINED;
+        }
+        if (isCampaignOngoing(c)) {
+            return CollectionStatus.OPEN;
+        }
+        return CollectionStatus.CLOSED;
+    }
+
+    private boolean isPartitionOngoing (Partitioning part, Date now) {
+
+        boolean ongoing = partitioningService.isOnGoing(part, now);
+        log.info("Partitioning {} of campaign {} is {}", part.getId(), part.getCampaign().getId(), ongoing ? "ongoing" : "closed");
+        return ongoing;
+    }
 }

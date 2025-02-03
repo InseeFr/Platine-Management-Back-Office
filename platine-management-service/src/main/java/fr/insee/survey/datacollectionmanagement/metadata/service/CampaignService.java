@@ -5,7 +5,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import jakarta.validation.Valid;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -14,27 +16,31 @@ import java.util.List;
 
 @Service
 public interface CampaignService {
-    
-    Collection<CampaignMoogDto> getCampaigns();
 
-    Campaign findById(String idCampaign);
+  Collection<CampaignMoogDto> getCampaigns();
 
-    Page<Campaign> findAll(Pageable pageable);
+  Campaign findById(String idCampaign);
 
-    List<Campaign> findAll();
+  Page<Campaign> findAll(Pageable pageable);
 
-    Campaign insertOrUpdateCampaign(Campaign campaign);
+  List<Campaign> findAll();
 
-    void deleteCampaignById(String id);
+  Campaign insertOrUpdateCampaign(Campaign campaign);
 
-    /**
-     * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are ongoing
-     * @param campaign id of the campaign
-     * @return true
-     */
-    boolean isCampaignOngoing(Campaign campaign) ;
+  void deleteCampaignById(String id);
 
-    List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType);
+  /**
+   * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are
+   * ongoing
+   *
+   * @param campaign id of the campaign
+   * @return true
+   */
+  boolean isCampaignOngoing(Campaign campaign);
 
-    void saveParameterForCampaign(Campaign campaign, @Valid ParamsDto paramsDto);
+  List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType);
+
+  void saveParameterForCampaign(Campaign campaign, @Valid ParamsDto paramsDto);
+
+  Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of);
 }
