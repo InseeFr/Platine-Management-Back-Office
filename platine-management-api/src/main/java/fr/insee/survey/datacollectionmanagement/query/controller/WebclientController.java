@@ -112,12 +112,13 @@ public class WebclientController {
         Partitioning part = partitioningService.findById(idPartitioning);
 
         HttpStatus httpStatus = HttpStatus.OK;
+
         QuestioningWebclientDto questioningReturn = new QuestioningWebclientDto();
         SurveyUnit su = convertToEntity(questioningWebclientDto.getSurveyUnit());
         su = surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
-        Questioning questioning= questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
+        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
         if (questioning == null) {
             httpStatus = HttpStatus.CREATED;
             log.info("Create questioning for partitioning={} model={} surveyunit={} ", idPartitioning, modelName,
@@ -134,6 +135,7 @@ public class WebclientController {
             questioningEventService.saveQuestioningEvent(questioningEvent);
 
         }
+
 
         for (ContactAccreditationDto contactAccreditationDto : questioningWebclientDto.getContacts()) {
             createContactAndAccreditations(idSu, part, questioning, contactAccreditationDto);
@@ -472,6 +474,7 @@ public class WebclientController {
         result.setEligible(questioningEvent.isPresent() ? "true" : "false");
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
     private Support convertToEntity(SupportDto supportDto) {
         return modelMapper.map(supportDto, Support.class);
     }
@@ -526,7 +529,7 @@ public class WebclientController {
     }
 
     private SupportDto convertToDto(Support support) {
-        if(support == null) {
+        if (support == null) {
             return null;
         }
         return modelMapper.map(support, SupportDto.class);
@@ -543,7 +546,7 @@ public class WebclientController {
     }
 
     private OwnerDto convertToDto(Owner owner) {
-        if(owner == null) {
+        if (owner == null) {
             return null;
         }
         return modelMapper.map(owner, OwnerDto.class);

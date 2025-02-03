@@ -3,7 +3,9 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,18 +42,34 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
+    public List<Campaign> findAll() {
+        return List.of();
+    }
+
+    @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
         return null;
     }
 
     @Override
     public void deleteCampaignById(String id) {
-
+        // stub method
     }
 
     @Override
-    public boolean isCampaignOngoing(String idCampaign) {
+    public boolean isCampaignOngoing(Campaign campaign) {
         return false;
+    }
+
+    @Override
+    public List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType) {
+        return List.of();
+    }
+
+    @Override
+    public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
+
+        return null;
     }
 
     @Override

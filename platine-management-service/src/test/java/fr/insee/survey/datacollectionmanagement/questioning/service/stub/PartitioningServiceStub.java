@@ -27,8 +27,4 @@ public class PartitioningServiceStub implements PartitioningService {
         return part.getClosingDate().compareTo(date) > 0 && part.getOpeningDate().compareTo(date) < 0;
     }
 
-    @Override
-    public String findSuitableParameterValue(Partitioning part, ParameterEnum paramValue) {
-        return "";
-    }
 }

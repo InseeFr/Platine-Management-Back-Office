@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommen
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitCommentRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitCommentService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import java.util.Date;
 public class SurveyUnitCommentServiceImpl implements SurveyUnitCommentService {
 
     private final SurveyUnitCommentRepository surveyUnitCommentRepository;
+    private final SurveyUnitService surveyUnitService;
     private final ModelMapper modelMapper;
     @Override
     public SurveyUnitCommentOutputDto saveSurveyUnitComment(SurveyUnit surveyUnit, SurveyUnitCommentInputDto surveyUnitCommentInputDto) {
