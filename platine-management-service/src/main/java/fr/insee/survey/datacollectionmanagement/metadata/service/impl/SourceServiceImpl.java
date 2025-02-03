@@ -6,9 +6,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceReposi
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -18,12 +18,13 @@ public class SourceServiceImpl implements SourceService {
     private final SourceRepository sourceRepository;
 
     public Source findById(String source) {
-        return sourceRepository.findById(source).orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
+        return sourceRepository.findById(source)
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
     }
 
     @Override
-    public Page<Source> findAll(Pageable pageable) {
-        return sourceRepository.findAll(pageable);
+    public List<Source> findAll() {
+        return sourceRepository.findAll();
     }
 
     @Override

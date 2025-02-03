@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,8 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -69,12 +69,19 @@ class SourceControllerTest {
 
     @Test
     void getSourcesOk() throws Exception {
-        JSONObject jo = new JSONObject();
-        jo.put("totalElements", sourceRepository.count());
-        jo.put("numberOfElements", sourceRepository.count());
+        JSONArray jo = new JSONArray();
+        Source source1 = sourceService.findById("SOURCE1");
+        jo.put(createJson(source1));
+        Source source2 = sourceService.findById("SOURCE2");
+        jo.put(createJson(source2));
 
         this.mockMvc.perform(get(Constants.API_SOURCES)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(jo.toString(), false));
+                .andExpect(jsonPath("$[0].id").value("SOURCE1"))
+                .andExpect(jsonPath("$[1].id").value("SOURCE2"))
+                .andExpect(jsonPath("$[0].shortWording").value("Short wording of SOURCE1"))
+                .andExpect(jsonPath("$[1].shortWording").value("Short wording of SOURCE2"))
+                .andExpect(jsonPath("$[0].longWording").value("Long wording of SOURCE1 ?"))
+                .andExpect(jsonPath("$[1].longWording").value("Long wording of SOURCE2 ?"));
     }
 
     @Test
