@@ -2,10 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -75,5 +72,10 @@ public class CampaignServiceStub implements CampaignService {
     @Override
     public Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of) {
         return Page.empty();
+    }
+
+    @Override
+    public CampaignHeaderDto findCampaignHeaderById(String id) {
+        return null;
     }
 }

@@ -213,6 +213,16 @@ public class CampaignController {
         return campaignService.searchCampaigns(searchParam, PageRequest.of(page, pageSize));
     }
 
+    @Operation(summary = "Get campaign header")
+    @GetMapping(value = Constants.API_CAMPAIGNS_ID_HEADER, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignHeaderDto.class)))
+    })
+    public CampaignHeaderDto getHeader(@PathVariable("id") String id) {
+        log.info("Get campaign header by id {}", id);
+        return campaignService.findCampaignHeaderById(id);
+    }
+
     private CampaignDto convertToDto(Campaign campaign) {
         return modelmapper.map(campaign, CampaignDto.class);
     }

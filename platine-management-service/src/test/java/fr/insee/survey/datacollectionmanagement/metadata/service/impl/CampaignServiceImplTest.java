@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignHeaderDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
@@ -35,8 +36,7 @@ class CampaignServiceImplTest {
     private CampaignRepositoryStub campaignRepositoryStub;
     private PartitioningServiceStub partitioningServiceStub;
     private ParametersServiceStub parametersServiceStub;
-    @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
     private CampaignServiceImpl campaignServiceImpl;
 
     private Campaign campaign;
@@ -79,6 +79,7 @@ class CampaignServiceImplTest {
         campaignRepositoryStub.setCampaigns(campaigns);
         parametersServiceStub = new ParametersServiceStub();
         partitioningServiceStub = new PartitioningServiceStub();
+        modelMapper = new ModelMapper();
         campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryStub, partitioningServiceStub, parametersServiceStub, modelMapper);
     }
 
@@ -106,6 +107,7 @@ class CampaignServiceImplTest {
         c.setId(id);
         c.setYear(year);
         c.setPeriod(periodEnum);
+        c.setCampaignWording("campaign wording");
         Source source = new Source();
         source.setId(sourceId);
         Survey survey = new Survey();
@@ -347,5 +349,85 @@ class CampaignServiceImplTest {
         Campaign camp = new Campaign();
         assertThat(campaignServiceImpl.isCampaignOngoing(camp)).isFalse();
 
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with opended false if no partitioning is ongoing")
+    void getCampaignHeaderTestOpenedFalse() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", -3L, -2L);
+        Partitioning partitioning2 = createPartitioning("c1", -1L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
+        Campaign c = createCampaign("AAA", "c1", 2022, PeriodEnum.M01, partitioningSet);
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.CLOSED);
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with opended true if at least one partitioning is ongoing")
+    void getCampaignHeaderTestOpenedTrue() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", 3L, -2L);
+        Partitioning partitioning2 = createPartitioning("c1", 1L, 1L);
+        Partitioning partitioning3 = createPartitioning("c1", -1L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2, partitioning3);
+        Campaign c = createCampaign("AAA", "c1", 2023, PeriodEnum.M01, partitioningSet);
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.OPEN);
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with undefined status when no partitioning")
+    void getCampaignHeaderTestNoPartitioning() {
+        // given
+        Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, new HashSet<>()); // empty partitioning
+        Campaign c2 = createCampaign("AAA", "c2", 2022, PeriodEnum.M01, null); // null partitioning
+        campaignRepositoryStub.setCampaigns(List.of(c1,c2));
+
+        // When
+        CampaignHeaderDto result1 = campaignServiceImpl.findCampaignHeaderById("c1");
+        CampaignHeaderDto result2 = campaignServiceImpl.findCampaignHeaderById("c2");
+
+        // Then
+        assertThat(result1).isNotNull();
+        assertThat(result1.getStatus()).isEqualTo(CollectionStatus.UNDEFINED);
+        assertThat(result2).isNotNull();
+        assertThat(result2.getStatus()).isEqualTo(CollectionStatus.UNDEFINED);
+
+    }
+
+    @Test
+    @DisplayName("get Campaign Header return CampaignHeaderDto")
+    void getCampaignHeaderTest() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
+        Partitioning partitioning2 = createPartitioning("c1",2L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
+        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet);
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getCampaignId()).isEqualTo("c1");
+        assertThat(result.getSource()).isEqualTo("AAA");
+        assertThat(result.getYear()).isEqualTo(2021);
+        assertThat(result.getPeriod()).isEqualTo("pluriannuel X08");
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.OPEN);
+        assertThat(result.getWording()).isEqualTo("campaign wording");
     }
 }
