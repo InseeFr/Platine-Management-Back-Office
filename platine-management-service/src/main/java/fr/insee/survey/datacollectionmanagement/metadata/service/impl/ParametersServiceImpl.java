@@ -64,6 +64,7 @@ public class ParametersServiceImpl implements ParametersService {
                                         .orElse(""))));
     }
 
+
     @Override
     public String findSuitableParameterValue(Campaign campaign, ParameterEnum paramValue) {
         return findParameterValueInSet(campaign.getParams(), paramValue)
