@@ -127,11 +127,8 @@ public class CampaignServiceImpl implements CampaignService {
   private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
     CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
     result.setSourceId(campaign.getSurvey().getSource().getId());
-    Optional<String> paramSensitivity = campaign.getParams().stream()
-        .filter(parameters -> parameters.getParamId().equals(ParameterEnum.SENSITIVITY))
-        .map(Parameters::getParamValue)
-        .findFirst();
-    result.setSensitivity(paramSensitivity.orElse(SensitivityEnum.NORMAL.name()));
+    String paramSensitivity = parametersService.findSuitableParameterValue(campaign, ParameterEnum.SENSITIVITY);
+    result.setSensitivity(paramSensitivity.isEmpty()? SensitivityEnum.NORMAL.name():paramSensitivity);
     return result;
   }
 
