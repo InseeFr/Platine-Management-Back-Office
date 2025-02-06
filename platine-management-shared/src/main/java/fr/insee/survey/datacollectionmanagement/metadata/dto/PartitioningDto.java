@@ -15,6 +15,8 @@ public class PartitioningDto {
     private Date openingDate;
     private Date closingDate;
     private Date returnDate;
+    private Date openingLetterDate;
+    private Date openingMailDate;
     private Date followupLetter1Date;
     private Date followupLetter2Date;
     private Date followupLetter3Date;

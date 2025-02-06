@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignHeaderDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
@@ -26,17 +27,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 class CampaignServiceImplTest {
 
     private CampaignRepositoryStub campaignRepositoryStub;
-    private PartitioningServiceStub partitioningServiceStub;
-    private ParametersServiceStub parametersServiceStub;
-    @Autowired
-    ModelMapper modelMapper;
+    private final PartitioningServiceStub partitioningServiceStub = new PartitioningServiceStub();
+    private final ParametersServiceStub parametersServiceStub = new ParametersServiceStub();
+    private final ModelMapper modelMapper = new ModelMapper();
     private CampaignServiceImpl campaignServiceImpl;
 
     private Campaign campaign;
@@ -77,8 +76,6 @@ class CampaignServiceImplTest {
 
         campaignRepositoryStub = new CampaignRepositoryStub();
         campaignRepositoryStub.setCampaigns(campaigns);
-        parametersServiceStub = new ParametersServiceStub();
-        partitioningServiceStub = new PartitioningServiceStub();
         campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryStub, partitioningServiceStub, parametersServiceStub, modelMapper);
     }
 
@@ -102,10 +99,15 @@ class CampaignServiceImplTest {
     }
 
     private Campaign createCampaign(String sourceId, String id, int year, PeriodEnum periodEnum, Set<Partitioning> partitioningSet) {
+        return createCampaign(sourceId, id, year, periodEnum, partitioningSet, "other campaign wording");
+    }
+
+    private Campaign createCampaign(String sourceId, String id, int year, PeriodEnum periodEnum, Set<Partitioning> partitioningSet, String campaignWording) {
         Campaign c = new Campaign();
         c.setId(id);
         c.setYear(year);
         c.setPeriod(periodEnum);
+        c.setCampaignWording(campaignWording);
         Source source = new Source();
         source.setId(sourceId);
         Survey survey = new Survey();
@@ -347,5 +349,85 @@ class CampaignServiceImplTest {
         Campaign camp = new Campaign();
         assertThat(campaignServiceImpl.isCampaignOngoing(camp)).isFalse();
 
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with status CLOSED if no partitioning is ongoing")
+    void getCampaignHeaderTestOpenedFalse() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", -3L, -2L);
+        Partitioning partitioning2 = createPartitioning("c1", -1L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
+        Campaign c = createCampaign("AAA", "c1", 2022, PeriodEnum.M01, partitioningSet);
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.CLOSED);
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with status OPEN if at least one partitioning is ongoing")
+    void getCampaignHeaderTestOpenedTrue() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", 3L, -2L);
+        Partitioning partitioning2 = createPartitioning("c1", 1L, 1L);
+        Partitioning partitioning3 = createPartitioning("c1", -1L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2, partitioning3);
+        Campaign c = createCampaign("AAA", "c1", 2023, PeriodEnum.M01, partitioningSet);
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.OPEN);
+    }
+
+    @Test
+    @DisplayName("Get Campaign Header with status UNDEFINED when no partitioning")
+    void getCampaignHeaderTestNoPartitioning() {
+        // given
+        Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, new HashSet<>()); // empty partitioning
+        Campaign c2 = createCampaign("AAA", "c2", 2022, PeriodEnum.M01, null); // null partitioning
+        campaignRepositoryStub.setCampaigns(List.of(c1,c2));
+
+        // When
+        CampaignHeaderDto result1 = campaignServiceImpl.findCampaignHeaderById("c1");
+        CampaignHeaderDto result2 = campaignServiceImpl.findCampaignHeaderById("c2");
+
+        // Then
+        assertThat(result1).isNotNull();
+        assertThat(result1.getStatus()).isEqualTo(CollectionStatus.UNDEFINED);
+        assertThat(result2).isNotNull();
+        assertThat(result2.getStatus()).isEqualTo(CollectionStatus.UNDEFINED);
+
+    }
+
+    @Test
+    @DisplayName("get Campaign Header return CampaignHeaderDto")
+    void getCampaignHeaderTest() {
+        // given
+        Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
+        Partitioning partitioning2 = createPartitioning("c1",2L, 1L);
+        Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
+        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet, "campaign wording");
+        campaignRepositoryStub.setCampaigns(List.of(c));
+
+        // When
+        CampaignHeaderDto result = campaignServiceImpl.findCampaignHeaderById("c1");
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getCampaignId()).isEqualTo("c1");
+        assertThat(result.getSource()).isEqualTo("AAA");
+        assertThat(result.getYear()).isEqualTo(2021);
+        assertThat(result.getPeriod()).isEqualTo("pluriannuel X08");
+        assertThat(result.getStatus()).isEqualTo(CollectionStatus.OPEN);
+        assertThat(result.getWording()).isEqualTo("campaign wording");
     }
 }

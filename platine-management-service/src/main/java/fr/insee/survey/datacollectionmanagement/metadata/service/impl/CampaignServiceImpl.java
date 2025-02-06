@@ -2,10 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
@@ -38,7 +35,6 @@ public class CampaignServiceImpl implements CampaignService {
   private final ParametersService parametersService;
 
   private final ModelMapper modelmapper;
-
 
   public Collection<CampaignMoogDto> getCampaigns() {
 
@@ -160,14 +156,27 @@ public class CampaignServiceImpl implements CampaignService {
         return campaigns.map(this::convertToCampaignSummaryDto);
     }
 
+    @Override
+    public CampaignHeaderDto findCampaignHeaderById(String id) {
+        Campaign campaign = findById(id);
+        return convertToCampaignHeaderDto(campaign);
+    }
+
+    private CampaignHeaderDto convertToCampaignHeaderDto(Campaign c) {
+        CampaignHeaderDto campaignHeaderDto = new CampaignHeaderDto();
+        campaignHeaderDto.setCampaignId(c.getId());
+        campaignHeaderDto.setWording(c.getCampaignWording());
+        campaignHeaderDto.setSource(getSourceFromCampaign(c));
+        campaignHeaderDto.setPeriod(c.getPeriod().getValue());
+        campaignHeaderDto.setYear(c.getYear());
+        campaignHeaderDto.setStatus(getCollectionStatus(c));
+        return campaignHeaderDto;
+    }
+
     private CampaignSummaryDto convertToCampaignSummaryDto(Campaign c) {
         CampaignSummaryDto campaignSummaryDto = new CampaignSummaryDto();
         campaignSummaryDto.setCampaignId(c.getId());
-        String source = Optional.ofNullable(c.getSurvey())
-                .map(Survey::getSource)
-                .map(Source::getId)
-                .orElse(null);
-        campaignSummaryDto.setSource(source);
+        campaignSummaryDto.setSource(getSourceFromCampaign(c));
         campaignSummaryDto.setYear(c.getYear());
         campaignSummaryDto.setPeriod(c.getPeriod().getValue());
         campaignSummaryDto.setStatus(getCollectionStatus(c));
@@ -176,6 +185,13 @@ public class CampaignServiceImpl implements CampaignService {
         campaignSummaryDto.setOpeningDate(openingDate);
         campaignSummaryDto.setClosingDate(closingDate);
         return campaignSummaryDto;
+    }
+
+    private String getSourceFromCampaign(Campaign c) {
+        return Optional.ofNullable(c.getSurvey())
+                .map(Survey::getSource)
+                .map(Source::getId)
+                .orElse(null);
     }
 
     private Date getEarliestOpeningDate(Set<Partitioning> partitionings) {
@@ -201,6 +217,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     private CollectionStatus getCollectionStatus(Campaign c) {
+
         if (c.getPartitionings() == null || c.getPartitionings().isEmpty()) {
             return CollectionStatus.UNDEFINED;
         }
