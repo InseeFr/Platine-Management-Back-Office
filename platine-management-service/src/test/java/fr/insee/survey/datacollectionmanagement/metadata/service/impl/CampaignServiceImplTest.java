@@ -33,9 +33,9 @@ import org.springframework.data.domain.PageRequest;
 class CampaignServiceImplTest {
 
     private CampaignRepositoryStub campaignRepositoryStub;
-    private PartitioningServiceStub partitioningServiceStub;
-    private ParametersServiceStub parametersServiceStub;
-    private ModelMapper modelMapper;
+    private final PartitioningServiceStub partitioningServiceStub = new PartitioningServiceStub();
+    private final ParametersServiceStub parametersServiceStub = new ParametersServiceStub();
+    private final ModelMapper modelMapper = new ModelMapper();
     private CampaignServiceImpl campaignServiceImpl;
 
     private Campaign campaign;
@@ -76,9 +76,6 @@ class CampaignServiceImplTest {
 
         campaignRepositoryStub = new CampaignRepositoryStub();
         campaignRepositoryStub.setCampaigns(campaigns);
-        parametersServiceStub = new ParametersServiceStub();
-        partitioningServiceStub = new PartitioningServiceStub();
-        modelMapper = new ModelMapper();
         campaignServiceImpl = new CampaignServiceImpl(campaignRepositoryStub, partitioningServiceStub, parametersServiceStub, modelMapper);
     }
 
@@ -102,11 +99,15 @@ class CampaignServiceImplTest {
     }
 
     private Campaign createCampaign(String sourceId, String id, int year, PeriodEnum periodEnum, Set<Partitioning> partitioningSet) {
+        return createCampaign(sourceId, id, year, periodEnum, partitioningSet, "other campaign wording");
+    }
+
+    private Campaign createCampaign(String sourceId, String id, int year, PeriodEnum periodEnum, Set<Partitioning> partitioningSet, String campaignWording) {
         Campaign c = new Campaign();
         c.setId(id);
         c.setYear(year);
         c.setPeriod(periodEnum);
-        c.setCampaignWording("campaign wording");
+        c.setCampaignWording(campaignWording);
         Source source = new Source();
         source.setId(sourceId);
         Survey survey = new Survey();
@@ -351,7 +352,7 @@ class CampaignServiceImplTest {
     }
 
     @Test
-    @DisplayName("Get Campaign Header with opended false if no partitioning is ongoing")
+    @DisplayName("Get Campaign Header with status CLOSED if no partitioning is ongoing")
     void getCampaignHeaderTestOpenedFalse() {
         // given
         Partitioning partitioning1 = createPartitioning("c1", -3L, -2L);
@@ -369,7 +370,7 @@ class CampaignServiceImplTest {
     }
 
     @Test
-    @DisplayName("Get Campaign Header with opended true if at least one partitioning is ongoing")
+    @DisplayName("Get Campaign Header with status OPEN if at least one partitioning is ongoing")
     void getCampaignHeaderTestOpenedTrue() {
         // given
         Partitioning partitioning1 = createPartitioning("c1", 3L, -2L);
@@ -388,7 +389,7 @@ class CampaignServiceImplTest {
     }
 
     @Test
-    @DisplayName("Get Campaign Header with undefined status when no partitioning")
+    @DisplayName("Get Campaign Header with status UNDEFINED when no partitioning")
     void getCampaignHeaderTestNoPartitioning() {
         // given
         Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, new HashSet<>()); // empty partitioning
@@ -414,7 +415,7 @@ class CampaignServiceImplTest {
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
         Partitioning partitioning2 = createPartitioning("c1",2L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
-        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet);
+        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet, "campaign wording");
         campaignRepositoryStub.setCampaigns(List.of(c));
 
         // When

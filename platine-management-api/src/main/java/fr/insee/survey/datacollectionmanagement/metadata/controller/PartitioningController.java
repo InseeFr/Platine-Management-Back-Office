@@ -105,7 +105,6 @@ public class PartitioningController {
 
         int nbQuestioningDeleted = questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
         log.info("Partitioning {} deleted - {} questionings deleted", id, nbQuestioningDeleted);
-
     }
 
     private PartitioningDto convertToDto(Partitioning partitioning) {
