@@ -196,8 +196,8 @@ public class CampaignController {
 
     @Operation(summary = "get ongoing campaigns")
     @GetMapping(value = Constants.API_CAMPAIGNS_ONGOING, produces = "application/json")
-    public List<CampaignOngoingDto> getOngoingCampaigns(@RequestParam(required = false) String campaignType) {
-        return campaignService.getCampaignOngoingDtos(campaignType);
+    public List<CampaignOngoingDto> getOngoingCampaigns() {
+        return campaignService.getCampaignOngoingDtos();
     }
 
 
