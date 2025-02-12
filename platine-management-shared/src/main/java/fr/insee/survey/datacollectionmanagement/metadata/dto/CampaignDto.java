@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
-import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,5 +11,7 @@ public class CampaignDto {
     private String surveyId;
     private int year;
     private String campaignWording;
-    private PeriodEnum period;
+    private String period;
+    private boolean sensitivity = false;
+    private String dataCollectionTarget;
 }
