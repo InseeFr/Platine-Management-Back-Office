@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.V3;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -105,10 +103,9 @@ public class CampaignServiceImpl implements CampaignService {
   }
 
   @Override
-  public List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType) {
+  public List<CampaignOngoingDto> getCampaignOngoingDtos() {
     List<Campaign> listCampaigns = findAll();
-    return listCampaigns.stream().filter(c -> isCampaignOngoing(c)
-            && isCampaignInType(c, campaignType)).
+    return listCampaigns.stream().filter(this::isCampaignOngoing).
         map(this::convertToCampaignOngoingDto).toList();
 
 
@@ -131,20 +128,6 @@ public class CampaignServiceImpl implements CampaignService {
     result.setSensitivity(paramSensitivity.isEmpty()? SensitivityEnum.NORMAL.name():paramSensitivity);
     return result;
   }
-
-  boolean isCampaignInType(Campaign c, String campaignType) {
-    if (StringUtils.isEmpty(campaignType)) {
-      return true;
-    }
-    if (campaignType.equalsIgnoreCase(V3.name())) {
-      return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE)
-          .equalsIgnoreCase(campaignType)
-          || parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE).isEmpty();
-    }
-    return parametersService.findSuitableParameterValue(c, ParameterEnum.URL_TYPE)
-        .equalsIgnoreCase(campaignType);
-  }
-
 
 
     @Override

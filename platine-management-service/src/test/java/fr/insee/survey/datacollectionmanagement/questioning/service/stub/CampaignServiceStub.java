@@ -24,7 +24,7 @@ public class CampaignServiceStub implements CampaignService {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, -1);
 
-        Date yesterday =calendar.getTime();
+        Date yesterday = calendar.getTime();
         calendar.add(Calendar.DAY_OF_YEAR, 2);
         Date tomorrow = calendar.getTime();
         partitioning.setOpeningDate(yesterday);
@@ -59,13 +59,12 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType) {
+    public List<CampaignOngoingDto> getCampaignOngoingDtos() {
         return List.of();
     }
 
     @Override
     public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
-
         return null;
     }
 
