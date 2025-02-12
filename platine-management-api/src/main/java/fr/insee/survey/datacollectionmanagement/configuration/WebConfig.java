@@ -26,12 +26,22 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public String questioningUrl() {
-        return applicationConfig.getQuestioningUrl();
+    public String lunaticNormalUrl() {
+        return applicationConfig.getLunaticNormalUrl();
     }
 
     @Bean
-    public String questioningSensitiveUrl() {
-        return applicationConfig.getQuestioningSensitiveUrl();
+    public String lunaticSensitiveUrl() {
+        return applicationConfig.getLunaticSensitiveUrl();
+    }
+
+    @Bean
+    public String xform1Url() {
+        return applicationConfig.getXform1Url();
+    }
+
+    @Bean
+    public String xform2Url() {
+        return applicationConfig.getXform2Url();
     }
 }

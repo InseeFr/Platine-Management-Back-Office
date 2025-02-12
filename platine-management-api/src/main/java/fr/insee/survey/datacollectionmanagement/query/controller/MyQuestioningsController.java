@@ -27,9 +27,7 @@ public class MyQuestioningsController {
                                            String idec) {
 
 
-        List<MyQuestioningDto> listSurveys = mySurveysService.getListMySurveys(idec.toUpperCase());
-
-        return listSurveys;
+        return mySurveysService.getListMySurveys(idec.toUpperCase());
 
     }
 }

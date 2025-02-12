@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,14 @@ public class Campaign {
     private PeriodEnum period;
 
     private String campaignWording;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean sensitivity = false;
+
+
+    @Column(name = "datacollection_target")
+    @Enumerated(EnumType.STRING)
+    private DataCollectionEnum dataCollectionTarget = DataCollectionEnum.LUNATIC_NORMAL;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "campaign")
     private Set<Partitioning> partitionings;
