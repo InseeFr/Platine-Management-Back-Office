@@ -131,18 +131,18 @@ public class QuestioningServiceImpl implements QuestioningService {
 
         if (dataCollectionTarget == null ||dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return buildV3Url(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            return buildLunaticUrl(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
         if (dataCollectionTarget.equals(DataCollectionEnum.XFORM1)) {
-            return buildV1Url(xform1Url, role, questioning.getModelName(), surveyUnitId);
+            return buildXformUrl(xform1Url, role, questioning.getModelName(), surveyUnitId);
         }
         if (dataCollectionTarget.equals(DataCollectionEnum.XFORM2)) {
-            return buildV2Url(xform2Url, role, questioning.getModelName(), surveyUnitId);
+            return buildXformUrl(xform2Url, role, questioning.getModelName(), surveyUnitId);
         }
 
         if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_SENSITIVE)) {
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return buildV3Url(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            return buildLunaticUrl(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
 
         return "";
@@ -187,7 +187,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V1 access URL.
      */
-    protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
+    protected String buildXformUrl(String baseUrl, String role, String campaignId, String surveyUnitId) {
         if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
             return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
         }
@@ -197,25 +197,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
-    /**
-     * Builds a V3 access URL based on the provided parameters
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V3 access URL.
-     */
-
-    protected String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        return "";
-    }
 
     /**
      * Builds a V3 access URL based on the provided parameters
@@ -226,7 +207,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
-    protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
+    protected String buildLunaticUrl(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
         }
