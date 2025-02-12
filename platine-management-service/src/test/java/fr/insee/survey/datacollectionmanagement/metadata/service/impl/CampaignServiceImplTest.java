@@ -1,7 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -10,25 +8,22 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignHeaderDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.CampaignRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ParametersServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.PartitioningServiceStub;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CampaignServiceImplTest {
 
@@ -295,52 +290,6 @@ class CampaignServiceImplTest {
 
         // Then
         assertThat(result).isNotNull().isEmpty();
-    }
-
-
-    @Test
-    void testIsCampaignInType_WithEmptyCampaignType() {
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, "");
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void testIsCampaignInType_WithNullCampaignType() {
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, null);
-        assertThat(result).isTrue();
-    }
-
-
-    @Test
-    void testIsCampaignInType_WithMatchingV3AndNonEmptyUrlType() {
-        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V3");
-
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void testIsCampaignInType_WithV3ButEmptyUrlType() {
-        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "");
-
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void testIsCampaignInType_WithNonMatchingCampaignType() {
-        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V1");
-
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V3");
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void testIsCampaignInType_WithMatchingNonV3CampaignType() {
-        parametersServiceStub.setParameterValue(campaign, ParameterEnum.URL_TYPE, "V1");
-
-        boolean result = campaignServiceImpl.isCampaignInType(campaign, "V1");
-        assertThat(result).isTrue();
     }
 
 

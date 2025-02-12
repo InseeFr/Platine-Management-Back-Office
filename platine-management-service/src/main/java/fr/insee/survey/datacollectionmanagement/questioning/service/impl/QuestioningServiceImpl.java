@@ -2,10 +2,9 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -15,7 +14,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.*;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -31,8 +29,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static fr.insee.survey.datacollectionmanagement.metadata.enums.UrlTypeEnum.*;
 
 
 @Service
@@ -53,13 +49,15 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final QuestioningCommentService questioningCommentService;
 
-    private final ParametersService parametersService;
-
     private final ModelMapper modelMapper;
 
-    private final String questioningUrl;
+    private final String lunaticNormalUrl;
 
-    private final String questioningSensitiveUrl;
+    private final String lunaticSensitiveUrl;
+
+    private final String xform1Url;
+
+    private final String xform2Url;
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
@@ -121,30 +119,29 @@ public class QuestioningServiceImpl implements QuestioningService {
     /**
      * Generates an access URL based on the provided parameters.
      *
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param questioning  The questioning object.
-     * @param part          Part of questioning
+     * @param role        The user role (REVIEWER or INTERVIEWER).
+     * @param questioning The questioning object.
+     * @param part        Part of questioning
      * @return The generated access URL.
      */
     public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
-        String typeUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
+        Campaign campaign = part.getCampaign();
+        DataCollectionEnum dataCollectionTarget = campaign.getDataCollectionTarget();
         String surveyUnitId = questioning.getSurveyUnit().getIdSu();
-        // Set default values if baseUrl or typeUrl is empty
-        typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
 
-        if (typeUrl.equalsIgnoreCase(V1.name())) {
-            String baseUrl = parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-            return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM1)) {
+            return buildV1Url(xform1Url, role, questioning.getModelName(), surveyUnitId);
         }
-        if (typeUrl.equalsIgnoreCase(V2.name())) {
-            return buildV2Url(questioningUrl, role, questioning.getModelName(), surveyUnitId);
+        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM2)) {
+            return buildV2Url(xform2Url, role, questioning.getModelName(), surveyUnitId);
         }
-        if (typeUrl.equalsIgnoreCase(V3.name())) {
-            String sensitivity = parametersService.findSuitableParameterValue(part, ParameterEnum.SENSITIVITY);
+        if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            if (SensitivityEnum.SENSITIVE.name().equalsIgnoreCase(sensitivity))
-                return buildV3Url(questioningSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
-            return buildV3Url(questioningUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+            return buildV3Url(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+        }
+        if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_SENSITIVE)) {
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            return buildV3Url(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
 
         return "";

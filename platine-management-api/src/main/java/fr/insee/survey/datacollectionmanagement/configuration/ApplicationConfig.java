@@ -42,12 +42,18 @@ public class ApplicationConfig {
 
     @Value("${fr.insee.datacollectionmanagement.auth.server-url}")
     private String keyCloakUrl;
-    
-    @Value("${fr.insee.datacollectionmanagement.api.questioning.url}")
-    private String questioningUrl;
 
-    @Value("${fr.insee.datacollectionmanagement.api.questioning.sensitive.url}")
-    private String questioningSensitiveUrl;
+    @Value("${fr.insee.datacollectionmanagement.api.lunatic.normal.url}")
+    private String lunaticNormalUrl;
+
+    @Value("${fr.insee.datacollectionmanagement.api.lunatic.sensitive.url}")
+    private String lunaticSensitiveUrl;
+
+    @Value("${fr.insee.datacollectionmanagement.api.xform1.url}")
+    private String xform1Url;
+
+    @Value("${fr.insee.datacollectionmanagement.api.xform2.url}")
+    private String xform2Url;
 
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;
