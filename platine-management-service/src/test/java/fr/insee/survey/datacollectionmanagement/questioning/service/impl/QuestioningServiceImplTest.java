@@ -73,7 +73,7 @@ class QuestioningServiceImplTest {
         String role = UserRoles.INTERVIEWER;
         String modelName = "m1";
         String surveyUnitId = "999999999";
-        String url = questioningService.buildV1Url(baseUrl, role, modelName, surveyUnitId);
+        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
         String expected = "https://urlBase/repondre/m1/999999999";
         assertThat(url).isEqualTo(expected);
     }
@@ -85,21 +85,8 @@ class QuestioningServiceImplTest {
         String role = UserRoles.REVIEWER;
         String modelName = "m1";
         String surveyUnitId = "999999999";
-        String url = questioningService.buildV1Url(baseUrl, role, modelName, surveyUnitId);
+        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
         String expected = "https://urlBase/visualiser/m1/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
-
-
-    @Test
-    @DisplayName("Check the V2 url in reviewer mode")
-    void getV2UrlReviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.REVIEWER;
-        String modelName = "model";
-        String surveyUnitId = "999999999";
-        String url = questioningService.buildV2Url(baseUrl, role, modelName, surveyUnitId);
-        String expected = "https://urlBase/readonly/questionnaire/model/unite-enquetee/999999999";
         assertThat(url).isEqualTo(expected);
     }
 
@@ -112,7 +99,7 @@ class QuestioningServiceImplTest {
         String surveyUnitId = "999999999";
         String sourceId = "enq";
         Long questioningId = 123456789L;
-        String url = questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
+        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
         String expected = "https://urlBase/v3/questionnaire/model/unite-enquetee/999999999?pathLogout=%2Fenq&pathAssistance=%2Fenq%2Fcontacter-assistance%2Fauth%3FquestioningId%3D123456789";
         assertThat(url).isEqualTo(expected);
     }
@@ -126,7 +113,7 @@ class QuestioningServiceImplTest {
         String surveyUnitId = "999999999";
         String sourceId = "enq";
         Long questioningId = 123456789L;
-        String url = questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
+        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
         String expected = "https://urlBase/v3/review/questionnaire/model/unite-enquetee/999999999";
         assertThat(url).isEqualTo(expected);
     }
