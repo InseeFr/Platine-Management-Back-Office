@@ -129,16 +129,17 @@ public class QuestioningServiceImpl implements QuestioningService {
         DataCollectionEnum dataCollectionTarget = campaign.getDataCollectionTarget();
         String surveyUnitId = questioning.getSurveyUnit().getIdSu();
 
+        if (dataCollectionTarget == null ||dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            return buildV3Url(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+        }
         if (dataCollectionTarget.equals(DataCollectionEnum.XFORM1)) {
             return buildV1Url(xform1Url, role, questioning.getModelName(), surveyUnitId);
         }
         if (dataCollectionTarget.equals(DataCollectionEnum.XFORM2)) {
             return buildV2Url(xform2Url, role, questioning.getModelName(), surveyUnitId);
         }
-        if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return buildV3Url(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
-        }
+
         if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_SENSITIVE)) {
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
             return buildV3Url(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
