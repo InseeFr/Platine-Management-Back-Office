@@ -34,7 +34,7 @@ public interface CampaignService {
    */
   boolean isCampaignOngoing(Campaign campaign);
 
-  List<CampaignOngoingDto> getCampaignOngoingDtos(String campaignType);
+  List<CampaignOngoingDto> getCampaignOngoingDtos();
 
   List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto);
 

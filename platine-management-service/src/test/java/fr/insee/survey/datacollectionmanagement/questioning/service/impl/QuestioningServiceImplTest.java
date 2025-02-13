@@ -6,7 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -17,23 +17,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
 
 
     private static final String SURVEY_UNIT_ID = "12345";
-    private static final String QUESTIONING_URL = "http://questioning.com";
-    private static final String QUESTIONING_SENSITIVE_URL = "http://sensitive.com";
-    private static final String V1_URL = "http://questioning.com";
+    private static final String QUESTIONING_NORMAL_URL = "http://questioning.com/normal";
+    private static final String QUESTIONING_SENSITIVE_URL = "http://questioning.com/sensitive";
+    private static final String QUESTIONING_XFORMS1= "http://questioning.com/xforms1";
+    private static final String QUESTIONING_XFORMS2= "http://questioning.com/xforms2";
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -75,7 +73,7 @@ class QuestioningServiceImplTest {
         String role = UserRoles.INTERVIEWER;
         String modelName = "m1";
         String surveyUnitId = "999999999";
-        String url = questioningService.buildV1Url(baseUrl, role, modelName, surveyUnitId);
+        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
         String expected = "https://urlBase/repondre/m1/999999999";
         assertThat(url).isEqualTo(expected);
     }
@@ -87,32 +85,8 @@ class QuestioningServiceImplTest {
         String role = UserRoles.REVIEWER;
         String modelName = "m1";
         String surveyUnitId = "999999999";
-        String url = questioningService.buildV1Url(baseUrl, role, modelName, surveyUnitId);
+        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
         String expected = "https://urlBase/visualiser/m1/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Check the V2 url in interviewer mode")
-    void getV2UrlInterviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.INTERVIEWER;
-        String modelName = "model";
-        String surveyUnitId = "999999999";
-        String url = questioningService.buildV2Url(baseUrl, role, modelName, surveyUnitId);
-        String expected = "https://urlBase/questionnaire/model/unite-enquetee/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Check the V2 url in reviewer mode")
-    void getV2UrlReviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.REVIEWER;
-        String modelName = "model";
-        String surveyUnitId = "999999999";
-        String url = questioningService.buildV2Url(baseUrl, role, modelName, surveyUnitId);
-        String expected = "https://urlBase/readonly/questionnaire/model/unite-enquetee/999999999";
         assertThat(url).isEqualTo(expected);
     }
 
@@ -125,7 +99,7 @@ class QuestioningServiceImplTest {
         String surveyUnitId = "999999999";
         String sourceId = "enq";
         Long questioningId = 123456789L;
-        String url = questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
+        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
         String expected = "https://urlBase/v3/questionnaire/model/unite-enquetee/999999999?pathLogout=%2Fenq&pathAssistance=%2Fenq%2Fcontacter-assistance%2Fauth%3FquestioningId%3D123456789";
         assertThat(url).isEqualTo(expected);
     }
@@ -139,7 +113,7 @@ class QuestioningServiceImplTest {
         String surveyUnitId = "999999999";
         String sourceId = "enq";
         Long questioningId = 123456789L;
-        String url = questioningService.buildV3Url(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
+        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
         String expected = "https://urlBase/v3/review/questionnaire/model/unite-enquetee/999999999";
         assertThat(url).isEqualTo(expected);
     }
@@ -151,37 +125,27 @@ class QuestioningServiceImplTest {
                 questioningRepository, surveyUnitService, partitioningService,
                 questioningEventService, questioningAccreditationService,
                 questioningCommunicationService, questioningCommentService,
-                parametersService, modelMapper, QUESTIONING_URL, QUESTIONING_SENSITIVE_URL
-        );
+                modelMapper, QUESTIONING_NORMAL_URL, QUESTIONING_SENSITIVE_URL,
+                QUESTIONING_XFORMS1, QUESTIONING_XFORMS2);
 
     }
 
     @Test
     void testGetAccessUrl_V1() {
-
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE)).thenReturn("V1");
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION)).thenReturn(V1_URL);
-
-        String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
-
-        assertThat(result).isNotNull().contains(V1_URL);
-    }
-
-    @Test
-    void testGetAccessUrl_V2() {
-
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE)).thenReturn("V2");
+        Campaign campaign = part.getCampaign();
+        campaign.setDataCollectionTarget(DataCollectionEnum.XFORM1);
+        part.setCampaign(campaign);
 
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
-        assertThat(result).isNotNull().contains(QUESTIONING_URL);
+        assertThat(result).isNotNull().contains(QUESTIONING_XFORMS1);
     }
 
     @Test
     void testGetAccessUrl_V3_Sensitive() {
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE)).thenReturn("V3");
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.SENSITIVITY)).thenReturn("SENSITIVE");
-
+        Campaign campaign = part.getCampaign();
+        campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
+        part.setCampaign(campaign);
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
         assertThat(result).isNotNull().contains(QUESTIONING_SENSITIVE_URL);
@@ -189,18 +153,14 @@ class QuestioningServiceImplTest {
 
     @Test
     void testGetAccessUrl_V3_NonSensitive() {
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE)).thenReturn("V3");
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.SENSITIVITY)).thenReturn("NON_SENSITIVE");
-
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
-        assertThat(result).isNotNull().contains(QUESTIONING_URL);
+        assertThat(result).isNotNull().contains(QUESTIONING_NORMAL_URL);
     }
 
     @Test
     void testGetAccessUrl_Default() {
 
-        when(parametersService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE)).thenReturn("");
 
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
