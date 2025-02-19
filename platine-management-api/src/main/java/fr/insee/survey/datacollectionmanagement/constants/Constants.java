@@ -51,6 +51,7 @@ public class Constants {
 
     // API METADATA DOMAIN
     public static final String API_SOURCES = "/api/sources";
+    public static final String API_SOURCES_ONGOING = "/api/sources/ongoing";
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";

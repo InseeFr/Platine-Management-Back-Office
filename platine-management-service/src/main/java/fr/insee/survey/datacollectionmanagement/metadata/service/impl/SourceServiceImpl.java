@@ -4,15 +4,20 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -20,7 +25,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
+    private final ModelMapper modelMapper;
+
     private final SourceRepository sourceRepository;
+
+    private final SurveyService surveyService;
 
     private final ParametersService parametersService;
 
@@ -62,6 +71,17 @@ public class SourceServiceImpl implements SourceService {
         source.setParams(updatedParams);
         insertOrUpdateSource(source);
         return updatedParams.stream().map(parametersService::convertToDto).toList();
+    }
+
+    @Override
+    public List<SourceDto> getOngoingSources() {
+        return sourceRepository.findAll().stream()
+                .filter(source -> Optional.ofNullable(source.getSurveys())
+                        .orElse(Set.of()) // Remplace `null` par un set vide
+                        .stream()
+                        .anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId())))
+                .map(source -> modelMapper.map(source, SourceDto.class))
+                .toList();
     }
 
 }

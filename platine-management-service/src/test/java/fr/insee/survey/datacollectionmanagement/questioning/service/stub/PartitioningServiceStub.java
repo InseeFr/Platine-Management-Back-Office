@@ -1,12 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class PartitioningServiceStub implements PartitioningService {
+
     @Override
     public Partitioning findById(String id) {
         return null;
@@ -23,8 +23,9 @@ public class PartitioningServiceStub implements PartitioningService {
     }
 
     @Override
-    public boolean isOnGoing(Partitioning part, Date date) {
-        return part.getClosingDate().compareTo(date) > 0 && part.getOpeningDate().compareTo(date) < 0;
+    public boolean isOnGoing(Partitioning part, Instant now) {
+        return part.getClosingDate().toInstant().isAfter(now) &&
+                part.getOpeningDate().toInstant().isBefore(now);
     }
 
 }

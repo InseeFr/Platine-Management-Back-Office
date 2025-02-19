@@ -4,26 +4,23 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.SurveyRepositoryStub;
-import org.junit.jupiter.api.BeforeEach;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SurveyServiceImplTest {
-    private SurveyServiceImpl surveyService;
-    private SurveyRepositoryStub surveyRepositoryStub;
 
-    @BeforeEach
-    void init() {
-        surveyRepositoryStub = new SurveyRepositoryStub();
-        surveyService = new SurveyServiceImpl(surveyRepositoryStub);
-    }
+    private final SurveyRepositoryStub surveyRepositoryStub = new SurveyRepositoryStub();
+    private final CampaignServiceStub campaignServiceStub= new CampaignServiceStub();
+    private final SurveyServiceImpl surveyService = new SurveyServiceImpl(surveyRepositoryStub, campaignServiceStub);
 
     @Test
     @DisplayName("Should return survey")
@@ -99,6 +96,58 @@ class SurveyServiceImplTest {
                 .first()
                 .extracting(Campaign::getId)
                 .isEqualTo(campaignId);
+    }
+
+    @Test
+    @DisplayName("Should return false when survey does not exist")
+    void testIsSurveyOngoing_whenSurveyNotFound() {
+        boolean result = surveyService.isSurveyOngoing("unknownSurvey");
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return false when survey has no campaigns")
+    void testIsSurveyOngoing_whenSurveyHasNoCampaigns() {
+        Survey survey = new Survey();
+        survey.setId("MMM2025");
+        surveyRepositoryStub.setSurveys(List.of(survey));
+
+        boolean result = surveyService.isSurveyOngoing("MMM2025");
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return false when none of the survey's campaigns are ongoing")
+    void testIsSurveyOngoing_whenNoCampaignIsOngoing() {
+        Survey survey = new Survey();
+        survey.setId("MMM2025");
+        Campaign campaign = new Campaign();
+        campaign.setId("MMM2025");
+        survey.setCampaigns(Set.of(campaign));
+        surveyRepositoryStub.setSurveys(List.of(survey));
+
+        boolean result = surveyService.isSurveyOngoing("MMM2025");
+
+        assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("Should return true when at least one campaign is ongoing")
+    void testIsSurveyOngoing_whenAtLeastOneCampaignIsOngoing() {
+        Survey survey = new Survey();
+        survey.setId("MMM2025");
+        Campaign campaign = new Campaign();
+        campaign.setId("MMM2025");
+        Campaign campaign2 = new Campaign();
+        campaign2.setId("ONGOING");
+        survey.setCampaigns(Set.of(campaign, campaign2));
+        surveyRepositoryStub.setSurveys(List.of(survey));
+
+        boolean result = surveyService.isSurveyOngoing("MMM2025");
+
+        assertTrue(result);
     }
 
 }

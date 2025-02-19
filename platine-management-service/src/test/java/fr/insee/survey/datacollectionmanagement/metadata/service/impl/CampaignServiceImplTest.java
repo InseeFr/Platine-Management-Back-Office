@@ -296,7 +296,10 @@ class CampaignServiceImplTest {
     @Test
     void testIsCampaignOngoingFalse_WhenCampaignHasNoPartitioning(){
         Campaign camp = new Campaign();
-        assertThat(campaignServiceImpl.isCampaignOngoing(camp)).isFalse();
+        camp.setId("MMM2025X00");
+        campaignRepositoryStub.setCampaigns(List.of(camp));
+
+        assertThat(campaignServiceImpl.isCampaignOngoing("MMM2025X00")).isFalse();
 
     }
 

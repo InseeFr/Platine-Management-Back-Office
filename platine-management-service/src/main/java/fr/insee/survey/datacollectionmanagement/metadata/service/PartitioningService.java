@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface PartitioningService {
 
@@ -12,7 +12,7 @@ public interface PartitioningService {
 
     void deletePartitioningById(String id);
 
-    boolean isOnGoing(Partitioning part, Date date);
+    boolean isOnGoing(Partitioning part, Instant instant);
 
 
 }

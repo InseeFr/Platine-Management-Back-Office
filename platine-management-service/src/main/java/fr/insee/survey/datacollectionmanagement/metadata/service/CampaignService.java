@@ -32,7 +32,7 @@ public interface CampaignService {
    * @param campaign id of the campaign
    * @return true
    */
-  boolean isCampaignOngoing(Campaign campaign);
+  boolean isCampaignOngoing(String campaignId);
 
   List<CampaignOngoingDto> getCampaignOngoingDtos();
 

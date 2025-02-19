@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -93,7 +94,7 @@ public class SearchSurveyUnitController {
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
-            if (!isFilterOpened || partitioningService.isOnGoing(part, new Date())) {
+            if (!isFilterOpened || partitioningService.isOnGoing(part, Instant.now())) {
                 Survey survey = part.getCampaign().getSurvey();
                 listParts.add(new SurveyUnitPartitioningDto(
                         survey.getSource().getShortWording(),

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.*;
 
 public class CampaignServiceStub implements CampaignService {
+
     @Override
     public Collection<CampaignMoogDto> getCampaigns() {
         return List.of();
@@ -54,8 +55,8 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public boolean isCampaignOngoing(Campaign campaign) {
-        return false;
+    public boolean isCampaignOngoing(String campaignId) {
+        return "ONGOING".equals(campaignId);
     }
 
     @Override
