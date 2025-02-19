@@ -4,8 +4,6 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -124,8 +122,6 @@ public class CampaignServiceImpl implements CampaignService {
   private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
     CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
     result.setSourceId(campaign.getSurvey().getSource().getId());
-    String paramSensitivity = parametersService.findSuitableParameterValue(campaign, ParameterEnum.SENSITIVITY);
-    result.setSensitivity(paramSensitivity.isEmpty()? SensitivityEnum.NORMAL.name():paramSensitivity);
     return result;
   }
 

@@ -12,5 +12,5 @@ public class CampaignOngoingDto {
     private int year;
     private String period;
     private String dataCollectionTarget;
-    private String sensitivity;
+    private boolean sensitivity;
 }
