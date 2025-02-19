@@ -96,9 +96,13 @@ public class CampaignServiceImpl implements CampaignService {
       return campaignRepository.findById(campaignId)
               .map(campaign -> {
                   Instant now = Instant.now();
-                  return campaign.getPartitionings() != null &&
-                          campaign.getPartitionings().stream()
-                                  .anyMatch(part -> partitioningService.isOnGoing(part, now));
+                  Set<Partitioning> partitionings = campaign.getPartitionings();
+                  if (partitionings != null) {
+                      return partitionings
+                              .stream()
+                              .anyMatch(part -> partitioningService.isOnGoing(part, now));
+                  }
+                  return false;
               })
               .orElse(false);
   }
