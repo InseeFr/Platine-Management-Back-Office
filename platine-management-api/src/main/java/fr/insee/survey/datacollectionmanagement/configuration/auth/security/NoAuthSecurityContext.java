@@ -1,8 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,9 +18,9 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@ConditionalOnMissingBean(OpenIDConnectSecurityContext.class)
+@ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = AuthConstants.NOAUTH)
 @AllArgsConstructor
-public class DefaultSecurityContext {
+public class NoAuthSecurityContext {
 
     private final PublicSecurityFilterChain publicSecurityFilterChainConfiguration;
 
