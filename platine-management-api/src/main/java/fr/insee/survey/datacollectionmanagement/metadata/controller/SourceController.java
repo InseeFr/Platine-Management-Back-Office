@@ -57,11 +57,18 @@ public class SourceController {
     private final CampaignService campaignService;
 
     private final ParametersService parametersService;
+    private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
     public List<SourceDto> getSources() {
         return sourceService.findAll().stream().map(this::convertToDto).toList();
+    }
+
+    @Operation(summary = "Get all sources ongoing")
+    @GetMapping(value = Constants.API_SOURCES_ONGOING, produces = "application/json")
+    public List<SourceDto> getOngoingSources() {
+        return sourceService.getOngoingSources();
     }
 
     @Operation(summary = "Search for a source by its id")
@@ -140,7 +147,7 @@ public class SourceController {
         if (source.getSurveys().isEmpty())
             return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
-        boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaignService::isCampaignOngoing);
+        boolean isOpened = source.getSurveys().stream().anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId()));
 
         return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 

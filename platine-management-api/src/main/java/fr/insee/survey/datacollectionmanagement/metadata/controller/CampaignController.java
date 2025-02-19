@@ -156,10 +156,8 @@ public class CampaignController {
     @DeleteMapping(value = {Constants.API_CAMPAIGNS_ID, Constants.MOOG_API_CAMPAIGNS_ID})
     @Transactional
     public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
-
         Campaign campaign = campaignService.findById(id);
-
-        if (campaignService.isCampaignOngoing(campaign)) {
+        if (campaignService.isCampaignOngoing(id)) {
             throw new ImpossibleToDeleteException("Campaign is still ongoing and can't be deleted");
         }
 
@@ -188,10 +186,7 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public OnGoingDto isOnGoingCampaign(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(id);
-        boolean isOnGoing = campaignService.isCampaignOngoing(campaign);
-        return new OnGoingDto(isOnGoing);
-
+        return new OnGoingDto(campaignService.isCampaignOngoing(id));
     }
 
     @Operation(summary = "get ongoing campaigns")

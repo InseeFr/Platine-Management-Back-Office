@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface SourceService {
     void deleteSourceById(String id);
 
     List<ParamsDto> saveParametersForSource(Source source, ParamsDto paramsDto);
+
+    List<SourceDto> getOngoingSources();
 }

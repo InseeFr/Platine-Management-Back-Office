@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.Parti
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -34,7 +35,7 @@ class PartitioningServiceImplTest {
         cal.add(Calendar.DAY_OF_MONTH, 2);
         Date closingDate = cal.getTime();
         part.setClosingDate(closingDate);
-        assertThat(partitioningService.isOnGoing(part, new Date())).isTrue();
+        assertThat(partitioningService.isOnGoing(part, Instant.now())).isTrue();
     }
 
     @Test
@@ -52,7 +53,7 @@ class PartitioningServiceImplTest {
         Date closingDate = cal.getTime();
         part.setClosingDate(closingDate);
 
-        assertThat(partitioningService.isOnGoing(part, new Date())).isFalse();
+        assertThat(partitioningService.isOnGoing(part, Instant.now())).isFalse();
     }
 
     @Test
@@ -70,6 +71,6 @@ class PartitioningServiceImplTest {
         Date closingDate = cal.getTime();
         part.setClosingDate(closingDate);
 
-        assertThat(partitioningService.isOnGoing(part, new Date())).isFalse();
+        assertThat(partitioningService.isOnGoing(part, Instant.now())).isFalse();
     }
 }

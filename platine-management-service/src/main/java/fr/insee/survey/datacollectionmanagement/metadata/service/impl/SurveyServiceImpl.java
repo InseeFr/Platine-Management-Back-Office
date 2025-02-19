@@ -1,8 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -18,6 +22,8 @@ import java.util.Optional;
 public class SurveyServiceImpl implements SurveyService {
 
     private final SurveyRepository surveyRepository;
+
+    private final CampaignService campaignService;
 
     @Override
     public Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity) {
@@ -57,5 +63,16 @@ public class SurveyServiceImpl implements SurveyService {
     public void deleteSurveyById(String id) {
         surveyRepository.deleteById(id);
     }
+
+    @Override
+    public boolean isSurveyOngoing(String id) {
+        return surveyRepository.findById(id)
+                .map(Survey::getCampaigns)
+                .filter(campaigns -> !campaigns.isEmpty())
+                .map(campaigns -> campaigns.stream()
+                        .anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId())))
+                .orElse(false);
+    }
+
 
 }

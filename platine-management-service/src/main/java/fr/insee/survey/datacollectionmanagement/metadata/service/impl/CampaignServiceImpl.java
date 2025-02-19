@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -91,22 +92,26 @@ public class CampaignServiceImpl implements CampaignService {
 
 
   @Override
-  public boolean isCampaignOngoing(Campaign campaign) {
-    Date now = new Date();
-    if (campaign.getPartitionings() != null) {
-      return campaign.getPartitionings().stream()
-          .anyMatch(part -> partitioningService.isOnGoing(part, now));
-    }
-    return false;
+  public boolean isCampaignOngoing(String campaignId) {
+      return campaignRepository.findById(campaignId)
+              .map(campaign -> {
+                  Instant now = Instant.now();
+                  Set<Partitioning> partitionings = campaign.getPartitionings();
+                  if (partitionings != null) {
+                      return partitionings
+                              .stream()
+                              .anyMatch(part -> partitioningService.isOnGoing(part, now));
+                  }
+                  return false;
+              })
+              .orElse(false);
   }
 
   @Override
   public List<CampaignOngoingDto> getCampaignOngoingDtos() {
-    List<Campaign> listCampaigns = findAll();
-    return listCampaigns.stream().filter(this::isCampaignOngoing).
-        map(this::convertToCampaignOngoingDto).toList();
-
-
+      return campaignRepository.findAll().stream()
+              .filter(campaign -> isCampaignOngoing(campaign.getId()))
+              .map(this::convertToCampaignOngoingDto).toList();
   }
 
   @Override
@@ -200,7 +205,7 @@ public class CampaignServiceImpl implements CampaignService {
         if (c.getPartitionings() == null || c.getPartitionings().isEmpty()) {
             return CollectionStatus.UNDEFINED;
         }
-        if (isCampaignOngoing(c)) {
+        if (isCampaignOngoing(c.getId())) {
             return CollectionStatus.OPEN;
         }
         return CollectionStatus.CLOSED;

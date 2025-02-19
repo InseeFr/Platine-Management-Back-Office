@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Service
 @Slf4j
@@ -37,9 +37,9 @@ public class PartioningServiceImpl implements PartitioningService {
     }
 
     @Override
-    public boolean isOnGoing(Partitioning part, Date date) {
-        return part.getClosingDate().compareTo(date) > 0 && part.getOpeningDate().compareTo(date) < 0;
+    public boolean isOnGoing(Partitioning part, Instant now) {
+        return part.getClosingDate().toInstant().isAfter(now) &&
+                part.getOpeningDate().toInstant().isBefore(now);
     }
-
 
 }

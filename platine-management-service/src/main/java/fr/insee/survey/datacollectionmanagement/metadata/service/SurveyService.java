@@ -20,4 +20,6 @@ public interface SurveyService {
 
     void deleteSurveyById(String id);
 
+    boolean isSurveyOngoing(String id);
+
 }
