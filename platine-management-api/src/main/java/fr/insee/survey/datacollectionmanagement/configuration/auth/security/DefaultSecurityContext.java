@@ -46,6 +46,8 @@ public class DefaultSecurityContext {
                                 referrerPolicy
                                         .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
                         ))
+                .anonymous(anonymousConfig -> anonymousConfig
+                        .authorities("ROLE_ADMIN"))
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .build();
     }
