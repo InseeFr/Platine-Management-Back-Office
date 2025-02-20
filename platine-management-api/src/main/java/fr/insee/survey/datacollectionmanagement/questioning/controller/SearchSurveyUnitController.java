@@ -82,9 +82,12 @@ public class SearchSurveyUnitController {
     }
 
 
+    /**
+     * @deprecated
+     */
     @GetMapping(path = UrlConstants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
-    @Deprecated
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<SurveyUnitPartitioningDto>> getSurveyUnitPartitionings(
             @PathVariable("id") String id,
             @RequestParam(defaultValue = "false") boolean isFilterOpened) {

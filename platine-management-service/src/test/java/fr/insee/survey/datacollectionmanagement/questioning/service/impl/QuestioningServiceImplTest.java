@@ -208,12 +208,12 @@ class QuestioningServiceImplTest {
         String campaignId = "CAMP2025X00";
         String surveyUnitId = "SURVEYUNITID";
         List<Questioning> listQuestioning = new ArrayList<>();
-        Questioning questioning = initQuestioning();
-        listQuestioning.add(questioning);
+        Questioning q = initQuestioning();
+        listQuestioning.add(q);
 
         when(questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitId)).thenReturn(listQuestioning);
 
-        assertThat(questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId).getQuestioningId()).isEqualTo(questioning.getId());
+        assertThat(questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId).getQuestioningId()).isEqualTo(q.getId());
     }
 
 
@@ -234,6 +234,7 @@ class QuestioningServiceImplTest {
 
     private Questioning initQuestioning() {
         questioning = new Questioning();
+        questioning.setId(1L);
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(SURVEY_UNIT_ID);
         questioning.setSurveyUnit(su);

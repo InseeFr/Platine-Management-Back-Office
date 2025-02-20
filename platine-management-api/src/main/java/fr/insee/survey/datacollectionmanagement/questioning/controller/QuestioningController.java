@@ -31,6 +31,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
@@ -49,14 +51,17 @@ public class QuestioningController {
     private final ModelMapper modelMapper;
 
 
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Create or update questioning")
     @PostMapping(value = UrlConstants.API_QUESTIONINGS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
-    @Deprecated
-    public ResponseEntity<?> postQuestioning(@RequestBody QuestioningDto questioningDto) {
+    @Deprecated(since = "2.6.0", forRemoval = true)
+    public ResponseEntity<QuestioningDto> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         log.warn("DEPRECATED");
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
         partitioningService.findById(questioningDto.getIdPartitioning());
@@ -78,7 +83,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> getQuestioningsBySurveyUnit(@PathVariable("id") String id) {
+    public ResponseEntity<List<QuestioningDto>> getQuestioningsBySurveyUnit(@PathVariable("id") String id) {
         SurveyUnit su = surveyUnitService.findbyId(StringUtils.upperCase(id));
         return new ResponseEntity<>(su.getQuestionings().stream().map(this::convertToDto).toList(), HttpStatus.OK);
 

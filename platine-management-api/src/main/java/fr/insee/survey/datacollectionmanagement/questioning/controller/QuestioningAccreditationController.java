@@ -51,6 +51,10 @@ public class QuestioningAccreditationController {
 
     private final ModelMapper modelMapper;
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for questioning accreditations by questioning id")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
     @ApiResponses(value = {
@@ -58,7 +62,7 @@ public class QuestioningAccreditationController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @Deprecated
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<?> getQuestioningAccreditation(@PathVariable("id") Long id) {
         log.warn("DEPRECATED");
 
@@ -75,16 +79,19 @@ public class QuestioningAccreditationController {
     }
 
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Create or update a questioning accreditation for a questioning")
     @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
-
                     content = @Content(schema = @Schema(implementation = QuestioningAccreditationDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
     @Transactional
-    @Deprecated
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<?> postQuestioningAccreditation(@PathVariable("id") Long id,
                                                           @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
@@ -92,8 +99,6 @@ public class QuestioningAccreditationController {
 
         String idContact = questioningAccreditationDto.getIdContact();
         contactService.findByIdentifier(idContact);
-
-
 
         HttpHeaders responseHeaders = new HttpHeaders();
 
