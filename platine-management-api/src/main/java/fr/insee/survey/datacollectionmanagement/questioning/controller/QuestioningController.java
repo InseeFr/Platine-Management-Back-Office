@@ -60,7 +60,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
-    @Deprecated(since = "2.6.0")
+    @Deprecated(since = "3.4.0")
     public ResponseEntity<QuestioningDto> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         log.warn("DEPRECATED");
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
