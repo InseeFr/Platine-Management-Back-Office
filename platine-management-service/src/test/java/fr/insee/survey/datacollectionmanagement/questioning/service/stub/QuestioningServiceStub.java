@@ -4,10 +4,12 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class QuestioningServiceStub implements QuestioningService {
@@ -37,7 +39,12 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu) {
+    public Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu) {
+        return Optional.empty();
+    }
+
+    @Override
+    public QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu) {
         return null;
     }
 

@@ -24,10 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -121,9 +118,9 @@ public class MoogServiceImpl implements MoogService {
         Campaign campaign = campaignService.findById(idCampaign);
         Set<Partitioning> setParts = campaign.getPartitionings();
         for (Partitioning part : setParts) {
-            Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            if (questioning != null) {
-                return questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
+            Optional<Questioning> optionalQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+            if (optionalQuestioning.isPresent()) {
+                return questioningService.getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
             }
         }
         String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;

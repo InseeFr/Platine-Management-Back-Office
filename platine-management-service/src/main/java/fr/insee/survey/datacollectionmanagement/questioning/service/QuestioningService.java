@@ -4,9 +4,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface QuestioningService {
@@ -21,7 +23,10 @@ public interface QuestioningService {
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
 
-    Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu);
+    Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu);
+
+    QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu);
+
 
     /**
      * Delete questionings attached to one partitioning

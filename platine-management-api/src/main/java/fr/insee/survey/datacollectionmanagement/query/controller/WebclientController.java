@@ -118,8 +118,10 @@ public class WebclientController {
         su = surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
-        if (questioning == null) {
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
+        Questioning questioning;
+
+        if (optQuestioning.isEmpty()) {
             httpStatus = HttpStatus.CREATED;
             log.info("Create questioning for partitioning={} model={} surveyunit={} ", idPartitioning, modelName,
                     idSu);
@@ -134,6 +136,8 @@ public class WebclientController {
             questioningEvent.setQuestioning(questioning);
             questioningEventService.saveQuestioningEvent(questioningEvent);
 
+        } else {
+            questioning = optQuestioning.get();
         }
 
 
@@ -180,14 +184,14 @@ public class WebclientController {
         // Create accreditations if not exists
 
         Set<QuestioningAccreditation> setExistingAccreditations = (questioning
-                .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
+                                                                           .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
                 : new HashSet<>();
 
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(contactAccreditationDto.getIdentifier())
-                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
-                        && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
+                               && acc.getQuestioning().getIdPartitioning().equals(part.getId())
+                               && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
                 .toList();
 
         if (listContactAccreditations.isEmpty()) {
@@ -228,17 +232,17 @@ public class WebclientController {
 
         HttpStatus httpStatus = HttpStatus.OK;
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
+        Optional<Questioning> questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 idSurveyUnit);
-        if (questioning == null) {
+        if (questioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         questioningWebclientDto.setIdPartitioning(idPartitioning);
         questioningWebclientDto.setModelName(modelName);
-        questioningWebclientDto.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
+        questioningWebclientDto.setSurveyUnit(convertToDto(questioning.get().getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations()
+        questioning.get().getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningWebclientDto.setContacts(listContactAccreditationDto);
@@ -347,11 +351,11 @@ public class WebclientController {
 
         try {
 
-            Questioning questioning = questioningService
+            Optional<Questioning> optQuestioning = questioningService
                     .findByIdPartitioningAndSurveyUnitIdSu(partitioningId,
                             surveyUnitId);
-            if (questioning != null) {
-                List<QuestioningAccreditation> questioningAccreditations = questioning.getQuestioningAccreditations().stream()
+            if (optQuestioning.isPresent()) {
+                List<QuestioningAccreditation> questioningAccreditations = optQuestioning.get().getQuestioningAccreditations().stream()
                         .filter(QuestioningAccreditation::isMain).toList();
                 if (CollectionUtils.isNotEmpty(questioningAccreditations)) {
                     Contact c = contactService.findByIdentifier(questioningAccreditations.getFirst().getIdContact());
@@ -375,15 +379,15 @@ public class WebclientController {
     public ResponseEntity<StateDto> getState(@PathVariable("idPartitioning") String idPartitioning,
                                              @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.STATE_EVENTS);
         StateDto result = new StateDto();
-        result.setState(questioningEvent.isPresent() ? questioningEvent.get().getType().name() : "null");
+        result.setState(questioningEvent.map(event -> event.getType().name()).orElse("null"));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -398,13 +402,13 @@ public class WebclientController {
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.FOLLOWUP_EVENTS);
 
         EligibleDto result = new EligibleDto();
@@ -424,12 +428,12 @@ public class WebclientController {
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) throws JsonProcessingException {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
-
+        Questioning questioning = optQuestioning.get();
         JsonNode node = addWebclientAuthorNode();
         QuestioningEvent questioningEvent = new QuestioningEvent();
         questioningEvent.setQuestioning(questioning);
@@ -462,13 +466,13 @@ public class WebclientController {
     public ResponseEntity<EligibleDto> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
                                                    @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.EXTRACT_EVENTS);
         EligibleDto result = new EligibleDto();
         result.setEligible(questioningEvent.isPresent() ? "true" : "false");

@@ -7,7 +7,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -55,7 +55,7 @@ class QuestioningServiceImplTest {
     private QuestioningCommentService questioningCommentService;
 
     @Mock
-    private ParametersService parametersService;
+    private CampaignService campaignService;
 
     @Mock
     private ModelMapper modelMapper;
@@ -122,7 +122,7 @@ class QuestioningServiceImplTest {
     @BeforeEach
     void setUp() {
         questioningService = new QuestioningServiceImpl(
-                questioningRepository, surveyUnitService, partitioningService,
+                questioningRepository, surveyUnitService, campaignService, partitioningService,
                 questioningEventService, questioningAccreditationService,
                 questioningCommunicationService, questioningCommentService,
                 modelMapper, QUESTIONING_NORMAL_URL, QUESTIONING_SENSITIVE_URL,

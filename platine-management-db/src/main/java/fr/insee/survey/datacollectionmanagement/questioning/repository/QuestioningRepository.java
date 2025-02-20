@@ -8,14 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface QuestioningRepository extends JpaRepository<Questioning, Long> {
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
 
-    Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
-                                                      String surveyUnitIdSu);
+    Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
+                                                                String surveyUnitIdSu);
 
     @Query("""
                 SELECT q FROM Questioning q
@@ -50,6 +51,23 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
                     AND qa.idContact = :searchParam)
             """)
     List<Questioning> findQuestioningByParam(String searchParam);
+
+    @Query("""
+                SELECT
+                    q
+                FROM
+                    Questioning q
+                WHERE
+                    q.surveyUnit.idSu = :surveyUnitId
+                    AND q.idPartitioning in (
+                        SELECT
+                            p.id
+                        FROM
+                            Partitioning p
+                        WHERE
+                            p.campaign.id =:campaignId)
+            """)
+    List<Questioning> findQuestioningByCampaignIdAndSurveyUnitId(String campaignId, String surveyUnitId);
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
