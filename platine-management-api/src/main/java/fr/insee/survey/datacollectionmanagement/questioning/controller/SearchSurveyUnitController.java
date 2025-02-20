@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
@@ -88,6 +88,7 @@ public class SearchSurveyUnitController {
     public ResponseEntity<List<SurveyUnitPartitioningDto>> getSurveyUnitPartitionings(
             @PathVariable("id") String id,
             @RequestParam(defaultValue = "false") boolean isFilterOpened) {
+        log.warn("DEPRECATED");
         List<SurveyUnitPartitioningDto> listParts = new ArrayList<>();
         Set<Questioning> setQuestionings = questioningService.findBySurveyUnitIdSu(id);
         for (Questioning questioning : setQuestionings) {

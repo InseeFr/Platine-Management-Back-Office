@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
@@ -56,8 +56,8 @@ public class QuestioningController {
     })
     @Deprecated
     public ResponseEntity<?> postQuestioning(@RequestBody QuestioningDto questioningDto) {
+        log.warn("DEPRECATED");
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
-        ;
         partitioningService.findById(questioningDto.getIdPartitioning());
 
 

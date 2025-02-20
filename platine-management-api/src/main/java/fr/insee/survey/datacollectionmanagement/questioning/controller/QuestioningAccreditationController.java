@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.Constants;
@@ -60,6 +60,7 @@ public class QuestioningAccreditationController {
     })
     @Deprecated
     public ResponseEntity<?> getQuestioningAccreditation(@PathVariable("id") Long id) {
+        log.warn("DEPRECATED");
 
         Questioning optQuestioning = questioningService.findbyId(id);
 
