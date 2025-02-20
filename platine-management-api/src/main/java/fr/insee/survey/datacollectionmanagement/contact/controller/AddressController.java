@@ -45,6 +45,7 @@ public class AddressController {
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
+        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
             return ResponseEntity.status(HttpStatus.OK)

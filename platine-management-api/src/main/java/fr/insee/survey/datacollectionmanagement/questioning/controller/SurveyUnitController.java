@@ -59,6 +59,7 @@ public class SurveyUnitController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "idSu") String sort) {
+        log.warn("DEPRECATED");
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<SurveyUnit> pageC = surveyUnitService.findAll(pageable);
         List<SurveyUnitDto> listSuDto = pageC.stream().map(this::convertToDto).toList();
@@ -167,6 +168,7 @@ public class SurveyUnitController {
     })
     @Deprecated(since="2.6.0", forRemoval=true)
     public void deleteSurveyUnit(@PathVariable("id") String id) {
+        log.warn("DEPRECATED");
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
 
         if (!surveyUnit.getQuestionings().isEmpty()) {

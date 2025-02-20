@@ -67,6 +67,7 @@ public class ContactController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
+        log.warn("DEPRECATED");
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Contact> pageC = contactService.findAll(pageable);
         List<ContactDto> listC = pageC.stream().map(contactService::convertToDto).toList();
@@ -123,7 +124,7 @@ public class ContactController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContact(@PathVariable("id") String id) {
-
+        log.warn("DEPRECATED");
         if (!questioningAccreditationService.findByContactIdentifier(id).isEmpty()) {
             throw new ImpossibleToDeleteException(
                     String.format("Contact %s cannot be deleted as he/she is still entitled to answer one or more questionnaires", id));

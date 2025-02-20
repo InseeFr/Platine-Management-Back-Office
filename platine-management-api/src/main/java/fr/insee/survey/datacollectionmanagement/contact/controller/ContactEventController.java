@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.List;
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class ContactEventController {
 
     private final ContactEventService contactEventService;
@@ -42,6 +44,7 @@ public class ContactEventController {
     @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
+        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contact.getContactEvents().stream().map(this::convertToDto)
@@ -80,6 +83,7 @@ public class ContactEventController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContactEvent(@PathVariable("id") Long id) {
+        log.warn("DEPRECATED");
         contactEventService.findById(id);
         contactEventService.deleteContactEvent(id);
 
