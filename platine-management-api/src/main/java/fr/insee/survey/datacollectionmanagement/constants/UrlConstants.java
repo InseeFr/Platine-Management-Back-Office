@@ -1,10 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.constants;
 
-public class Constants {
+public class UrlConstants {
 
 
-    private Constants() {
-        throw new IllegalStateException("Constants class");
+    private UrlConstants() {
+        throw new IllegalStateException("UrlConstants class");
     }
 
     // API CONTACTS DOMAIN
@@ -57,9 +57,8 @@ public class Constants {
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";
-    public static final String API_SOURCE_ID_OPENED = "/api/source/{id}/is-opened";
+    public static final String API_SOURCE_ID_OPENED = "/api/sources/{id}/is-opened";
     public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
-    public static final String API_SOURCES_ID_PARAMS_ID = "/api/sources/{id}/params/{paramId}";
 
 
     public static final String API_SURVEYS_SEARCH = "/api/surveys/search";
@@ -106,7 +105,6 @@ public class Constants {
     public static final String MOOG_API_READONLY_URL = "/api/moog/readonly/campaigns/{idCampaign}/survey-unit/{surveyUnitId}";
     public static final String API_MOOG_DELETE_QUESTIONING_EVENT="/api/moog/management-monitoring-infos/{id}";
     public static final String API_CONTACTS_SEARCH = "/api/contacts/search";
-    public static final String API_CONTACTS_ACCREDITATIONS = "/api/contacts/{id}/accreditations";
     public static final String API_MY_QUESTIONINGS_ID = "/api/contacts/questionings";
     public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey-units/{id}/contacts";
     public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey-units/{id}/partitionings";

@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -50,7 +50,7 @@ public class SurveyController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Search for surveys, paginated")
-    @GetMapping(value = Constants.API_SURVEYS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS, produces = "application/json")
     public ResponseEntity<SurveyController.SurveyPage> getSurveys(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -62,7 +62,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for surveys, paginated")
-    @GetMapping(value = Constants.API_SURVEYS_SEARCH, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_SEARCH, produces = "application/json")
     public ResponseEntity<SurveyController.SurveyPage> getSurveys(
             @RequestParam(required = false) String idSource,
             @RequestParam(required = false) Integer year,
@@ -77,7 +77,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for surveys by the source id")
-    @GetMapping(value = Constants.API_SOURCES_ID_SURVEYS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_SURVEYS, produces = "application/json")
     public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {
         Source source = sourceService.findById(id);
         return ResponseEntity.ok()
@@ -87,7 +87,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for a survey by its id")
-    @GetMapping(value = Constants.API_SURVEYS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_ID, produces = "application/json")
     public ResponseEntity<SurveyDto> getSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(survey));
@@ -96,7 +96,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Update or create a survey")
-    @PutMapping(value = Constants.API_SURVEYS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SURVEYS_ID, produces = "application/json", consumes = "application/json")
     public ResponseEntity<SurveyDto> putSurvey(@PathVariable("id") String id, @RequestBody @Valid SurveyDto surveyDto) {
         if (!surveyDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSurvey don't match");
@@ -123,7 +123,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Delete a survey, its campaigns, partitionings, questionings ...")
-    @DeleteMapping(value = Constants.API_SURVEYS_ID)
+    @DeleteMapping(value = UrlConstants.API_SURVEYS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteSurvey(@PathVariable("id") String id) {

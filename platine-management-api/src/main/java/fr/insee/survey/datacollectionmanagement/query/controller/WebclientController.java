@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
@@ -91,7 +91,7 @@ public class WebclientController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Create or update questioning for webclients - Returns the questioning and all its accreditations")
-    @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = UrlConstants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
@@ -219,7 +219,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get questioning for webclients")
-    @GetMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -251,7 +251,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Search for a partitioning and metadata by partitioning id")
-    @GetMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -272,7 +272,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Insert or update a partitiong and metadata by partitioning id")
-    @PutMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = UrlConstants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
@@ -339,7 +339,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Search for main contact")
-    @GetMapping(value = Constants.API_MAIN_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_MAIN_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -370,7 +370,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get state of the last questioningEvent")
-    @GetMapping(value = Constants.API_WEBCLIENT_STATE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_STATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -392,7 +392,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Indicates whether a questioning should be follow up or not")
-    @GetMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -417,7 +417,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Add a FOLLWUP state to a questioning")
-    @PostMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlConstants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -457,7 +457,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Indicates whether a questioning should be extract or not (VALINT and PARTIELINT)")
-    @GetMapping(value = Constants.API_WEBCLIENT_EXTRACT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_EXTRACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),

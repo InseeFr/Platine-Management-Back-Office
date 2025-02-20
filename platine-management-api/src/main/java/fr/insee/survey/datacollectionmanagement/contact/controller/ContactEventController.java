@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
@@ -41,7 +41,7 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Search for contactEvents by the contact id")
-    @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         log.warn("DEPRECATED");
@@ -58,7 +58,7 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Create a contactEvent")
-    @PostMapping(value = Constants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
@@ -79,7 +79,7 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Delete a contact event")
-    @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
+    @DeleteMapping(value = UrlConstants.API_CONTACTEVENTS_ID, produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContactEvent(@PathVariable("id") Long id) {

@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
@@ -48,7 +48,7 @@ public class SurveyUnitController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for a survey units, paginated")
-    @GetMapping(value = Constants.API_SURVEY_UNITS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitPage.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -67,7 +67,7 @@ public class SurveyUnitController {
     }
 
     @Operation(summary = "Multi-criteria search survey-unit")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -91,7 +91,7 @@ public class SurveyUnitController {
     }
 
     @Operation(summary = "Search for a survey unit by its id")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -106,7 +106,7 @@ public class SurveyUnitController {
     }
 
     @Operation(summary = "Multi-criteria search survey-unit")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH+"/V2", produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH + "/V2", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -126,7 +126,7 @@ public class SurveyUnitController {
 
 
     @Operation(summary = "Create or update a survey unit")
-    @PutMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
@@ -160,7 +160,7 @@ public class SurveyUnitController {
     }
 
     @Operation(summary = "Delete a survey unit by its id")
-    @DeleteMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
+    @DeleteMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No content"),
             @ApiResponse(responseCode = "404", description = "Not found"),

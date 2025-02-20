@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitCommentOutputDto;
@@ -33,7 +33,7 @@ public class SurveyUnitCommentController {
     private final SurveyUnitService surveyUnitService;
 
     @Operation(summary = "Create a survey unit comment")
-    @PostMapping(value = Constants.API_SURVEY_UNITS_ID_COMMENT, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_SURVEY_UNITS_ID_COMMENT, produces = "application/json", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitCommentInputDto.class))),

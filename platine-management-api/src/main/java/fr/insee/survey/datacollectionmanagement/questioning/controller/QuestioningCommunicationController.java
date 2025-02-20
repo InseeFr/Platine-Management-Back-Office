@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
@@ -31,7 +31,7 @@ public class QuestioningCommunicationController {
     private final QuestioningCommunicationService questioningCommunicationService;
 
     @Operation(summary = "Search for questioning communications by questioning id")
-    @GetMapping(value = Constants.API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS, produces = "application/json")
     public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(@PathVariable("id") Long id) {
         Questioning questioning = questioningService.findbyId(id);
         Set<QuestioningCommunication> setQe = questioning.getQuestioningCommunications();

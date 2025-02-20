@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
@@ -42,7 +42,7 @@ public class QuestioningEventController {
     private final UploadService uploadService;
 
     @Operation(summary = "Search for a questioning event by questioning id")
-    @GetMapping(value = Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningEventDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -56,7 +56,7 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Create a questioning event")
-    @PostMapping(value = Constants.API_QUESTIONING_QUESTIONING_EVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
@@ -73,7 +73,7 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Delete a questioning event")
-    @DeleteMapping(value = {Constants.API_QUESTIONING_QUESTIONING_EVENTS_ID, Constants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = "application/json")
+    @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),

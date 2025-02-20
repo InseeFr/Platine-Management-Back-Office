@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
@@ -52,7 +52,7 @@ public class QuestioningAccreditationController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for questioning accreditations by questioning id")
-    @GetMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -70,12 +70,13 @@ public class QuestioningAccreditationController {
                             .toList(), HttpStatus.OK);
 
         } catch (Exception e) {
-            return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
     @Operation(summary = "Create or update a questioning accreditation for a questioning")
-    @PostMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
 

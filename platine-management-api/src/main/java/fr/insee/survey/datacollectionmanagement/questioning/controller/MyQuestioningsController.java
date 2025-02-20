@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ public class MyQuestioningsController {
     private final MySurveysService mySurveysService;
 
 
-    @GetMapping(value = Constants.API_MY_QUESTIONINGS_ID)
+    @GetMapping(value = UrlConstants.API_MY_QUESTIONINGS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
     public List<MyQuestioningDto> findById(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {

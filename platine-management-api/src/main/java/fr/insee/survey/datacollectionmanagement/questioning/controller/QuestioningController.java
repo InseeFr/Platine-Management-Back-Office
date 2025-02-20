@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -50,7 +50,7 @@ public class QuestioningController {
 
 
     @Operation(summary = "Create or update questioning")
-    @PostMapping(value = Constants.API_QUESTIONINGS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
@@ -72,7 +72,7 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Search for questionings by survey unit id")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_ID_QUESTIONINGS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -85,7 +85,7 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Get questioning assistance mail")
-    @GetMapping(value = Constants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
         Questioning questioning = questioningService.findbyId(questioningId);
         Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
@@ -94,7 +94,7 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
-    @GetMapping(value = Constants.API_QUESTIONINGSID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = "application/json")
     public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
     }

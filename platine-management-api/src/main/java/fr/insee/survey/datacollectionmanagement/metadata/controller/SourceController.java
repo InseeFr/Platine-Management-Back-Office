@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -60,19 +60,19 @@ public class SourceController {
     private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
-    @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES, produces = "application/json")
     public List<SourceDto> getSources() {
         return sourceService.findAll().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Get all sources ongoing")
-    @GetMapping(value = Constants.API_SOURCES_ONGOING, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ONGOING, produces = "application/json")
     public List<SourceDto> getOngoingSources() {
         return sourceService.getOngoingSources();
     }
 
     @Operation(summary = "Search for a source by its id")
-    @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
     public SourceOnlineStatusDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return convertToCompleteDto(source);
@@ -80,7 +80,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Update or create a source")
-    @PutMapping(value = Constants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     public ResponseEntity<SourceOnlineStatusDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOnlineStatusDto sourceOnlineStatusDto) {
         if (!sourceOnlineStatusDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
@@ -107,7 +107,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
-    @DeleteMapping(value = Constants.API_SOURCES_ID)
+    @DeleteMapping(value = UrlConstants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteSource(@PathVariable("id") String id) {
@@ -136,7 +136,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Check if a source is opened")
-    @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = "application/json")
     public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
         Source source = sourceService.findById(id.toUpperCase());
@@ -154,7 +154,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Search for surveys by the owner id")
-    @GetMapping(value = Constants.API_OWNERS_ID_SOURCES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = "application/json")
     public List<SourceDto> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return owner.getSources().stream().map(this::convertToDto).toList();
@@ -163,7 +163,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Get source parameters")
-    @GetMapping(value = Constants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return source.getParams().stream().map(parametersService::convertToDto).toList();
@@ -171,7 +171,7 @@ public class SourceController {
 
 
     @Operation(summary = "Create a parameter for a source")
-    @PutMapping(value = Constants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);

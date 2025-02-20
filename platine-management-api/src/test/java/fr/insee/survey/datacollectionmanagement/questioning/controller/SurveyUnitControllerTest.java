@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
@@ -55,14 +55,14 @@ class SurveyUnitControllerTest {
         String identifier = "100000000";
         SurveyUnit surveyUnit = surveyUnitService.findbyId(identifier);
         String json = createJson(surveyUnit);
-        this.mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getSurveyUnitNotFound() throws Exception {
         String identifier = "900000000";
-        this.mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -73,7 +73,7 @@ class SurveyUnitControllerTest {
         jo.put("totalElements", surveyUnitRepository.count());
         jo.put("numberOfElements", surveyUnitRepository.count());
 
-        this.mockMvc.perform(get(Constants.API_SURVEY_UNITS)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(jo.toString(), false));
     }
 
@@ -85,7 +85,7 @@ class SurveyUnitControllerTest {
         SurveyUnit surveyUnit = initSurveyUnit(identifier);
         String jsonSurveyUnit = createJson(surveyUnit);
         mockMvc.perform(
-                        put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
+                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurveyUnit, false));
@@ -97,7 +97,7 @@ class SurveyUnitControllerTest {
         // update surveyUnit - status ok
         surveyUnit.setIdentificationName("identificationNameUpdate");
         String jsonSurveyUnitUpdate = createJson(surveyUnit);
-        mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
+        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUnitUpdate, false));
         SurveyUnit surveyUnitFoundAfterUpdate = surveyUnitService.findbyId(identifier);
@@ -120,7 +120,7 @@ class SurveyUnitControllerTest {
         SurveyUnit surveyUnit = initSurveyUnitAddress(identifier);
         String jsonSurveyUnit = createJsonSurveyUnitAddress(surveyUnit);
         mockMvc.perform(
-                        put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
+                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurveyUnit, false));
@@ -131,7 +131,7 @@ class SurveyUnitControllerTest {
         String newCityName = "cityUpdate";
         surveyUnit.getSurveyUnitAddress().setCityName(newCityName);
         String jsonSurveyUnitUpdate = createJsonSurveyUnitAddress(surveyUnit);
-        mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
+        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUnitUpdate, false));
         SurveyUnit countactFoundAfterUpdate = surveyUnitService.findbyId(identifier);
@@ -150,7 +150,7 @@ class SurveyUnitControllerTest {
         String otherIdentifier = "WRONG";
         SurveyUnit surveyUnit = initSurveyUnit(identifier);
         String jsonSurveyUnit = createJson(surveyUnit);
-        mockMvc.perform(put(Constants.API_SURVEY_UNITS_ID, otherIdentifier).content(jsonSurveyUnit)
+        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, otherIdentifier).content(jsonSurveyUnit)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and idSu don't match")));

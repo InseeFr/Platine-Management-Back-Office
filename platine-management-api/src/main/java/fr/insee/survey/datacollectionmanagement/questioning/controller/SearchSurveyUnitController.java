@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -47,7 +47,7 @@ public class SearchSurveyUnitController {
     private final QuestioningEventService questioningEventService;
 
 
-    @GetMapping(path = Constants.API_SURVEY_UNITS_CONTACTS, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_SURVEY_UNITS_CONTACTS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
     public ResponseEntity<List<SearchSurveyUnitContactDto>> getSurveyUnitContacts(
             @PathVariable("id") String id) {
@@ -82,7 +82,7 @@ public class SearchSurveyUnitController {
     }
 
 
-    @GetMapping(path = Constants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
     @Deprecated
     public ResponseEntity<List<SurveyUnitPartitioningDto>> getSurveyUnitPartitionings(

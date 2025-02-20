@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +48,7 @@ public class WebclientControllerTest {
 
         // WHEN
         this.mockMvc.perform(
-                get(Constants.API_WEBCLIENT_QUESTIONINGS)
+                get(UrlConstants.API_WEBCLIENT_QUESTIONINGS)
                         .param("modelName", modelName)
                         .param("idPartitioning", idPartitioning)
                         .param("idSurveyUnit", idSurveyUnit)
@@ -67,7 +67,7 @@ public class WebclientControllerTest {
         final String id = "SOURCE12023T2000";
 
         // WHEN
-        this.mockMvc.perform(get(Constants.API_WEBCLIENT_METADATA_ID, id))
+        this.mockMvc.perform(get(UrlConstants.API_WEBCLIENT_METADATA_ID, id))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.source.id").value("SOURCE1"));
@@ -82,7 +82,7 @@ public class WebclientControllerTest {
 
         // WHEN
         this.mockMvc.perform(
-                get(Constants.API_MAIN_CONTACT)
+                get(UrlConstants.API_MAIN_CONTACT)
                         .param("partitioning", idPartitioning)
                         .param("survey-unit", idSurveyUnit))
                 .andDo(print())
@@ -90,7 +90,7 @@ public class WebclientControllerTest {
                 .andExpect(jsonPath("$.identifier").value("CONT1"));
 
         this.mockMvc.perform(
-                        get(Constants.API_MAIN_CONTACT)
+                        get(UrlConstants.API_MAIN_CONTACT)
                                 .param("partitioning", idPartitioning)
                                 .param("survey-unit", "wrong_id"))
                 .andDo(print())
@@ -133,7 +133,7 @@ public class WebclientControllerTest {
 
         // WHEN
         this.mockMvc.perform(
-                put(Constants.API_WEBCLIENT_QUESTIONINGS)
+                put(UrlConstants.API_WEBCLIENT_QUESTIONINGS)
                         .content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -152,7 +152,7 @@ public class WebclientControllerTest {
         final String idSurveyUnit = "100000000";
 
         // WHEN
-        this.mockMvc.perform(get(Constants.API_WEBCLIENT_STATE, idPartitioning, idSurveyUnit))
+        this.mockMvc.perform(get(UrlConstants.API_WEBCLIENT_STATE, idPartitioning, idSurveyUnit))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value(TypeQuestioningEvent.VALINT.toString()));
@@ -214,7 +214,7 @@ public class WebclientControllerTest {
 
         // WHEN
         this.mockMvc.perform(
-                        put(Constants.API_WEBCLIENT_METADATA_ID, idPartitioning)
+                        put(UrlConstants.API_WEBCLIENT_METADATA_ID, idPartitioning)
                                 .content(requestBody)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -236,7 +236,7 @@ public class WebclientControllerTest {
         final String idSurveyUnit = "100000000";
 
         // WHEN
-        this.mockMvc.perform(post(Constants.API_WEBCLIENT_FOLLOWUP, idPartitioning, idSurveyUnit))
+        this.mockMvc.perform(post(UrlConstants.API_WEBCLIENT_FOLLOWUP, idPartitioning, idSurveyUnit))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.state").value(TypeQuestioningEvent.FOLLOWUP.toString()));
@@ -250,7 +250,7 @@ public class WebclientControllerTest {
         final String idSurveyUnit = "100000000";
 
         // WHEN
-        this.mockMvc.perform(get(Constants.API_WEBCLIENT_FOLLOWUP, idPartitioning, idSurveyUnit))
+        this.mockMvc.perform(get(UrlConstants.API_WEBCLIENT_FOLLOWUP, idPartitioning, idSurveyUnit))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eligible").value("false"));
@@ -264,7 +264,7 @@ public class WebclientControllerTest {
         final String idSurveyUnit = "100000000";
 
         // WHEN
-        this.mockMvc.perform(get(Constants.API_WEBCLIENT_EXTRACT, idPartitioning, idSurveyUnit))
+        this.mockMvc.perform(get(UrlConstants.API_WEBCLIENT_EXTRACT, idPartitioning, idSurveyUnit))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eligible").value("true"));

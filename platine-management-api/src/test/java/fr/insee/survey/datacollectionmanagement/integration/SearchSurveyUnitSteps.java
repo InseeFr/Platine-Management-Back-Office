@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.SurveyUnitParamEnum;
 import io.cucumber.datatable.DataTable;
@@ -55,7 +55,7 @@ public class SearchSurveyUnitSteps {
 
     @When("I type {string} in the searching survey unit area by code")
     public void searchSurveyUnitByEmail(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_SURVEY_UNITS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", SurveyUnitParamEnum.CODE.getValue()))
                 .andExpect(status().isOk())
@@ -73,7 +73,7 @@ public class SearchSurveyUnitSteps {
 
     @When("I type {string} in the searching survey unit area by name")
     public void searchSurveyUnitByName(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_SURVEY_UNITS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", SurveyUnitParamEnum.NAME.getValue()))
                 .andExpect(status().isOk())

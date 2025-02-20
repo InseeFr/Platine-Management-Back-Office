@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
@@ -38,7 +38,7 @@ public class OwnerController {
     private final OwnerService ownerService;
 
     @Operation(summary = "Search for owners, paginated")
-    @GetMapping(value = Constants.API_OWNERS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS, produces = "application/json")
     public ResponseEntity<OwnerPage> getOwners(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -50,7 +50,7 @@ public class OwnerController {
     }
 
     @Operation(summary = "Search for a owner by its id")
-    @GetMapping(value = Constants.API_OWNERS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS_ID, produces = "application/json")
     public ResponseEntity<OwnerDto> getOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return ResponseEntity.ok().body(convertToDto(owner));
@@ -58,7 +58,7 @@ public class OwnerController {
     }
 
     @Operation(summary = "Update or create a owner")
-    @PutMapping(value = Constants.API_OWNERS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_OWNERS_ID, produces = "application/json", consumes = "application/json")
     public ResponseEntity<OwnerDto> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
         if (!ownerDto.getId().equals(id)) {
             throw new NotMatchException("id and owner id don't match");

@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -55,14 +55,14 @@ class QuestionningAccreditationControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         Long identifier = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJsonQuestioningAcreditation();
-        this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getQuestioningAccreditationNotFound() throws Exception {
         String identifier = "300";
-        this.mockMvc.perform(get(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -76,7 +76,7 @@ class QuestionningAccreditationControllerTest {
         QuestioningAccreditation accreditation = initAccreditation(idContact);
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
-                        post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                        post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -91,7 +91,7 @@ class QuestionningAccreditationControllerTest {
         QuestioningAccreditation accreditation = initAccreditation(idContact);
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
-                        post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                        post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -106,7 +106,7 @@ class QuestionningAccreditationControllerTest {
         QuestioningAccreditation accreditation = initAccreditation(idContact);
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
-                        post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                        post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonAccreditation, false));
@@ -122,7 +122,7 @@ class QuestionningAccreditationControllerTest {
         accreditation.setMain(true);
         String jsonAccreditationUpdate = createJson(accreditation);
         mockMvc.perform(
-                        post(Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                        post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
                                 .content(jsonAccreditationUpdate).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonAccreditationUpdate, false));

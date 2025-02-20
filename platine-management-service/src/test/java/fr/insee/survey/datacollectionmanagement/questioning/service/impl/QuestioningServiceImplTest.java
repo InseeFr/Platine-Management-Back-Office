@@ -30,8 +30,8 @@ class QuestioningServiceImplTest {
     private static final String SURVEY_UNIT_ID = "12345";
     private static final String QUESTIONING_NORMAL_URL = "http://questioning.com/normal";
     private static final String QUESTIONING_SENSITIVE_URL = "http://questioning.com/sensitive";
-    private static final String QUESTIONING_XFORMS1= "http://questioning.com/xforms1";
-    private static final String QUESTIONING_XFORMS2= "http://questioning.com/xforms2";
+    private static final String QUESTIONING_XFORMS1 = "http://questioning.com/xforms1";
+    private static final String QUESTIONING_XFORMS2 = "http://questioning.com/xforms2";
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -161,7 +161,6 @@ class QuestioningServiceImplTest {
     @Test
     void testGetAccessUrl_Default() {
 
-
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
         assertThat(result).isNotNull().contains("v3");
@@ -192,5 +191,6 @@ class QuestioningServiceImplTest {
 
         return questioning;
     }
+
 
 }

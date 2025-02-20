@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
@@ -26,13 +26,13 @@ public class MetadataController {
 
     private final PartitioningService partitioningService;
 
-    @GetMapping(value = Constants.MOOG_API_CAMPAIGNS)
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGNS)
     public JSONCollectionWrapper<CampaignMoogDto> displayCampaignInProgress() {
         log.info("Request GET campaigns");
         return new JSONCollectionWrapper<CampaignMoogDto>(campaignService.getCampaigns());
     }
 
-    @PutMapping(value = Constants.MOOG_API_CAMPAIGNS_ID)
+    @PutMapping(value = UrlConstants.MOOG_API_CAMPAIGNS_ID)
     public void updateCampaignInProgressMoog(@PathVariable("id") String id, @RequestBody CampaignMoogDto campaignMoogDto) {
         log.info("Updating Moog campaign with id {}", id);
         Campaign campaign = campaignService.findById(id);

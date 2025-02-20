@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
@@ -61,7 +61,7 @@ public class ContactController {
      * @deprecated
      */
     @Operation(summary = "Search for contacts, paginated")
-    @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
@@ -75,7 +75,7 @@ public class ContactController {
     }
 
     @Operation(summary = "Search for a contact by its id")
-    @GetMapping(value = Constants.API_CONTACTS_ID)
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
@@ -88,7 +88,7 @@ public class ContactController {
 
 
     @Operation(summary = "Update or create a contact")
-    @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
@@ -120,7 +120,7 @@ public class ContactController {
      * @deprecated
      */
     @Operation(summary = "Delete a contact, its address, its contactEvents")
-    @DeleteMapping(value = Constants.API_CONTACTS_ID)
+    @DeleteMapping(value = UrlConstants.API_CONTACTS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContact(@PathVariable("id") String id) {
@@ -136,7 +136,7 @@ public class ContactController {
 
     }
 
-    @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
