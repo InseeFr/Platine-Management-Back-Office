@@ -29,7 +29,7 @@ public interface CampaignService {
    * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are
    * ongoing
    *
-   * @param campaign id of the campaign
+   * @param campaignId of the campaign
    * @return true
    */
   boolean isCampaignOngoing(String campaignId);

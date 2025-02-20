@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -84,12 +85,18 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Get questioning assistance mail")
-    @GetMapping(value = "/api/questioning/{id}/assistance", produces = "application/json")
+    @GetMapping(value = Constants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
         Questioning questioning = questioningService.findbyId(questioningId);
         Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
         String mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
         return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
+    }
+
+    @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
+    @GetMapping(value = Constants.API_QUESTIONINGSID, produces = "application/json")
+    public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
+        return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
     }
 
 
