@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.time.Instant;
 import java.util.Date;
@@ -39,8 +38,6 @@ class QuestioningEventServiceImplTest {
     private QuestioningEventRepository questioningEventRepository;
     @Mock
     private QuestioningRepository questioningRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @InjectMocks
     private QuestioningEventServiceImpl questioningEventService;
