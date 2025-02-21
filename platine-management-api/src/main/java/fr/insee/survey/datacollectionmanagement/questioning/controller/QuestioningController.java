@@ -92,7 +92,7 @@ public class QuestioningController {
     @Operation(summary = "Get questioning assistance mail")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
-        Questioning questioning = questioningService.findbyId(questioningId);
+        Questioning questioning = questioningService.findById(questioningId);
         Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
         String mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
         return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
@@ -103,7 +103,6 @@ public class QuestioningController {
     public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
     }
-
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {
         return modelMapper.map(questioningDto, Questioning.class);

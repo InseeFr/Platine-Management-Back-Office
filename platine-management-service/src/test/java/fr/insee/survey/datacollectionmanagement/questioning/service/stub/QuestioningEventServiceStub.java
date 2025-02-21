@@ -3,10 +3,10 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,5 +45,10 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     @Override
     public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) {
         return null;
+    }
+
+    @Override
+    public boolean postValintQuestioningEvent(ValidatedQuestioningEventDto validatedQuestioningEventDto) {
+        return false;
     }
 }

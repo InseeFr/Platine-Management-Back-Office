@@ -66,7 +66,7 @@ public class QuestioningAccreditationController {
     public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") Long id) {
         log.warn("DEPRECATED");
 
-        Questioning optQuestioning = questioningService.findbyId(id);
+        Questioning optQuestioning = questioningService.findById(id);
 
 
         return
@@ -93,7 +93,7 @@ public class QuestioningAccreditationController {
                                                                                     @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
         log.warn("DEPRECATED");
-        Questioning questioning = questioningService.findbyId(id);
+        Questioning questioning = questioningService.findById(id);
 
         String idContact = questioningAccreditationDto.getIdContact();
         contactService.findByIdentifier(idContact);

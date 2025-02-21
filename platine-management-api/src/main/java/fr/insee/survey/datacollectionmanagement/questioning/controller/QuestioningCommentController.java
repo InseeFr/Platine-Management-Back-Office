@@ -41,7 +41,7 @@ public class QuestioningCommentController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
-        Questioning questioning = questioningService.findbyId(id);
+        Questioning questioning = questioningService.findById(id);
         return questioningCommentService.saveQuestioningComment(questioning, questioningCommentInputDto);
 
     }

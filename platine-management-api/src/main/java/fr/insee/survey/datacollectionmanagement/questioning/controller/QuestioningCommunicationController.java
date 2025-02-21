@@ -33,7 +33,7 @@ public class QuestioningCommunicationController {
     @Operation(summary = "Search for questioning communications by questioning id")
     @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS, produces = "application/json")
     public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(@PathVariable("id") Long id) {
-        Questioning questioning = questioningService.findbyId(id);
+        Questioning questioning = questioningService.findById(id);
         Set<QuestioningCommunication> setQe = questioning.getQuestioningCommunications();
         return setQe.stream().map(questioningCommunicationService::convertToDto).toList();
 

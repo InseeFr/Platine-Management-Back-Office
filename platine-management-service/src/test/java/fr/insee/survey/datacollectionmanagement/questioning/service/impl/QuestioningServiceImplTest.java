@@ -129,7 +129,7 @@ class QuestioningServiceImplTest {
     @BeforeEach
     void setUp() {
         questioningService = new QuestioningServiceImpl(
-                questioningRepository, surveyUnitService, campaignService, partitioningService,
+                questioningRepository, surveyUnitService, partitioningService,
                 questioningEventService, questioningAccreditationService,
                 questioningCommunicationService, questioningCommentService,
                 modelMapper, QUESTIONING_NORMAL_URL, QUESTIONING_SENSITIVE_URL,

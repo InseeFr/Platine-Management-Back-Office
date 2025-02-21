@@ -15,7 +15,7 @@ public interface QuestioningService {
 
     Page<Questioning> findAll(Pageable pageable);
 
-    Questioning findbyId(Long id);
+    Questioning findById(Long id);
 
     Questioning saveQuestioning(Questioning questioning);
 

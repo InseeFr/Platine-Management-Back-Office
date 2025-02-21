@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -42,8 +41,6 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final SurveyUnitService surveyUnitService;
 
-    private final CampaignService campaignService;
-
     private final PartitioningService partitioningService;
 
     private final QuestioningEventService questioningEventService;
@@ -73,7 +70,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findbyId(Long id) {
+    public Questioning findById(Long id) {
         return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
@@ -191,7 +188,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
-        Questioning questioning = findbyId(id);
+        Questioning questioning = findById(id);
         return convertToDetailsDto(questioning);
     }
 

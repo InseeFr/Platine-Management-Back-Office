@@ -19,7 +19,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Questioning findbyId(Long id) {
+    public Questioning findById(Long id) {
         return null;
     }
 
