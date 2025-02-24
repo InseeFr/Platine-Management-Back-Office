@@ -1,7 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -28,7 +28,7 @@ public class SearchQuestioningController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Multi-criteria search questionings")
-    @GetMapping(value = Constants.API_QUESTIONINGS_SEARCH, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_SEARCH, produces = "application/json")
     public Page<SearchQuestioningDto> searchQuestionings(
             @RequestParam(required = false) String searchParam,
             @RequestParam(defaultValue = "0") Integer page,
@@ -43,7 +43,7 @@ public class SearchQuestioningController {
     }
 
     @Operation(summary = "Get questioning details")
-    @GetMapping(value = Constants.API_QUESTIONINGS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = "application/json")
     public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {
 
         return questioningService.getQuestioningDetails(id);

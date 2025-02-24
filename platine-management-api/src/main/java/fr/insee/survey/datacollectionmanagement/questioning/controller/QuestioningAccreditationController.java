@@ -1,7 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
@@ -51,47 +51,52 @@ public class QuestioningAccreditationController {
 
     private final ModelMapper modelMapper;
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for questioning accreditations by questioning id")
-    @GetMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @Deprecated
-    public ResponseEntity<?> getQuestioningAccreditation(@PathVariable("id") Long id) {
+    @Deprecated(since = "2.6.0")
+    public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") Long id) {
+        log.warn("DEPRECATED");
 
-        Questioning optQuestioning = questioningService.findbyId(id);
+        Questioning optQuestioning = questioningService.findById(id);
 
-        try {
-            return new ResponseEntity<>(
-                    optQuestioning.getQuestioningAccreditations().stream().map(this::convertToDto)
-                            .toList(), HttpStatus.OK);
 
-        } catch (Exception e) {
-            return new ResponseEntity<String>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return
+                optQuestioning.getQuestioningAccreditations().stream().map(this::convertToDto)
+                        .toList();
+
+
     }
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Create or update a questioning accreditation for a questioning")
-    @PostMapping(value = Constants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
-
                     content = @Content(schema = @Schema(implementation = QuestioningAccreditationDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
     @Transactional
-    @Deprecated
-    public ResponseEntity<?> postQuestioningAccreditation(@PathVariable("id") Long id,
-                                                          @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
+    @Deprecated(since = "2.6.0")
+    public ResponseEntity<QuestioningAccreditationDto> postQuestioningAccreditation(@PathVariable("id") Long id,
+                                                                                    @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
-        Questioning questioning = questioningService.findbyId(id);
+        log.warn("DEPRECATED");
+        Questioning questioning = questioningService.findById(id);
 
         String idContact = questioningAccreditationDto.getIdContact();
         contactService.findByIdentifier(idContact);
-
-
 
         HttpHeaders responseHeaders = new HttpHeaders();
 
@@ -103,8 +108,8 @@ public class QuestioningAccreditationController {
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(idContact)
-                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
-                        && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
+                               && acc.getQuestioning().getIdPartitioning().equals(part.getId())
+                               && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
                 .toList();
 
         if (listContactAccreditations.isEmpty()) {
@@ -130,7 +135,7 @@ public class QuestioningAccreditationController {
 
         } else {
             // update accreditation
-            QuestioningAccreditation questioningAccreditation = listContactAccreditations.get(0);
+            QuestioningAccreditation questioningAccreditation = listContactAccreditations.getFirst();
             questioningAccreditationDto.setId(questioningAccreditation.getId());
             questioningAccreditation = convertToEntity(questioningAccreditationDto);
             questioningAccreditation.setQuestioning(questioning);

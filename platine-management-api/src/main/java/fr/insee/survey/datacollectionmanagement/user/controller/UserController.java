@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -54,7 +54,7 @@ public class UserController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for users, paginated")
-    @GetMapping(value = Constants.API_USERS_ALL, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ALL, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserController.UserPage.class)))
     })
@@ -69,7 +69,7 @@ public class UserController {
     }
 
     @Operation(summary = "Search for users, without pagination")
-    @GetMapping(value = Constants.API_USERS_ALL_NO_PAGINATION, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ALL_NO_PAGINATION, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class ))))
     })
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @Operation(summary = "Search for a user by its id")
-    @GetMapping(value = Constants.API_USERS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ID, produces = "application/json")
     public ResponseEntity<UserDto> getUser(@PathVariable("id") String id) {
         User user = userService.findByIdentifier(id);
         return ResponseEntity.ok().body(convertToDto(user));
@@ -89,7 +89,7 @@ public class UserController {
     }
 
     @Operation(summary = "Update or create user")
-    @PutMapping(value = Constants.API_USERS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_USERS_ID, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserDto.class))),
@@ -125,7 +125,7 @@ public class UserController {
 
 
     @Operation(summary = "Delete a user, its userEvents and its sourceaccreditations")
-    @DeleteMapping(value = Constants.API_USERS_ID)
+    @DeleteMapping(value = UrlConstants.API_USERS_ID)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -155,7 +155,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get user accredited sources")
-    @GetMapping(value = Constants.API_USERS_ID_SOURCES)
+    @GetMapping(value = UrlConstants.API_USERS_ID_SOURCES)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),

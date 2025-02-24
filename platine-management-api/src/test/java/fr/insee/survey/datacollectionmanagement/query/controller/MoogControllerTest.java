@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ class MoogControllerTest {
     void getMoogReadOnlyUrl() throws Exception {
         String idCampaign = "SOURCE12023T01";
         String surveyUnitId = "100000000";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
 
                 .andExpect(content().string("http://localhost:8090/lunatic/normal/v3/review/questionnaire/m0/unite-enquetee/100000000"));
     }
@@ -46,13 +46,13 @@ class MoogControllerTest {
     void getMoogReadOnlyUrlCampaignNotFound() throws Exception {
         String idCampaign = "CAMPAIGN";
         String surveyUnitId = "100000000";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
     }
 
     @Test
     void getMoogReadOnlyUrlQuestioningNotFound() throws Exception {
         String idCampaign = "SOURCE12023T01";
         String surveyUnitId = "SU";
-        this.mockMvc.perform(get(Constants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
     }
 }

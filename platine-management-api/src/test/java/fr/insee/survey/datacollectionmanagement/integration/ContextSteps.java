@@ -26,10 +26,7 @@ import io.cucumber.java.en.Given;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ContextSteps {
 
@@ -155,34 +152,37 @@ public class ContextSteps {
     }
 
     private void createQuestioningContact(String partId, String idSu, String model, String contactId, boolean isMain) {
-        Questioning q = questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(partId, idSu);
-        if (q == null) {
-            q = new Questioning();
-            q.setIdPartitioning(partId);
-            q.setModelName(model);
-            q = questioningRepository.save(q);
+        Optional<Questioning> q = questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(partId, idSu);
+        final Questioning questioning;
+
+        if (q.isEmpty()) {
+            questioning = new Questioning();
+            questioning.setIdPartitioning(partId);
+            questioning.setModelName(model);
+            questioningRepository.save(questioning);
+        } else {
+            questioning = q.get();
         }
-        final Questioning savedQ = q;
         SurveyUnit su = surveyUnitRepository.findById(idSu).orElseThrow(() -> new IllegalArgumentException("Survey Unit not found"));
 
         List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findByIdContact(contactId);
-        if (listAccreditations.stream().filter(acc -> acc.getQuestioning().getId().equals(savedQ.getId())).toList().isEmpty()) {
+        if (listAccreditations.stream().filter(acc -> acc.getQuestioning().getId().equals(questioning.getId())).toList().isEmpty()) {
             QuestioningAccreditation qa = new QuestioningAccreditation();
-            qa.setQuestioning(q);
+            qa.setQuestioning(questioning);
             qa.setIdContact(contactId);
             qa.setMain(isMain);
 
             Set<Questioning> setQuestioningSu = su.getQuestionings();
-            setQuestioningSu.add(q);
+            setQuestioningSu.add(questioning);
             su.setQuestionings(setQuestioningSu);
             surveyUnitRepository.save(su);
-            questioningRepository.save(q);
+            questioningRepository.save(questioning);
             questioningAccreditationRepository.save(qa);
             Set<QuestioningAccreditation> setQuestioningAcc = new HashSet<>();
             setQuestioningAcc.add(qa);
-            q.setQuestioningAccreditations(setQuestioningAcc);
-            q.setSurveyUnit(su);
-            questioningRepository.save(q);
+            questioning.setQuestioningAccreditations(setQuestioningAcc);
+            questioning.setSurveyUnit(su);
+            questioningRepository.save(questioning);
             initOneView(qa);
         }
     }

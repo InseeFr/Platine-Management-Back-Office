@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.List;
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class ContactEventController {
 
     private final ContactEventService contactEventService;
@@ -39,9 +41,10 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Search for contactEvents by the contact id")
-    @GetMapping(value = Constants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
+        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contact.getContactEvents().stream().map(this::convertToDto)
@@ -55,7 +58,7 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Create a contactEvent")
-    @PostMapping(value = Constants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
 
@@ -76,10 +79,11 @@ public class ContactEventController {
      * @deprecated
      */
     @Operation(summary = "Delete a contact event")
-    @DeleteMapping(value = Constants.API_CONTACTEVENTS_ID, produces = "application/json")
+    @DeleteMapping(value = UrlConstants.API_CONTACTEVENTS_ID, produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContactEvent(@PathVariable("id") Long id) {
+        log.warn("DEPRECATED");
         contactEventService.findById(id);
         contactEventService.deleteContactEvent(id);
 

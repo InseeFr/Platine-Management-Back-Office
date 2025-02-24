@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
@@ -61,7 +61,7 @@ class CampaignControllerTest {
     @Test
     void getCampaignNotFound() throws Exception {
         String identifier = "CAMPAIGNNOTFOUND";
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
@@ -73,7 +73,7 @@ class CampaignControllerTest {
         Campaign campaign = initOpenedCampaign(identifier);
         String jsonCampaign = createJson(campaign, "SOURCE12023");
         String jsonError = JsonUtil.createJsonErrorBadRequest("id and idCampaign don't match");
-        mockMvc.perform(put(Constants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andExpect(content().json(jsonError, false));
     }
@@ -84,7 +84,7 @@ class CampaignControllerTest {
         Campaign campaign = initOpenedCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": true}
                         """, false));
@@ -96,7 +96,7 @@ class CampaignControllerTest {
         Campaign campaign = initClosedCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": false}
                         """, false));
@@ -109,7 +109,7 @@ class CampaignControllerTest {
         Campaign campaign = initFutureCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": false}
                         """, false));
@@ -122,12 +122,12 @@ class CampaignControllerTest {
         String jsonCampaign = createJson(campaign, "SOURCE12023");
 
         mockMvc.perform(
-                        put(Constants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
+                        put(UrlConstants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonCampaign.toString(), false));
 
-        this.mockMvc.perform(get(Constants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json("""
                         {"ongoing": false}
                         """, false));
@@ -139,7 +139,7 @@ class CampaignControllerTest {
         Campaign campaign = initClosedCampaign(identifier);
         initCampaignAndPartitionings(identifier, campaign);
 
-        this.mockMvc.perform(delete(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(delete(UrlConstants.API_CAMPAIGNS_ID, identifier)).andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -147,7 +147,7 @@ class CampaignControllerTest {
     void getCampaigns() throws Exception {
         String identifier = "OPENED";
 
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS, identifier)).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(16)));
     }
@@ -156,7 +156,7 @@ class CampaignControllerTest {
         String jsonCampaign = createJson(campaign, "SOURCE12023");
 
         mockMvc.perform(
-                        put(Constants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
+                        put(UrlConstants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonCampaign, false));
@@ -166,14 +166,14 @@ class CampaignControllerTest {
         String jsonPart1 = createJsonPart(part1);
 
         mockMvc.perform(
-                        put(Constants.API_PARTITIONINGS_ID, part1.getId()).content(jsonPart1)
+                        put(UrlConstants.API_PARTITIONINGS_ID, part1.getId()).content(jsonPart1)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         Partitioning part2 = partitions.get(1);
         String jsonPart2 = createJsonPart(part2);
 
         mockMvc.perform(
-                        put(Constants.API_PARTITIONINGS_ID, part2.getId()).content(jsonPart2)
+                        put(UrlConstants.API_PARTITIONINGS_ID, part2.getId()).content(jsonPart2)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -248,7 +248,7 @@ class CampaignControllerTest {
         assertDoesNotThrow(() -> campaignService.findById(identifier));
         Campaign campaign = campaignService.findById(identifier);
         String json = createJson(campaign, "SOURCE12023");
-        this.mockMvc.perform(get(Constants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 }

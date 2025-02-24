@@ -1,14 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
-import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -81,7 +78,7 @@ public class CampaignSteps {
 
     @When("I type {string} in the searching campaign area by name")
     public void iTypeInTheSearchingCampaignAreaByName(String campaignName) throws Exception {
-        mockMvc.perform(get(Constants.API_CAMPAIGNS+"/C1"))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS + "/C1"))
                 .andExpect(status().isOk());
     }
 

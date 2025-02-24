@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.PeriodDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.PeriodicityDto;
@@ -26,7 +26,7 @@ import java.util.List;
 public class PeriodPeriodicityController {
 
     @Operation(summary = "Search for periodicities")
-    @GetMapping(value = Constants.API_PERIODICITIES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODICITIES, produces = "application/json")
     public ResponseEntity<List<PeriodicityDto>> getPeriodicities()  {
         List<PeriodicityDto> periodicities = new ArrayList<>();
         for (PeriodicityEnum periodicity : PeriodicityEnum.values()) {
@@ -36,7 +36,7 @@ public class PeriodPeriodicityController {
     }
 
     @Operation(summary = "Search for periods")
-    @GetMapping(value = Constants.API_PERIODS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODS, produces = "application/json")
     public ResponseEntity<List<PeriodDto>> getPeriods()  {
         List<PeriodDto> periods = new ArrayList<>();
         for (PeriodEnum period : PeriodEnum.values()) {
@@ -46,7 +46,7 @@ public class PeriodPeriodicityController {
     }
 
     @Operation(summary = "Search for periods of a periodicity")
-    @GetMapping(value = Constants.API_PERIODICITIES_ID_PERIODS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODICITIES_ID_PERIODS, produces = "application/json")
     public ResponseEntity<List<PeriodDto>> getPeriodsOfPeriodicity(@PathVariable("periodicity") String periodicity) {
         try {
             PeriodicityEnum.valueOf(periodicity);

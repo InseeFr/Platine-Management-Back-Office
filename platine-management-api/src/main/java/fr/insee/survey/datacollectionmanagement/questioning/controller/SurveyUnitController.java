@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
@@ -47,18 +47,16 @@ public class SurveyUnitController {
     private final ViewService viewService;
     private final ModelMapper modelMapper;
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Search for a survey units, paginated")
-    @GetMapping(value = Constants.API_SURVEY_UNITS, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitPage.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    @Deprecated(since="2.6.0", forRemoval=true)
-    public Page<SurveyUnitDto> getSurveyUnits(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(defaultValue = "idSu") String sort) {
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS, produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitPage.class))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
+    @Deprecated(since = "2.6.0", forRemoval = true)
+    public Page<SurveyUnitDto> getSurveyUnits(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "20") Integer size, @RequestParam(defaultValue = "idSu") String sort) {
+        log.warn("DEPRECATED");
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<SurveyUnit> pageC = surveyUnitService.findAll(pageable);
         List<SurveyUnitDto> listSuDto = pageC.stream().map(this::convertToDto).toList();
@@ -66,57 +64,39 @@ public class SurveyUnitController {
     }
 
     @Operation(summary = "Multi-criteria search survey-unit")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public Page<SearchSurveyUnitDto> searchSurveyUnits(
-            @RequestParam(required = true) String searchParam,
-            @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name")String searchType,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
-        log.info(
-                "Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH, produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
+    public Page<SearchSurveyUnitDto> searchSurveyUnits(@RequestParam(required = true) String searchParam, @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name") String searchType, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
+        log.info("Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
         return switch (SurveyUnitParamEnum.fromValue(searchType)) {
-            case SurveyUnitParamEnum.IDENTIFIER -> surveyUnitService.findbyIdentifier(searchParam.toUpperCase(), pageable);
-            case SurveyUnitParamEnum.CODE -> surveyUnitService.findbyIdentificationCode(searchParam.toUpperCase(), pageable);
-            case SurveyUnitParamEnum.NAME -> surveyUnitService.findbyIdentificationName(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.IDENTIFIER ->
+                    surveyUnitService.findbyIdentifier(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.CODE ->
+                    surveyUnitService.findbyIdentificationCode(searchParam.toUpperCase(), pageable);
+            case SurveyUnitParamEnum.NAME ->
+                    surveyUnitService.findbyIdentificationName(searchParam.toUpperCase(), pageable);
         };
     }
 
     @Operation(summary = "Search for a survey unit by its id")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
     public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
-        SurveyUnitDetailsDto surveyUnitDetailsDto =  convertToDetailsDto(surveyUnit);
+        SurveyUnitDetailsDto surveyUnitDetailsDto = convertToDetailsDto(surveyUnit);
         surveyUnitDetailsDto.setHasQuestionings(!viewService.findViewByIdSu(id).isEmpty());
         return surveyUnitDetailsDto;
 
     }
 
     @Operation(summary = "Multi-criteria search survey-unit")
-    @GetMapping(value = Constants.API_SURVEY_UNITS_SEARCH+"/V2", produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public Page<SearchSurveyUnitDto> searchSurveyUnitsByParam(
-            @RequestParam(required = true) String searchParam,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
-        log.info(
-                "Search surveyUnit ith param = {} page = {} pageSize = {}", searchParam, page, pageSize);
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH + "/V2", produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
+    public Page<SearchSurveyUnitDto> searchSurveyUnitsByParam(@RequestParam(required = true) String searchParam, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
+        log.info("Search surveyUnit ith param = {} page = {} pageSize = {}", searchParam, page, pageSize);
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
@@ -125,12 +105,8 @@ public class SurveyUnitController {
 
 
     @Operation(summary = "Create or update a survey unit")
-    @PutMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
-            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
+    @PutMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json", consumes = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))), @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))), @ApiResponse(responseCode = "400", description = "Bad request")})
     public ResponseEntity<SurveyUnitDto> putSurveyUnit(@PathVariable("id") String id, @RequestBody @Valid SurveyUnitDto surveyUnitDto) {
         if (!surveyUnitDto.getIdSu().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSu don't match");
@@ -139,8 +115,7 @@ public class SurveyUnitController {
         SurveyUnit surveyUnit;
         HttpStatus responseStatus;
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(surveyUnitDto.getIdSu()).toUriString());
+        responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(surveyUnitDto.getIdSu()).toUriString());
 
         surveyUnit = convertToEntity(surveyUnitDto);
 
@@ -153,20 +128,20 @@ public class SurveyUnitController {
             responseStatus = HttpStatus.CREATED;
         }
 
-        return ResponseEntity.status(responseStatus)
-                .body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
+        return ResponseEntity.status(responseStatus).body(convertToDto(surveyUnitService.saveSurveyUnitAndAddress(surveyUnit)));
 
     }
 
+
+    /**
+     * @deprecated
+     */
     @Operation(summary = "Delete a survey unit by its id")
-    @DeleteMapping(value = Constants.API_SURVEY_UNITS_ID, produces = "application/json")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    @Deprecated(since="2.6.0", forRemoval=true)
+    @DeleteMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "No content"), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad request")})
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteSurveyUnit(@PathVariable("id") String id) {
+        log.warn("DEPRECATED");
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
 
         if (!surveyUnit.getQuestionings().isEmpty()) {

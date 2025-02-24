@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +42,7 @@ class QuestionningControllerTest {
     void getQuestioningsBySurveyUnit() throws Exception {
         String idSu = "100000000";
         String json = createJsonQuestionings(idSu);
-        this.mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json, false));
 
@@ -54,7 +54,7 @@ class QuestionningControllerTest {
         jo.put("surveyUnitId", id);
         JSONArray ja = new JSONArray();
         ja.put(jo);
-        System.out.println(ja.toString());
+        System.out.println(ja);
         return ja.toString();
     }
 

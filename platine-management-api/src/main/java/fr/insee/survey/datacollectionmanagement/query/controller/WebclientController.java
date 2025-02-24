@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
@@ -91,7 +91,7 @@ public class WebclientController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Create or update questioning for webclients - Returns the questioning and all its accreditations")
-    @PutMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = UrlConstants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
@@ -118,8 +118,10 @@ public class WebclientController {
         su = surveyUnitService.saveSurveyUnitAndAddress(su);
 
         // Create questioning if not exists
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
-        if (questioning == null) {
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning, idSu);
+        Questioning questioning;
+
+        if (optQuestioning.isEmpty()) {
             httpStatus = HttpStatus.CREATED;
             log.info("Create questioning for partitioning={} model={} surveyunit={} ", idPartitioning, modelName,
                     idSu);
@@ -134,6 +136,8 @@ public class WebclientController {
             questioningEvent.setQuestioning(questioning);
             questioningEventService.saveQuestioningEvent(questioningEvent);
 
+        } else {
+            questioning = optQuestioning.get();
         }
 
 
@@ -180,14 +184,14 @@ public class WebclientController {
         // Create accreditations if not exists
 
         Set<QuestioningAccreditation> setExistingAccreditations = (questioning
-                .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
+                                                                           .getQuestioningAccreditations() != null) ? questioning.getQuestioningAccreditations()
                 : new HashSet<>();
 
 
         List<QuestioningAccreditation> listContactAccreditations = setExistingAccreditations.stream()
                 .filter(acc -> acc.getIdContact().equals(contactAccreditationDto.getIdentifier())
-                        && acc.getQuestioning().getIdPartitioning().equals(part.getId())
-                        && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
+                               && acc.getQuestioning().getIdPartitioning().equals(part.getId())
+                               && acc.getQuestioning().getSurveyUnit().getIdSu().equals(idSu))
                 .toList();
 
         if (listContactAccreditations.isEmpty()) {
@@ -215,7 +219,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get questioning for webclients")
-    @GetMapping(value = Constants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = QuestioningWebclientDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -228,17 +232,17 @@ public class WebclientController {
 
         HttpStatus httpStatus = HttpStatus.OK;
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
+        Optional<Questioning> questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 idSurveyUnit);
-        if (questioning == null) {
+        if (questioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
         questioningWebclientDto.setIdPartitioning(idPartitioning);
         questioningWebclientDto.setModelName(modelName);
-        questioningWebclientDto.setSurveyUnit(convertToDto(questioning.getSurveyUnit()));
+        questioningWebclientDto.setSurveyUnit(convertToDto(questioning.get().getSurveyUnit()));
         List<ContactAccreditationDto> listContactAccreditationDto = new ArrayList<>();
-        questioning.getQuestioningAccreditations()
+        questioning.get().getQuestioningAccreditations()
                 .forEach(acc -> listContactAccreditationDto
                         .add(convertToDto(contactService.findByIdentifier(acc.getIdContact()), acc.isMain())));
         questioningWebclientDto.setContacts(listContactAccreditationDto);
@@ -247,7 +251,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Search for a partitioning and metadata by partitioning id")
-    @GetMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -268,7 +272,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Insert or update a partitiong and metadata by partitioning id")
-    @PutMapping(value = Constants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = UrlConstants.API_WEBCLIENT_METADATA_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
@@ -335,7 +339,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Search for main contact")
-    @GetMapping(value = Constants.API_MAIN_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_MAIN_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -347,11 +351,11 @@ public class WebclientController {
 
         try {
 
-            Questioning questioning = questioningService
+            Optional<Questioning> optQuestioning = questioningService
                     .findByIdPartitioningAndSurveyUnitIdSu(partitioningId,
                             surveyUnitId);
-            if (questioning != null) {
-                List<QuestioningAccreditation> questioningAccreditations = questioning.getQuestioningAccreditations().stream()
+            if (optQuestioning.isPresent()) {
+                List<QuestioningAccreditation> questioningAccreditations = optQuestioning.get().getQuestioningAccreditations().stream()
                         .filter(QuestioningAccreditation::isMain).toList();
                 if (CollectionUtils.isNotEmpty(questioningAccreditations)) {
                     Contact c = contactService.findByIdentifier(questioningAccreditations.getFirst().getIdContact());
@@ -366,7 +370,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Get state of the last questioningEvent")
-    @GetMapping(value = Constants.API_WEBCLIENT_STATE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_STATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -375,20 +379,20 @@ public class WebclientController {
     public ResponseEntity<StateDto> getState(@PathVariable("idPartitioning") String idPartitioning,
                                              @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.STATE_EVENTS);
         StateDto result = new StateDto();
-        result.setState(questioningEvent.isPresent() ? questioningEvent.get().getType().name() : "null");
+        result.setState(questioningEvent.map(event -> event.getType().name()).orElse("null"));
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @Operation(summary = "Indicates whether a questioning should be follow up or not")
-    @GetMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -398,13 +402,13 @@ public class WebclientController {
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.FOLLOWUP_EVENTS);
 
         EligibleDto result = new EligibleDto();
@@ -413,7 +417,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Add a FOLLWUP state to a questioning")
-    @PostMapping(value = Constants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = UrlConstants.API_WEBCLIENT_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StateDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -424,12 +428,12 @@ public class WebclientController {
             @PathVariable("idPartitioning") String idPartitioning,
             @PathVariable("idSu") String idSu) throws JsonProcessingException {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
-
+        Questioning questioning = optQuestioning.get();
         JsonNode node = addWebclientAuthorNode();
         QuestioningEvent questioningEvent = new QuestioningEvent();
         questioningEvent.setQuestioning(questioning);
@@ -453,7 +457,7 @@ public class WebclientController {
     }
 
     @Operation(summary = "Indicates whether a questioning should be extract or not (VALINT and PARTIELINT)")
-    @GetMapping(value = Constants.API_WEBCLIENT_EXTRACT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_EXTRACT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EligibleDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -462,13 +466,13 @@ public class WebclientController {
     public ResponseEntity<EligibleDto> isToExtract(@PathVariable("idPartitioning") String idPartitioning,
                                                    @PathVariable("idSu") String idSu) {
 
-        Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
+        Optional<Questioning> optQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(
                 idPartitioning, idSu);
-        if (questioning == null) {
+        if (optQuestioning.isEmpty()) {
             throw new NotFoundException(QUESTIONING_DOES_NOT_EXIST);
         }
 
-        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning,
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(optQuestioning.get(),
                 TypeQuestioningEvent.EXTRACT_EVENTS);
         EligibleDto result = new EligibleDto();
         result.setEligible(questioningEvent.isPresent() ? "true" : "false");

@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -46,7 +46,7 @@ public class PartitioningController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Search for partitionings by the campaign id")
-    @GetMapping(value = Constants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = "application/json")
     public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(id);
         return ResponseEntity.ok()
@@ -57,7 +57,7 @@ public class PartitioningController {
     }
 
     @Operation(summary = "Search for a partitioning by its id")
-    @GetMapping(value = Constants.API_PARTITIONINGS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PARTITIONINGS_ID, produces = "application/json")
     public ResponseEntity<PartitioningDto> getPartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(partitioning));
@@ -66,7 +66,7 @@ public class PartitioningController {
     }
 
     @Operation(summary = "Update or create a partitioning")
-    @PutMapping(value = Constants.API_PARTITIONINGS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_PARTITIONINGS_ID, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
@@ -97,7 +97,7 @@ public class PartitioningController {
     }
 
     @Operation(summary = "Delete a partitioning, its partitionings, partitionings, questionings ...")
-    @DeleteMapping(value = Constants.API_PARTITIONINGS_ID)
+    @DeleteMapping(value = UrlConstants.API_PARTITIONINGS_ID)
     @Transactional
     public void deletePartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(id);

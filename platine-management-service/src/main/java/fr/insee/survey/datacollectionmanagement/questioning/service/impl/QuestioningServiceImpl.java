@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
@@ -10,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.*;
@@ -68,7 +70,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findbyId(Long id) {
+    public Questioning findById(Long id) {
         return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
@@ -88,10 +90,23 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
-                                                             String surveyUnitIdSu) {
+    public Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
+                                                                       String surveyUnitIdSu) {
         return questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 surveyUnitIdSu);
+    }
+
+    @Override
+    public QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu) {
+        List<Questioning> listQuestionings = questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitIdSu);
+        if (listQuestionings.isEmpty()) {
+            throw new NotFoundException(String.format("No questioning found for campaignId %s and surveyUnitId %s", campaignId, surveyUnitIdSu));
+        }
+        if (listQuestionings.size() > 1) {
+            throw new TooManyValuesException(String.format("%s questionings found for campaignId %s and surveyUnitId %s - only 1 questioning should be found", listQuestionings.size(), campaignId, surveyUnitIdSu));
+        }
+
+        return new QuestioningIdDto(listQuestionings.getFirst().getId());
     }
 
     @Override
@@ -129,7 +144,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         DataCollectionEnum dataCollectionTarget = campaign.getDataCollectionTarget();
         String surveyUnitId = questioning.getSurveyUnit().getIdSu();
 
-        if (dataCollectionTarget == null ||dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
+        if (dataCollectionTarget == null || dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
             String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
             return buildLunaticUrl(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
@@ -173,7 +188,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
-        Questioning questioning = findbyId(id);
+        Questioning questioning = findById(id);
         return convertToDetailsDto(questioning);
     }
 
@@ -230,7 +245,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
         lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
-        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().sorted(Comparator.comparing(QuestioningCommunication::getDate)).findFirst();
+        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
         questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
         Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
         validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
@@ -263,9 +278,9 @@ public class QuestioningServiceImpl implements QuestioningService {
     public String getReadOnlyUrl(String idPart, String surveyUnitId) throws NotFoundException {
 
         Partitioning part = partitioningService.findById(idPart);
-        Questioning questioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-        if (questioning != null) {
-            return getAccessUrl(UserRoles.REVIEWER, questioning, part);
+        Optional<Questioning> optionalQuestioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+        if (optionalQuestioning.isPresent()) {
+            return getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
 
         }
         return "";

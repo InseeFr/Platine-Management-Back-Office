@@ -2,12 +2,14 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -21,7 +23,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
@@ -30,8 +37,8 @@ class QuestioningServiceImplTest {
     private static final String SURVEY_UNIT_ID = "12345";
     private static final String QUESTIONING_NORMAL_URL = "http://questioning.com/normal";
     private static final String QUESTIONING_SENSITIVE_URL = "http://questioning.com/sensitive";
-    private static final String QUESTIONING_XFORMS1= "http://questioning.com/xforms1";
-    private static final String QUESTIONING_XFORMS2= "http://questioning.com/xforms2";
+    private static final String QUESTIONING_XFORMS1 = "http://questioning.com/xforms1";
+    private static final String QUESTIONING_XFORMS2 = "http://questioning.com/xforms2";
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -55,7 +62,7 @@ class QuestioningServiceImplTest {
     private QuestioningCommentService questioningCommentService;
 
     @Mock
-    private ParametersService parametersService;
+    private CampaignService campaignService;
 
     @Mock
     private ModelMapper modelMapper;
@@ -161,10 +168,52 @@ class QuestioningServiceImplTest {
     @Test
     void testGetAccessUrl_Default() {
 
-
         String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
 
         assertThat(result).isNotNull().contains("v3");
+    }
+    @Test
+    @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")
+    void findByCampaignIdAndSurveyUnitIdSuEmptyResult() {
+        String campaignId = "CAMP2025X00";
+        String surveyUnitId = "SURVEYUNITID";
+        List<Questioning> listQuestioning = new ArrayList<>();
+
+        when(questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitId)).thenReturn(listQuestioning);
+
+        assertThatThrownBy(() -> questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("No questioning found for campaignId");
+    }
+
+    @Test
+    @DisplayName("Check TooManyValuesException when 2 questioning found for 1 surveyUnit and onr campaign")
+    void findByCampaignIdAndSurveyUnitIdSuTwoResults() {
+        String campaignId = "CAMP2025X00";
+        String surveyUnitId = "SURVEYUNITID";
+        List<Questioning> listQuestioning = new ArrayList<>();
+        listQuestioning.add(initQuestioning());
+        listQuestioning.add(initQuestioning());
+
+        when(questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitId)).thenReturn(listQuestioning);
+
+        assertThatThrownBy(() -> questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId))
+                .isInstanceOf(TooManyValuesException.class)
+                .hasMessageContaining("2 questionings found for");
+    }
+
+    @Test
+    @DisplayName("Check ok when 1 and only 1 questioning found for 1 surveyUnit and onr campaign")
+    void findByCampaignIdAndSurveyUnitIdSuOneResult() {
+        String campaignId = "CAMP2025X00";
+        String surveyUnitId = "SURVEYUNITID";
+        List<Questioning> listQuestioning = new ArrayList<>();
+        Questioning q = initQuestioning();
+        listQuestioning.add(q);
+
+        when(questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitId)).thenReturn(listQuestioning);
+
+        assertThat(questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId).getQuestioningId()).isEqualTo(q.getId());
     }
 
 
@@ -185,6 +234,7 @@ class QuestioningServiceImplTest {
 
     private Questioning initQuestioning() {
         questioning = new Questioning();
+        questioning.setId(1L);
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(SURVEY_UNIT_ID);
         questioning.setSurveyUnit(su);
@@ -192,5 +242,6 @@ class QuestioningServiceImplTest {
 
         return questioning;
     }
+
 
 }

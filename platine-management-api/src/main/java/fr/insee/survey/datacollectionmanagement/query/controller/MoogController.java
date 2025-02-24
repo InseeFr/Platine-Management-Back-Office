@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -48,7 +48,7 @@ public class MoogController {
     private final ContactService contactService;
 
 
-    @GetMapping(path = Constants.API_MOOG_SEARCH)
+    @GetMapping(path = UrlConstants.API_MOOG_SEARCH)
     public ResponseEntity<Page<MoogSearchDto>> moogSearch(@RequestParam(required = false) String filter1,
                                                           @RequestParam(required = false) String filter2,
                                                           @RequestParam(defaultValue = "0", required = false) int pageNo,
@@ -71,14 +71,14 @@ public class MoogController {
 
     }
 
-    @GetMapping(path = Constants.API_MOOG_MAIL, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_MOOG_MAIL, produces = "application/json")
     @Operation(summary = "Get Moog questioning events by campaign and idSu")
     public ResponseEntity<String> getMoogMail(@PathVariable("id") String contactId) {
         Contact contact = contactService.findByIdentifier(contactId);
         return ResponseEntity.ok().body(contact.getEmail());
     }
 
-    @GetMapping(path = Constants.API_MOOG_EVENTS, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_MOOG_EVENTS, produces = "application/json")
     @Operation(summary = "Get Moog questioning events by campaign and idSu")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MoogQuestioningEventDto.class)))),
@@ -90,19 +90,19 @@ public class MoogController {
 
     }
 
-    @GetMapping(value = Constants.MOOG_API_CAMPAIGN_EXTRACTION, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_EXTRACTION, produces = "application/json")
     public JSONCollectionWrapper<MoogExtractionRowDto> provideDataForExtraction(@PathVariable String idCampaign) {
         log.info("Request GET for extraction of campaign : {}", idCampaign);
         return moogService.getExtraction(idCampaign);
     }
 
-    @GetMapping(value = Constants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = "application/json")
     public JSONCollectionWrapper<MoogExtractionRowDto> displaySurveyUnitsToFollowUp(@PathVariable String idCampaign) {
         log.info("Request GET for su to follow up - campaign {}", idCampaign);
         return new JSONCollectionWrapper<>(moogService.getSurveyUnitsToFollowUp(idCampaign));
     }
 
-    @GetMapping(value = Constants.MOOG_API_READONLY_URL, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_READONLY_URL, produces = "application/json")
     public ResponseEntity<String> getReadOnlyUrl(@PathVariable String idCampaign, @PathVariable String surveyUnitId) {
         log.info("Request READONLY url for su {} and campaign {}", surveyUnitId, idCampaign);
         String url;

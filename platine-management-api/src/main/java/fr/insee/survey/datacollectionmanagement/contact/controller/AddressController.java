@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
@@ -41,10 +41,11 @@ public class AddressController {
      * @deprecated
      */
     @Operation(summary = "Search for a contact address by the contact id")
-    @GetMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
+        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(id);
         if (contact.getAddress() != null)
             return ResponseEntity.status(HttpStatus.OK)
@@ -55,7 +56,7 @@ public class AddressController {
     }
 
     @Operation(summary = "Update or create an address by the contact id")
-    @PutMapping(value = Constants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
                                                  @RequestBody AddressDto addressDto,

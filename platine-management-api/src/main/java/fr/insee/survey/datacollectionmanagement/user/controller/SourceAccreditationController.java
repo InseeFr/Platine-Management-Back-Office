@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.controller;
 
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
@@ -53,7 +53,7 @@ public class SourceAccreditationController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for source accreditations by source id")
-    @GetMapping(value = Constants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SourceAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -72,7 +72,7 @@ public class SourceAccreditationController {
     }
 
     @Operation(summary = "Create or update a source accreditation for a source")
-    @PostMapping(value = Constants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
 

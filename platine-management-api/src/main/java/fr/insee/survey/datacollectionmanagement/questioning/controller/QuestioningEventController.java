@@ -1,11 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
@@ -42,21 +43,21 @@ public class QuestioningEventController {
     private final UploadService uploadService;
 
     @Operation(summary = "Search for a questioning event by questioning id")
-    @GetMapping(value = Constants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningEventDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
-        Questioning questioning = questioningService.findbyId(id);
+        Questioning questioning = questioningService.findById(id);
         Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
         return setQe.stream().map(questioningEventService::convertToDto).toList();
 
     }
 
     @Operation(summary = "Create a questioning event")
-    @PostMapping(value = Constants.API_QUESTIONING_QUESTIONING_EVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
@@ -64,16 +65,29 @@ public class QuestioningEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") Long id,
                                                     @RequestBody QuestioningEventDto questioningEventDto) {
-        questioningService.findbyId(id);
+        questioningService.findById(id);
         QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
         QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
         return questioningEventService.convertToDto(newQuestioningEvent);
+    }
 
-
+    @Operation(summary = "Create or update a questioning event")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_VALINT_EVENTS, produces = "application/json", consumes = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
+            @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Questioning not found")
+    })
+    public ResponseEntity<Void> postValintQuestioningEvent(@RequestBody ValidatedQuestioningEventDto validatedQuestioningEventDto) {
+        if (questioningEventService.postValintQuestioningEvent(validatedQuestioningEventDto)) {
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Delete a questioning event")
-    @DeleteMapping(value = {Constants.API_QUESTIONING_QUESTIONING_EVENTS_ID, Constants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = "application/json")
+    @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),

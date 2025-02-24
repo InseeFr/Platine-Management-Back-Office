@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
@@ -29,7 +29,7 @@ public class CheckHabilitationController {
     private final CheckHabilitationService checkHabilitationService;
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
-    @GetMapping(path = Constants.API_CHECK_HABILITATION, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CHECK_HABILITATION, produces = "application/json")
     public ResponseEntity<HabilitationDto> checkHabilitation(
             @Valid @ValidUserRole @RequestParam(required = false) String role,
             @RequestParam(required = true) String id,

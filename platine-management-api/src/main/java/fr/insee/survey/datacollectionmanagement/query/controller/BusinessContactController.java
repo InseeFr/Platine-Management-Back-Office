@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessContactsDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.BusinessContactService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +24,7 @@ public class BusinessContactController {
     private final BusinessContactService businessContactService;
 
     @Operation(summary = "Search for the main contact by campaign and survey unit")
-    @GetMapping(value = Constants.API_WEBCLIENT_BUSINESS_MAIN_CONTACT)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_BUSINESS_MAIN_CONTACT)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public BusinessContactsDto getListBusinessContact(@PathVariable("campaignId") String campaignId,
                                                       @PathVariable("surveyUnitId") String surveyUnitId) {

@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
@@ -44,7 +44,7 @@ public class QuestioningInformationsController {
 
 
     @Operation(summary = "Informations to fill in an Orbeon questionnaire")
-    @GetMapping(value = Constants.API_WEBCLIENT_INFORMATIONS, produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(value = UrlConstants.API_WEBCLIENT_INFORMATIONS, produces = MediaType.APPLICATION_XML_VALUE)
     public QuestioningInformationsDto getQuestioningInformations(@PathVariable("idCampaign") String idCampaign,
                                                                  @PathVariable("idUE") String idsu,
                                                                  @Valid @ValidUserRole @RequestParam(value = "role", required = false) String role,
