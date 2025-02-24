@@ -79,7 +79,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
         List<QuestioningEvent> valintQuestioningEvents = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT);
 
-        if (!valintQuestioningEvents.isEmpty() && valintQuestioningEvents.size()>1) {
+        if (valintQuestioningEvents.size()>1) {
             throw new TooManyValuesException(String.format("%s VALINT questioningEvents found for questioningId %s  - only 1 questioningEvents should be found", valintQuestioningEvents.size(), questioningId));
         }
         if (!valintQuestioningEvents.isEmpty()) {
