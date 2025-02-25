@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -70,6 +71,11 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(Long id) {
+        return null;
+    }
+
+    @Override
+    public QuestionaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
         return null;
     }
 }
