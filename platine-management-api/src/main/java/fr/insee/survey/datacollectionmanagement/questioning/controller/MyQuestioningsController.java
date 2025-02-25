@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,16 @@ public class MyQuestioningsController {
 
 
         return mySurveysService.getListMySurveys(idec.toUpperCase());
+
+    }
+
+    @GetMapping(value = UrlConstants.API_MY_QUESTIONAIRES)
+    @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
+    public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
+                                           String idec) {
+
+
+        return mySurveysService.getListMyQuestionnaires(idec.toUpperCase());
 
     }
 }

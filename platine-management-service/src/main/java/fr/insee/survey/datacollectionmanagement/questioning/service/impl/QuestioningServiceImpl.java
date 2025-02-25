@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -27,10 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -285,6 +283,32 @@ public class QuestioningServiceImpl implements QuestioningService {
         }
         return "";
 
+    }
+
+    @Override
+    public QuestionaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part)
+    {
+        Date openingDate  = part.getOpeningDate();
+        Date today = new Date();
+
+        if(today.before(openingDate))
+            return QuestionaireStatusTypeEnum.INCOMING;
+
+        Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(
+                questioning, TypeQuestioningEvent.MY_QUESTIONINGS_EVENTS);
+
+        // TODO : questioningEvent.isPresent();
+        if(questioningEvent.isPresent())
+        {
+            if(questioningEvent.get().getType().equals(TypeQuestioningEvent.VALINT) || questioningEvent.get().getType().equals(TypeQuestioningEvent.VALPAP))
+                return QuestionaireStatusTypeEnum.RECEIVED;
+
+
+        }
+
+        // TODO : à compléter
+
+        return QuestionaireStatusTypeEnum.OPEN;
     }
 
 }
