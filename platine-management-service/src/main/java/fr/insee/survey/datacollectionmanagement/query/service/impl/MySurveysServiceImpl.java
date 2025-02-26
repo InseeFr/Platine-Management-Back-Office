@@ -92,11 +92,12 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setPartitioningLabel(part.getLabel());
             myQuestionnaireDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
             myQuestionnaireDto.setSurveyUnitIdentificationName(questioning.getSurveyUnit().getIdentificationName());
-
             myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
             myQuestionnaireDto.setDeliveryUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
             myQuestionnaireDto.setQuestioningStatus(questioningService.getQuestioningStatus(questioning, part).name());
             myQuestionnaireDtos.add(myQuestionnaireDto);
+            myQuestionnaireDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
+            myQuestionnaireDto.setPartitioningId(part.getId());
         }
 
         return myQuestionnaireDtos;

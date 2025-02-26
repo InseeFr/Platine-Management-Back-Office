@@ -32,7 +32,7 @@ public class MyQuestioningsController {
 
     }
 
-    @GetMapping(value = UrlConstants.API_MY_QUESTIONAIRES)
+    @GetMapping(value = UrlConstants.API_MY_QUESTIONNAIRES)
     @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
     public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {

@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
-import fr.insee.survey.datacollectionmanagement.query.enums.QuestionaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import org.springframework.data.domain.Page;
@@ -45,5 +45,5 @@ public interface QuestioningService {
 
     QuestioningDetailsDto getQuestioningDetails(Long id);
 
-    QuestionaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part);
+    QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part);
 }

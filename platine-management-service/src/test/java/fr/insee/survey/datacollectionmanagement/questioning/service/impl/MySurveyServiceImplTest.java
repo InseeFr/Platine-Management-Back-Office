@@ -90,6 +90,7 @@ class MySurveyServiceImplTest {
         assertEquals("http://access-url", dto.getQuestioningAccessUrl());
         assertEquals("http://preuve-de-depot/SU123", dto.getDeliveryUrl());
         assertEquals(QuestionnaireStatusTypeEnum.OPEN.name(), dto.getQuestioningStatus());
+        // TODO : surveyunitid / part id ?
     }
 
     @Test

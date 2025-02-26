@@ -57,6 +57,13 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
+    public boolean containQuestioningEvent(Questioning questioning, TypeQuestioningEvent events) {
+        List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
+                .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
+        return listQuestioningEvent.stream().findFirst();
+    }
+
+    @Override
     public Long countIdUploadInEvents(Long idupload) {
         return questioningEventRepository.countByUploadId(idupload);
     }
