@@ -185,6 +185,7 @@ class CampaignControllerTest {
         campaignMock.setYear(2023);
         campaignMock.setPeriod(PeriodEnum.A00);
         campaignMock.setId(identifier);
+        campaignMock.setShortWording("TEST2024A00");
         campaignMock.setPartitionings(Set.of(
                 initPartitioning(identifier, "01", openingDate, closingDate, campaignMock),
                 initPartitioning(identifier, "012", openingDate, closingDate, campaignMock)
@@ -202,6 +203,7 @@ class CampaignControllerTest {
         part.setOpeningDate(openingDate);
         part.setClosingDate(closingDate);
         part.setCampaign(campaignMock);
+        part.setShortWording(campaignId + s);
         return part;
     }
 
@@ -209,6 +211,7 @@ class CampaignControllerTest {
         JSONObject jo = new JSONObject();
         jo.put("id", part.getId());
         jo.put("campaignId", part.getCampaign().getId());
+        jo.put("shortWording",part.getShortWording());
         jo.put("openingDate", part.getOpeningDate().toInstant().toString());
         jo.put("closingDate", part.getClosingDate().toInstant().toString());
         jo.put("returnDate", part.getClosingDate().toInstant().toString());
@@ -222,6 +225,7 @@ class CampaignControllerTest {
         jo.put("year", campaign.getYear());
         jo.put("surveyId", idSurvey);
         jo.put("campaignWording", campaign.getCampaignWording());
+        jo.put("shortWording",campaign.getShortWording());
         jo.put("period", campaign.getPeriod().toString());
         return jo.toString();
     }

@@ -89,7 +89,7 @@ public class SurveyController {
     @Operation(summary = "Search for a survey by its id")
     @GetMapping(value = Constants.API_SURVEYS_ID, produces = "application/json")
     public ResponseEntity<SurveyDto> getSurvey(@PathVariable("id") String id) {
-        Survey survey = surveyService.findById(StringUtils.upperCase(id));
+        Survey survey = surveyService.findById(id);
         return ResponseEntity.ok().body(convertToDto(survey));
 
 

@@ -111,9 +111,8 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<CampaignDto> getCampaign(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.findById(id);
         return ResponseEntity.ok().body(convertToDto(campaign));
-
 
     }
 
@@ -121,7 +120,7 @@ public class CampaignController {
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public ResponseEntity<List<ParamsDto>> getParams(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.findById(id);
         List<ParamsDto> listParams = campaign.getParams().stream().map(this::convertToDto).toList();
         return ResponseEntity.ok().body(listParams);
     }
@@ -130,7 +129,7 @@ public class CampaignController {
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = "/api/campaigns/{id}/params", produces = "application/json")
     public void putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.findById(id);
 
         if (paramsDto.getParamId().equalsIgnoreCase(ParameterEnum.URL_TYPE.name())
                 && Arrays.stream(values()).noneMatch(p -> p.name().equals(paramsDto.getParamValue()))) {
@@ -144,7 +143,7 @@ public class CampaignController {
             throw new NotMatchException(String.format("Email %s is not valid", paramsDto.getParamValue()));
         }
         Parameters param = convertToEntity(paramsDto);
-        param.setMetadataId(StringUtils.upperCase(id));
+        param.setMetadataId(id);
         Set<Parameters> setParams = campaign.getParams().stream()
                 .filter(parameter -> !parameter.getParamId().equals(param.getParamId()))
                 .collect(Collectors.toSet());

@@ -61,7 +61,7 @@ public class PartitioningController {
     @Operation(summary = "Search for a partitioning by its id")
     @GetMapping(value = Constants.API_PARTITIONINGS_ID, produces = "application/json")
     public ResponseEntity<PartitioningDto> getPartitioning(@PathVariable("id") String id) {
-        Partitioning partitioning = partitioningService.findById(StringUtils.upperCase(id));
+        Partitioning partitioning = partitioningService.findById(id);
         return ResponseEntity.ok().body(convertToDto(partitioning));
 
 

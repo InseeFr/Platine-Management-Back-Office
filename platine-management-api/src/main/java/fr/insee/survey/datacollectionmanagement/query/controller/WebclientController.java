@@ -104,7 +104,7 @@ public class WebclientController {
         log.info("Put questioning for webclients {}", questioningWebclientDto.toString());
         String modelName = questioningWebclientDto.getModelName();
         String idSu = StringUtils.upperCase(questioningWebclientDto.getSurveyUnit().getIdSu());
-        String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
+        String idPartitioning = questioningWebclientDto.getIdPartitioning();
 
 
         Partitioning part = partitioningService.findById(idPartitioning);
@@ -267,7 +267,7 @@ public class WebclientController {
     public ResponseEntity<MetadataDto> getMetadata(@PathVariable("id") String id) {
 
         MetadataDto metadataDto = new MetadataDto();
-        Partitioning part = partitioningService.findById(StringUtils.upperCase(id));
+        Partitioning part = partitioningService.findById(id);
         metadataDto.setPartitioningDto(convertToDto(part));
         metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
         metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));

@@ -74,7 +74,7 @@ public class SourceController {
     @Operation(summary = "Search for a source by its id")
     @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
     public ResponseEntity<SourceOnlineStatusDto> getSource(@PathVariable("id") String id) {
-        Source source = sourceService.findById(StringUtils.upperCase(id));
+        Source source = sourceService.findById(id);
         return ResponseEntity.ok().body(convertToCompleteDto(source));
 
     }
@@ -149,7 +149,7 @@ public class SourceController {
     @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
     public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
-        Source source = sourceService.findById(id.toUpperCase());
+        Source source = sourceService.findById(id);
         if (Boolean.TRUE.equals(source.getForceClose())) {
             return new OpenDto(false, true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
         }

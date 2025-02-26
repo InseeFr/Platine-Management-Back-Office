@@ -40,6 +40,7 @@
 		<sonar.java.binaries>target</sonar.java.binaries>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../pilotage-api/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<modelmapper-version>3.2.0</modelmapper-version>
+
 	</properties>
 
 	<dependencies>
@@ -61,6 +62,7 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+
 	</dependencies>
 
 	<profiles>

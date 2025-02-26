@@ -256,6 +256,7 @@ public class DataloaderTest {
                         campaign.setYear(year - j);
                         campaign.setPeriod(PeriodEnum.valueOf(period));
                         campaign.setId(sourceName + (year - j) + period);
+                        campaign.setShortWording(sourceName + (year - j) + period);
                         campaign.setCampaignWording(
                                 "Campaign about " + sourceName + " in " + (year - j) + " and period " + period);
                         setCampaigns.add(campaign);
@@ -267,6 +268,7 @@ public class DataloaderTest {
 
                             Partitioning part = new Partitioning();
                             part.setId(sourceName + (year - j) + "T" + trimester + "00" + l);
+                            part.setShortWording(sourceName + (year - j) + "T" + trimester + "00" + l);
                             log.info("Part created : {}", part.getId());
                             Date openingDate = sdf.parse("01/01/" + year);
                             Date closingDate = sdf.parse("31/12/" + year);
