@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class CampaignPartitioningsDto {
 
     @NotBlank
-    private String id;
+    private UUID id;
     private String surveyId;
     private String surveyShortWording;
     private int year;

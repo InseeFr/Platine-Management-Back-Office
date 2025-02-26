@@ -4,13 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 public class PartitioningDto {
 
     @NotBlank
-    private String id;
-    private String campaignId;
+    private UUID id;
+    private UUID campaignId;
     private String campaignShortWording;
     private String shortWording;
     private String label;
