@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 
-public interface CampaignRepository extends JpaRepository<Campaign, String>,PagingAndSortingRepository<Campaign, String> {
+public interface CampaignRepository extends JpaRepository<Campaign, UUID>,PagingAndSortingRepository<Campaign, UUID> {
 
     static final String QUERY_FIND_CAMPAIGN =
         "select                                                                                                         "

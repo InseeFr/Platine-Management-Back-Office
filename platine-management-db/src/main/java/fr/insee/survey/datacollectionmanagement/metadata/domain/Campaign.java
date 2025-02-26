@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,7 +18,7 @@ import java.util.Set;
 public class Campaign {
 
     @Id
-    private String id;
+    private UUID id;
     
     @Column(name = "YEAR_VALUE")
     @NonNull 

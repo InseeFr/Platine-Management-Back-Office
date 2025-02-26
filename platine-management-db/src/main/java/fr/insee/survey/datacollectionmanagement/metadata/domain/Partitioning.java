@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,7 +16,7 @@ import java.util.Set;
 public class Partitioning {
 
     @Id
-    private String id;
+    private UUID id;
     @NonNull
     private String shortWording;
     private String label;

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class MoogRepository {
             + " WHERE survey_unit_id_su=? AND campaign_id=? ";
 
 
-    public List<MoogQuestioningEventDto> getEventsByIdSuByCampaign(String idCampaign, String idSu) {
+    public List<MoogQuestioningEventDto> getEventsByIdSuByCampaign(UUID idCampaign, String idSu) {
         return jdbcTemplate.query(getEventsQuery, new RowMapper<MoogQuestioningEventDto>() {
             public MoogQuestioningEventDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 MoogQuestioningEventDto moogEvent = new MoogQuestioningEventDto();
@@ -92,7 +93,7 @@ public class MoogRepository {
         """;
 
 
-    public List<MoogExtractionRowDto> getExtraction(String idCampaign) {
+    public List<MoogExtractionRowDto> getExtraction(UUID idCampaign) {
         return jdbcTemplate.query(extractionQuery, new RowMapper<MoogExtractionRowDto>() {
 
             public MoogExtractionRowDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -195,7 +196,7 @@ public class MoogRepository {
             pnd desc;
     """;
 
-    public List<MoogExtractionRowDto> getSurveyUnitToFollowUp(String idCampaign) {
+    public List<MoogExtractionRowDto> getSurveyUnitToFollowUp(UUID idCampaign) {
         return jdbcTemplate.query(surveyUnitFollowUpQuery,
                 new RowMapper<MoogExtractionRowDto>() {
                     public MoogExtractionRowDto mapRow(ResultSet rs, int rowNum) throws SQLException {

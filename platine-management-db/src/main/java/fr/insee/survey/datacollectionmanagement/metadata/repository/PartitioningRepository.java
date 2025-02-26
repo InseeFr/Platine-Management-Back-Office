@@ -1,13 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.metadata.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 
-public interface PartitioningRepository extends JpaRepository<Partitioning, String> {
+public interface PartitioningRepository extends JpaRepository<Partitioning, UUID> {
 
     static final String FIND_ID_PARTITIONNING =
         "select                                                                                                            "
@@ -34,15 +35,15 @@ public interface PartitioningRepository extends JpaRepository<Partitioning, Stri
     public Partitioning findRandomPartitioning();
 
     @Query(nativeQuery = true, value = QUERY_SOURCE_SURVEY_CAMPAIGN)
-    public List<String> findIdPartitioningBySourceIdYearPeriod(String sourceId, String year, String period);
+    public List<UUID> findIdPartitioningBySourceIdYearPeriod(String sourceId, String year, String period);
 
     @Query(nativeQuery = true, value = QUERY_SOURCE)
-    public List<String> findIdPartitioningBySourceId(String sourceId);
+    public List<UUID> findIdPartitioningBySourceId(String sourceId);
 
     @Query(nativeQuery = true, value = QUERY_YEAR)
-    public List<String> findIdPartitioningByYear(String year);
+    public List<UUID> findIdPartitioningByYear(String year);
 
     @Query(nativeQuery = true, value = QUERY_PERIOD)
-    public List<String> findIdPartitioningByPeriod(String period);
+    public List<UUID> findIdPartitioningByPeriod(String period);
 
 }
