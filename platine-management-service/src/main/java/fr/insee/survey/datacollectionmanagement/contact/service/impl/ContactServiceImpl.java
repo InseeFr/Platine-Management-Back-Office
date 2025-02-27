@@ -13,6 +13,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -54,6 +55,14 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    public List<QuestioningContactDto> findByIdentifiers(List<String> identifier) {
+        List<Contact> contacts = contactRepository.findAllById(identifier);
+        return contacts.stream()
+                .map(contact -> new QuestioningContactDto(contact.getIdentifier(), contact.getLastName(), contact.getFirstName()))
+                .toList();
+    }
+
+    @Override
     public Contact saveContact(Contact contact) {
         return contactRepository.save(contact);
     }
@@ -76,17 +85,17 @@ public class ContactServiceImpl implements ContactService {
             return updateContactAddressEvent(contact, payload);
 
         }
-            Contact newContact = convertToEntityNewContact(contactDto);
+        Contact newContact = convertToEntityNewContact(contactDto);
 
-            if (contactDto.getAddress() != null) {
-                newContact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
-            }
+        if (contactDto.getAddress() != null) {
+            newContact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
+        }
 
-            Contact createdContact = createAddressAndEvent(newContact, payload);
+        Contact createdContact = createAddressAndEvent(newContact, payload);
 
-            viewService.createView(id, null, null);
+        viewService.createView(id, null, null);
 
-            return createdContact;
+        return createdContact;
 
     }
 

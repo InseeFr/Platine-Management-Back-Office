@@ -1,21 +1,28 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -40,13 +47,11 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final PartitioningService partitioningService;
 
+    private final ContactService contactService;
+
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
-
-    private final QuestioningCommunicationService questioningCommunicationService;
-
-    private final QuestioningCommentService questioningCommentService;
 
     private final ModelMapper modelMapper;
 
@@ -60,6 +65,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
+    private final PartitioningRepository partitioningRepository;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -178,15 +184,57 @@ public class QuestioningServiceImpl implements QuestioningService {
 
             return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
         }
-
-
     }
-
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(Long id) {
-        Questioning questioning = findById(id);
-        return convertToDetailsDto(questioning);
+        Questioning questioning = questioningRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
+        Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())
+                .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
+
+        SurveyUnit su = questioning.getSurveyUnit();
+        QuestioningSurveyUnitDto questioningSurveyUnitDto = new QuestioningSurveyUnitDto(su.getIdSu(), su.getIdentificationCode(), su.getIdentificationName(), su.getLabel());
+
+        String campaignId = partitioning.getCampaign().getId();
+        String readOnlyUrl = getAccessUrl(UserRoles.REVIEWER, questioning, partitioning);
+
+        List<String> contactsId = questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList();
+        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsId);
+
+        List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
+                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
+                .toList();
+
+        Optional<QuestioningEvent> lastEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
+        QuestioningEventDto lastEventDto = lastEvent
+                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
+                .orElse(new QuestioningEventDto());
+
+        Optional<QuestioningEvent> validatedEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        QuestioningEventDto validatedEventDto = validatedEvent
+                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
+                .orElse(new QuestioningEventDto());
+
+        List<QuestioningCommunicationDto> questioningCommunicationsDto = questioning.getQuestioningCommunications().stream()
+                .map(comm -> modelMapper.map(comm, QuestioningCommunicationDto.class))
+                .toList();
+
+        Set<QuestioningComment> questioningComments = questioning.getQuestioningComments();
+        List<QuestioningCommentOutputDto> questioningCommentOutputsDto = questioningComments.stream()
+                .map(comment -> modelMapper.map(comment, QuestioningCommentOutputDto.class))
+                .toList();
+
+        return new QuestioningDetailsDtoBuilder()
+                .questioningId(id)
+                .campaignId(campaignId)
+                .surveyUnit(questioningSurveyUnitDto)
+                .contacts(questioningContactDtoList)
+                .events(questioningEventsDto, lastEventDto, validatedEventDto)
+                .communications(questioningCommunicationsDto)
+                .comments(questioningCommentOutputsDto)
+                .readOnlyUrl(readOnlyUrl)
+                .build();
     }
 
 
@@ -247,41 +295,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
         validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
         return searchQuestioningDto;
-    }
-
-    private QuestioningDetailsDto convertToDetailsDto(Questioning questioning) {
-        QuestioningDetailsDto questioningDetailsDto = modelMapper.map(questioning, QuestioningDetailsDto.class);
-        questioningDetailsDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
-        questioningDetailsDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
-        Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        lastQuestioningEvent.ifPresent(event -> {
-            questioningDetailsDto.setLastEvent(event.getType().name());
-            questioningDetailsDto.setDateLastEvent(event.getDate());
-        });
-        Optional<QuestioningCommunication> questioningCommunication = questioningCommunicationService.getLastQuestioningCommunication(questioning);
-        questioningCommunication.ifPresent(comm -> {
-            questioningDetailsDto.setLastCommunication(comm.getType().name());
-            questioningDetailsDto.setDateLastCommunication(comm.getDate());
-        });
-        Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        validatedQuestioningEvent.ifPresent(event -> questioningDetailsDto.setValidationDate(event.getDate()));
-        questioningDetailsDto.setReadOnlyUrl(getReadOnlyUrl(questioning.getIdPartitioning(), questioning.getSurveyUnit().getIdSu()));
-        questioningDetailsDto.setListEvents(questioning.getQuestioningEvents().stream().map(questioningEventService::convertToDto).toList());
-        questioningDetailsDto.setListCommunications(questioning.getQuestioningCommunications().stream().map(questioningCommunicationService::convertToDto).toList());
-        questioningDetailsDto.setListComments(questioning.getQuestioningComments().stream().map(questioningCommentService::convertToOutputDto).toList());
-        return questioningDetailsDto;
-    }
-
-    public String getReadOnlyUrl(String idPart, String surveyUnitId) throws NotFoundException {
-
-        Partitioning part = partitioningService.findById(idPart);
-        Optional<Questioning> optionalQuestioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-        if (optionalQuestioning.isPresent()) {
-            return getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
-
-        }
-        return "";
-
     }
 
     @Override
