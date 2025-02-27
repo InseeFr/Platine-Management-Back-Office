@@ -12,7 +12,7 @@ public class MyQuestionnaireDto {
     private String surveyUnitIdentificationName;
     private String questioningStatus;
     private String questioningAccessUrl;
-    private String deliveryUrl;
+    private String depositProofUrl;
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;

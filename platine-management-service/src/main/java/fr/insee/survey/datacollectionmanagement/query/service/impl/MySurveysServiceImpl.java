@@ -3,9 +3,11 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -35,7 +37,6 @@ public class MySurveysServiceImpl implements MySurveysService {
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningService questioningService;
-
 
     @Override
     public List<MyQuestioningDto> getListMySurveys(String id) {
@@ -78,7 +79,7 @@ public class MySurveysServiceImpl implements MySurveysService {
 
 
     @Override
-    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
+    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String QuestionnaireApiUrl) {
         List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
 
@@ -91,12 +92,29 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setPartitioningLabel(part.getLabel());
             myQuestionnaireDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
             myQuestionnaireDto.setSurveyUnitIdentificationName(questioning.getSurveyUnit().getIdentificationName());
-            myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
-            myQuestionnaireDto.setDeliveryUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
-            myQuestionnaireDto.setQuestioningStatus(questioningService.getQuestioningStatus(questioning, part).name());
             myQuestionnaireDtos.add(myQuestionnaireDto);
             myQuestionnaireDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
             myQuestionnaireDto.setPartitioningId(part.getId());
+
+            String questioningStatus = questioningService.getQuestioningStatus(questioning, part).name();
+            myQuestionnaireDto.setQuestioningStatus(questioningStatus);
+
+            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name()))
+            {
+                DataCollectionEnum dataCollectionEnum = part.getCampaign().getDataCollectionTarget();
+                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2))
+                {
+                    String depositProofUrl = QuestionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
+                    myQuestionnaireDto.setQuestioningAccessUrl(depositProofUrl);
+                }
+                else
+                {
+                    myQuestionnaireDto.setDepositProofUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
+                }
+            }
+
+            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name()))
+                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
         }
 
         return myQuestionnaireDtos;

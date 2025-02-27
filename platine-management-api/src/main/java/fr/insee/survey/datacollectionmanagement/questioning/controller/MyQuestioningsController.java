@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
@@ -21,6 +22,7 @@ public class MyQuestioningsController {
 
     private final MySurveysService mySurveysService;
 
+    private final ApplicationConfig config;
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONINGS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
@@ -36,9 +38,6 @@ public class MyQuestioningsController {
     @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
     public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
-
-
-        return mySurveysService.getListMyQuestionnaires(idec.toUpperCase());
-
+        return mySurveysService.getListMyQuestionnaires(idec.toUpperCase(), config.getQuestionnaireApiUrl());
     }
 }
