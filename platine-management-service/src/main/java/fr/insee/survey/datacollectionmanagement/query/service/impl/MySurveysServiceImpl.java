@@ -80,7 +80,6 @@ public class MySurveysServiceImpl implements MySurveysService {
     @Override
     public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
         List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
-
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
 
         for (QuestioningAccreditation questioningAccreditation : accreditations) {
