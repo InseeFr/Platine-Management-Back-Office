@@ -20,11 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -112,13 +111,48 @@ class QuestioningEventServiceImplTest {
         verify(questioningEventRepository).save(any(QuestioningEvent.class));
     }
 
-
     private JsonNode createPayload() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = "{ \"source\": \"test\"}";
         return objectMapper.readTree(jsonString);
     }
 
+    @Test
+    void shouldReturnFalse_whenNoTypeQuestioningEvents() {
+        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEvent questioningEvent = new QuestioningEvent();
+        questioningEvent.setType(TypeQuestioningEvent.VALINT);
+        events.add(questioningEvent);
+        questioning.setQuestioningEvents(events);
 
+        boolean result = questioningEventService.containsQuestioningEvents(questioning, List.of());
+        assertFalse(result);
+    }
 
+    @Test
+    void shouldReturnTrue_whenQuestioningEventInTypeQuestioningEvents() {
+        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEvent questioningEvent = new QuestioningEvent();
+        questioningEvent.setType(TypeQuestioningEvent.VALINT);
+        events.add(questioningEvent);
+        questioning.setQuestioningEvents(events);
+
+        boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldReturnFalse_whenQuestioningEventsNotInTypeQuestioningEvents() {
+        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEvent questioningEventValid = new QuestioningEvent();
+        questioningEventValid.setType(TypeQuestioningEvent.VALINT);
+        QuestioningEvent questioningEventRefused = new QuestioningEvent();
+        questioningEventRefused.setType(TypeQuestioningEvent.REFUSAL);
+        events.add(questioningEventValid);
+        events.add(questioningEventRefused);
+        questioning.setQuestioningEvents(events);
+
+        boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
+        assertFalse(result);
+    }
 }

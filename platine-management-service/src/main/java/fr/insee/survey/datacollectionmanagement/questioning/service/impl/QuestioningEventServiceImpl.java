@@ -57,10 +57,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public boolean containQuestioningEvent(Questioning questioning, TypeQuestioningEvent events) {
-        List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
-                .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
-        return listQuestioningEvent.stream().findFirst();
+    public boolean containsQuestioningEvents(Questioning questioning,  List<TypeQuestioningEvent> events) {
+        return questioning.getQuestioningEvents().stream().map(QuestioningEvent::getType).anyMatch(events::contains);
     }
 
     @Override
