@@ -67,6 +67,7 @@ class MySurveyServiceImplTest {
 
         mockPartitioning = new Partitioning();
         mockPartitioning.setLabel("Partition Label");
+        mockPartitioning.setId(mockQuestioning.getIdPartitioning());
         mockPartitioning.setCampaign(mockCampaign);
 
         questioningAccreditationService.setQuestioningAccreditationList(List.of(mockAccreditation));
@@ -77,20 +78,21 @@ class MySurveyServiceImplTest {
 
     @Test
     void testGetListMyQuestionnaires() {
-
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertNotNull(result);
         assertEquals(1, result.size());
 
         MyQuestionnaireDto dto = result.getFirst();
+
         assertEquals("Partition Label", dto.getPartitioningLabel());
         assertEquals("Code123", dto.getSurveyUnitIdentificationCode());
         assertEquals("Name123", dto.getSurveyUnitIdentificationName());
         assertEquals("http://access-url", dto.getQuestioningAccessUrl());
         assertEquals("http://preuve-de-depot/SU123", dto.getDeliveryUrl());
+        assertEquals("partition1", dto.getPartitioningId());
+        assertEquals("SU123", dto.getSurveyUnitId());
         assertEquals(QuestionnaireStatusTypeEnum.OPEN.name(), dto.getQuestioningStatus());
-        // TODO : surveyunitid / part id ?
     }
 
     @Test
