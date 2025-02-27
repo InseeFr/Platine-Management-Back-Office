@@ -45,5 +45,14 @@ public enum TypeQuestioningEvent {
     public static final List<TypeQuestioningEvent> VALIDATED_EVENTS = Arrays.asList(
             VALINT,
             VALPAP);
+
+    public static final List<TypeQuestioningEvent> OPENED_EVENTS = Arrays.asList(
+            INITLA,
+            PARTIELINT);
+
+    public static final List<TypeQuestioningEvent> REFUSED_EVENTS = Arrays.asList(
+            WASTE,
+            HC,
+            REFUSAL);
 }
 
