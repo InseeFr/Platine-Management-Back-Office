@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,14 @@ public interface ContactService {
      * @return contact found
      */
     Contact findByIdentifier(String identifier);
+
+    /**
+     * Find all contacts by identifiers list
+     *
+     * @param identifiers
+     * @return
+     */
+    List<QuestioningContactDto> findByIdentifiers(List<String> identifiers);
 
     /**
      * Update an existing contact and its address, or creates a new one
