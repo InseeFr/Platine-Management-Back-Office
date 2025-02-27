@@ -79,7 +79,7 @@ public class MySurveysServiceImpl implements MySurveysService {
 
 
     @Override
-    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String QuestionnaireApiUrl) {
+    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String questionnaireApiUrl) {
         List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
 
@@ -104,7 +104,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                 DataCollectionEnum dataCollectionEnum = part.getCampaign().getDataCollectionTarget();
                 if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2))
                 {
-                    String depositProofUrl = QuestionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
+                    String depositProofUrl = questionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
                     myQuestionnaireDto.setQuestioningAccessUrl(depositProofUrl);
                 }
                 else

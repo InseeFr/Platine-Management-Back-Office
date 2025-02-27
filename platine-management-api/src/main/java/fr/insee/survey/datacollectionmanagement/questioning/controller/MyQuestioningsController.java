@@ -29,9 +29,7 @@ public class MyQuestioningsController {
     public List<MyQuestioningDto> findById(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
 
-
         return mySurveysService.getListMySurveys(idec.toUpperCase());
-
     }
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONNAIRES)

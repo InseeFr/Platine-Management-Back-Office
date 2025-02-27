@@ -12,5 +12,5 @@ public interface MySurveysService {
 
     List<MyQuestioningDto> getListMySurveys(String id);
 
-    List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String QuestionnaireApiUrl);
+    List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String questionnaireApiUrl);
 }
