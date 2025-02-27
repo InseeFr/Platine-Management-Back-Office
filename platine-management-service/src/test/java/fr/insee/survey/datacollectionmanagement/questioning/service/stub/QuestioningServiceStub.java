@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
-import fr.insee.survey.datacollectionmanagement.query.enums.QuestionaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -18,7 +18,7 @@ import java.util.Set;
 public class QuestioningServiceStub implements QuestioningService {
 
     private String accesUrl;
-    private QuestionaireStatusTypeEnum questionnaireStatus;
+    private QuestionnaireStatusTypeEnum questionnaireStatus;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -81,7 +81,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestionaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
         return questionnaireStatus;
     }
 }
