@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
-import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
@@ -13,6 +12,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,19 +22,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningEventServiceImplTest {
 
     @Mock
-    private LastQuestioningEventComparator lastQuestioningEventComparator;
-    @Mock
     private QuestioningEventRepository questioningEventRepository;
+
     @Mock
     private QuestioningRepository questioningRepository;
 
@@ -61,98 +58,112 @@ class QuestioningEventServiceImplTest {
         existingEvent.setType(TypeQuestioningEvent.VALINT);
     }
 
-    @Test
-    void shouldThrowNotFoundException_whenQuestioningDoesNotExist() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.empty());
-
-        NotFoundException exception = assertThrows(NotFoundException.class, () ->
-                questioningEventService.postValintQuestioningEvent(validatedDto)
-        );
-
-        assertEquals("Questioning 1 does not exist", exception.getMessage());
+    private JsonNode createPayload() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = "{ \"source\": \"test\" }";
+        return objectMapper.readTree(jsonString);
     }
 
     @Test
-    void shouldThrowTooManyValuesException_whenMultipleVALINTEventsExist() {
+    @DisplayName("Should throw NotFoundException when questioning does not exist")
+    void postValintQuestioningEventTest() {
+        when(questioningRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> questioningEventService.postValintQuestioningEvent(validatedDto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Questioning 1 does not exist");
+    }
+
+    @Test
+    @DisplayName("Should throw TooManyValuesException when multiple VALINT events exist")
+    void postValintQuestioningEventTest2() {
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(new QuestioningEvent(), new QuestioningEvent()));
 
-        TooManyValuesException exception = assertThrows(TooManyValuesException.class, () ->
-                questioningEventService.postValintQuestioningEvent(validatedDto)
-        );
-
-        assertTrue(exception.getMessage().contains("2 VALINT questioningEvents found"));
+        assertThatThrownBy(() -> questioningEventService.postValintQuestioningEvent(validatedDto))
+                .isInstanceOf(TooManyValuesException.class)
+                .hasMessageContaining("2 VALINT questioningEvents found");
     }
 
     @Test
-    void shouldUpdateExistingVALINTEvent_whenOneExists() {
+    @DisplayName("Should update existing VALINT event when one exists")
+    void postValintQuestioningEventTest3() {
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(existingEvent));
 
         boolean result = questioningEventService.postValintQuestioningEvent(validatedDto);
 
-        assertFalse(result);
-        assertEquals(validatedDto.getDate(), existingEvent.getDate());
-        assertEquals(validatedDto.getPayload(), existingEvent.getPayload());
+        assertThat(result).isFalse();
+        assertThat(existingEvent.getDate()).isEqualTo(validatedDto.getDate());
+        assertThat(existingEvent.getPayload()).isEqualTo(validatedDto.getPayload());
+
         verify(questioningEventRepository).save(existingEvent);
     }
 
     @Test
-    void shouldCreateNewVALINTEvent_whenNoneExists() {
+    @DisplayName("Should create new VALINT event when none exist")
+    void postValintQuestioningEventTest4() {
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of());
 
         boolean result = questioningEventService.postValintQuestioningEvent(validatedDto);
 
-        assertTrue(result);
+        assertThat(result).isTrue();
         verify(questioningEventRepository).save(any(QuestioningEvent.class));
     }
 
-    private JsonNode createPayload() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = "{ \"source\": \"test\"}";
-        return objectMapper.readTree(jsonString);
-    }
-
     @Test
-    void shouldReturnFalse_whenNoTypeQuestioningEvents() {
+    @DisplayName("Should return false when no questioning event types match")
+    void containsQuestioningEventsTest() {
         Set<QuestioningEvent> events = new HashSet<>();
+
         QuestioningEvent questioningEvent = new QuestioningEvent();
         questioningEvent.setType(TypeQuestioningEvent.VALINT);
+
         events.add(questioningEvent);
         questioning.setQuestioningEvents(events);
 
         boolean result = questioningEventService.containsQuestioningEvents(questioning, List.of());
-        assertFalse(result);
+
+        assertThat(result).isFalse();
     }
 
     @Test
-    void shouldReturnTrue_whenQuestioningEventInTypeQuestioningEvents() {
+    @DisplayName("Should return true when questioning event matches given types")
+    void containsQuestioningEventsTest2() {
         Set<QuestioningEvent> events = new HashSet<>();
+
         QuestioningEvent questioningEvent = new QuestioningEvent();
         questioningEvent.setType(TypeQuestioningEvent.VALINT);
+
         events.add(questioningEvent);
         questioning.setQuestioningEvents(events);
 
         boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        assertTrue(result);
+
+        assertThat(result).isTrue();
     }
 
     @Test
-    void shouldReturnFalse_whenQuestioningEventsNotInTypeQuestioningEvents() {
+    @DisplayName("Should return false when questioning events do not match given types")
+    void containsQuestioningEventsTest3() {
         Set<QuestioningEvent> events = new HashSet<>();
+
         QuestioningEvent questioningEventValid = new QuestioningEvent();
         questioningEventValid.setType(TypeQuestioningEvent.VALINT);
+
         QuestioningEvent questioningEventRefused = new QuestioningEvent();
         questioningEventRefused.setType(TypeQuestioningEvent.REFUSAL);
+
         events.add(questioningEventValid);
         events.add(questioningEventRefused);
         questioning.setQuestioningEvents(events);
 
         boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
-        assertFalse(result);
+
+        assertThat(result).isFalse();
     }
 }

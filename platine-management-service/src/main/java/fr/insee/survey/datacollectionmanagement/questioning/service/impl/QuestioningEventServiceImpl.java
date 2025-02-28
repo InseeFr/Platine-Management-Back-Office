@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +59,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public boolean containsQuestioningEvents(Questioning questioning,  List<TypeQuestioningEvent> events) {
-        return questioning.getQuestioningEvents().stream().map(QuestioningEvent::getType).anyMatch(events::contains);
+        Stream<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents().stream();
+        return questioningEvents.map(QuestioningEvent::getType).anyMatch(events::contains);
     }
 
     @Override

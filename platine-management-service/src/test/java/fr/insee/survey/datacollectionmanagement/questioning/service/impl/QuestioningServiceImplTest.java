@@ -30,7 +30,6 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -252,23 +251,26 @@ class QuestioningServiceImplTest {
         return questioning;
     }
 
+    @DisplayName("Should return INCOMING when today is before opening date")
     @Test
-    void shouldReturnIncoming_whenTodayIsBeforeOpeningDate() {
+    void getQuestioningStatusTest() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.INCOMING, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
     }
 
+    @DisplayName("Should return NOT_RECEIVED when no events exist")
     @Test
-    void shouldReturnNotReceived_whenNoEventsExist() {
+    void getQuestioningStatusTest2() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         questioning.setQuestioningEvents(new HashSet<>());
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.NOT_RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
+    @DisplayName("Should return NOT_RECEIVED when refused event exists")
     @Test
-    void shouldReturnNotReceived_whenRefusedEventExists() {
+    void getQuestioningStatusTest3() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         Set<QuestioningEvent> events = new HashSet<>();
@@ -279,11 +281,12 @@ class QuestioningServiceImplTest {
 
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(true);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.NOT_RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
+    @DisplayName("Should return RECEIVED when validated event exists before closing date")
     @Test
-    void shouldReturnReceived_whenValidatedEventExistsBeforeClosingDate() {
+    void getQuestioningStatusTest4() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         Set<QuestioningEvent> events = new HashSet<>();
@@ -296,11 +299,12 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(true);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
     }
 
+    @DisplayName("Should return OPEN when opened event exists before closing date")
     @Test
-    void shouldReturnOpen_whenOpenedEventExistsBeforeClosingDate() {
+    void getQuestioningStatusTest5() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         Set<QuestioningEvent> events = new HashSet<>();
@@ -313,21 +317,23 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.OPEN, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.OPEN);
     }
 
+    @DisplayName("Should return NOT_RECEIVED when no valid event exists after closing date")
     @Test
-    void shouldReturnNotReceived_whenNoValidEventsAndAfterClosingDate() {
+    void getQuestioningStatusTest6() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         Set<QuestioningEvent> events = new HashSet<>();
         questioning.setQuestioningEvents(events);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.NOT_RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
+    @DisplayName("Should return NOT_RECEIVED when valid events exist after closing date")
     @Test
-    void shouldReturnNotReceived_whenValidEventsAndAfterClosingDate() {
+    void getQuestioningStatusTest7() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         Set<QuestioningEvent> events = new HashSet<>();
@@ -338,11 +344,12 @@ class QuestioningServiceImplTest {
 
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.NOT_RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
+    @DisplayName("Should return NOT_RECEIVED when valid and refused events exist before closing date")
     @Test
-    void shouldReturnNotReceived_whenValidEventsAndRefusedEventsAndBeforeClosingDate() {
+    void getQuestioningStatusTest8() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         Set<QuestioningEvent> events = new HashSet<>();
@@ -357,6 +364,6 @@ class QuestioningServiceImplTest {
 
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertEquals(QuestionnaireStatusTypeEnum.NOT_RECEIVED, status);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 }

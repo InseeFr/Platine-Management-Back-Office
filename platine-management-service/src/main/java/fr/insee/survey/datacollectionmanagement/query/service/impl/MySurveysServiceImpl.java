@@ -106,14 +106,12 @@ public class MySurveysServiceImpl implements MySurveysService {
                 {
                     String depositProofUrl = questionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
                     myQuestionnaireDto.setQuestioningAccessUrl(depositProofUrl);
+                    continue;
                 }
-                else
-                {
-                    myQuestionnaireDto.setDepositProofUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
-                }
+                myQuestionnaireDto.setDepositProofUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
             }
 
-            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name()))
+            else if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name()))
                 myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
         }
 

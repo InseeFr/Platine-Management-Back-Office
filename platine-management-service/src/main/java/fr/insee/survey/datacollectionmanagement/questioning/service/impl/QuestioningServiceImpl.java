@@ -294,27 +294,20 @@ public class QuestioningServiceImpl implements QuestioningService {
         if(today.before(openingDate))
             return QuestionnaireStatusTypeEnum.INCOMING;
 
-        Date closingDate = part.getClosingDate();
         Set<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents();
+        Date closingDate = part.getClosingDate();
+        boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if(!questioningEvents.isEmpty()) {
-            
-            boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
-            if(refused)
-                return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
-
-            if(closingDate.after(today))
-            {
-                boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-                boolean opened = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
-                if(validated)
-                    return QuestionnaireStatusTypeEnum.RECEIVED;
-                if(opened)
-                    return QuestionnaireStatusTypeEnum.OPEN;
-            }
+        if(!questioningEvents.isEmpty() && !refused && closingDate.after(today))
+        {
+            boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+            boolean opened = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
+            if(validated)
+                return QuestionnaireStatusTypeEnum.RECEIVED;
+            if(opened)
+                return QuestionnaireStatusTypeEnum.OPEN;
         }
 
         return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
     }
-
 }

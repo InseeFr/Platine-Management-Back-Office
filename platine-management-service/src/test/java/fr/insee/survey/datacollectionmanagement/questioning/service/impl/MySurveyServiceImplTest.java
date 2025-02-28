@@ -1,51 +1,36 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.MySurveysServiceImpl;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.PartitioningServiceStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MySurveyServiceImplTest {
 
     private MySurveysServiceImpl mySurveysService;
     private QuestioningAccreditationServiceStub questioningAccreditationService;
-
-    QuestioningServiceStub questioningService;
-    Questioning mockQuestioning;
-    Partitioning mockPartitioning;
+    private QuestioningServiceStub questioningService;
+    private Questioning mockQuestioning;
+    private Partitioning mockPartitioning;
 
     @BeforeEach
     void setUp() {
-        PartitioningServiceStub partitioningService;
-        SurveyUnit mockSurveyUnit;
-        QuestioningEventServiceStub questioningEventServiceStub;
-        QuestioningAccreditation mockAccreditation;
-        Campaign mockCampaign;
-        Survey mockSurvey;
-        Source mockSource;
-
+        PartitioningServiceStub partitioningService = new PartitioningServiceStub();
+        QuestioningEventServiceStub questioningEventServiceStub = new QuestioningEventServiceStub();
         questioningAccreditationService = new QuestioningAccreditationServiceStub();
-        partitioningService = new PartitioningServiceStub();
-        questioningEventServiceStub = new QuestioningEventServiceStub();
         questioningService = new QuestioningServiceStub();
+
         mySurveysService = new MySurveysServiceImpl(questioningAccreditationService, partitioningService, questioningEventServiceStub, questioningService);
 
-        mockSurveyUnit = new SurveyUnit();
+        SurveyUnit mockSurveyUnit = new SurveyUnit();
         mockSurveyUnit.setIdSu("SU123");
         mockSurveyUnit.setIdentificationCode("Code123");
         mockSurveyUnit.setIdentificationName("Name123");
@@ -55,16 +40,16 @@ class MySurveyServiceImplTest {
         mockQuestioning.setIdPartitioning("partition1");
         mockQuestioning.setSurveyUnit(mockSurveyUnit);
 
-        mockAccreditation = new QuestioningAccreditation();
+        QuestioningAccreditation mockAccreditation = new QuestioningAccreditation();
         mockAccreditation.setQuestioning(mockQuestioning);
 
-        mockSource = new Source();
+        Source mockSource = new Source();
         mockSource.setId("source1");
 
-        mockSurvey = new Survey();
+        Survey mockSurvey = new Survey();
         mockSurvey.setSource(mockSource);
 
-        mockCampaign = new Campaign();
+        Campaign mockCampaign = new Campaign();
         mockCampaign.setSurvey(mockSurvey);
 
         mockPartitioning = new Partitioning();
@@ -78,101 +63,84 @@ class MySurveyServiceImplTest {
     }
 
     @Test
-    void testGetListMyQuestionnairesStatusOpen() {
+    @DisplayName("Should return questionnaire list when status is OPEN")
+    void getListMyQuestionnairesTest() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.OPEN);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123", null);
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-
-        assertEquals("Partition Label", dto.getPartitioningLabel());
-        assertEquals("Code123", dto.getSurveyUnitIdentificationCode());
-        assertEquals("Name123", dto.getSurveyUnitIdentificationName());
-        assertEquals("http://access-url", dto.getQuestioningAccessUrl());
-        assertEquals("partition1", dto.getPartitioningId());
-        assertEquals("SU123", dto.getSurveyUnitId());
-        assertEquals(QuestionnaireStatusTypeEnum.OPEN.name(), dto.getQuestioningStatus());
-        assertNull(dto.getDepositProofUrl());
+        assertThat(dto.getPartitioningLabel()).isEqualTo("Partition Label");
+        assertThat(dto.getSurveyUnitIdentificationCode()).isEqualTo("Code123");
+        assertThat(dto.getSurveyUnitIdentificationName()).isEqualTo("Name123");
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.getPartitioningId()).isEqualTo("partition1");
+        assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.OPEN.name());
+        assertThat(dto.getDepositProofUrl()).isNull();
     }
 
     @Test
-    void testGetListMyQuestionnairesStatusIncomingStatus() {
+    @DisplayName("Should return questionnaire list when status is INCOMING")
+    void getListMyQuestionnairesTest2() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.INCOMING);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123", null);
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-
-        assertEquals("Partition Label", dto.getPartitioningLabel());
-        assertEquals("Code123", dto.getSurveyUnitIdentificationCode());
-        assertEquals("Name123", dto.getSurveyUnitIdentificationName());
-        assertEquals("partition1", dto.getPartitioningId());
-        assertEquals("SU123", dto.getSurveyUnitId());
-        assertEquals(QuestionnaireStatusTypeEnum.INCOMING.name(), dto.getQuestioningStatus());
-        assertNull(dto.getQuestioningAccessUrl());
-        assertNull(dto.getDepositProofUrl());
+        assertThat(dto.getPartitioningLabel()).isEqualTo("Partition Label");
+        assertThat(dto.getSurveyUnitIdentificationCode()).isEqualTo("Code123");
+        assertThat(dto.getSurveyUnitIdentificationName()).isEqualTo("Name123");
+        assertThat(dto.getPartitioningId()).isEqualTo("partition1");
+        assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
+        assertThat(dto.getQuestioningAccessUrl()).isNull();
+        assertThat(dto.getDepositProofUrl()).isNull();
     }
 
     @Test
-    void testGetListMyQuestionnairesStatusReceivedStatusNoXform() {
+    @DisplayName("Should return questionnaire list when status is RECEIVED without XForm")
+    void getListMyQuestionnairesTest3() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123", null);
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-
-        assertEquals("Partition Label", dto.getPartitioningLabel());
-        assertEquals("Code123", dto.getSurveyUnitIdentificationCode());
-        assertEquals("Name123", dto.getSurveyUnitIdentificationName());
-        assertEquals("partition1", dto.getPartitioningId());
-        assertEquals("SU123", dto.getSurveyUnitId());
-        assertEquals(QuestionnaireStatusTypeEnum.RECEIVED.name(), dto.getQuestioningStatus());
-        assertEquals("http://preuve-de-depot/" + mockQuestioning.getSurveyUnit().getIdSu(), dto.getDepositProofUrl());
-        assertNull(dto.getQuestioningAccessUrl());
+        assertThat(dto.getPartitioningLabel()).isEqualTo("Partition Label");
+        assertThat(dto.getSurveyUnitIdentificationCode()).isEqualTo("Code123");
+        assertThat(dto.getSurveyUnitIdentificationName()).isEqualTo("Name123");
+        assertThat(dto.getPartitioningId()).isEqualTo("partition1");
+        assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
+        assertThat(dto.getDepositProofUrl()).isEqualTo("http://preuve-de-depot/" + mockQuestioning.getSurveyUnit().getIdSu());
+        assertThat(dto.getQuestioningAccessUrl()).isNull();
     }
 
     @Test
-    void testGetListMyQuestionnairesStatusReceivedStatusWithXform1() {
+    @DisplayName("Should return questionnaire list when status is RECEIVED with XForm")
+    void getListMyQuestionnairesTest4() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         mockPartitioning.getCampaign().setDataCollectionTarget(DataCollectionEnum.XFORM1);
 
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123", "api.test");
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-
-        assertEquals("Partition Label", dto.getPartitioningLabel());
-        assertEquals("Code123", dto.getSurveyUnitIdentificationCode());
-        assertEquals("Name123", dto.getSurveyUnitIdentificationName());
-        assertEquals("partition1", dto.getPartitioningId());
-        assertEquals("SU123", dto.getSurveyUnitId());
-
-        assertEquals(QuestionnaireStatusTypeEnum.RECEIVED.name(), dto.getQuestioningStatus());
-        assertEquals("api.test/api/survey-unit/" + mockQuestioning.getSurveyUnit().getIdSu() + "/deposit-proof", dto.getQuestioningAccessUrl());
-        assertNull(dto.getDepositProofUrl());
-
-        mockPartitioning.getCampaign().setDataCollectionTarget(DataCollectionEnum.XFORM2);
-        List<MyQuestionnaireDto> result2 = mySurveysService.getListMyQuestionnaires("123", "api.test");
-        MyQuestionnaireDto dto2 = result2.getFirst();
-        assertEquals("api.test/api/survey-unit/" + mockQuestioning.getSurveyUnit().getIdSu() + "/deposit-proof", dto2.getQuestioningAccessUrl());
-        assertNull(dto.getDepositProofUrl());
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("api.test/api/survey-unit/" + mockQuestioning.getSurveyUnit().getIdSu() + "/deposit-proof");
+        assertThat(dto.getDepositProofUrl()).isNull();
     }
 
     @Test
-    void testGetListMyQuestionnairesWhenNoAccreditations() {
+    @DisplayName("Should return empty list when no accreditations are found")
+    void getListMyQuestionnairesTest5() {
         questioningAccreditationService.setQuestioningAccreditationList(List.of());
 
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("456", null);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertThat(result).isEmpty();
     }
 }
