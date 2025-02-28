@@ -59,7 +59,7 @@ class MySurveyServiceImplTest {
 
         questioningAccreditationService.setQuestioningAccreditationList(List.of(mockAccreditation));
         partitioningService.setPartitioning(mockPartitioning);
-        questioningService.setAccesUrl("http://access-url");
+        questioningService.setAccessUrl("http://access-url");
     }
 
     @Test

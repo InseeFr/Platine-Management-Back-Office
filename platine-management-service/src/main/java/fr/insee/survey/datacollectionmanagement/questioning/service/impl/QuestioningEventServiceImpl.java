@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,22 +44,23 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public void deleteQuestioningEvent(Long id) {
         questioningEventRepository.deleteById(id);
-
     }
 
     @Override
-    public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning,
-                                                              List<TypeQuestioningEvent> events) {
-
-        List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
-                .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
-        return listQuestioningEvent.stream().findFirst();
+    public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events) {
+        return questioning
+                .getQuestioningEvents()
+                .stream()
+                .filter(qe -> events.contains(qe.getType()))
+                .min(lastQuestioningEventComparator);
     }
 
     @Override
     public boolean containsQuestioningEvents(Questioning questioning,  List<TypeQuestioningEvent> events) {
-        Stream<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents().stream();
-        return questioningEvents.map(QuestioningEvent::getType).anyMatch(events::contains);
+       return questioning.getQuestioningEvents()
+               .stream()
+               .map(QuestioningEvent::getType)
+               .anyMatch(events::contains);
     }
 
     @Override

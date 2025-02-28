@@ -25,7 +25,7 @@ public class MyQuestioningsController {
     private final ApplicationConfig config;
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONINGS_ID)
-    @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public List<MyQuestioningDto> findById(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
 
@@ -33,7 +33,7 @@ public class MyQuestioningsController {
     }
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONNAIRES)
-    @PreAuthorize(AuthorityPrivileges.HAS_REPONDENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
         return mySurveysService.getListMyQuestionnaires(idec.toUpperCase(), config.getQuestionnaireApiUrl());

@@ -17,7 +17,7 @@ import java.util.Set;
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
 
-    private String accesUrl;
+    private String accessUrl;
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
     @Override
@@ -67,7 +67,7 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
-        return accesUrl;
+        return accessUrl;
     }
 
     @Override

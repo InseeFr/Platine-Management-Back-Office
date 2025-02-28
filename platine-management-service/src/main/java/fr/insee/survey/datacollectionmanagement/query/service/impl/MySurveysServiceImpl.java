@@ -99,20 +99,22 @@ public class MySurveysServiceImpl implements MySurveysService {
             String questioningStatus = questioningService.getQuestioningStatus(questioning, part).name();
             myQuestionnaireDto.setQuestioningStatus(questioningStatus);
 
-            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name()))
-            {
+            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name())) {
                 DataCollectionEnum dataCollectionEnum = part.getCampaign().getDataCollectionTarget();
-                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2))
-                {
+
+                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2)) {
                     String depositProofUrl = questionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
                     myQuestionnaireDto.setQuestioningAccessUrl(depositProofUrl);
                     continue;
                 }
+
                 myQuestionnaireDto.setDepositProofUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
+                continue;
             }
 
-            else if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name()))
+            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name())) {
                 myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
+            }
         }
 
         return myQuestionnaireDtos;
