@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -81,6 +82,8 @@ public class CampaignServiceImpl implements CampaignService {
 
   @Override
   public Campaign insertOrUpdateCampaign(Campaign campaign) {
+      if (campaign.getDataCollectionTarget() == null)
+          campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
     return campaignRepository.save(campaign);
 
   }
