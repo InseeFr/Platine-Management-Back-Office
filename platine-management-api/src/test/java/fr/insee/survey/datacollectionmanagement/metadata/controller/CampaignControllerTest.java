@@ -8,7 +8,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,13 +31,9 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -72,10 +67,22 @@ class CampaignControllerTest {
         String otherIdentifier = "WRONG";
         Campaign campaign = initOpenedCampaign(identifier);
         String jsonCampaign = createJson(campaign, "SOURCE12023");
-        String jsonError = JsonUtil.createJsonErrorBadRequest("id and idCampaign don't match");
         mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().json(jsonError, false));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("id and idCampaign don't match"));
+    }
+
+    @Test
+    void putCampaignsErrorDataCollectionTarget() throws Exception {
+        String identifier = "SOURCE12023T01";
+        String otherIdentifier = "WRONG";
+        Campaign campaign = initOpenedCampaign(identifier);
+        String jsonCampaign = createJson(campaign, "SOURCE12023T01", false, "WRONG_TARGET");
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, otherIdentifier).content(jsonCampaign)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("DataCollectionTarget missing or not recognized. Only LUNATIC_NORMAL, LUNATIC_SENSITIVE, XFORM1, XFORM2 are valid"));
     }
 
     @Test
@@ -85,9 +92,8 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"ongoing": true}
-                        """, false));
+                .andExpect(jsonPath("$.ongoing").value(true));
+
     }
 
     @Test
@@ -97,9 +103,8 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"ongoing": false}
-                        """, false));
+                .andExpect(jsonPath("$.ongoing").value(false));
+
 
     }
 
@@ -110,9 +115,7 @@ class CampaignControllerTest {
         initCampaignAndPartitionings(identifier, campaign);
 
         this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"ongoing": false}
-                        """, false));
+                .andExpect(jsonPath("$.ongoing").value(false));
     }
 
     @Test
@@ -125,12 +128,13 @@ class CampaignControllerTest {
                         put(UrlConstants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonCampaign.toString(), false));
+                .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
+                .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))
+                .andExpect(jsonPath("$.year").value(campaign.getYear()));
 
         this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {"ongoing": false}
-                        """, false));
+                .andExpect(jsonPath("$.ongoing").value(false));
+
     }
 
     @Test
@@ -159,10 +163,13 @@ class CampaignControllerTest {
                         put(UrlConstants.API_CAMPAIGNS_ID, identifier).content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonCampaign, false));
+                .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
+                .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))
+                .andExpect(jsonPath("$.year").value(campaign.getYear()));
+
 
         List<Partitioning> partitions = campaign.getPartitionings().stream().toList();
-        Partitioning part1 = partitions.get(0);
+        Partitioning part1 = partitions.getFirst();
         String jsonPart1 = createJsonPart(part1);
 
         mockMvc.perform(
@@ -239,6 +246,19 @@ class CampaignControllerTest {
         return jo.toString();
     }
 
+    private String createJson(Campaign campaign, String idSurvey, boolean sensitivity, String dataCollectionTarget) {
+        JSONObject jo = new JSONObject();
+        jo.put("id", campaign.getId());
+        jo.put("year", campaign.getYear());
+        jo.put("surveyId", idSurvey);
+        jo.put("campaignWording", campaign.getCampaignWording());
+        jo.put("period", campaign.getPeriod().toString());
+        jo.put("sensitivity", sensitivity);
+        jo.put("dataCollectionTarget", dataCollectionTarget);
+        return jo.toString();
+    }
+
+
     @Test
     @Transactional
     @Rollback
@@ -247,8 +267,9 @@ class CampaignControllerTest {
 
         assertDoesNotThrow(() -> campaignService.findById(identifier));
         Campaign campaign = campaignService.findById(identifier);
-        String json = createJson(campaign, "SOURCE12023");
         this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+                .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
+                .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))
+                .andExpect(jsonPath("$.year").value(campaign.getYear()));
     }
 }
