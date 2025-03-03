@@ -80,7 +80,7 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Questioning not found")
     })
-    public ResponseEntity<Void> createQuestioningEvent( @QuestioningEventTypeValid @Parameter String eventType,@RequestBody QuestioningEventInputDto questioningEventInputDto) {
+    public ResponseEntity<Void> createQuestioningEvent( @QuestioningEventTypeValid @PathVariable("eventType") String eventType,@RequestBody QuestioningEventInputDto questioningEventInputDto) {
         if (questioningEventService.postValintQuestioningEvent(eventType, questioningEventInputDto)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
