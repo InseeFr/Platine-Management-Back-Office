@@ -44,4 +44,15 @@ public class WebConfig implements WebMvcConfigurer {
     public String xform2Url() {
         return applicationConfig.getXform2Url();
     }
+
+    @Bean
+    public String questionnaireApiUrl() {
+        return applicationConfig.getQuestionnaireApiUrl();
+    }
+
+    @Bean
+    public String questionnaireApiSensitiveUrl() {
+        return applicationConfig.getQuestionnaireApiSensitiveUrl();
+    }
+
 }

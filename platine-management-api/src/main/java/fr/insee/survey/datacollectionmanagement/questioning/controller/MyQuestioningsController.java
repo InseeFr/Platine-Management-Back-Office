@@ -3,9 +3,13 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +26,8 @@ public class MyQuestioningsController {
 
     private final MySurveysService mySurveysService;
 
+    private final QuestioningAccreditationService questioningAccreditationService;
+
     private final ApplicationConfig config;
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONINGS_ID)
@@ -36,6 +42,7 @@ public class MyQuestioningsController {
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
-        return mySurveysService.getListMyQuestionnaires(idec.toUpperCase(), config.getQuestionnaireApiUrl());
+
+        return mySurveysService.getListMyQuestionnaires(idec.toUpperCase());
     }
 }

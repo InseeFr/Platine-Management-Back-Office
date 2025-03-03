@@ -55,8 +55,11 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.api.xform2.url}")
     private String xform2Url;
 
-    @Value("${fr.insee.datacollectionmanagement.api.lunatic.normal.url}")
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.api.url}")
     private String questionnaireApiUrl;
+
+    @Value("${fr.insee.datacollectionmanagement.api.questioning.sensitive.url}")
+    private String questionnaireApiSensitiveUrl;
 
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;

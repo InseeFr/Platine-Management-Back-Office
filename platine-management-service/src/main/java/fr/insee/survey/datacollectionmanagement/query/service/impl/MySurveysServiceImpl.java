@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpRequest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,10 @@ public class MySurveysServiceImpl implements MySurveysService {
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningService questioningService;
+
+    private final String questionnaireApiUrl;
+
+    private final String questionnaireApiSensitiveUrl;
 
     @Override
     public List<MyQuestioningDto> getListMySurveys(String id) {
@@ -79,20 +85,21 @@ public class MySurveysServiceImpl implements MySurveysService {
 
 
     @Override
-    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id, String questionnaireApiUrl) {
+    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
         List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
         List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
 
         for (QuestioningAccreditation questioningAccreditation : accreditations) {
             MyQuestionnaireDto myQuestionnaireDto = new MyQuestionnaireDto();
+            myQuestionnaireDtos.add(myQuestionnaireDto);
             Questioning questioning = questioningAccreditation.getQuestioning();
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
-            myQuestionnaireDto.setSourceId(part.getCampaign().getSurvey().getSource().getId());
+            Campaign campaign = part.getCampaign();
+            myQuestionnaireDto.setSourceId(campaign.getSurvey().getSource().getId());
             myQuestionnaireDto.setQuestioningId(questioning.getId());
             myQuestionnaireDto.setPartitioningLabel(part.getLabel());
             myQuestionnaireDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
             myQuestionnaireDto.setSurveyUnitIdentificationName(questioning.getSurveyUnit().getIdentificationName());
-            myQuestionnaireDtos.add(myQuestionnaireDto);
             myQuestionnaireDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
             myQuestionnaireDto.setPartitioningId(part.getId());
 
@@ -100,16 +107,23 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setQuestioningStatus(questioningStatus);
 
             if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name())) {
-                DataCollectionEnum dataCollectionEnum = part.getCampaign().getDataCollectionTarget();
-
+                DataCollectionEnum dataCollectionEnum = campaign.getDataCollectionTarget();
                 if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2)) {
-                    String depositProofUrl = questionnaireApiUrl +  "/api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
-                    myQuestionnaireDto.setQuestioningAccessUrl(depositProofUrl);
+                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
                     continue;
                 }
 
-                myQuestionnaireDto.setDepositProofUrl("http://preuve-de-depot/" + questioning.getSurveyUnit().getIdSu());
-                continue;
+                String pathDepositProof = "api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
+
+                if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_NORMAL)){
+                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
+                    continue;
+                }
+
+                if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_SENSITIVE)){
+                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
+                    continue;
+                }
             }
 
             if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name())) {
