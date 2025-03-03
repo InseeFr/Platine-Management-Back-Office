@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class ValidatedQuestioningEventDto {
+public class QuestioningEventInputDto {
 
     private Long questioningId;
     private Date date;

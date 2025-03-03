@@ -6,10 +6,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.QuestioningEventTypeValid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -71,16 +72,16 @@ public class QuestioningEventController {
         return questioningEventService.convertToDto(newQuestioningEvent);
     }
 
-    @Operation(summary = "Create or update a questioning event")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_VALINT_EVENTS, produces = "application/json", consumes = "application/json")
+    @Operation(summary = "Create a questioning event")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, produces = "application/json", consumes = "application/json")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Questioning not found")
     })
-    public ResponseEntity<Void> postValintQuestioningEvent(@RequestBody ValidatedQuestioningEventDto validatedQuestioningEventDto) {
-        if (questioningEventService.postValintQuestioningEvent(validatedQuestioningEventDto)) {
+    public ResponseEntity<Void> createQuestioningEvent( @QuestioningEventTypeValid @Parameter String eventType,@RequestBody QuestioningEventInputDto questioningEventInputDto) {
+        if (questioningEventService.postValintQuestioningEvent(eventType, questioningEventInputDto)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
         return ResponseEntity.ok().build();

@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,6 +59,15 @@ class QuestionningEventControllerTest {
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
+
+    @Test
+    @Transactional
+    void createQuestioningEvent() throws Exception {
+        String notValidEvent = "notValidEvent";
+
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent, new QuestioningEventInputDto()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());}
 
     private String createJsonQuestioningEvent() throws JSONException {
         JSONObject joEventInitla = new JSONObject();
