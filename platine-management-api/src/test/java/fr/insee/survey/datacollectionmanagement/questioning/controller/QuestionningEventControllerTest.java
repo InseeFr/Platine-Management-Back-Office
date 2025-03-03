@@ -4,7 +4,6 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -65,9 +65,11 @@ class QuestionningEventControllerTest {
     void createQuestioningEvent() throws Exception {
         String notValidEvent = "notValidEvent";
 
-        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent, new QuestioningEventInputDto()))
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isBadRequest());}
+                .andExpect(status().isBadRequest());
+    }
 
     private String createJsonQuestioningEvent() throws JSONException {
         JSONObject joEventInitla = new JSONObject();
@@ -86,6 +88,13 @@ class QuestionningEventControllerTest {
 
         System.out.println(ja.toString());
         return ja.toString();
+    }
+
+    private String createJsonQuestioningEventInputDtp(Long id) throws JSONException {
+        JSONObject jo = new JSONObject();
+        jo.put("questioningId", id);
+
+        return jo.toString();
     }
 
 }
