@@ -71,12 +71,11 @@ public interface ContactService {
 
     Page<SearchContactDto> searchContactByName(String name, Pageable pageable);
 
-
     ContactDto convertToDto(Contact contact);
-
-    ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns);
 
     Contact convertToEntity(ContactDto contactDto);
 
     Contact convertToEntityNewContact(ContactDto contactDto);
+
+    ContactDetailsDto getContactDetails(String idContact);
 }

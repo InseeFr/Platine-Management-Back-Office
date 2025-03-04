@@ -136,7 +136,8 @@ public class ContactRepositoryStub implements ContactRepository {
 
     @Override
     public <S extends Contact> S save(S entity) {
-        return null;
+        contacts.put(entity.getIdentifier(), entity);
+        return entity;
     }
 
     @Override
@@ -145,8 +146,8 @@ public class ContactRepositoryStub implements ContactRepository {
     }
 
     @Override
-    public Optional<Contact> findById(String s) {
-        return Optional.empty();
+    public Optional<Contact> findById(String id) {
+        return Optional.ofNullable(contacts.get(id));
     }
 
     @Override

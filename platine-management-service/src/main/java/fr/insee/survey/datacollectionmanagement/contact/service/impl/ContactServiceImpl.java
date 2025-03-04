@@ -13,6 +13,8 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +40,8 @@ public class ContactServiceImpl implements ContactService {
     private final ViewService viewService;
 
     private final ModelMapper modelMapper;
+
+    private final CampaignService campaignService;
 
     @Override
     public Page<Contact> findAll(Pageable pageable) {
@@ -161,14 +165,6 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns) {
-        ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
-        contactDetailsDto.setCivility(contact.getGender());
-        contactDetailsDto.setListCampaigns(listCampaigns);
-        return contactDetailsDto;
-    }
-
-    @Override
     public Contact convertToEntity(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
         contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
@@ -185,6 +181,18 @@ public class ContactServiceImpl implements ContactService {
         Contact contact = modelMapper.map(contactDto, Contact.class);
         contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
         return contact;
+    }
+
+    @Override
+    public ContactDetailsDto getContactDetails(String idContact) {
+        Contact contact = findByIdentifier(idContact);
+        List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
+        List<CampaignStatusDto> campaignsStatus = listCampaigns.isEmpty() ? List.of() :
+                campaignService.findCampaignStatusByCampaignIdIn(listCampaigns);
+        ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
+        contactDetailsDto.setCivility(contact.getGender());
+        contactDetailsDto.setListCampaigns(campaignsStatus);
+        return contactDetailsDto;
     }
 
 
