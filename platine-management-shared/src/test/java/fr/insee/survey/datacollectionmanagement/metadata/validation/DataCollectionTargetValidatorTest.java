@@ -1,35 +1,32 @@
-package fr.insee.survey.datacollectionmanagement.metadata.controller;
+package fr.insee.survey.datacollectionmanagement.metadata.validation;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.validation.DataCollectionTargetValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DataCollectionTargetValidatorTest {
 
     @Test
     void isNotValid() {
         DataCollectionTargetValidator dataCollectionTargetValidator = new DataCollectionTargetValidator();
-        assertFalse(dataCollectionTargetValidator.isValid("",null));
+        Assertions.assertFalse(dataCollectionTargetValidator.isValid("",null));
     }
 
     @Test
     void dataCollectionTargetLunaticNormal_isValid() {
         DataCollectionTargetValidator dataCollectionTargetValidator = new DataCollectionTargetValidator();
-        assertTrue(dataCollectionTargetValidator.isValid(DataCollectionEnum.LUNATIC_NORMAL.name(),null));
+        Assertions.assertTrue(dataCollectionTargetValidator.isValid(DataCollectionEnum.LUNATIC_NORMAL.name(),null));
     }
 
     @Test
     void dataCollectionTargetLunaticSensitive_isValid() {
         DataCollectionTargetValidator dataCollectionTargetValidator = new DataCollectionTargetValidator();
-        assertTrue(dataCollectionTargetValidator.isValid(DataCollectionEnum.LUNATIC_SENSITIVE.name(),null));
+        Assertions.assertTrue(dataCollectionTargetValidator.isValid(DataCollectionEnum.LUNATIC_SENSITIVE.name(),null));
     }
 
     @Test
     void dataCollectionTargetNull_isValid() {
         DataCollectionTargetValidator dataCollectionTargetValidator = new DataCollectionTargetValidator();
-        assertTrue(dataCollectionTargetValidator.isValid(null,null));
+        Assertions.assertTrue(dataCollectionTargetValidator.isValid(null,null));
     }
 }
