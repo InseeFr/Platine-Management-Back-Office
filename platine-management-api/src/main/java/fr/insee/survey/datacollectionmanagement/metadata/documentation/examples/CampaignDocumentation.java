@@ -1,11 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.metadata.documentation.examples;
 
-public class CampaignDocumentation
-{
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    private CampaignDocumentation() {
-        throw new IllegalStateException("Utility class");
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class CampaignDocumentation {
 
     public static final String LUNATIC_NORMAL_CAMPAIGN = """
             {
