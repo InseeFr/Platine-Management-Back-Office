@@ -44,7 +44,7 @@ public class CampaignDocumentation {
             {
               "id": "string",
               "surveyId": "string",
-              "year": 1073741824,
+              "year": 2025,
               "campaignWording": "string",
               "period": "string",
               "sensitivity": true,
