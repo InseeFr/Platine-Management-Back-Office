@@ -20,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,6 +33,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 import java.util.Set;
 
+import static fr.insee.survey.datacollectionmanagement.metadata.documentation.examples.CampaignDocumentation.*;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Endpoints to create, update, delete and find entities in metadata domain")
@@ -49,6 +53,7 @@ import java.util.Set;
 @Validated
 @RequiredArgsConstructor
 public class CampaignController {
+
 
     private final CampaignService campaignService;
 
@@ -130,6 +135,15 @@ public class CampaignController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @Content(examples = {
+                    @ExampleObject(name = "LUNATIC_NORMAL campaign", value = LUNATIC_NORMAL_CAMPAIGN),
+                    @ExampleObject(name = "LUNATIC_SENSITIVE campaign", value = LUNATIC_SENSITIVE_CAMPAIGN),
+                    @ExampleObject(name = "ORBEON1 campaign", value = ORBEON1_CAMPAIGN),
+                    @ExampleObject(name = "ORBEON2 campaign", value = ORBEON2_CAMPAIGN)
+            },
+                    schema = @Schema(implementation = CampaignDto.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE))
     public ResponseEntity<CampaignDto> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
         if (!campaignDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idCampaign don't match");
