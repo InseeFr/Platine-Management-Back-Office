@@ -21,6 +21,10 @@ public class ViewServiceStub implements ViewService {
         this.campaignsByIdentifiers = campaigns;
     }
 
+    public void addCampaignForContact(String contactId, String campaignId) {
+        campaignsByIdentifiers.computeIfAbsent(contactId, k -> new HashSet<>()).add(campaignId);
+    }
+
     @Override
     public View saveView(View view) {
         return null;
@@ -43,7 +47,7 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public List<String> findDistinctCampaignByIdentifier(String identifier) {
-        return List.of();
+        return new ArrayList<>(campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
     }
 
     @Override

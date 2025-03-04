@@ -31,7 +31,9 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long>, 
             from
                  view v
             where
-                 v.identifier = ?1""";
+                 v.identifier = ?1
+            and
+                 v.campaign_id is not null""";
 
     View findFirstByIdentifier(String identifier);
 

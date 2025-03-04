@@ -51,7 +51,7 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactService;
-    
+
     private final ViewService viewService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
@@ -79,11 +79,7 @@ public class ContactController {
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
-        Contact contact = contactService.findByIdentifier(idContact);
-        List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
-        return contactService.convertToContactDetailsDto(contact, listCampaigns);
-
-
+        return contactService.getContactDetails(idContact);
     }
 
 
