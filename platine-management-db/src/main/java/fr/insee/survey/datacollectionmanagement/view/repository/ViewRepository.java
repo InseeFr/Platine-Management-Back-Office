@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -51,6 +52,8 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long>, 
     List<View> findByIdentifierContainingAndIdSuNotNull(String identifier);
 
     void deleteByIdentifier(String identifier);
+
+    List<View> findByIdentifierIn(@Param("identifiers") List<String> identifiers);
 
 
 }
