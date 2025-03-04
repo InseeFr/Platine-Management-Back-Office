@@ -3,12 +3,10 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.validation.DataCollectionTargetValidator;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
 class DataCollectionTargetValidatorTest {
 
     @Test
