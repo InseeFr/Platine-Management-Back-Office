@@ -2,6 +2,11 @@ package fr.insee.survey.datacollectionmanagement.metadata.documentation.examples
 
 public class CampaignDocumentation
 {
+
+    private CampaignDocumentation() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final String LUNATIC_NORMAL_CAMPAIGN = """
             {
               "id": "string",
