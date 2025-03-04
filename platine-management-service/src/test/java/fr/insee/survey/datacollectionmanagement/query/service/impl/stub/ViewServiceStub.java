@@ -5,11 +5,21 @@ import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.*;
 
 public class ViewServiceStub implements ViewService {
     @Setter
     private Long countViewByIdentifier;
+    private Map<String, List<String>> identifiersBySurveyUnit = new HashMap<>();
+    private Map<String, Set<String>> campaignsByIdentifiers = new HashMap<>();
+
+    public void setIdentifiersByIdSu(String idSu, List<String> identifiers) {
+        identifiersBySurveyUnit.put(idSu, identifiers);
+    }
+
+    public void setCampaignsByIdentifiers(Map<String, Set<String>> campaigns) {
+        this.campaignsByIdentifiers = campaigns;
+    }
 
     @Override
     public View saveView(View view) {
@@ -74,5 +84,19 @@ public class ViewServiceStub implements ViewService {
     @Override
     public int deleteViewsOfOneCampaign(Campaign campaign) {
         return 0;
+    }
+
+    @Override
+    public List<String> findIdentifiersByIdSu(String id) {
+        return identifiersBySurveyUnit.getOrDefault(id, Collections.emptyList());
+    }
+
+    @Override
+    public Map<String, Set<String>> findDistinctCampaignByIdentifiers(List<String> identifiers) {
+        Map<String, Set<String>> result = new HashMap<>();
+        for (String identifier : identifiers) {
+            result.put(identifier, campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
+        }
+        return result;
     }
 }
