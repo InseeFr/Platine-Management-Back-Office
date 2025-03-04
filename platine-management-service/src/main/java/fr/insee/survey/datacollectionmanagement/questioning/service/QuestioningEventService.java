@@ -42,5 +42,5 @@ public interface QuestioningEventService {
      * @param questioningEventInputDto input
      * @return true if event is created, false in other cases
      */
-    boolean postValintQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto);
+    boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto);
 }

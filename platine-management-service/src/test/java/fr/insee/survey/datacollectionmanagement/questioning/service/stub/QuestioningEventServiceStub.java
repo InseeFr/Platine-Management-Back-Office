@@ -48,7 +48,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public boolean postValintQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
+    public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
         return false;
     }
 }

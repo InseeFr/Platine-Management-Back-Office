@@ -71,27 +71,27 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public boolean postValintQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
+    public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
 
         Long questioningId = questioningEventInputDto.getQuestioningId();
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 
-        List<QuestioningEvent> valintQuestioningEvents = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT);
+        List<QuestioningEvent> sameTypeQuestioningEvents = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.valueOf(eventType));
 
-        if (valintQuestioningEvents.size() > 1) {
-            throw new TooManyValuesException(String.format("%s %s questioningEvents found for questioningId %s  - only 1 questioningEvents should be found", valintQuestioningEvents.size(), eventType, questioningId));
+        if (sameTypeQuestioningEvents.size() > 1) {
+            throw new TooManyValuesException(String.format("%s %s questioningEvents found for questioningId %s  - only 1 questioningEvents should be found", sameTypeQuestioningEvents.size(), eventType, questioningId));
         }
-        if (!valintQuestioningEvents.isEmpty()) {
+        if (!sameTypeQuestioningEvents.isEmpty()) {
             return false;
         }
-        QuestioningEvent valintQuestioningEvent = new QuestioningEvent();
-        valintQuestioningEvent.setQuestioning(questioning);
-        valintQuestioningEvent.setType(TypeQuestioningEvent.valueOf(eventType));
-        valintQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
-        valintQuestioningEvent.setDate(questioningEventInputDto.getDate());
-        valintQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
-        questioningEventRepository.save(valintQuestioningEvent);
+        QuestioningEvent newQuestioningEvent = new QuestioningEvent();
+        newQuestioningEvent.setQuestioning(questioning);
+        newQuestioningEvent.setType(TypeQuestioningEvent.valueOf(eventType));
+        newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
+        newQuestioningEvent.setDate(questioningEventInputDto.getDate());
+        newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
+        questioningEventRepository.save(newQuestioningEvent);
         return true;
     }
 }
