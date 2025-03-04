@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.MySurveysServiceImpl;
@@ -17,52 +18,51 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MySurveyServiceImplTest {
 
     private MySurveysServiceImpl mySurveysService;
-    private QuestioningAccreditationServiceStub questioningAccreditationService;
+    private QuestioningAccreditationRepositoryStub questioningAccreditationRepositoryStub;
     private QuestioningServiceStub questioningService;
-    private Questioning mockQuestioning;
-    private Partitioning mockPartitioning;
     private String questionnaireApiUrl;
     private String questionnaireApiUrlSensitive;
+    private MyQuestionnaireDetailsDto myQuestionnaireDetailsDto;
 
     @BeforeEach
     void setUp() {
         questionnaireApiUrl = "api/";
         questionnaireApiUrlSensitive = "apiSensitive/";
+        questioningAccreditationRepositoryStub = new QuestioningAccreditationRepositoryStub();
         PartitioningServiceStub partitioningService = new PartitioningServiceStub();
         QuestioningEventServiceStub questioningEventServiceStub = new QuestioningEventServiceStub();
-        questioningAccreditationService = new QuestioningAccreditationServiceStub();
+        QuestioningAccreditationServiceStub questioningAccreditationService = new QuestioningAccreditationServiceStub();
         questioningService = new QuestioningServiceStub();
 
-        mySurveysService = new MySurveysServiceImpl(questioningAccreditationService, partitioningService, questioningEventServiceStub, questioningService, questionnaireApiUrl, questionnaireApiUrlSensitive);
+        myQuestionnaireDetailsDto = new MyQuestionnaireDetailsDto();
+        questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(myQuestionnaireDetailsDto));
 
-        SurveyUnit mockSurveyUnit = new SurveyUnit();
-        mockSurveyUnit.setIdSu("SU123");
-        mockSurveyUnit.setIdentificationCode("Code123");
-        mockSurveyUnit.setIdentificationName("Name123");
+        myQuestionnaireDetailsDto.setSurveyUnitId("SU123");
+        myQuestionnaireDetailsDto.setSurveyUnitIdentificationCode("Code123");
+        myQuestionnaireDetailsDto.setSurveyUnitIdentificationName("Name123");
+        myQuestionnaireDetailsDto.setSourceId("source1");
+        myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
+        myQuestionnaireDetailsDto.setQuestioningId(1L);
+        myQuestionnaireDetailsDto.setPartitioningId("partition1");
 
-        mockQuestioning = new Questioning();
+        mySurveysService = new MySurveysServiceImpl(
+                questioningAccreditationService,
+                partitioningService,
+                questioningEventServiceStub,
+                questioningService,
+                questioningAccreditationRepositoryStub,
+                questionnaireApiUrl,
+                questionnaireApiUrlSensitive);
+
+        Questioning mockQuestioning = new Questioning();
         mockQuestioning.setId(1L);
         mockQuestioning.setIdPartitioning("partition1");
-        mockQuestioning.setSurveyUnit(mockSurveyUnit);
 
-        QuestioningAccreditation mockAccreditation = new QuestioningAccreditation();
-        mockAccreditation.setQuestioning(mockQuestioning);
 
-        Source mockSource = new Source();
-        mockSource.setId("source1");
-
-        Survey mockSurvey = new Survey();
-        mockSurvey.setSource(mockSource);
-
-        Campaign mockCampaign = new Campaign();
-        mockCampaign.setSurvey(mockSurvey);
-
-        mockPartitioning = new Partitioning();
+        Partitioning mockPartitioning = new Partitioning();
         mockPartitioning.setLabel("Partition Label");
         mockPartitioning.setId(mockQuestioning.getIdPartitioning());
-        mockPartitioning.setCampaign(mockCampaign);
 
-        questioningAccreditationService.setQuestioningAccreditationList(List.of(mockAccreditation));
         partitioningService.setPartitioning(mockPartitioning);
         questioningService.setAccessUrl("http://access-url");
     }
@@ -110,7 +110,7 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnairesTest3() {
         String pathDepositProof = questionnaireApiUrl + "api/survey-unit/" + "SU123" + "/deposit-proof";
 
-        mockPartitioning.getCampaign().setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
@@ -132,7 +132,7 @@ class MySurveyServiceImplTest {
     @DisplayName("Should return questionnaire list when status is RECEIVED with XForm")
     void getListMyQuestionnairesTest4() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
-        mockPartitioning.getCampaign().setDataCollectionTarget(DataCollectionEnum.XFORM1);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1);
 
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
@@ -144,21 +144,10 @@ class MySurveyServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return empty list when no accreditations are found")
-    void getListMyQuestionnairesTest5() {
-        questioningAccreditationService.setQuestioningAccreditationList(List.of());
-
-        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("456");
-
-        assertThat(result).isEmpty();
-    }
-
-
-    @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic Sensitive")
-    void getListMyQuestionnairesTest6() {
+    void getListMyQuestionnairesTest5() {
         String pathDepositProof = questionnaireApiUrlSensitive + "api/survey-unit/" + "SU123" + "/deposit-proof";
-        mockPartitioning.getCampaign().setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
@@ -174,5 +163,14 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.getDepositProofUrl()).isEqualTo(pathDepositProof);
         assertThat(dto.getQuestioningAccessUrl()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no accreditations are found")
+    void getListMyQuestionnairesTest6() {
+        questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of());
+        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("456");
+
+        assertThat(result).isEmpty();
     }
 }

@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
@@ -14,9 +15,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,8 @@ public class MySurveysServiceImpl implements MySurveysService {
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningService questioningService;
+
+    private final QuestioningAccreditationRepository questioningAccreditationRepository;
 
     private final String questionnaireApiUrl;
 
@@ -87,33 +92,38 @@ public class MySurveysServiceImpl implements MySurveysService {
     @Override
     public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
         List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
-        List<QuestioningAccreditation> accreditations = questioningAccreditationService.findByContactIdentifier(id);
+        List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDtos = questioningAccreditationRepository.findQuestionnaireDetailsByIdec(id);
 
-        for (QuestioningAccreditation questioningAccreditation : accreditations) {
+        for (MyQuestionnaireDetailsDto myQuestionnaireDetailsDto : myQuestionnaireDetailsDtos) {
             MyQuestionnaireDto myQuestionnaireDto = new MyQuestionnaireDto();
             myQuestionnaireDtos.add(myQuestionnaireDto);
-            Questioning questioning = questioningAccreditation.getQuestioning();
-            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
-            Campaign campaign = part.getCampaign();
-            myQuestionnaireDto.setSourceId(campaign.getSurvey().getSource().getId());
-            myQuestionnaireDto.setQuestioningId(questioning.getId());
-            myQuestionnaireDto.setPartitioningLabel(part.getLabel());
-            myQuestionnaireDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
-            myQuestionnaireDto.setSurveyUnitIdentificationName(questioning.getSurveyUnit().getIdentificationName());
-            myQuestionnaireDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
-            myQuestionnaireDto.setPartitioningId(part.getId());
 
-            String questioningStatus = questioningService.getQuestioningStatus(questioning, part).name();
+            myQuestionnaireDto.setSourceId(myQuestionnaireDetailsDto.getSourceId());
+            myQuestionnaireDto.setQuestioningId(myQuestionnaireDetailsDto.getQuestioningId());
+            myQuestionnaireDto.setPartitioningLabel(myQuestionnaireDetailsDto.getPartitioningLabel());
+            myQuestionnaireDto.setSurveyUnitIdentificationCode(myQuestionnaireDetailsDto.getSurveyUnitIdentificationCode());
+            myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
+            myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
+            myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
+
+            Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
+            Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
+            String questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning).name();
             myQuestionnaireDto.setQuestioningStatus(questioningStatus);
 
             if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name())) {
-                DataCollectionEnum dataCollectionEnum = campaign.getDataCollectionTarget();
+                DataCollectionEnum dataCollectionEnum = myQuestionnaireDetailsDto.getDataCollectionTarget();
                 if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2)) {
-                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
+
+                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
+                            UserRoles.INTERVIEWER,
+                            questioning,
+                            partitioning));
+
                     continue;
                 }
 
-                String pathDepositProof = "api/survey-unit/" + questioning.getSurveyUnit().getIdSu() + "/deposit-proof";
+                String pathDepositProof = "api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
 
                 if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_NORMAL)){
                     myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
@@ -127,7 +137,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             }
 
             if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name())) {
-                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
+                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, partitioning));
             }
         }
 
