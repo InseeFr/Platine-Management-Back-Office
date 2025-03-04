@@ -65,7 +65,7 @@ class QuestionningEventControllerTest {
         String notValidEvent = "notValidEvent";
 
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent)
-                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDtp(1L)))
+                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(1L)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
@@ -77,7 +77,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000002").stream().findFirst().get();
 
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, TypeQuestioningEvent.REFUSAL.name())
-                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDtp(questioning.getId())))
+                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(questioning.getId())))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
     }
@@ -101,7 +101,7 @@ class QuestionningEventControllerTest {
         return ja.toString();
     }
 
-    private String createJsonQuestioningEventInputDtp(Long id) throws JSONException {
+    private String createJsonQuestioningEventInputDto(Long id) throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("questioningId", id);
 
