@@ -23,11 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -200,8 +200,8 @@ class BusinessContactServiceImplTest {
 
             }
             Questioning questioning = createQuestioning(accreditations);
-            when(questioningService.findByIdPartitioningAndSurveyUnitIdSu(eq(partitionConfig.idPartition), eq(ID_SU1)))
-                    .thenReturn(questioning);
+            when(questioningService.findByIdPartitioningAndSurveyUnitIdSu(partitionConfig.idPartition, ID_SU1))
+                    .thenReturn(Optional.of(questioning));
 
         }
         when(campaignService.findById(ID_CAMPAIGN1)).thenReturn(createCampaign(ID_CAMPAIGN1, partitionings));

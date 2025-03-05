@@ -1,0 +1,14 @@
+# Configuration globale (optionnelle)
+title = "Scan Spring Boot configuration files for secrets"
+description = "Détecte les informations sensibles dans les fichiers .properties et .yaml d’un projet Spring Boot."
+
+[extend]
+# useDefault will extend the base configuration with the default gitleaks config:
+# https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+useDefault = true
+
+[[rules]]
+description = "Spring Boot secret in properties"
+regex = '''(?i)((token|password|pw|pwd|jeton|secret)\s*(=|:)\s*["']?.+["']?)'''
+file = '''(?i).*\.(properties|yml|yaml)$'''
+tags = ["spring", "password"]

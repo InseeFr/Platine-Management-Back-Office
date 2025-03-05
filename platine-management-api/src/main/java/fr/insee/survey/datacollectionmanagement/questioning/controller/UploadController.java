@@ -1,8 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
 import fr.insee.survey.datacollectionmanagement.exception.RessourceNotValidatedException;
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -34,7 +34,7 @@ public class UploadController {
 
     private final QuestioningService questioningService;
 
-    @DeleteMapping(value = Constants.MOOG_API_UPLOADS_ID)
+    @DeleteMapping(value = UrlConstants.MOOG_API_UPLOADS_ID)
     public ResponseEntity<?> deleteOneUpload(@PathVariable Long id) {
         log.info("Request DELETE for upload n° {}", id);
 
@@ -53,13 +53,13 @@ public class UploadController {
 
     }
 
-    @GetMapping(value = Constants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
     public JSONCollectionWrapper<Upload> displayAllUploads(@PathVariable String idCampaign) {
         log.info("Request GET for uploads");
         return new JSONCollectionWrapper<Upload>(moogUploadService.findAllByIdCampaign(idCampaign));
     }
 
-    @PostMapping(value = Constants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
+    @PostMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
     public ResultUpload addQuestioningEventViaUpload(@PathVariable String idCampaign,
                                                              @RequestBody UploadDto request) throws RessourceNotValidatedException {
         log.info("Request POST to add an upload");

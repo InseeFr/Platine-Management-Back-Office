@@ -2,13 +2,16 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.*;
@@ -19,7 +22,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
@@ -28,8 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static fr.insee.survey.datacollectionmanagement.questioning.enums.UrlTypeEnum.*;
 
 
 @Service
@@ -52,7 +52,13 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final ModelMapper modelMapper;
 
-    private final String questioningUrl;
+    private final String lunaticNormalUrl;
+
+    private final String lunaticSensitiveUrl;
+
+    private final String xform1Url;
+
+    private final String xform2Url;
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
@@ -63,7 +69,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findbyId(Long id) {
+    public Questioning findById(Long id) {
         return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
@@ -83,10 +89,23 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
-                                                             String surveyUnitIdSu) {
+    public Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
+                                                                       String surveyUnitIdSu) {
         return questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(idPartitioning,
                 surveyUnitIdSu);
+    }
+
+    @Override
+    public QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu) {
+        List<Questioning> listQuestionings = questioningRepository.findQuestioningByCampaignIdAndSurveyUnitId(campaignId, surveyUnitIdSu);
+        if (listQuestionings.isEmpty()) {
+            throw new NotFoundException(String.format("No questioning found for campaignId %s and surveyUnitId %s", campaignId, surveyUnitIdSu));
+        }
+        if (listQuestionings.size() > 1) {
+            throw new TooManyValuesException(String.format("%s questionings found for campaignId %s and surveyUnitId %s - only 1 questioning should be found", listQuestionings.size(), campaignId, surveyUnitIdSu));
+        }
+
+        return new QuestioningIdDto(listQuestionings.getFirst().getId());
     }
 
     @Override
@@ -114,26 +133,30 @@ public class QuestioningServiceImpl implements QuestioningService {
     /**
      * Generates an access URL based on the provided parameters.
      *
-     * @param baseUrl      The base URL for the access.
-     * @param typeUrl      The type of URL (V1 or V2).
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param questioning  The questioning object.
-     * @param surveyUnitId The survey unit ID.
+     * @param role        The user role (REVIEWER or INTERVIEWER).
+     * @param questioning The questioning object.
+     * @param part        Part of questioning
      * @return The generated access URL.
      */
-    public String getAccessUrl(String baseUrl, String typeUrl, String role, Questioning questioning, String surveyUnitId, String sourceId) {
-        // Set default values if baseUrl or typeUrl is empty
-        baseUrl = StringUtils.defaultIfEmpty(baseUrl, questioningUrl);
-        typeUrl = StringUtils.defaultIfEmpty(typeUrl, V3.name());
+    public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
+        Campaign campaign = part.getCampaign();
+        DataCollectionEnum dataCollectionTarget = campaign.getDataCollectionTarget();
+        String surveyUnitId = questioning.getSurveyUnit().getIdSu();
 
-        if (typeUrl.equalsIgnoreCase(V1.name())) {
-            return buildV1Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+        if (dataCollectionTarget == null || dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            return buildLunaticUrl(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
-        if (typeUrl.equalsIgnoreCase(V2.name())) {
-            return buildV2Url(baseUrl, role, questioning.getModelName(), surveyUnitId);
+        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM1)) {
+            return buildXformUrl(xform1Url, role, questioning.getModelName(), surveyUnitId);
         }
-        if (typeUrl.equalsIgnoreCase(V3.name())) {
-            return buildV3Url(baseUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
+        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM2)) {
+            return buildXformUrl(xform2Url, role, questioning.getModelName(), surveyUnitId);
+        }
+
+        if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_SENSITIVE)) {
+            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
+            return buildLunaticUrl(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
         }
 
         return "";
@@ -141,25 +164,30 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
-        Page<Questioning> pageQuestionings;
         if (!StringUtils.isEmpty(param)) {
-            pageQuestionings = questioningRepository.findBySurveyUnitIdSuOrSurveyUnitIdentificationCodeOrQuestioningAccreditationsIdContact(param, param, param, pageable);
-        } else {
-            pageQuestionings = questioningRepository.findAll(pageable);
+            List<Questioning> listQuestionings = questioningRepository.findQuestioningByParam(param.toUpperCase());
+            List<SearchQuestioningDto> searchDtos = listQuestionings
+                    .stream().distinct()
+                    .map(this::convertToSearchDto).toList();
 
+            return new PageImpl<>(searchDtos, pageable, searchDtos.size());
+        } else {
+            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
+            List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
+            List<SearchQuestioningDto> searchDtos = questionings
+                    .stream()
+                    .map(this::convertToSearchDto).toList();
+
+            return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
         }
 
 
-        List<SearchQuestioningDto> searchDtos = pageQuestionings
-                .stream()
-                .map(this::convertToSearchDto).toList();
-
-        return new PageImpl<>(searchDtos, pageable, pageQuestionings.getTotalElements());
     }
 
+
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
-        Questioning questioning = findbyId(id);
+    public QuestioningDetailsDto getQuestioningDetails(Long id) {
+        Questioning questioning = findById(id);
         return convertToDetailsDto(questioning);
     }
 
@@ -173,7 +201,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V1 access URL.
      */
-    protected String buildV1Url(String baseUrl, String role, String campaignId, String surveyUnitId) {
+    protected String buildXformUrl(String baseUrl, String role, String campaignId, String surveyUnitId) {
         if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
             return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
         }
@@ -183,25 +211,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         return "";
     }
 
-    /**
-     * Builds a V3 access URL based on the provided parameters
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V3 access URL.
-     */
-
-    protected String buildV2Url(String baseUrl, String role, String modelName, String surveyUnitId) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/readonly/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            return String.format("%s/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId);
-        }
-        return "";
-    }
 
     /**
      * Builds a V3 access URL based on the provided parameters
@@ -212,7 +221,7 @@ public class QuestioningServiceImpl implements QuestioningService {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
-    protected String buildV3Url(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
+    protected String buildLunaticUrl(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
         }
@@ -227,12 +236,15 @@ public class QuestioningServiceImpl implements QuestioningService {
 
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
-        SearchQuestioningDtoImpl searchQuestioningDto = modelMapper.map(questioning, SearchQuestioningDtoImpl.class);
+        SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
+        searchQuestioningDto.setQuestioningId(questioning.getId());
+        searchQuestioningDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
+        searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
         searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
         Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
         lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
-        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().sorted(Comparator.comparing(QuestioningCommunication::getDate)).findFirst();
+        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
         questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
         Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
         validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
@@ -265,12 +277,9 @@ public class QuestioningServiceImpl implements QuestioningService {
     public String getReadOnlyUrl(String idPart, String surveyUnitId) throws NotFoundException {
 
         Partitioning part = partitioningService.findById(idPart);
-        Questioning questioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-        if (questioning != null) {
-            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-            String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+        Optional<Questioning> optionalQuestioning = findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+        if (optionalQuestioning.isPresent()) {
+            return getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
 
         }
         return "";

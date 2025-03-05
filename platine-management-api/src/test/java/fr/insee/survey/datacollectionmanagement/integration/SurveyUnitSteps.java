@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -55,6 +55,6 @@ public class SurveyUnitSteps {
 
     @When("I get survey unit details by idSu {string}")
     public void iGetSurveyUnitDetailsByIdSu(String idSu) throws Exception {
-        result = mockMvc.perform(get(Constants.API_SURVEY_UNITS_ID,idSu));
+        result = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID,idSu));
     }
 }

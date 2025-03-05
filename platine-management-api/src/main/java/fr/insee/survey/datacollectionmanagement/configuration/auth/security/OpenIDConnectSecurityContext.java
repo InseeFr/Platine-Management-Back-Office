@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.configuration.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -56,9 +56,9 @@ public class OpenIDConnectSecurityContext {
                         ))
                 .authorizeHttpRequests(configurer -> configurer
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, Constants.API_HEALTHCHECK).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlConstants.API_HEALTHCHECK).permitAll()
                         // actuator (actuator metrics are disabled by default)
-                        .requestMatchers(HttpMethod.GET, Constants.ACTUATOR).permitAll()
+                        .requestMatchers(HttpMethod.GET, UrlConstants.ACTUATOR).permitAll()
                         .anyRequest()
                         .authenticated()
                 )

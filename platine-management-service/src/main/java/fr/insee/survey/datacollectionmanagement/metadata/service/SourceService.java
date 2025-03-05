@@ -1,20 +1,22 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
+
+import java.util.List;
 
 public interface SourceService {
 
     Source findById(String source);
 
-    Page<Source> findAll(Pageable pageable);
+    List<Source> findAll();
 
     Source insertOrUpdateSource(Source source);
 
     void deleteSourceById(String id);
 
-    Source addSurveyToSource(Source source, Survey survey);
+    List<ParamsDto> saveParametersForSource(Source source, ParamsDto paramsDto);
 
+    List<SourceDto> getOngoingSources();
 }

@@ -4,16 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.SurveyUnitParamEnum;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,30 +36,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SearchSurveyUnitSteps {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private SurveyUnitRepository surveyUnitRepository;
+    ObjectMapper objectMapper;
 
     private MvcResult mvcResult;
     private Page<SearchSurveyUnitDtoImpl> pageSearchSurveyUnit;
     private String role;
 
-    @Transactional
-    @Given("the following survey units exist")
-    public void createSurveyUnits(DataTable dataTable) {
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> row : rows) {
-            SurveyUnit surveyUnit = new SurveyUnit();
-            surveyUnit.setIdSu(row.get("IDmetier"));
-            surveyUnit.setIdentificationName(row.get("Raison sociale"));
-            surveyUnit.setIdentificationCode(row.get("IDmetier"));
-            surveyUnitRepository.save(surveyUnit);
-        }
-    }
 
     @Given("I am a survey manager for survey unit")
     public void setRole() {
@@ -73,7 +55,7 @@ public class SearchSurveyUnitSteps {
 
     @When("I type {string} in the searching survey unit area by code")
     public void searchSurveyUnitByEmail(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_SURVEY_UNITS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", SurveyUnitParamEnum.CODE.getValue()))
                 .andExpect(status().isOk())
@@ -91,7 +73,7 @@ public class SearchSurveyUnitSteps {
 
     @When("I type {string} in the searching survey unit area by name")
     public void searchSurveyUnitByName(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_SURVEY_UNITS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", SurveyUnitParamEnum.NAME.getValue()))
                 .andExpect(status().isOk())

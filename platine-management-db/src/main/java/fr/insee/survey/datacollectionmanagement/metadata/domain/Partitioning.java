@@ -21,8 +21,29 @@ public class Partitioning {
     private Date openingDate;
     private Date closingDate;
     private Date returnDate;
+    private Date openingLetterDate;
+    private Date openingMailDate;
+    @Column(name = "followup_letter_1_date")
+    private Date followupLetter1Date;
+    @Column(name = "followup_letter_2_date")
+    private Date followupLetter2Date;
+    @Column(name = "followup_letter_3_date")
+    private Date followupLetter3Date;
+    @Column(name = "followup_letter_4_date")
+    private Date followupLetter4Date;
+    @Column(name = "followup_mail_1_date")
+    private Date followupMail1Date;
+    @Column(name = "followup_mail_2_date")
+    private Date followupMail2Date;
+    @Column(name = "followup_mail_3_date")
+    private Date followupMail3Date;
+    @Column(name = "followup_mail_4_date")
+    private Date followupMail4Date;
+    private Date formalNoticeDate;
+    private Date noReplyDate;
 
     @ManyToOne
+    @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

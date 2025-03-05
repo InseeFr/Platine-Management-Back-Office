@@ -148,6 +148,13 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler(TooManyValuesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> tooManyValuesException(TooManyValuesException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request);
+    }
+
     @ExceptionHandler(ImpossibleToDeleteException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> impossibleToDeleteException(ImpossibleToDeleteException e, WebRequest request) {

@@ -19,7 +19,7 @@ public class SurveyUnit {
     @Id
     private String idSu;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "surveyUnit")
     private Set<Questioning> questionings;
 
     private String identificationCode;
@@ -33,7 +33,7 @@ public class SurveyUnit {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private SurveyUnitAddress surveyUnitAddress;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "surveyUnit" )
     private Set<SurveyUnitComment> surveyUnitComments;
 
     @Override

@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,14 +43,14 @@ class UserEventControllerTest {
         String identifier = "USER1";
 
         String json = createJsonUserEvent(identifier, null);
-        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID_USEREVENTS, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getUserEventNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(Constants.API_USERS_ID_USEREVENTS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID_USEREVENTS, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }

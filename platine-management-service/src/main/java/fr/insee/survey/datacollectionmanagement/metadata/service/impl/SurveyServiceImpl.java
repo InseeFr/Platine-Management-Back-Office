@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,9 +23,11 @@ public class SurveyServiceImpl implements SurveyService {
 
     private final SurveyRepository surveyRepository;
 
+    private final CampaignService campaignService;
+
     @Override
     public Page<Survey> findBySourceIdYearPeriodicity(Pageable pageable, String sourceId, Integer year, String periodicity) {
-        return surveyRepository.findBySourceIdYearPeriodicity(pageable,sourceId, year, periodicity);
+        return surveyRepository.findBySourceIdYearPeriodicity(pageable, sourceId, year, periodicity);
     }
 
     @Override
@@ -61,32 +65,14 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public Survey addCampaignToSurvey(Survey survey, Campaign campaign) {
-
-        Set<Campaign> campaigns;
-        Optional<Survey> optionalSurveyBase = findOptionalById(survey.getId());
-
-        if(optionalSurveyBase.isPresent()) {
-            Survey surveyBase = optionalSurveyBase.get();
-            campaigns = surveyBase.getCampaigns();
-            if (!isCampaignPresent(campaign, surveyBase)) {
-                campaigns.add(campaign);
-            }
-        } else {
-            campaigns = Set.of(campaign);
-        }
-        survey.setCampaigns(campaigns);
-        return survey;
+    public boolean isSurveyOngoing(String id) {
+        return surveyRepository.findById(id)
+                .map(Survey::getCampaigns)
+                .filter(campaigns -> !campaigns.isEmpty())
+                .map(campaigns -> campaigns.stream()
+                        .anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId())))
+                .orElse(false);
     }
 
-
-    private boolean isCampaignPresent(Campaign c, Survey s) {
-        for (Campaign camp : s.getCampaigns()) {
-            if (camp.getId().equals(c.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

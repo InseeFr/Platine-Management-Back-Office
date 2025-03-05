@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
@@ -62,7 +62,7 @@ class UserControllerTest {
     @Test
     void getUserNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(Constants.API_USERS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -70,7 +70,7 @@ class UserControllerTest {
     @Test
     void getUserOk() throws Exception {
         String identifier = "USER1";
-        this.mockMvc.perform(get(Constants.API_USERS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()));
 
     }
@@ -81,7 +81,7 @@ class UserControllerTest {
         jo.put("totalElements", userRepository.count());
         jo.put("numberOfElements", userRepository.count());
 
-        this.mockMvc.perform(get(Constants.API_USERS_ALL)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ALL)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(jo.toString(), false));
     }
 
@@ -93,7 +93,7 @@ class UserControllerTest {
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
         mockMvc.perform(
-                        put(Constants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
+                        put(UrlConstants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonUser.toString(), false));
         assertDoesNotThrow(() -> userService.findByIdentifier(identifier));
@@ -104,7 +104,7 @@ class UserControllerTest {
         // update user - status ok
         user.setRole(UserRoleTypeEnum.ASSISTANCE);
         String jsonUserUpdate = createJson(user);
-        mockMvc.perform(put(Constants.API_USERS_ID, identifier).content(jsonUserUpdate)
+        mockMvc.perform(put(UrlConstants.API_USERS_ID, identifier).content(jsonUserUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonUserUpdate.toString(), false));
         User userFoundAfterUpdate = userService.findByIdentifier(identifier);
@@ -115,14 +115,14 @@ class UserControllerTest {
         assertEquals(UserEventTypeEnum.UPDATE, listUpdate.get(1).getType());
 
         // delete user
-        mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> userService.findByIdentifier(identifier));
 
         assertTrue(userEventService.findUserEventsByUser(userFoundAfterUpdate).isEmpty());
 
         // delete user not found
-        mockMvc.perform(delete(Constants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
@@ -133,7 +133,7 @@ class UserControllerTest {
         String otherIdentifier = "WRONG";
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
-        mockMvc.perform(put(Constants.API_USERS_ID, otherIdentifier).content(jsonUser)
+        mockMvc.perform(put(UrlConstants.API_USERS_ID, otherIdentifier).content(jsonUser)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and user identifier don't match")));

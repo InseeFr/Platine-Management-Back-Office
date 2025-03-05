@@ -35,8 +35,22 @@ public class Survey {
     private String noticeUrl;
     private String specimenUrl;
     private String communication;
+    @Column(columnDefinition = "boolean default false")
+    private boolean compulsoryNature;
+    private String rgpdBlock;
+    private String sendPaperQuestionnaire;
+    @Column(columnDefinition = "boolean default false")
+    private boolean reExpedition;
+    private String managementApplicationName;
+    @Column(columnDefinition = "boolean default false")
+    private boolean contactExtraction;
+    private String contactExtractionNb;
+    private String surveyStatus;
+    @Column(columnDefinition = "boolean default false")
+    private boolean sviUse;
+    private String sviNumber;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "survey")
     private Set<Campaign> campaigns;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -44,6 +58,7 @@ public class Survey {
     private Set<Parameters> params;
 
     @ManyToOne
+    @JoinColumn(name = "source_id")
     private Source source;
 
 }

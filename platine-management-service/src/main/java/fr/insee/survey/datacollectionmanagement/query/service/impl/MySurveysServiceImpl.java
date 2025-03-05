@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
@@ -50,11 +49,8 @@ public class MySurveysServiceImpl implements MySurveysService {
             String surveyUnitId = questioning.getSurveyUnit().getIdSu();
             surveyDto.setSurveyWording(survey.getLongWording());
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
-            String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-            String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-            String sourceId = survey.getSource().getId().toLowerCase();
             surveyDto.setAccessUrl(
-                    questioningService.getAccessUrl(accessBaseUrl,typeUrl, UserRoles.INTERVIEWER, questioning, surveyUnitId, sourceId));
+                    questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
             surveyDto.setIdentificationCode(surveyUnitId);
             surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
             surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));

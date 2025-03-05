@@ -1,16 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -18,15 +25,22 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SourceServiceImpl implements SourceService {
 
+    private final ModelMapper modelMapper;
+
     private final SourceRepository sourceRepository;
 
+    private final SurveyService surveyService;
+
+    private final ParametersService parametersService;
+
     public Source findById(String source) {
-        return sourceRepository.findById(source).orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
+        return sourceRepository.findById(source)
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
     }
 
     @Override
-    public Page<Source> findAll(Pageable pageable) {
-        return sourceRepository.findAll(pageable);
+    public List<Source> findAll() {
+        return sourceRepository.findAll();
     }
 
     @Override
@@ -50,29 +64,24 @@ public class SourceServiceImpl implements SourceService {
     }
 
     @Override
-    public Source addSurveyToSource(Source source, Survey survey) {
-        Set<Survey> surveys;
-        try {
-            Source sourceBase = findById(source.getId());
-            surveys = sourceBase.getSurveys();
-            if (!isSurveyPresent(survey, sourceBase)) {
-                surveys.add(survey);
-            }
-        } catch (NotFoundException e) {
-            surveys = Set.of(survey);
-
-        }
-        source.setSurveys(surveys);
-        return source;
+    public List<ParamsDto> saveParametersForSource(Source source, ParamsDto paramsDto) {
+        Parameters param = parametersService.convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(source.getId()));
+        Set<Parameters> updatedParams = parametersService.updateSourceParams(source,param);
+        source.setParams(updatedParams);
+        insertOrUpdateSource(source);
+        return updatedParams.stream().map(parametersService::convertToDto).toList();
     }
 
-    private boolean isSurveyPresent(Survey su, Source s) {
-        for (Survey survey : s.getSurveys()) {
-            if (survey.getId().equals(su.getId())) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public List<SourceDto> getOngoingSources() {
+        return sourceRepository.findAll().stream()
+                .filter(source -> Optional.ofNullable(source.getSurveys())
+                        .orElse(Set.of()) // Remplace `null` par un set vide
+                        .stream()
+                        .anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId())))
+                .map(source -> modelMapper.map(source, SourceDto.class))
+                .toList();
     }
 
 }

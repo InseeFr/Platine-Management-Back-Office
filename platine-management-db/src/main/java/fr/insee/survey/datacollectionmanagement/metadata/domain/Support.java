@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -25,7 +26,7 @@ public class Support {
     private String city;
     private String zipCode;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "support")
     private Set<Source> sources;
 
 }

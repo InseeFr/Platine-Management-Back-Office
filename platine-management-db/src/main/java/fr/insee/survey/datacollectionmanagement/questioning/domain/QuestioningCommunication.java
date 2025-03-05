@@ -25,6 +25,7 @@ public class QuestioningCommunication {
     private TypeCommunicationEvent type;
 
     @ManyToOne
+    @JoinColumn(name = "questioning_id")
     private Questioning questioning;
     @Enumerated(EnumType.STRING)
     private StatusCommunication status;

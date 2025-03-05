@@ -7,9 +7,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogCampaignDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogExtractionRowDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogQuestioningEventDto;
@@ -26,18 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class MoogServiceImpl implements MoogService {
 
-    public static final String READONLY_QUESTIONNAIRE = "/readonly/questionnaire/";
-    public static final String UNITE_ENQUETEE = "/unite-enquetee/";
     private final ViewService viewService;
 
     private final ContactService contactService;
@@ -47,8 +40,6 @@ public class MoogServiceImpl implements MoogService {
     private final MoogRepository moogRepository;
 
     private final QuestioningService questioningService;
-
-    private final PartitioningService partitioningService;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -127,12 +118,9 @@ public class MoogServiceImpl implements MoogService {
         Campaign campaign = campaignService.findById(idCampaign);
         Set<Partitioning> setParts = campaign.getPartitionings();
         for (Partitioning part : setParts) {
-            Questioning questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            if (questioning != null) {
-                String accessBaseUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_REDIRECTION);
-                String typeUrl = partitioningService.findSuitableParameterValue(part, ParameterEnum.URL_TYPE);
-                String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
-                return questioningService.getAccessUrl(accessBaseUrl, typeUrl, UserRoles.REVIEWER, questioning, surveyUnitId, sourceId);
+            Optional<Questioning> optionalQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+            if (optionalQuestioning.isPresent()) {
+                return questioningService.getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
             }
         }
         String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;

@@ -1,12 +1,10 @@
-package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
+package fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import lombok.Setter;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.List;
@@ -34,8 +32,24 @@ public class CampaignRepositoryStub implements CampaignRepository {
     }
 
     @Override
-    public void flush() {
+    public Page<Campaign> findBySource(String source, Pageable pageable) {
 
+        if (campaigns == null || campaigns.isEmpty()) {
+            return Page.empty();
+        }
+
+        List<Campaign> filtered = StringUtils.isBlank(source) ? campaigns : campaigns.stream().filter(c -> c.getSurvey().getSource().getId().equalsIgnoreCase(source)).toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filtered.size());
+        List<Campaign> pagedList = filtered.subList(start, end);
+
+        return new PageImpl<>(pagedList, pageable, filtered.size());
+    }
+
+    @Override
+    public void flush() {
+        // stub
     }
 
     @Override
@@ -50,17 +64,17 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Campaign> entities) {
-
+// stub
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+        // stub
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // stub
     }
 
     @Override
@@ -125,7 +139,10 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public Optional<Campaign> findById(String s) {
-        return Optional.empty();
+        if (StringUtils.isBlank(s)) {
+            return Optional.empty();
+        }
+        return campaigns.stream().filter(c -> s.equals(c.getId())).findFirst();
     }
 
     @Override
@@ -150,27 +167,27 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public void deleteById(String s) {
-
+        // stub
     }
 
     @Override
     public void delete(Campaign entity) {
-
+        // stub
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
-
+        // stub
     }
 
     @Override
     public void deleteAll(Iterable<? extends Campaign> entities) {
-
+        // stub
     }
 
     @Override
     public void deleteAll() {
-
+        // stub
     }
 
     @Override

@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -9,12 +9,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.OwnerService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SupportService;
+import fr.insee.survey.datacollectionmanagement.metadata.service.*;
+import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +47,6 @@ public class SourceController {
 
     private final OwnerService ownerService;
 
-    private final SupportService supportService;
 
     private final ViewService viewService;
 
@@ -59,28 +56,31 @@ public class SourceController {
 
     private final CampaignService campaignService;
 
+    private final ParametersService parametersService;
+    private final SurveyService surveyService;
+
     @Operation(summary = "Search for sources, paginated")
-    @GetMapping(value = Constants.API_SOURCES, produces = "application/json")
-    public ResponseEntity<SourcePage> getSources(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(defaultValue = "id") String sort) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<Source> pageSource = sourceService.findAll(pageable);
-        List<SourceDto> listSources = pageSource.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new SourcePage(listSources, pageable, pageSource.getTotalElements()));
+    @GetMapping(value = UrlConstants.API_SOURCES, produces = "application/json")
+    public List<SourceDto> getSources() {
+        return sourceService.findAll().stream().map(this::convertToDto).toList();
+    }
+
+    @Operation(summary = "Get all sources ongoing")
+    @GetMapping(value = UrlConstants.API_SOURCES_ONGOING, produces = "application/json")
+    public List<SourceDto> getOngoingSources() {
+        return sourceService.getOngoingSources();
     }
 
     @Operation(summary = "Search for a source by its id")
-    @GetMapping(value = Constants.API_SOURCES_ID, produces = "application/json")
-    public ResponseEntity<SourceOnlineStatusDto> getSource(@PathVariable("id") String id) {
+    @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
+    public SourceOnlineStatusDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
-        return ResponseEntity.ok().body(convertToCompleteDto(source));
+        return convertToCompleteDto(source);
 
     }
 
     @Operation(summary = "Update or create a source")
-    @PutMapping(value = Constants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     public ResponseEntity<SourceOnlineStatusDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOnlineStatusDto sourceOnlineStatusDto) {
         if (!sourceOnlineStatusDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
@@ -103,16 +103,11 @@ public class SourceController {
 
 
         source = sourceService.insertOrUpdateSource(convertToEntity(sourceOnlineStatusDto));
-        if (source.getOwner() != null && httpStatus.equals(HttpStatus.CREATED))
-            ownerService.addSourceFromOwner(source.getOwner(), source);
-        if (source.getSupport() != null && httpStatus.equals(HttpStatus.CREATED))
-            supportService.addSourceFromSupport(source.getSupport(), source);
-
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToCompleteDto(source));
     }
 
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
-    @DeleteMapping(value = Constants.API_SOURCES_ID)
+    @DeleteMapping(value = UrlConstants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     public void deleteSource(@PathVariable("id") String id) {
@@ -120,19 +115,12 @@ public class SourceController {
         int nbViewDeleted = 0;
         Source source = sourceService.findById(id);
 
-        if (source.getOwner() != null)
-            ownerService.removeSourceFromOwner(source.getOwner(), source);
-
-        if (source.getSupport() != null)
-            supportService.removeSourceFromSupport(source.getSupport(), source);
-
-        sourceService.deleteSourceById(id);
         List<Campaign> listCampaigns = new ArrayList<>();
         List<Partitioning> listPartitionings = new ArrayList<>();
 
-        source.getSurveys().stream().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
-        source.getSurveys().stream().forEach(
-                su -> su.getCampaigns().stream().forEach(c -> listPartitionings.addAll(c.getPartitionings())));
+        source.getSurveys().forEach(su -> listCampaigns.addAll(su.getCampaigns()));
+        source.getSurveys().forEach(
+                su -> su.getCampaigns().forEach(c -> listPartitionings.addAll(c.getPartitionings())));
 
         for (Campaign campaign : listCampaigns) {
             nbViewDeleted += viewService.deleteViewsOfOneCampaign(campaign);
@@ -140,13 +128,15 @@ public class SourceController {
         for (Partitioning partitioning : listPartitionings) {
             nbQuestioningDeleted += questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
         }
+        sourceService.deleteSourceById(id);
+
         log.info("Source {} deleted with all its metadata children - {} questioning deleted - {} view deleted", id,
                 nbQuestioningDeleted, nbViewDeleted);
 
     }
 
     @Operation(summary = "Check if a source is opened")
-    @GetMapping(value = Constants.API_SOURCE_ID_OPENED, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = "application/json")
     public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
         Source source = sourceService.findById(id.toUpperCase());
@@ -157,21 +147,38 @@ public class SourceController {
         if (source.getSurveys().isEmpty())
             return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
-        boolean isOpened = source.getSurveys().stream().flatMap(survey -> survey.getCampaigns().stream()).anyMatch(campaign -> campaignService.isCampaignOngoing(campaign.getId()));
+        boolean isOpened = source.getSurveys().stream().anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId()));
 
         return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
 
     }
 
     @Operation(summary = "Search for surveys by the owner id")
-    @GetMapping(value = Constants.API_OWNERS_ID_SOURCES, produces = "application/json")
-    public ResponseEntity<List<SourceDto>> getSourcesByOwner(@PathVariable("id") String id) {
+    @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = "application/json")
+    public List<SourceDto> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
-        return ResponseEntity.ok()
-                .body(owner.getSources().stream().map(this::convertToDto).toList());
+        return owner.getSources().stream().map(this::convertToDto).toList();
 
 
     }
+
+    @Operation(summary = "Get source parameters")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    public List<ParamsDto> getParams(@PathVariable("id") String id) {
+        Source source = sourceService.findById(StringUtils.upperCase(id));
+        return source.getParams().stream().map(parametersService::convertToDto).toList();
+    }
+
+
+    @Operation(summary = "Create a parameter for a source")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
+        Source source = sourceService.findById(StringUtils.upperCase(id));
+        ParamValidator.validateParams(paramsDto);
+        return sourceService.saveParametersForSource(source, paramsDto);
+    }
+
+
 
     private SourceDto convertToDto(Source source) {
         return modelmapper.map(source, SourceDto.class);
@@ -186,11 +193,5 @@ public class SourceController {
         return modelmapper.map(sourceOnlineStatusDto, Source.class);
     }
 
-    class SourcePage extends PageImpl<SourceDto> {
-
-        public SourcePage(List<SourceDto> content, Pageable pageable, long total) {
-            super(content, pageable, total);
-        }
-    }
 
 }

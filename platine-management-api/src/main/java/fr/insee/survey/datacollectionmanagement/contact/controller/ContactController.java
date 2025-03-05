@@ -3,14 +3,12 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactParamEnum;
-import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
-import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.util.PayloadUtil;
 import fr.insee.survey.datacollectionmanagement.contact.validation.ValidContactParam;
@@ -30,7 +28,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -54,46 +51,44 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactService;
-
-    private final AddressService addressService;
-
+    
     private final ViewService viewService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
-    private final ModelMapper modelMapper;
 
     /**
      * @deprecated
      */
     @Operation(summary = "Search for contacts, paginated")
-    @GetMapping(value = Constants.API_CONTACTS_ALL, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = "application/json")
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "identifier") String sort) {
+        log.warn("DEPRECATED");
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<Contact> pageC = contactService.findAll(pageable);
-        List<ContactDto> listC = pageC.stream().map(this::convertToDto).toList();
+        List<ContactDto> listC = pageC.stream().map(contactService::convertToDto).toList();
         return new ContactPage(listC, pageable, pageC.getTotalElements());
     }
 
     @Operation(summary = "Search for a contact by its id")
-    @GetMapping(value = Constants.API_CONTACTS_ID)
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         Contact contact = contactService.findByIdentifier(idContact);
         List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
-        return convertToContactDetailsDto(contact, listCampaigns);
+        return contactService.convertToContactDetailsDto(contact, listCampaigns);
 
 
     }
 
 
     @Operation(summary = "Update or create a contact")
-    @PutMapping(value = Constants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
@@ -101,28 +96,22 @@ public class ContactController {
         if (!contactDto.getIdentifier().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and contact identifier don't match");
         }
-        Contact contact;
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest()
-                .buildAndExpand(contactDto.getIdentifier()).toUriString());
+                .buildAndExpand(id).toUriString());
 
         JsonNode payload = PayloadUtil.getPayloadAuthor(auth.getName());
-
+        HttpStatus httpStatus = HttpStatus.OK;
         try {
-            contact = convertToEntity(contactDto);
-            if (contactDto.getAddress() != null)
-                contact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
-            Contact contactUpdate = contactService.updateContactAddressEvent(contact, payload);
-            return ResponseEntity.ok().headers(responseHeaders).body(convertToDto(contactUpdate));
+            contactService.findByIdentifier(id);
         } catch (NotFoundException e) {
             log.info("Creating contact with the identifier {}", contactDto.getIdentifier());
-            contact = convertToEntityNewContact(contactDto);
-            if (contactDto.getAddress() != null)
-                contact.setAddress(addressService.convertToEntity(contactDto.getAddress()));
-            Contact contactCreate = contactService.createContactAddressEvent(contact, payload);
-            viewService.createView(id, null, null);
-            return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(contactCreate));
+            httpStatus = HttpStatus.CREATED;
         }
+        Contact contact = contactService.updateOrCreateContact(id, contactDto, payload);
+
+
+        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(contactService.convertToDto(contact));
 
     }
 
@@ -131,11 +120,11 @@ public class ContactController {
      * @deprecated
      */
     @Operation(summary = "Delete a contact, its address, its contactEvents")
-    @DeleteMapping(value = Constants.API_CONTACTS_ID)
+    @DeleteMapping(value = UrlConstants.API_CONTACTS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContact(@PathVariable("id") String id) {
-
+        log.warn("DEPRECATED");
         if (!questioningAccreditationService.findByContactIdentifier(id).isEmpty()) {
             throw new ImpossibleToDeleteException(
                     String.format("Contact %s cannot be deleted as he/she is still entitled to answer one or more questionnaires", id));
@@ -147,7 +136,7 @@ public class ContactController {
 
     }
 
-    @GetMapping(path = Constants.API_CONTACTS_SEARCH, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = "application/json")
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
@@ -157,55 +146,25 @@ public class ContactController {
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = false) @Valid @ValidContactParam String searchType,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "identifier") String sort) {
+            @RequestParam(defaultValue = "10") Integer pageSize) {
 
         log.info(
                 "Search contact by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sort));
+        Pageable pageable = PageRequest.of(page, pageSize);
 
         switch (ContactParamEnum.fromValue(searchType)) {
             case ContactParamEnum.IDENTIFIER:
-                return contactService.searchContactByIdentifier(searchParam, pageable);
+                return contactService.searchContactByIdentifier(searchParam.toUpperCase(), pageable);
             case ContactParamEnum.NAME:
-                return contactService.searchContactByName(searchParam, pageable);
+                return contactService.searchContactByName(searchParam.toUpperCase(), pageable);
             case ContactParamEnum.EMAIL:
-                return contactService.searchContactByEmail(searchParam, pageable);
+                return contactService.searchContactByEmail(searchParam.toUpperCase(), pageable);
         }
         return new PageImpl<>(Collections.emptyList());
 
     }
-
-    private ContactDto convertToDto(Contact contact) {
-        ContactDto contactDto = modelMapper.map(contact, ContactDto.class);
-        contactDto.setCivility(contact.getGender().name());
-        return contactDto;
-    }
-
-    private ContactDetailsDto convertToContactDetailsDto(Contact contact, List<String> listCampaigns) {
-        ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
-        contactDetailsDto.setCivility(contact.getGender());
-        contactDetailsDto.setListCampaigns(listCampaigns);
-        return contactDetailsDto;
-    }
-
-    private Contact convertToEntity(ContactDto contactDto) {
-        Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
-        Contact oldContact = contactService.findByIdentifier(contactDto.getIdentifier());
-        contact.setComment(oldContact.getComment());
-        contact.setAddress(oldContact.getAddress());
-        contact.setContactEvents(oldContact.getContactEvents());
-
-        return contact;
-    }
-
-    private Contact convertToEntityNewContact(ContactDto contactDto) {
-        Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
-        return contact;
-    }
+    
 
     static class ContactPage extends PageImpl<ContactDto> {
 

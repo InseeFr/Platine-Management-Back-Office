@@ -4,16 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDtoImpl;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactParamEnum;
-import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,28 +39,12 @@ public class SearchContactSteps {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ContactRepository contactRepository;
+    ObjectMapper objectMapper;
 
     private MvcResult mvcResult;
     private Page<SearchContactDtoImpl> pageSearchContact;
     private String role;
 
-    @Transactional
-    @Given("the following contacts exist:")
-    public void createContacts(DataTable dataTable) {
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> row : rows) {
-            Contact contact = new Contact();
-            contact.setIdentifier(row.get("idep"));
-            contact.setFirstName(row.get("firstname"));
-            contact.setLastName(row.get("lastname"));
-            contact.setEmail(row.get("email"));
-            contactRepository.save(contact);
-        }
-    }
 
     @Given("I am a survey manager")
     public void setRole() {
@@ -74,7 +55,7 @@ public class SearchContactSteps {
 
     @When("I type {string} in the searching contact area by email")
     public void searchContactByEmail(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.EMAIL.getValue()))
                 .andExpect(status().isOk())
@@ -92,7 +73,7 @@ public class SearchContactSteps {
 
     @When("I type {string} in the searching contact area by name")
     public void searchContactByName(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.NAME.getValue()))
                 .andExpect(status().isOk())
@@ -110,7 +91,7 @@ public class SearchContactSteps {
 
     @When("I type {string} in the searching contact area by identifier")
     public void searchContactByIdentifier(String param) throws Exception {
-        mvcResult = mockMvc.perform(get(Constants.API_CONTACTS_SEARCH)
+        mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.IDENTIFIER.getValue()))
                 .andExpect(status().isOk())

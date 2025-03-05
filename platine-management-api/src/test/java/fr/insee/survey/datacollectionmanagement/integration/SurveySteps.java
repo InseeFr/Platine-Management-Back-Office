@@ -1,12 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDtoImpl;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -14,14 +16,10 @@ import jakarta.transaction.Transactional;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SurveySteps {
     @Autowired
@@ -33,10 +31,8 @@ public class SurveySteps {
     @Autowired
     private SourceRepository sourceRepository;
 
-    private Page<SearchSurveyUnitDtoImpl> pageSearchSurveyUnit;
-    private String surveyId = "SURVEY-ID";
-    private String role;
-    private ResultActions resultActions;
+    private final String surveyId = "SURVEY-ID";
+  private ResultActions resultActions;
 
     @Transactional
     @Given("a survey exists")
@@ -65,9 +61,10 @@ public class SurveySteps {
 
     @Given("I am an authenticated user")
     public void setRole() {
-        role = AuthorityRoleEnum.INTERNAL_USER.name();
+      String role = AuthorityRoleEnum.INTERNAL_USER.name();
         SecurityContextHolder.getContext()
-                .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(role)));
+                .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(
+                    role)));
     }
 
     @When("I'm searching the existing survey")
@@ -98,6 +95,6 @@ public class SurveySteps {
           "sourceId": "SOURCE-ID"
         }
         """;
-        JSONAssert.assertEquals(expectedContent, content, JSONCompareMode.NON_EXTENSIBLE);
+        JSONAssert.assertEquals(expectedContent, content, JSONCompareMode.LENIENT);
     }
 }

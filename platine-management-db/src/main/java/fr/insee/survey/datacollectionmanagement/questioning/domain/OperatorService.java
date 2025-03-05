@@ -16,7 +16,7 @@ public class OperatorService {
     private String name;
     private String mail;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "operatorService")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Operator> operators;

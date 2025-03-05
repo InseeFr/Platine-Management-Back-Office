@@ -1,7 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.query.controller;
+package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
-import fr.insee.survey.datacollectionmanagement.constants.Constants;
+import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -46,7 +47,7 @@ public class SearchSurveyUnitController {
     private final QuestioningEventService questioningEventService;
 
 
-    @GetMapping(path = Constants.API_SURVEY_UNITS_CONTACTS, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_SURVEY_UNITS_CONTACTS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
     public ResponseEntity<List<SearchSurveyUnitContactDto>> getSurveyUnitContacts(
             @PathVariable("id") String id) {
@@ -81,19 +82,23 @@ public class SearchSurveyUnitController {
     }
 
 
-    @GetMapping(path = Constants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
+    /**
+     * @deprecated
+     */
+    @GetMapping(path = UrlConstants.API_SURVEY_UNITS_PARTITIONINGS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
-    @Deprecated
+    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<SurveyUnitPartitioningDto>> getSurveyUnitPartitionings(
             @PathVariable("id") String id,
             @RequestParam(defaultValue = "false") boolean isFilterOpened) {
+        log.warn("DEPRECATED");
         List<SurveyUnitPartitioningDto> listParts = new ArrayList<>();
         Set<Questioning> setQuestionings = questioningService.findBySurveyUnitIdSu(id);
         for (Questioning questioning : setQuestionings) {
             Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
-            if (!isFilterOpened || partitioningService.isOnGoing(part, new Date())) {
+            if (!isFilterOpened || partitioningService.isOnGoing(part, Instant.now())) {
                 Survey survey = part.getCampaign().getSurvey();
                 listParts.add(new SurveyUnitPartitioningDto(
                         survey.getSource().getShortWording(),

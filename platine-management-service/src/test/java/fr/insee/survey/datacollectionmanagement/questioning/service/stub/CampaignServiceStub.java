@@ -2,14 +2,16 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
 public class CampaignServiceStub implements CampaignService {
+
     @Override
     public Collection<CampaignMoogDto> getCampaigns() {
         return List.of();
@@ -23,7 +25,7 @@ public class CampaignServiceStub implements CampaignService {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, -1);
 
-        Date yesterday =calendar.getTime();
+        Date yesterday = calendar.getTime();
         calendar.add(Calendar.DAY_OF_YEAR, 2);
         Date tomorrow = calendar.getTime();
         partitioning.setOpeningDate(yesterday);
@@ -33,23 +35,13 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public List<Campaign> findbyPeriod(String period) {
-        return List.of();
-    }
-
-    @Override
-    public List<Campaign> findbySourceYearPeriod(String source, Integer year, String period) {
-        return List.of();
-    }
-
-    @Override
-    public List<Campaign> findbySourcePeriod(String source, String period) {
-        return List.of();
-    }
-
-    @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return null;
+    }
+
+    @Override
+    public List<Campaign> findAll() {
+        return List.of();
     }
 
     @Override
@@ -59,16 +51,31 @@ public class CampaignServiceStub implements CampaignService {
 
     @Override
     public void deleteCampaignById(String id) {
-
+        // stub method
     }
 
     @Override
-    public Campaign addPartitionigToCampaign(Campaign campaign, Partitioning partitioning) {
+    public boolean isCampaignOngoing(String campaignId) {
+        return "ONGOING".equals(campaignId);
+    }
+
+    @Override
+    public List<CampaignOngoingDto> getCampaignOngoingDtos() {
+        return List.of();
+    }
+
+    @Override
+    public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
         return null;
     }
 
     @Override
-    public boolean isCampaignOngoing(String idCampaign) {
-        return false;
+    public Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of) {
+        return Page.empty();
+    }
+
+    @Override
+    public CampaignHeaderDto findCampaignHeaderById(String id) {
+        return null;
     }
 }

@@ -1,10 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +17,9 @@ public class Operator {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "operator_service_id")
+    private OperatorService operatorService;
 
 
 }

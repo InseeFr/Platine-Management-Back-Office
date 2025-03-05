@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.BusinessContactS
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.NonNull;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -34,8 +36,9 @@ public class BusinessContactServiceImpl implements BusinessContactService {
         Set<Partitioning> setParts = campaignService.findById(campaignId).getPartitionings();
         List<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
         for (Partitioning part : setParts) {
-            questioningAccreditationList.addAll(questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId).
-                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList());
+            Optional<Questioning> questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
+            questioning.ifPresent(value -> questioningAccreditationList.addAll(value.
+                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList()));
 
         }
         int size = questioningAccreditationList.size();
