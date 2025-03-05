@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
-import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
