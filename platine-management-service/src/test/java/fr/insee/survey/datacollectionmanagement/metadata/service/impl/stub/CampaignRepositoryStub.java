@@ -38,11 +38,7 @@ public class CampaignRepositoryStub implements CampaignRepository {
             return Page.empty();
         }
 
-        List<Campaign> filtered = StringUtils.isBlank(source)
-                ? campaigns
-                : campaigns.stream()
-                .filter(c -> c.getSurvey().getSource().getId().equalsIgnoreCase(source))
-                .toList();
+        List<Campaign> filtered = StringUtils.isBlank(source) ? campaigns : campaigns.stream().filter(c -> c.getSurvey().getSource().getId().equalsIgnoreCase(source)).toList();
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), filtered.size());
@@ -53,7 +49,7 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public void flush() {
-
+        // stub
     }
 
     @Override
@@ -68,17 +64,17 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Campaign> entities) {
-
+// stub
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+        // stub
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // stub
     }
 
     @Override
@@ -146,9 +142,7 @@ public class CampaignRepositoryStub implements CampaignRepository {
         if (StringUtils.isBlank(s)) {
             return Optional.empty();
         }
-        return campaigns.stream()
-                .filter(c -> s.equals(c.getId()))
-                .findFirst();
+        return campaigns.stream().filter(c -> s.equals(c.getId())).findFirst();
     }
 
     @Override
@@ -173,27 +167,27 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public void deleteById(String s) {
-
+        // stub
     }
 
     @Override
     public void delete(Campaign entity) {
-
+        // stub
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
-
+        // stub
     }
 
     @Override
     public void deleteAll(Iterable<? extends Campaign> entities) {
-
+        // stub
     }
 
     @Override
     public void deleteAll() {
-
+        // stub
     }
 
     @Override

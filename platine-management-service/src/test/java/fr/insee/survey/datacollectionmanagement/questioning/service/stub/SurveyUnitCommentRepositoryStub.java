@@ -1,13 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitComment;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitCommentRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
-import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class SurveyUnitCommentRepositoryStub implements SurveyUnitCommentReposit
 
 	@Override
 	public void flush() {
-
+		// stub
 	}
 
 	@Override
@@ -35,17 +34,17 @@ public class SurveyUnitCommentRepositoryStub implements SurveyUnitCommentReposit
 
 	@Override
 	public void deleteAllInBatch(Iterable<SurveyUnitComment> entities) {
-
+		// stub
 	}
 
 	@Override
 	public void deleteAllByIdInBatch(Iterable<Long> longs) {
-
+		// stub
 	}
 
 	@Override
 	public void deleteAllInBatch() {
-
+		// stub
 	}
 
 	@Override
@@ -135,27 +134,27 @@ public class SurveyUnitCommentRepositoryStub implements SurveyUnitCommentReposit
 
 	@Override
 	public void deleteById(Long aLong) {
-
+		// stub
 	}
 
 	@Override
 	public void delete(SurveyUnitComment entity) {
-
+		// stub
 	}
 
 	@Override
 	public void deleteAllById(Iterable<? extends Long> longs) {
-
+		// stub
 	}
 
 	@Override
 	public void deleteAll(Iterable<? extends SurveyUnitComment> entities) {
-
+		// stub
 	}
 
 	@Override
 	public void deleteAll() {
-
+		// stub
 	}
 
 	@Override
