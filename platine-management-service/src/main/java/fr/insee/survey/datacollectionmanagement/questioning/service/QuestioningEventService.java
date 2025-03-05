@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.stereotype.Service;
 
@@ -37,9 +37,10 @@ public interface QuestioningEventService {
     QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto);
 
     /**
-     * Create or update a VALINT questioningEvent
-     * @param validatedQuestioningEventDto
-     * @return true if the VALINT questioningEvent is created
+     * create a questioningEvent
+     * @param eventType event type
+     * @param questioningEventInputDto input
+     * @return true if event is created, false in other cases
      */
-    boolean postValintQuestioningEvent(ValidatedQuestioningEventDto validatedQuestioningEventDto);
+    boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto);
 }
