@@ -12,16 +12,14 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
     List<QuestioningAccreditation> findByIdContact(String idContact);
 
     @Query(value = "SELECT " +
-            "s.id AS source_id, " +
-            "q.id AS questioning_id, " +
-            "p.label AS partitioning_label, " +
-            "p.opening_date AS opening_date, " +
-            "p.closing_date AS closing_date, " +
-            "p.id AS partitioning_id, " +
-            "su.identification_code AS survey_unit_identification_code, " +
-            "su.identification_name AS survey_unit_identification_name, " +
-            "su.id_su AS survey_unit_id," +
-            "c.datacollection_target as data_collection_target " +
+            "s.id AS sourceId, " +
+            "q.id AS questioningId, " +
+            "p.label AS partitioningLabel, " +
+            "p.id AS partitioningId, " +
+            "su.identification_code AS surveyUnitIdentificationCode, " +
+            "su.identification_name AS surveyUnitIdentificationName, " +
+            "su.id_su AS surveyUnitId," +
+            "c.datacollection_target AS dataCollectionTarget " +
             "FROM questioning_accreditation qa " +
             "JOIN questioning q ON qa.questioning_id = q.id " +
             "JOIN partitioning p ON q.id_partitioning = p.id " +

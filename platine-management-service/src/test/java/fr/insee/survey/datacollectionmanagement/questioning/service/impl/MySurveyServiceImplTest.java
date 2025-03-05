@@ -110,7 +110,7 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnairesTest3() {
         String pathDepositProof = questionnaireApiUrl + "api/survey-unit/" + "SU123" + "/deposit-proof";
 
-        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
@@ -132,7 +132,7 @@ class MySurveyServiceImplTest {
     @DisplayName("Should return questionnaire list when status is RECEIVED with XForm")
     void getListMyQuestionnairesTest4() {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
-        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1.toString());
 
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
@@ -147,7 +147,7 @@ class MySurveyServiceImplTest {
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic Sensitive")
     void getListMyQuestionnairesTest5() {
         String pathDepositProof = questionnaireApiUrlSensitive + "api/survey-unit/" + "SU123" + "/deposit-proof";
-        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE.toString());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");

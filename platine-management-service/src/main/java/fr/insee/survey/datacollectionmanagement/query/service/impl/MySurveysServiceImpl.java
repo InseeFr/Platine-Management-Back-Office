@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
@@ -19,12 +18,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpRequest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +109,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setQuestioningStatus(questioningStatus);
 
             if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name())) {
-                DataCollectionEnum dataCollectionEnum = myQuestionnaireDetailsDto.getDataCollectionTarget();
+                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
                 if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2)) {
 
                     myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
