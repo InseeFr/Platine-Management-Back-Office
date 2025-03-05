@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
+import fr.insee.survey.datacollectionmanagement.metadata.validation.DataCollectionTargetValid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ public class CampaignDto {
     private int year;
     private String campaignWording;
     private String period;
-    private boolean sensitivity = false;
+    private boolean sensitivity;
+    @DataCollectionTargetValid
     private String dataCollectionTarget;
 }

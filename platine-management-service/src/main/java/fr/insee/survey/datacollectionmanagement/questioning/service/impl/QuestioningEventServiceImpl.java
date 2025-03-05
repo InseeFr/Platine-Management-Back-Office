@@ -7,7 +7,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuest
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -78,31 +78,27 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public boolean postValintQuestioningEvent(ValidatedQuestioningEventDto validatedQuestioningEventDto) {
+    public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
 
-        Long questioningId = validatedQuestioningEventDto.getQuestioningId();
+        Long questioningId = questioningEventInputDto.getQuestioningId();
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 
-        List<QuestioningEvent> valintQuestioningEvents = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT);
+        List<QuestioningEvent> sameTypeQuestioningEvents = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.valueOf(eventType));
 
-        if (valintQuestioningEvents.size()>1) {
-            throw new TooManyValuesException(String.format("%s VALINT questioningEvents found for questioningId %s  - only 1 questioningEvents should be found", valintQuestioningEvents.size(), questioningId));
+        if (sameTypeQuestioningEvents.size() > 1) {
+            throw new TooManyValuesException(String.format("%s %s questioningEvents found for questioningId %s  - only 1 questioningEvents should be found", sameTypeQuestioningEvents.size(), eventType, questioningId));
         }
-        if (!valintQuestioningEvents.isEmpty()) {
-            QuestioningEvent valintQuestioningEvent = valintQuestioningEvents.getFirst();
-            valintQuestioningEvent.setDate(validatedQuestioningEventDto.getDate());
-            valintQuestioningEvent.setPayload(validatedQuestioningEventDto.getPayload());
-            questioningEventRepository.save(valintQuestioningEvent);
+        if (!sameTypeQuestioningEvents.isEmpty()) {
             return false;
         }
-        QuestioningEvent valintQuestioningEvent = new QuestioningEvent();
-        valintQuestioningEvent.setQuestioning(questioning);
-        valintQuestioningEvent.setType(TypeQuestioningEvent.VALINT);
-        valintQuestioningEvent.setPayload(validatedQuestioningEventDto.getPayload());
-        valintQuestioningEvent.setDate(validatedQuestioningEventDto.getDate());
-        valintQuestioningEvent.setPayload(validatedQuestioningEventDto.getPayload());
-        questioningEventRepository.save(valintQuestioningEvent);
+        QuestioningEvent newQuestioningEvent = new QuestioningEvent();
+        newQuestioningEvent.setQuestioning(questioning);
+        newQuestioningEvent.setType(TypeQuestioningEvent.valueOf(eventType));
+        newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
+        newQuestioningEvent.setDate(questioningEventInputDto.getDate());
+        newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
+        questioningEventRepository.save(newQuestioningEvent);
         return true;
     }
 }

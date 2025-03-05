@@ -1,13 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -38,13 +38,13 @@ class QuestioningEventServiceImplTest {
     @InjectMocks
     private QuestioningEventServiceImpl questioningEventService;
 
-    private ValidatedQuestioningEventDto validatedDto;
+    private QuestioningEventInputDto validatedDto;
     private Questioning questioning;
     private QuestioningEvent existingEvent;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        validatedDto = new ValidatedQuestioningEventDto();
+        validatedDto = new QuestioningEventInputDto();
         validatedDto.setQuestioningId(1L);
         validatedDto.setDate(Date.from(Instant.now()));
         validatedDto.setPayload(createPayload());
@@ -69,7 +69,7 @@ class QuestioningEventServiceImplTest {
     void postValintQuestioningEventTest() {
         when(questioningRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> questioningEventService.postValintQuestioningEvent(validatedDto))
+        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent("eventType", validatedDto))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Questioning 1 does not exist");
     }
@@ -81,7 +81,9 @@ class QuestioningEventServiceImplTest {
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(new QuestioningEvent(), new QuestioningEvent()));
 
-        assertThatThrownBy(() -> questioningEventService.postValintQuestioningEvent(validatedDto))
+        String valintEvent = TypeQuestioningEvent.VALINT.name();
+
+        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent(valintEvent, validatedDto))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("2 VALINT questioningEvents found");
     }
@@ -92,14 +94,12 @@ class QuestioningEventServiceImplTest {
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(existingEvent));
-
-        boolean result = questioningEventService.postValintQuestioningEvent(validatedDto);
+        Date dateExistingEvent = existingEvent.getDate();
+        String valintEvent = TypeQuestioningEvent.VALINT.name();
+        boolean result = questioningEventService.postQuestioningEvent(valintEvent, validatedDto);
 
         assertThat(result).isFalse();
-        assertThat(existingEvent.getDate()).isEqualTo(validatedDto.getDate());
-        assertThat(existingEvent.getPayload()).isEqualTo(validatedDto.getPayload());
-
-        verify(questioningEventRepository).save(existingEvent);
+        assertThat(existingEvent.getDate()).isEqualTo(dateExistingEvent);
     }
 
     @Test
@@ -108,8 +108,9 @@ class QuestioningEventServiceImplTest {
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
         when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of());
+        String valintEvent = TypeQuestioningEvent.VALINT.name();
 
-        boolean result = questioningEventService.postValintQuestioningEvent(validatedDto);
+        boolean result = questioningEventService.postQuestioningEvent(valintEvent, validatedDto);
 
         assertThat(result).isTrue();
         verify(questioningEventRepository).save(any(QuestioningEvent.class));

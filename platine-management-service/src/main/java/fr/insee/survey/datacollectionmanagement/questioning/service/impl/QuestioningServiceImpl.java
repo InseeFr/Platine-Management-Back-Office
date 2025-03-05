@@ -23,7 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
@@ -185,7 +184,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
 
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(@PathVariable("id") Long id) {
+    public QuestioningDetailsDto getQuestioningDetails(Long id) {
         Questioning questioning = findById(id);
         return convertToDetailsDto(questioning);
     }

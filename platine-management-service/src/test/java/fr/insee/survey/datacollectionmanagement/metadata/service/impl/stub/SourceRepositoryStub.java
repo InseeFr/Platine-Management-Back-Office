@@ -23,7 +23,7 @@ public class SourceRepositoryStub implements SourceRepository {
 
     @Override
     public void flush() {
-
+        // stub
     }
 
     @Override
@@ -38,16 +38,19 @@ public class SourceRepositoryStub implements SourceRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Source> entities) {
+        // stub
 
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
+        // stub
 
     }
 
     @Override
     public void deleteAllInBatch() {
+        // stub
 
     }
 
@@ -147,21 +150,25 @@ public class SourceRepositoryStub implements SourceRepository {
 
     @Override
     public void delete(Source entity) {
+        // stub
 
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
+        // stub
 
     }
 
     @Override
     public void deleteAll(Iterable<? extends Source> entities) {
+        // stub
 
     }
 
     @Override
     public void deleteAll() {
+        // stub
 
     }
 
