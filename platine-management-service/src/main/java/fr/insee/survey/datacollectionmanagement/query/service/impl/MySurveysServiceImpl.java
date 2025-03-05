@@ -120,7 +120,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     continue;
                 }
 
-                String pathDepositProof = "api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
+                String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
 
                 if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_NORMAL)){
                     myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);

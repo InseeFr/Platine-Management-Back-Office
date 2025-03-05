@@ -26,8 +26,8 @@ class MySurveyServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        questionnaireApiUrl = "api/";
-        questionnaireApiUrlSensitive = "apiSensitive/";
+        questionnaireApiUrl = "api";
+        questionnaireApiUrlSensitive = "apiSensitive";
         questioningAccreditationRepositoryStub = new QuestioningAccreditationRepositoryStub();
         PartitioningServiceStub partitioningService = new PartitioningServiceStub();
         QuestioningEventServiceStub questioningEventServiceStub = new QuestioningEventServiceStub();
@@ -108,7 +108,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic")
     void getListMyQuestionnairesTest3() {
-        String pathDepositProof = questionnaireApiUrl + "api/survey-unit/" + "SU123" + "/deposit-proof";
+        String pathDepositProof = questionnaireApiUrl + "/api/survey-unit/" + "SU123" + "/deposit-proof";
 
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
 
@@ -146,7 +146,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic Sensitive")
     void getListMyQuestionnairesTest5() {
-        String pathDepositProof = questionnaireApiUrlSensitive + "api/survey-unit/" + "SU123" + "/deposit-proof";
+        String pathDepositProof = questionnaireApiUrlSensitive + "/api/survey-unit/" + "SU123" + "/deposit-proof";
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE.toString());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
