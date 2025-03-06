@@ -105,12 +105,12 @@ public class MySurveysServiceImpl implements MySurveysService {
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
-            String questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning).name();
-            myQuestionnaireDto.setQuestioningStatus(questioningStatus);
+            QuestionnaireStatusTypeEnum questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning);
+            myQuestionnaireDto.setQuestioningStatus(questioningStatus.name());
 
-            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.RECEIVED.name())) {
-                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
-                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2)) {
+            DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
+            if(QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
+                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2) ) {
 
                     myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
                             UserRoles.INTERVIEWER,
@@ -133,7 +133,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                 }
             }
 
-            if(questioningStatus.equals(QuestionnaireStatusTypeEnum.OPEN.name())) {
+            if(QuestionnaireStatusTypeEnum.OPEN.equals(questioningStatus)) {
                 myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, partitioning));
             }
         }
