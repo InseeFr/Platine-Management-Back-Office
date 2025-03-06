@@ -108,9 +108,9 @@ public class MySurveysServiceImpl implements MySurveysService {
             QuestionnaireStatusTypeEnum questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning);
             myQuestionnaireDto.setQuestioningStatus(questioningStatus.name());
 
-            DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
             if(QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
-                if(dataCollectionEnum.equals(DataCollectionEnum.XFORM1) || dataCollectionEnum.equals(DataCollectionEnum.XFORM2) ) {
+                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
+                if(DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
 
                     myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
                             UserRoles.INTERVIEWER,
@@ -122,12 +122,12 @@ public class MySurveysServiceImpl implements MySurveysService {
 
                 String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
 
-                if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_NORMAL)){
+                if(DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollectionEnum)){
                     myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
                     continue;
                 }
 
-                if(dataCollectionEnum.equals(DataCollectionEnum.LUNATIC_SENSITIVE)){
+                if(DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollectionEnum)){
                     myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
                     continue;
                 }
