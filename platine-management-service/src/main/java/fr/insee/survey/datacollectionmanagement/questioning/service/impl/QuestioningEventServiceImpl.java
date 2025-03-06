@@ -44,16 +44,23 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public void deleteQuestioningEvent(Long id) {
         questioningEventRepository.deleteById(id);
-
     }
 
     @Override
-    public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning,
-                                                              List<TypeQuestioningEvent> events) {
+    public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events) {
+        return questioning
+                .getQuestioningEvents()
+                .stream()
+                .filter(qe -> events.contains(qe.getType()))
+                .min(lastQuestioningEventComparator);
+    }
 
-        List<QuestioningEvent> listQuestioningEvent = questioning.getQuestioningEvents().stream()
-                .filter(qe -> events.contains(qe.getType())).sorted(lastQuestioningEventComparator).toList();
-        return listQuestioningEvent.stream().findFirst();
+    @Override
+    public boolean containsQuestioningEvents(Questioning questioning,  List<TypeQuestioningEvent> events) {
+       return questioning.getQuestioningEvents()
+               .stream()
+               .map(QuestioningEvent::getType)
+               .anyMatch(events::contains);
     }
 
     @Override
