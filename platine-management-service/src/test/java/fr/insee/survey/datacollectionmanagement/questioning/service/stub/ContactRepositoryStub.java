@@ -56,7 +56,7 @@ public class ContactRepositoryStub implements ContactRepository {
 
     @Override
     public void flush() {
-
+        // Stub
     }
 
     @Override
@@ -71,17 +71,17 @@ public class ContactRepositoryStub implements ContactRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Contact> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // Stub
     }
 
     @Override
@@ -178,27 +178,27 @@ public class ContactRepositoryStub implements ContactRepository {
 
     @Override
     public void deleteById(String s) {
-
+        // Stub
     }
 
     @Override
     public void delete(Contact entity) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll(Iterable<? extends Contact> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll() {
-
+        // Stub
     }
 
     @Override

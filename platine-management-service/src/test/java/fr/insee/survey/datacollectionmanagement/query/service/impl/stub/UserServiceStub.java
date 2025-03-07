@@ -46,7 +46,7 @@ public class UserServiceStub implements UserService {
 
     @Override
     public void deleteUser(String identifier) {
-
+        // Stub
     }
 
     @Override
@@ -61,7 +61,7 @@ public class UserServiceStub implements UserService {
 
     @Override
     public void deleteUserAndEvents(User user) {
-
+        // Stub
     }
 
     @Override

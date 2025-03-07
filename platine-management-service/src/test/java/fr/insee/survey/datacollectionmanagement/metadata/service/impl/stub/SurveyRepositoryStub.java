@@ -25,7 +25,7 @@ public class SurveyRepositoryStub implements SurveyRepository {
 
     @Override
     public void flush() {
-
+        // Stub
     }
 
     @Override
@@ -40,17 +40,17 @@ public class SurveyRepositoryStub implements SurveyRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Survey> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // Stub
     }
 
     @Override
@@ -142,27 +142,27 @@ public class SurveyRepositoryStub implements SurveyRepository {
 
     @Override
     public void deleteById(String s) {
-
+        // Stub
     }
 
     @Override
     public void delete(Survey entity) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll(Iterable<? extends Survey> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll() {
-
+        // Stub
     }
 
     @Override

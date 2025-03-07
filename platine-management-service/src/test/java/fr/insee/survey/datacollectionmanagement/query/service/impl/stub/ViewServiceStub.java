@@ -77,12 +77,12 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public void deleteView(View view) {
-
+        // Stub
     }
 
     @Override
     public void deleteViewByIdentifier(String identifier) {
-
+        // Stub
     }
 
     @Override
