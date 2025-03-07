@@ -407,13 +407,13 @@ class CampaignServiceImplTest {
         campaignRepositoryStub.setCampaigns(List.of(campaign1, campaign2, campaign3));
 
         // When
-        List<CampaignStatusDto> status = campaignServiceImpl.findCampaignStatusByCampaignIdIn(List.of("CAMP1", "CAMP2", "CAMP3"));
+        List<CampaignStatusDto> statuses = campaignServiceImpl.findCampaignStatusByCampaignIdIn(List.of("CAMP1", "CAMP2", "CAMP3"));
 
         // Then
-        assertThat(status).isNotNull();
-        assertThat(status.size()).isEqualTo(3);
-        assertThat(status).extracting(CampaignStatusDto::id).containsExactlyInAnyOrder("CAMP1", "CAMP2", "CAMP3");
-        assertThat(status).extracting(CampaignStatusDto::status)
+        assertThat(statuses).isNotNull()
+            .hasSize(3);
+        assertThat(statuses).extracting(CampaignStatusDto::id).containsExactlyInAnyOrder("CAMP1", "CAMP2", "CAMP3");
+        assertThat(statuses).extracting(CampaignStatusDto::status)
                 .containsExactlyInAnyOrder(CollectionStatus.OPEN, CollectionStatus.CLOSED, CollectionStatus.UNDEFINED);
     }
 

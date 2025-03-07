@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventServ
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
@@ -17,7 +18,9 @@ import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContactServiceImplTest {
@@ -82,6 +85,34 @@ class ContactServiceImplTest {
 
         assertNotNull(result);
         assertEquals(0, result.getListCampaigns().size());
+    }
+
+    @Test
+    void shouldFindByIdentifiers() {
+        Contact contact = new Contact();
+        contact.setIdentifier("id1");
+        contact.setLastName("Smith");
+        contact.setFirstName("John");
+        contactRepository.save(contact);
+        Contact contact2 = new Contact();
+        contact2.setIdentifier("id2");
+        contact2.setLastName("Doe");
+        contact2.setFirstName("Jane");
+        contactRepository.save(contact2);
+
+        List<QuestioningContactDto> result = contactService.findByIdentifiers(List.of("id1", "id2"));
+
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(QuestioningContactDto::identifier).containsExactlyInAnyOrder("id1", "id2");
+        assertThat(result).extracting(QuestioningContactDto::lastName).containsExactlyInAnyOrder("Smith", "Doe");
+        assertThat(result).extracting(QuestioningContactDto::firstName).containsExactlyInAnyOrder("Jane", "John");
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoIdentifiersMatch() {
+        List<QuestioningContactDto> result = contactService.findByIdentifiers(List.of("id3"));
+        assertThat(result).isEmpty();
     }
 }
 
