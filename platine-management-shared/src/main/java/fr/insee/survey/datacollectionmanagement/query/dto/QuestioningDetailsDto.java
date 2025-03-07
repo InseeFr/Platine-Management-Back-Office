@@ -14,7 +14,7 @@ import java.util.List;
 public class QuestioningDetailsDto {
     private Long questioningId;
     private String campaignId;
-    private List<String> listContactIdentifiers;
+    private List<QuestioningContactDto> listContacts;
     private String surveyUnitId;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;

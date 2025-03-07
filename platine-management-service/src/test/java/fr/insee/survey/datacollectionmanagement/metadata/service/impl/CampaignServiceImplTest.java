@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignHeaderDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
@@ -64,7 +65,7 @@ class CampaignServiceImplTest {
         Set<Partitioning> partitionings3 = Set.of(partitioning3);
         c3.setPartitionings(partitionings3);
 
-        List<Campaign> campaigns = List.of(c1,c2,c3);
+        List<Campaign> campaigns = List.of(c1, c2, c3);
 
         campaign = new Campaign();
         campaign.setId("testCampaign");
@@ -132,7 +133,7 @@ class CampaignServiceImplTest {
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
         Partitioning partitioning2 = createPartitioning("c1", 2L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
-        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.M01, partitioningSet);
+        Campaign c = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, partitioningSet);
         campaignRepositoryStub.setCampaigns(List.of(c));
 
         // When
@@ -189,7 +190,7 @@ class CampaignServiceImplTest {
         // given
         PageRequest pageRequest = PageRequest.of(0, 2);
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
-        Partitioning partitioning2 = createPartitioning("c2",2L, 1L);
+        Partitioning partitioning2 = createPartitioning("c2", 2L, 1L);
         Partitioning partitioning3 = createPartitioning("c3", 3L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2, partitioning3);
         Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, partitioningSet);
@@ -213,7 +214,7 @@ class CampaignServiceImplTest {
         // given
         PageRequest pageRequest = PageRequest.of(0, 10);
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
-        Partitioning partitioning2 = createPartitioning("c2",2L, 1L);
+        Partitioning partitioning2 = createPartitioning("c2", 2L, 1L);
         Partitioning partitioning3 = createPartitioning("c3", 3L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2, partitioning3);
         Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, partitioningSet);
@@ -237,7 +238,7 @@ class CampaignServiceImplTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, new HashSet<>()); // empty partitioning
         Campaign c2 = createCampaign("AAA", "c2", 2022, PeriodEnum.M01, null); // null partitioning
-        campaignRepositoryStub.setCampaigns(List.of(c1,c2));
+        campaignRepositoryStub.setCampaigns(List.of(c1, c2));
 
         // When
         Page<CampaignSummaryDto> result = campaignServiceImpl.searchCampaigns(null, pageRequest);
@@ -259,9 +260,9 @@ class CampaignServiceImplTest {
         // given
         PageRequest pageRequest = PageRequest.of(0, 10);
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
-        Partitioning partitioning2 = createPartitioning("c1",2L, 1L);
+        Partitioning partitioning2 = createPartitioning("c1", 2L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
-        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet);
+        Campaign c = createCampaign("AAA", "c1", 2021, PeriodEnum.X08, partitioningSet);
         campaignRepositoryStub.setCampaigns(List.of(c));
 
         // When
@@ -294,7 +295,7 @@ class CampaignServiceImplTest {
 
 
     @Test
-    void testIsCampaignOngoingFalse_WhenCampaignHasNoPartitioning(){
+    void testIsCampaignOngoingFalse_WhenCampaignHasNoPartitioning() {
         Campaign camp = new Campaign();
         camp.setId("MMM2025X00");
         campaignRepositoryStub.setCampaigns(List.of(camp));
@@ -346,7 +347,7 @@ class CampaignServiceImplTest {
         // given
         Campaign c1 = createCampaign("AAA", "c1", 2021, PeriodEnum.M01, new HashSet<>()); // empty partitioning
         Campaign c2 = createCampaign("AAA", "c2", 2022, PeriodEnum.M01, null); // null partitioning
-        campaignRepositoryStub.setCampaigns(List.of(c1,c2));
+        campaignRepositoryStub.setCampaigns(List.of(c1, c2));
 
         // When
         CampaignHeaderDto result1 = campaignServiceImpl.findCampaignHeaderById("c1");
@@ -365,9 +366,9 @@ class CampaignServiceImplTest {
     void getCampaignHeaderTest() {
         // given
         Partitioning partitioning1 = createPartitioning("c1", 1L, 3L);
-        Partitioning partitioning2 = createPartitioning("c1",2L, 1L);
+        Partitioning partitioning2 = createPartitioning("c1", 2L, 1L);
         Set<Partitioning> partitioningSet = Set.of(partitioning1, partitioning2);
-        Campaign c = createCampaign("AAA","c1", 2021, PeriodEnum.X08, partitioningSet, "campaign wording");
+        Campaign c = createCampaign("AAA", "c1", 2021, PeriodEnum.X08, partitioningSet, "campaign wording");
         campaignRepositoryStub.setCampaigns(List.of(c));
 
         // When
@@ -381,5 +382,44 @@ class CampaignServiceImplTest {
         assertThat(result.getPeriod()).isEqualTo("pluriannuel X08");
         assertThat(result.getStatus()).isEqualTo(CollectionStatus.OPEN);
         assertThat(result.getWording()).isEqualTo("campaign wording");
+    }
+
+    @Test
+    void findCampaignStatusByCampaignIdIn_shouldReturnCorrectStatus() {
+        // Given
+        Campaign campaign1 = new Campaign();
+        campaign1.setId("CAMP1");
+        Partitioning partitioning1 = new Partitioning();
+        partitioning1.setOpeningDate(new Date(System.currentTimeMillis() - 86400000));
+        partitioning1.setClosingDate(new Date(System.currentTimeMillis() + 86400000));
+        campaign1.setPartitionings(Set.of(partitioning1));
+
+        Campaign campaign2 = new Campaign();
+        campaign2.setId("CAMP2");
+        Partitioning partitioning2 = new Partitioning();
+        partitioning2.setOpeningDate(new Date(System.currentTimeMillis() - 86400000 * 10));
+        partitioning2.setClosingDate(new Date(System.currentTimeMillis() - 86400000 * 5));
+        campaign2.setPartitionings(Set.of(partitioning2));
+
+        Campaign campaign3 = new Campaign();
+        campaign2.setId("CAMP3");
+
+        campaignRepositoryStub.setCampaigns(List.of(campaign1, campaign2, campaign3));
+
+        // When
+        List<CampaignStatusDto> statuses = campaignServiceImpl.findCampaignStatusByCampaignIdIn(List.of("CAMP1", "CAMP2", "CAMP3"));
+
+        // Then
+        assertThat(statuses).isNotNull()
+            .hasSize(3);
+        assertThat(statuses).extracting(CampaignStatusDto::id).containsExactlyInAnyOrder("CAMP1", "CAMP2", "CAMP3");
+        assertThat(statuses).extracting(CampaignStatusDto::status)
+                .containsExactlyInAnyOrder(CollectionStatus.OPEN, CollectionStatus.CLOSED, CollectionStatus.UNDEFINED);
+    }
+
+    @Test
+    void findCampaignStatusByCampaignIdIn_shouldHandleNullCampaignId() {
+        List<CampaignStatusDto> status = campaignServiceImpl.findCampaignStatusByCampaignIdIn(Collections.singletonList(null));
+        assertThat(status).isEmpty();
     }
 }

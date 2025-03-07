@@ -7,7 +7,11 @@ import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +44,6 @@ public class ViewServiceImpl implements ViewService {
         return viewRepository.findDistinctCampaignByIdentifier(identifier);
     }
 
-
-
     @Override
     public List<View> findViewByIdSu(String idSu) {
         return viewRepository.findByIdSu(idSu);
@@ -51,7 +53,7 @@ public class ViewServiceImpl implements ViewService {
     public List<View> findViewByIdSuContaining(String field) {
         return viewRepository.findByIdSuContaining(field);
     }
-    
+
     @Override
     public Long countViewByIdentifierIdSuCampaignId(String identifier, String idSu, String campaignId) {
         return viewRepository.countViewByIdentifierAndIdSuAndCampaignId(identifier, idSu, campaignId);
@@ -93,5 +95,28 @@ public class ViewServiceImpl implements ViewService {
                 .forEach(this::deleteView);
         return listtView.size();
     }
+
+    @Override
+    public List<String> findIdentifiersByIdSu(String id) {
+        List<View> views = viewRepository.findByIdSu(id);
+        return views.stream().map(View::getIdentifier).toList();
+    }
+
+    @Override
+    public Map<String, Set<String>> findDistinctCampaignByIdentifiers(List<String> identifiers) {
+        if (identifiers == null || identifiers.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<View> views = viewRepository.findByIdentifierIn(identifiers);
+
+        return views.stream()
+                .collect(Collectors.groupingBy(
+                        View::getIdentifier,
+                        Collectors.mapping(View::getCampaignId, Collectors.toSet())
+                ));
+
+    }
+
 
 }

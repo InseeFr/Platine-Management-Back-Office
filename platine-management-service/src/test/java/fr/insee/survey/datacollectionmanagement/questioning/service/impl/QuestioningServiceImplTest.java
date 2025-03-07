@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -9,15 +10,20 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +36,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,22 +59,18 @@ class QuestioningServiceImplTest {
     private PartitioningService partitioningService;
 
     @Mock
+    private ContactService contactService;
+
+    @Mock
     private QuestioningEventService questioningEventService;
 
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
 
-    @Mock
-    private QuestioningCommunicationService questioningCommunicationService;
+    private ModelMapper modelMapper = new ModelMapper();
 
     @Mock
-    private QuestioningCommentService questioningCommentService;
-
-    @Mock
-    private CampaignService campaignService;
-
-    @Mock
-    private ModelMapper modelMapper;
+    private PartitioningRepository partitioningRepository;
 
     private Partitioning part = initPartitioning();
 
@@ -138,11 +141,9 @@ class QuestioningServiceImplTest {
 
         questioningService = new QuestioningServiceImpl(
                 questioningRepository, surveyUnitService, partitioningService,
-                questioningEventService, questioningAccreditationService,
-                questioningCommunicationService, questioningCommentService,
+                contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, QUESTIONING_NORMAL_URL, QUESTIONING_SENSITIVE_URL,
-                QUESTIONING_XFORMS1, QUESTIONING_XFORMS2);
-
+                QUESTIONING_XFORMS1, QUESTIONING_XFORMS2, partitioningRepository);
     }
 
     @Test
@@ -180,6 +181,7 @@ class QuestioningServiceImplTest {
 
         assertThat(result).isNotNull().contains("v3");
     }
+
     @Test
     @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")
     void findByCampaignIdAndSurveyUnitIdSuEmptyResult() {
@@ -257,6 +259,72 @@ class QuestioningServiceImplTest {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
+    }
+    @Test
+    @DisplayName("Should return QuestioningDetailsDto when questioning exists")
+    void testGetQuestioningDetails() {
+        // Given
+        Long questioningId = 1L;
+        questioning = new Questioning();
+        questioning.setId(questioningId);
+        SurveyUnit su = new SurveyUnit();
+        su.setIdSu("1");
+        su.setIdentificationName("identificationName");
+        su.setIdentificationCode("identificationCode");
+        su.setLabel("label");
+        questioning.setSurveyUnit(su);
+        partitioning = new Partitioning();
+        partitioning.setId("1");
+        Campaign campaign = new Campaign();
+        campaign.setId("CAMP123");
+        Survey survey = new Survey();
+        survey.setId("SURVEY123");
+        Source source = new Source();
+        source.setId("SOURCEID");
+        survey.setSource(source);
+        campaign.setSurvey(survey);
+        partitioning.setCampaign(campaign);
+        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
+        questioningAccreditation.setIdContact("contactId");
+        questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
+        questioning.setQuestioningEvents(Set.of());
+        questioning.setQuestioningComments(Set.of());
+        questioning.setQuestioningCommunications(Set.of());
+
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
+        when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
+
+        when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John")));
+        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
+
+        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
+
+        // when
+        QuestioningDetailsDto result = questioningService.getQuestioningDetails(questioningId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getQuestioningId()).isEqualTo(questioningId);
+        assertThat(result.getCampaignId()).isEqualTo("CAMP123");
+        assertThat(result.getSurveyUnitId()).isEqualTo("1");
+        assertThat(result.getSurveyUnitIdentificationCode()).isEqualTo("identificationCode");
+        assertThat(result.getSurveyUnitIdentificationName()).isEqualTo("identificationName");
+        assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
+        assertThat(result.getListContacts()).isNotEmpty();
+        assertThat(result.getListContacts().get(0).identifier()).isEqualTo("contact1");
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when questioning does not exist")
+    void shouldThrowNotFoundExceptionWhenQuestioningNotFound() {
+        // Given
+        Long questioningId = 99L;
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> questioningService.getQuestioningDetails(questioningId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Questioning 99 not found");
     }
 
     @DisplayName("Should return NOT_RECEIVED when no events exist")

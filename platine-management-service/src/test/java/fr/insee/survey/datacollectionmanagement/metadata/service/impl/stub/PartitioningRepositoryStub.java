@@ -40,7 +40,7 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
 
     @Override
     public void flush() {
-
+        // Stub
     }
 
     @Override
@@ -55,17 +55,17 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<Partitioning> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // Stub
     }
 
     @Override
@@ -155,27 +155,27 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
 
     @Override
     public void deleteById(String s) {
-
+        // Stub
     }
 
     @Override
     public void delete(Partitioning entity) {
-
+        // Stub
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> strings) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll(Iterable<? extends Partitioning> entities) {
-
+        // Stub
     }
 
     @Override
     public void deleteAll() {
-
+        // Stub
     }
 
     @Override

@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
@@ -10,11 +9,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SurveyUnitPartitioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -46,39 +48,15 @@ public class SearchSurveyUnitController {
 
     private final QuestioningEventService questioningEventService;
 
+    private final SurveyUnitService surveyUnitService;
+
 
     @GetMapping(path = UrlConstants.API_SURVEY_UNITS_CONTACTS, produces = "application/json")
     @Operation(summary = "Get contacts authorised to respond to a survey for a survey unit")
     public ResponseEntity<List<SearchSurveyUnitContactDto>> getSurveyUnitContacts(
             @PathVariable("id") String id) {
-
-        List<String> listContactIdentifiers = new ArrayList<>();
-        Set<Questioning> setQuestionings = questioningService.findBySurveyUnitIdSu(id);
-        for (Questioning questioning : setQuestionings) {
-            for (QuestioningAccreditation qa : questioning.getQuestioningAccreditations()) {
-                if (!listContactIdentifiers.contains(qa.getIdContact()))
-                    listContactIdentifiers.add(qa.getIdContact());
-
-            }
-        }
-
-        List<SearchSurveyUnitContactDto> listResult = new ArrayList<>();
-        for (String identifier : listContactIdentifiers) {
-            SearchSurveyUnitContactDto searchSurveyUnitContactDto = new SearchSurveyUnitContactDto();
-            Contact contact = contactService.findByIdentifier(identifier);
-            searchSurveyUnitContactDto.setIdentifier(identifier);
-            searchSurveyUnitContactDto.setFunction(contact.getFunction());
-            searchSurveyUnitContactDto.setCity(contact.getEmail());
-            searchSurveyUnitContactDto.setEmail(contact.getEmail());
-            searchSurveyUnitContactDto.setFirstName(contact.getFirstName());
-            searchSurveyUnitContactDto.setLastName(contact.getLastName());
-            searchSurveyUnitContactDto.setPhoneNumber(contact.getPhone());
-            searchSurveyUnitContactDto.setCity(contact.getAddress() != null ? contact.getAddress().getCityName() : null);
-            listResult.add(searchSurveyUnitContactDto);
-        }
-
-        return new ResponseEntity<>(listResult, HttpStatus.OK);
-
+        List<SearchSurveyUnitContactDto> contacts = surveyUnitService.findContactsBySurveyUnitId(id);
+        return new ResponseEntity<>(contacts, HttpStatus.OK);
     }
 
 
