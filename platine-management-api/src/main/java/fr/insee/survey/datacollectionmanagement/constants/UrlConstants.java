@@ -42,7 +42,7 @@ public class UrlConstants {
 
     public static final String API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS = "/api/questionings/{id}/questioning-accreditations";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS = "/api/questionings/questioning-events";
-    public static final String API_QUESTIONING_VALINT_EVENTS ="api/questionings/valint-event";
+    public static final String API_QUESTIONING_QUESTIONING_EVENTS_TYPE ="/api/questionings/questioning-events/{eventType}";
     public static final String API_QUESTIONING_ID_QUESTIONING_EVENTS = "/api/questionings/{id}/questioning-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
@@ -107,6 +107,7 @@ public class UrlConstants {
     public static final String API_MOOG_DELETE_QUESTIONING_EVENT="/api/moog/management-monitoring-infos/{id}";
     public static final String API_CONTACTS_SEARCH = "/api/contacts/search";
     public static final String API_MY_QUESTIONINGS_ID = "/api/contacts/questionings";
+    public static final String API_MY_QUESTIONNAIRES = "/api/contacts/questionnaires";
     public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey-units/{id}/contacts";
     public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey-units/{id}/partitionings";
 

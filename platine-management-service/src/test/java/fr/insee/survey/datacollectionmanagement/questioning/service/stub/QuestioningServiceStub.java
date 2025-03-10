@@ -3,16 +3,23 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 import java.util.Set;
 
+@Setter
 public class QuestioningServiceStub implements QuestioningService {
+
+    private String accessUrl;
+    private QuestionnaireStatusTypeEnum questionnaireStatus;
+
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
         return null;
@@ -30,7 +37,7 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public void deleteQuestioning(Long id) {
-
+        //not used
     }
 
     @Override
@@ -60,7 +67,7 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
-        return "";
+        return accessUrl;
     }
 
     @Override
@@ -71,5 +78,10 @@ public class QuestioningServiceStub implements QuestioningService {
     @Override
     public QuestioningDetailsDto getQuestioningDetails(Long id) {
         return null;
+    }
+
+    @Override
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
+        return questionnaireStatus;
     }
 }

@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDtoImpl;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -26,10 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -286,4 +284,33 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     }
 
+    @Override
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part)
+    {
+        Date today = new Date();
+        Date openingDate  = part.getOpeningDate();
+
+        if(today.before(openingDate)) {
+            return QuestionnaireStatusTypeEnum.INCOMING;
+        }
+
+        Set<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents();
+        Date closingDate = part.getClosingDate();
+        boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
+
+        if(questioningEvents.isEmpty() || refused || !closingDate.after(today))
+            return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
+
+        boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        boolean opened = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
+
+        if(validated) {
+            return QuestionnaireStatusTypeEnum.RECEIVED;
+        }
+        if(opened) {
+            return QuestionnaireStatusTypeEnum.OPEN;
+        }
+
+        return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
+    }
 }

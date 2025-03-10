@@ -3,13 +3,18 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -35,6 +40,11 @@ public class MySurveysServiceImpl implements MySurveysService {
 
     private final QuestioningService questioningService;
 
+    private final QuestioningAccreditationRepository questioningAccreditationRepository;
+
+    private final String questionnaireApiUrl;
+
+    private final String questionnaireApiSensitiveUrl;
 
     @Override
     public List<MyQuestioningDto> getListMySurveys(String id) {
@@ -76,4 +86,58 @@ public class MySurveysServiceImpl implements MySurveysService {
     }
 
 
+    @Override
+    public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
+        List<MyQuestionnaireDto> myQuestionnaireDtos = new ArrayList<>();
+        List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDtos = questioningAccreditationRepository.findQuestionnaireDetailsByIdec(id);
+
+        for (MyQuestionnaireDetailsDto myQuestionnaireDetailsDto : myQuestionnaireDetailsDtos) {
+            MyQuestionnaireDto myQuestionnaireDto = new MyQuestionnaireDto();
+            myQuestionnaireDtos.add(myQuestionnaireDto);
+
+            myQuestionnaireDto.setSourceId(myQuestionnaireDetailsDto.getSourceId());
+            myQuestionnaireDto.setQuestioningId(myQuestionnaireDetailsDto.getQuestioningId());
+            myQuestionnaireDto.setPartitioningLabel(myQuestionnaireDetailsDto.getPartitioningLabel());
+            myQuestionnaireDto.setSurveyUnitIdentificationCode(myQuestionnaireDetailsDto.getSurveyUnitIdentificationCode());
+            myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
+            myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
+            myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
+
+            Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
+            Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
+            QuestionnaireStatusTypeEnum questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning);
+            myQuestionnaireDto.setQuestioningStatus(questioningStatus.name());
+
+            if(QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
+                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
+                if(DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
+
+                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
+                            UserRoles.INTERVIEWER,
+                            questioning,
+                            partitioning));
+
+                    continue;
+                }
+
+                String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
+
+                if(DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollectionEnum)){
+                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
+                    continue;
+                }
+
+                if(DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollectionEnum)){
+                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
+                    continue;
+                }
+            }
+
+            if(QuestionnaireStatusTypeEnum.OPEN.equals(questioningStatus)) {
+                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, partitioning));
+            }
+        }
+
+        return myQuestionnaireDtos;
+    }
 }

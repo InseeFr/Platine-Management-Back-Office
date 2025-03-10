@@ -76,7 +76,7 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         Contact contact = contactService.findByIdentifier(idContact);
@@ -89,7 +89,7 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
                                                  Authentication auth) throws JsonProcessingException {

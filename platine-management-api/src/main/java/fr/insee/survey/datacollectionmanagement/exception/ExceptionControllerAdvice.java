@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
@@ -82,10 +83,23 @@ public class ExceptionControllerAdvice {
             MethodArgumentNotValidException e,
             WebRequest request) {
 
-        String defaultMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        String defaultMessage = e.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
         log.error(defaultMessage, e);
         return processException(e, HttpStatus.BAD_REQUEST, request, defaultMessage);
     }
+
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiError> handleHandlerMethodValidationException(
+            HandlerMethodValidationException e,
+            WebRequest request) {
+
+        String defaultMessage = e.getAllErrors().getFirst().getDefaultMessage();
+        log.error(defaultMessage, e);
+        return processException(e, HttpStatus.BAD_REQUEST, request, defaultMessage);
+    }
+
+
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)

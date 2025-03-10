@@ -42,7 +42,7 @@ public class AddressController {
      */
     @Operation(summary = "Search for a contact address by the contact id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
         log.warn("DEPRECATED");
@@ -57,7 +57,7 @@ public class AddressController {
 
     @Operation(summary = "Update or create an address by the contact id")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
                                                  @RequestBody AddressDto addressDto,
                                                  Authentication auth) {

@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,4 +44,16 @@ class MyQuestioningsControllerTest {
 
     }
 
+    @Test
+    void myQuestionnairesNotExist() throws Exception {
+        String identifier = "CONT500";
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(identifier, AuthorityRoleEnum.RESPONDENT));
+
+        MvcResult result = this.mockMvc.perform(get(UrlConstants.API_MY_QUESTIONNAIRES, identifier)).andDo(print())
+                .andExpect(status().isOk()).andReturn();
+        String json = result.getResponse().getContentAsString();
+        MyQuestionnaireDto[] myQuestionnaires = new ObjectMapper().readValue(json, MyQuestionnaireDto[].class);
+        System.out.println(json);
+        assertEquals(0, myQuestionnaires.length);
+    }
 }

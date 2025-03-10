@@ -25,7 +25,7 @@ public class BusinessContactController {
 
     @Operation(summary = "Search for the main contact by campaign and survey unit")
     @GetMapping(value = UrlConstants.API_WEBCLIENT_BUSINESS_MAIN_CONTACT)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_REPONDENT_LIMITATED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public BusinessContactsDto getListBusinessContact(@PathVariable("campaignId") String campaignId,
                                                       @PathVariable("surveyUnitId") String surveyUnitId) {
         return businessContactService.findMainContactByCampaignAndSurveyUnit(campaignId, surveyUnitId);
