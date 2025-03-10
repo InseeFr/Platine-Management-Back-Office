@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    command: ["postgres"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${POSTGRES_DB} -h localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - ./container/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - ${DB_PORT}:5432
