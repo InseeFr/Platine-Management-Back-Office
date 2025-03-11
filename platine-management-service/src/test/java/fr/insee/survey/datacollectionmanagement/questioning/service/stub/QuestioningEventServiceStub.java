@@ -3,14 +3,18 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.ValidatedQuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Optional;
 
+@Setter
 public class QuestioningEventServiceStub implements QuestioningEventService {
+
+    private boolean containsQuestioningEvents;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -24,12 +28,17 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
 
     @Override
     public void deleteQuestioningEvent(Long id) {
-
+        //not used
     }
 
     @Override
     public Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events) {
         return Optional.empty();
+    }
+
+    @Override
+    public boolean containsQuestioningEvents(Questioning questioning, List<TypeQuestioningEvent> events) {
+        return containsQuestioningEvents;
     }
 
     @Override
@@ -48,7 +57,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public boolean postValintQuestioningEvent(ValidatedQuestioningEventDto validatedQuestioningEventDto) {
+    public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
         return false;
     }
 }
