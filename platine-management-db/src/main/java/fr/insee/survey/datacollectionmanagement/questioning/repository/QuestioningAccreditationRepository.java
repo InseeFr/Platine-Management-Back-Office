@@ -12,7 +12,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
     List<QuestioningAccreditation> findByIdContact(String idContact);
 
     @Query(value = "SELECT " +
-            "s.id AS sourceId, " +
+            "so.id AS sourceId, " +
             "q.id AS questioningId, " +
             "p.label AS partitioningLabel, " +
             "p.id AS partitioningId, " +
@@ -25,6 +25,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "JOIN partitioning p ON q.id_partitioning = p.id " +
             "JOIN campaign c ON p.campaign_id = c.id " +
             "JOIN survey s ON c.survey_id = s.id " +
+            "JOIN source so ON s.source_id = so.id " +
             "JOIN survey_unit su ON q.survey_unit_id_su = su.id_su " +
             "WHERE qa.id_contact = :idec", nativeQuery = true)
     List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec);
