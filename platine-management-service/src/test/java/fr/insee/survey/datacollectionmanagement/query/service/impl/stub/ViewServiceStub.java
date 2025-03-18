@@ -47,7 +47,7 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public List<String> findDistinctCampaignByIdentifier(String identifier) {
-        return new ArrayList<>(campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
+        return List.copyOf(campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
     }
 
     @Override

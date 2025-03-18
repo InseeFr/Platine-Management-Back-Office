@@ -187,8 +187,7 @@ public class ContactServiceImpl implements ContactService {
     public ContactDetailsDto getContactDetails(String idContact) {
         Contact contact = findByIdentifier(idContact);
         List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
-        List<CampaignStatusDto> campaignsStatus = listCampaigns.isEmpty() ? List.of() :
-                campaignService.findCampaignStatusByCampaignIdIn(listCampaigns);
+        List<CampaignStatusDto> campaignsStatus = campaignService.findCampaignStatusByCampaignIdIn(listCampaigns);
         ContactDetailsDto contactDetailsDto = modelMapper.map(contact, ContactDetailsDto.class);
         contactDetailsDto.setCivility(contact.getGender());
         contactDetailsDto.setListCampaigns(campaignsStatus);

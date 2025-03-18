@@ -150,6 +150,9 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public List<CampaignStatusDto> findCampaignStatusByCampaignIdIn(List<String> campaignIds) {
+        if (campaignIds == null || campaignIds.isEmpty()) {
+            return List.of();
+        }
         return campaignIds.stream()
                 .filter(Objects::nonNull)
                 .distinct()

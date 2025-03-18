@@ -27,7 +27,6 @@ public class QuestioningCommunicationController {
     @Operation(summary = "Search for questioning communications by questioning id")
     @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS, produces = "application/json")
     public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(@PathVariable("id") Long id) {
-        log.info("Search communications by questioning id: {}", id);
         return questioningCommunicationService.findQuestioningCommunicationsByQuestioningId(id);
     }
 
