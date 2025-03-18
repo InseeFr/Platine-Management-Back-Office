@@ -1,14 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.modelefiliere.CollectionBatchDto;
+import fr.insee.modelefiliere.ContextDto;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.PartitioningDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SurveyDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.input.CampaignCreateDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.input.PartitioningCreateDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.input.SourceCreateDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.input.SurveyCreateDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
@@ -46,18 +48,15 @@ public class ContextController {
 
     @Operation(summary = "Post global metadata context")
     @PostMapping(value = "/api/context", produces = "application/json")
-    public ResponseEntity<List<PartitioningDto>> postContext(@RequestBody @Valid ContextDto contextDto){
+    public ResponseEntity<List<PartitioningCreateDto>> postContext(@RequestBody @Valid ContextDto contextDto){
 
-        SourceDto source = convertToSourceDto(contextDto);
+        SourceCreateDto source = convertToSourceCreateDto(contextDto);
         source.setMandatoryMySurveys(false);
-        SurveyDto survey = convertToSurveyDto(contextDto);
-        CampaignDto campaign = convertToCampaignDto(contextDto);
-        List<PartitioningDto> partitionings = contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningDto).toList();
+        SurveyCreateDto survey = convertToSurveyCreateDto(contextDto);
+        CampaignCreateDto campaign = convertToCampaignCreateDto(contextDto);
+        List<PartitioningCreateDto> partitionings = contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateDto).toList();
         partitionings.forEach(p ->
-        {
-            p.setCampaignId(contextDto.getId().toString());
-            p.setCampaignShortWording(contextDto.getShortLabel());
-        });
+            p.setCampaignId(contextDto.getShortLabel()));
 
         sourceService.insertOrUpdateSource(modelmapper.map(source, Source.class));
         surveyService.insertOrUpdateSurvey(modelmapper.map(survey, Survey.class));
@@ -66,73 +65,75 @@ public class ContextController {
 
 
 
-        return ResponseEntity.ok().body(contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningDto).toList());
+        return ResponseEntity.ok().body(contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateDto).toList());
     }
 
-    private SourceDto convertToSourceDto(@Valid ContextDto contextDto) {
+    private SourceCreateDto convertToSourceCreateDto(@Valid ContextDto contextDto) {
         ModelMapper sourceMapper = new ModelMapper();
-        TypeMap<ContextDto, SourceDto> propertyMapper = sourceMapper.createTypeMap(ContextDto.class, SourceDto.class);
+        TypeMap<ContextDto, SourceCreateDto> propertyMapper = sourceMapper.createTypeMap(ContextDto.class, SourceCreateDto.class);
         propertyMapper.addMappings(
                 mapper ->
                 {
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieId(), SourceDto::setId);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieShortLabel(), SourceDto::setShortWording);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieLabel(), SourceDto::setLongWording);
-                    mapper.map(src -> src.getMetadatas().getPeriodicity(), SourceDto::setPeriodicity);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieShortLabel(), SourceCreateDto::setId);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieId(), SourceCreateDto::setTechnicalId);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieShortLabel(), SourceCreateDto::setShortWording);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieLabel(), SourceCreateDto::setLongWording);
+                    mapper.map(src -> src.getMetadatas().getPeriodicity(), SourceCreateDto::setPeriodicity);
                 }
         );
-        return sourceMapper.map(contextDto, SourceDto.class);
+        return sourceMapper.map(contextDto, SourceCreateDto.class);
     }
-    private SurveyDto convertToSurveyDto(@Valid ContextDto contextDto) {
+    private SurveyCreateDto convertToSurveyCreateDto(@Valid ContextDto contextDto) {
         ModelMapper surveyMapper = new ModelMapper();
-        TypeMap<ContextDto, SurveyDto> propertyMapper = surveyMapper.createTypeMap(ContextDto.class, SurveyDto.class);
+        TypeMap<ContextDto, SurveyCreateDto> propertyMapper = surveyMapper.createTypeMap(ContextDto.class, SurveyCreateDto.class);
         propertyMapper.addMappings(
                 mapper ->
                 {
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationId(), SurveyDto::setId);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationShortLabel(), SurveyDto::setShortWording);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationLabel(), SurveyDto::setLongWording);
-                    mapper.map(src -> src.getMetadatas().getYear(), SurveyDto::setYear);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieId(), SurveyDto::setSourceId);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationShortLabel(), SurveyCreateDto::setId);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationId(), SurveyCreateDto::setTechnicalId);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationShortLabel(), SurveyCreateDto::setShortWording);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationLabel(), SurveyCreateDto::setLongWording);
+                    mapper.map(src -> src.getMetadatas().getYear(), SurveyCreateDto::setYear);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationSerieShortLabel(), SurveyCreateDto::setSourceId);
 
-                    mapper.map(src -> src.getMetadatas().getShortObjectives(), SurveyDto::setShortObjectives);
-                    mapper.map(src -> src.getMetadatas().getVisaNumber(), SurveyDto::setVisaNumber);
+                    mapper.map(src -> src.getMetadatas().getShortObjectives(), SurveyCreateDto::setShortObjectives);
+                    mapper.map(src -> src.getMetadatas().getVisaNumber(), SurveyCreateDto::setVisaNumber);
 
                 }
         );
-        return surveyMapper.map(contextDto, SurveyDto.class);
+        return surveyMapper.map(contextDto, SurveyCreateDto.class);
     }
-    private CampaignDto convertToCampaignDto(@Valid ContextDto contextDto) {
+    private CampaignCreateDto convertToCampaignCreateDto(@Valid ContextDto contextDto) {
         ModelMapper campaignMapper = new ModelMapper();
-        TypeMap<ContextDto, CampaignDto> propertyMapper = campaignMapper.createTypeMap(ContextDto.class, CampaignDto.class);
+        TypeMap<ContextDto, CampaignCreateDto> propertyMapper = campaignMapper.createTypeMap(ContextDto.class, CampaignCreateDto.class);
         propertyMapper.addMappings(
                 mapper ->
                 {
-                    mapper.map(ContextDto::getId, CampaignDto::setId);
-                    mapper.map(ContextDto::getLabel, CampaignDto::setCampaignWording);
-                    mapper.map(ContextDto::getShortLabel, CampaignDto::setShortWording);
-                    mapper.map(src -> src.getMetadatas().getPeriod(), CampaignDto::setPeriod);
-                    mapper.map(src -> src.getMetadatas().getYear(), CampaignDto::setYear);
-                    mapper.map(src -> src.getMetadatas().getStatisticalOperationId(), CampaignDto::setSurveyId);
+                    mapper.map(ContextDto::getShortLabel, CampaignCreateDto::setId);
+                    mapper.map(ContextDto::getId, CampaignCreateDto::setTechnicalId);
+                    mapper.map(ContextDto::getLabel, CampaignCreateDto::setCampaignWording);
+                    mapper.map(src -> src.getMetadatas().getPeriod(), CampaignCreateDto::setPeriod);
+                    mapper.map(src -> src.getMetadatas().getYear(), CampaignCreateDto::setYear);
+                    mapper.map(src -> src.getMetadatas().getStatisticalOperationShortLabel(), CampaignCreateDto::setSurveyId);
                 }
         );
-        return campaignMapper.map(contextDto, CampaignDto.class);
+        return campaignMapper.map(contextDto, CampaignCreateDto.class);
     }
-    private PartitioningDto convertToPartitioningDto(@Valid CollectionBatchDto collectionBatchDto) {
+    private PartitioningCreateDto convertToPartitioningCreateDto(@Valid CollectionBatchDto collectionBatchDto) {
         ModelMapper partitioningMapper = new ModelMapper();
 
-        TypeMap<CollectionBatchDto, PartitioningDto> propertyMapper = partitioningMapper.createTypeMap(CollectionBatchDto.class, PartitioningDto.class);
+        TypeMap<CollectionBatchDto, PartitioningCreateDto> propertyMapper = partitioningMapper.createTypeMap(CollectionBatchDto.class, PartitioningCreateDto.class);
         propertyMapper.addMappings(
                 mapper ->
                 {
-                    mapper.map(CollectionBatchDto::getCollectionBatchId, PartitioningDto::setId);
-                    mapper.map(CollectionBatchDto::getCollectionBatchLabel, PartitioningDto::setLabel);
-                    mapper.map(CollectionBatchDto::getCollectionBatchShortLabel, PartitioningDto::setShortWording);
-                    mapper.map(CollectionBatchDto::getManagementEndDate, PartitioningDto::setClosingDate);
-                    mapper.map(CollectionBatchDto::getManagementStartDate, PartitioningDto::setOpeningDate);
+                    mapper.map(CollectionBatchDto::getCollectionBatchShortLabel, PartitioningCreateDto::setId);
+                    mapper.map(CollectionBatchDto::getCollectionBatchId, PartitioningCreateDto::setTechnicalId);
+                    mapper.map(CollectionBatchDto::getCollectionBatchLabel, PartitioningCreateDto::setLabel);
+                    mapper.map(CollectionBatchDto::getManagementEndDate, PartitioningCreateDto::setClosingDate);
+                    mapper.map(CollectionBatchDto::getManagementStartDate, PartitioningCreateDto::setOpeningDate);
                 }
         );
-        return partitioningMapper.map(collectionBatchDto, PartitioningDto.class);
+        return partitioningMapper.map(collectionBatchDto, PartitioningCreateDto.class);
     }
 }
 

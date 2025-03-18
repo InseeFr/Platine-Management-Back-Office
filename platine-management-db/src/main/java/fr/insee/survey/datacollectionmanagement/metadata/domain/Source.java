@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,6 +16,8 @@ public class Source {
 
     @Id
     private String id;
+    @Column(unique = true)
+    private String technicalId;
     private String longWording;
     private String shortWording;
     private Boolean forceClose;
