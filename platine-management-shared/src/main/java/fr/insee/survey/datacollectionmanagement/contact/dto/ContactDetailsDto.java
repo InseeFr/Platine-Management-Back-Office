@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.contact.dto;
 
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.validation.ContactGenderValid;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,6 @@ public class ContactDetailsDto {
     private String otherPhone;
     private String usualCompanyName;
     private AddressDto address;
-    private List<String> listCampaigns;
+    private List<CampaignStatusDto> listCampaigns;
 
 }

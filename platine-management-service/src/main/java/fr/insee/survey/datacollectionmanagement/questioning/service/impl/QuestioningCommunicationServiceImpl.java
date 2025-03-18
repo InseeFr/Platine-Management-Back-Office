@@ -3,33 +3,33 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
 public class QuestioningCommunicationServiceImpl implements QuestioningCommunicationService {
     private final ModelMapper modelMapper;
 
-    @Override
-    public Optional<QuestioningCommunication> getLastQuestioningCommunication(Questioning questioning) {
-        return questioning.getQuestioningCommunications().stream().max(Comparator.comparing(QuestioningCommunication::getDate));
-    }
+    private final QuestioningRepository questioningRepository;
 
     @Override
-    public QuestioningCommunicationDto convertToDto(QuestioningCommunication questioningCommunication) {
-        return modelMapper.map(questioningCommunication, QuestioningCommunicationDto.class);
-    }
-
-    @Override
-    public QuestioningCommunication convertToEntity(QuestioningCommunicationDto questioningCommunicationDto) throws ParseException {
-        return modelMapper.map(questioningCommunicationDto, QuestioningCommunication.class);
+    public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(Long questioningId) {
+        Optional<Questioning> questioning = questioningRepository.findById(questioningId);
+        if (questioning.isEmpty()) {
+            return List.of();
+        }
+        Set<QuestioningCommunication> questioningCommunications = questioning.get().getQuestioningCommunications();
+        return questioningCommunications.stream()
+                .map(questioningCommunication -> modelMapper.map(questioningCommunication, QuestioningCommunicationDto.class))
+                .toList();
     }
 
 }
