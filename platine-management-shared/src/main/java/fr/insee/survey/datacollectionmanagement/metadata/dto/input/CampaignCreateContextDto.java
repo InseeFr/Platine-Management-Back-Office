@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class CampaignCreateDto {
+public class CampaignCreateContextDto {
 
     @NotBlank
     private String id;

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Data
-public class PartitioningCreateDto {
+public class PartitioningCreateContextDto {
 
     @NotBlank
     private String id;

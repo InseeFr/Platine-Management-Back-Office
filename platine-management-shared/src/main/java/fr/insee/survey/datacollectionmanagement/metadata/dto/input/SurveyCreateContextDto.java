@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SurveyCreateDto {
+public class SurveyCreateContextDto {
 
     @NotBlank
     private String id;

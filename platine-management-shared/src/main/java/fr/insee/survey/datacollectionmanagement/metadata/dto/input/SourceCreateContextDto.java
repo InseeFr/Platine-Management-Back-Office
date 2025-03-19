@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SourceCreateDto {
+public class SourceCreateContextDto {
     private String id;
     private String technicalId;
     private String longWording;
