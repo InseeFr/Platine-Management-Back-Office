@@ -53,11 +53,11 @@ public class ContextController {
     @PostMapping(value = "/api/context", produces = "application/json")
     public ResponseEntity<List<PartitioningCreateContextDto>> postContext(@RequestBody @Valid ContextDto contextDto){
 
-        SourceCreateContextDto source = convertToSourceCreateDto(contextDto);
+        SourceCreateContextDto source = convertToSourceCreateContextDto(contextDto);
         source.setMandatoryMySurveys(false);
-        SurveyCreateContextDto survey = convertToSurveyCreateDto(contextDto);
-        CampaignCreateContextDto campaign = convertToCampaignCreateDto(contextDto);
-        List<PartitioningCreateContextDto> partitionings = contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateDto).toList();
+        SurveyCreateContextDto survey = convertToSurveyCreateContextDto(contextDto);
+        CampaignCreateContextDto campaign = convertToCampaignCreateContextDto(contextDto);
+        List<PartitioningCreateContextDto> partitionings = contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateContextDto).toList();
         partitionings.forEach(p ->
             p.setCampaignId(contextDto.getShortLabel()));
 
@@ -68,10 +68,10 @@ public class ContextController {
 
 
 
-        return ResponseEntity.ok().body(contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateDto).toList());
+        return ResponseEntity.ok().body(contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateContextDto).toList());
     }
 
-    private SourceCreateContextDto convertToSourceCreateDto(@Valid ContextDto contextDto) {
+    private SourceCreateContextDto convertToSourceCreateContextDto(@Valid ContextDto contextDto) {
         ModelMapper sourceMapper = new ModelMapper();
         TypeMap<ContextDto, SourceCreateContextDto> propertyMapper = sourceMapper.createTypeMap(ContextDto.class, SourceCreateContextDto.class);
         propertyMapper.addMappings(
@@ -86,7 +86,7 @@ public class ContextController {
         );
         return sourceMapper.map(contextDto, SourceCreateContextDto.class);
     }
-    private SurveyCreateContextDto convertToSurveyCreateDto(@Valid ContextDto contextDto) {
+    private SurveyCreateContextDto convertToSurveyCreateContextDto(@Valid ContextDto contextDto) {
         ModelMapper surveyMapper = new ModelMapper();
         TypeMap<ContextDto, SurveyCreateContextDto> propertyMapper = surveyMapper.createTypeMap(ContextDto.class, SurveyCreateContextDto.class);
         propertyMapper.addMappings(
@@ -108,7 +108,7 @@ public class ContextController {
         );
         return surveyMapper.map(contextDto, SurveyCreateContextDto.class);
     }
-    private CampaignCreateContextDto convertToCampaignCreateDto(@Valid ContextDto contextDto) {
+    private CampaignCreateContextDto convertToCampaignCreateContextDto(@Valid ContextDto contextDto) {
         ModelMapper campaignMapper = new ModelMapper();
         TypeMap<ContextDto, CampaignCreateContextDto> propertyMapper = campaignMapper.createTypeMap(ContextDto.class, CampaignCreateContextDto.class);
         propertyMapper.addMappings(
@@ -124,7 +124,7 @@ public class ContextController {
         );
         return campaignMapper.map(contextDto, CampaignCreateContextDto.class);
     }
-    private PartitioningCreateContextDto convertToPartitioningCreateDto(@Valid CollectionBatchDto collectionBatchDto) {
+    private PartitioningCreateContextDto convertToPartitioningCreateContextDto(@Valid CollectionBatchDto collectionBatchDto) {
         ModelMapper partitioningMapper = new ModelMapper();
         // Custom converter to map Instant to Date
         Converter<Instant, Date> instantToDateConverter = context -> {
