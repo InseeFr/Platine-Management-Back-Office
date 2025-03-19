@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -121,7 +124,11 @@ public class ContextController {
     }
     private PartitioningCreateDto convertToPartitioningCreateDto(@Valid CollectionBatchDto collectionBatchDto) {
         ModelMapper partitioningMapper = new ModelMapper();
-
+        // Custom converter to map Instant to Date
+        Converter<Instant, Date> instantToDateConverter = context -> {
+            Instant source = context.getSource();
+            return (source != null) ? Date.from(source) : null;
+        };
         TypeMap<CollectionBatchDto, PartitioningCreateDto> propertyMapper = partitioningMapper.createTypeMap(CollectionBatchDto.class, PartitioningCreateDto.class);
         propertyMapper.addMappings(
                 mapper ->
@@ -129,11 +136,14 @@ public class ContextController {
                     mapper.map(CollectionBatchDto::getCollectionBatchShortLabel, PartitioningCreateDto::setId);
                     mapper.map(CollectionBatchDto::getCollectionBatchId, PartitioningCreateDto::setTechnicalId);
                     mapper.map(CollectionBatchDto::getCollectionBatchLabel, PartitioningCreateDto::setLabel);
-                    mapper.map(CollectionBatchDto::getManagementEndDate, PartitioningCreateDto::setClosingDate);
-                    mapper.map(CollectionBatchDto::getManagementStartDate, PartitioningCreateDto::setOpeningDate);
+                    // Use the custom converter for Instant to Date conversion
+                    mapper.using(instantToDateConverter).map(CollectionBatchDto::getManagementEndDate, PartitioningCreateDto::setClosingDate);
+                    // Use the custom converter for Instant to Date conversion
+                    mapper.using(instantToDateConverter).map(CollectionBatchDto::getManagementStartDate, PartitioningCreateDto::setOpeningDate);
                 }
         );
         return partitioningMapper.map(collectionBatchDto, PartitioningCreateDto.class);
     }
+
 }
 
