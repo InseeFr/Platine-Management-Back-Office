@@ -25,6 +25,9 @@ public class Support {
     private String streetName;
     private String city;
     private String zipCode;
+    private String signatoryName;
+    private String signatoryFunction;
+
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "support")
     private Set<Source> sources;
