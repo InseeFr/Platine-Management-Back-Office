@@ -19,6 +19,7 @@ public class Owner {
     private String logo;
     private String determiner;
     private String signatoryFunction;
+    private String signatoryName;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     private Set<Source> sources;
