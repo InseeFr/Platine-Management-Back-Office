@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
-import fr.insee.modelefiliere.CollectionBatchDto;
 import fr.insee.modelefiliere.ContextDto;
+import fr.insee.modelefiliere.PartitionDto;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -57,7 +57,7 @@ public class ContextController {
         source.setMandatoryMySurveys(false);
         SurveyCreateContextDto survey = convertToSurveyCreateContextDto(contextDto);
         CampaignCreateContextDto campaign = convertToCampaignCreateContextDto(contextDto);
-        List<PartitioningCreateContextDto> partitionings = contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateContextDto).toList();
+        List<PartitioningCreateContextDto> partitionings = contextDto.getPartitions().stream().map(this::convertToPartitioningCreateContextDto).toList();
         partitionings.forEach(p ->
             p.setCampaignId(contextDto.getShortLabel()));
 
@@ -68,7 +68,7 @@ public class ContextController {
 
 
 
-        return ResponseEntity.ok().body(contextDto.getCollectionBatchs().stream().map(this::convertToPartitioningCreateContextDto).toList());
+        return ResponseEntity.ok().body(contextDto.getPartitions().stream().map(this::convertToPartitioningCreateContextDto).toList());
     }
 
     private SourceCreateContextDto convertToSourceCreateContextDto(@Valid ContextDto contextDto) {
@@ -124,27 +124,27 @@ public class ContextController {
         );
         return campaignMapper.map(contextDto, CampaignCreateContextDto.class);
     }
-    private PartitioningCreateContextDto convertToPartitioningCreateContextDto(@Valid CollectionBatchDto collectionBatchDto) {
+    private PartitioningCreateContextDto convertToPartitioningCreateContextDto(@Valid PartitionDto partitionDto) {
         ModelMapper partitioningMapper = new ModelMapper();
         // Custom converter to map Instant to Date
         Converter<Instant, Date> instantToDateConverter = context -> {
             Instant source = context.getSource();
             return (source != null) ? Date.from(source) : null;
         };
-        TypeMap<CollectionBatchDto, PartitioningCreateContextDto> propertyMapper = partitioningMapper.createTypeMap(CollectionBatchDto.class, PartitioningCreateContextDto.class);
+        TypeMap<PartitionDto, PartitioningCreateContextDto> propertyMapper = partitioningMapper.createTypeMap(PartitionDto.class, PartitioningCreateContextDto.class);
         propertyMapper.addMappings(
                 mapper ->
                 {
-                    mapper.map(CollectionBatchDto::getCollectionBatchShortLabel, PartitioningCreateContextDto::setId);
-                    mapper.map(CollectionBatchDto::getCollectionBatchId, PartitioningCreateContextDto::setTechnicalId);
-                    mapper.map(CollectionBatchDto::getCollectionBatchLabel, PartitioningCreateContextDto::setLabel);
+                    mapper.map(PartitionDto::getPartitionShortLabel, PartitioningCreateContextDto::setId);
+                    mapper.map(PartitionDto::getPartitionId, PartitioningCreateContextDto::setTechnicalId);
+                    mapper.map(PartitionDto::getPartitionLabel, PartitioningCreateContextDto::setLabel);
                     // Use the custom converter for Instant to Date conversion
-                    mapper.using(instantToDateConverter).map(CollectionBatchDto::getCollectionEndDate, PartitioningCreateContextDto::setClosingDate);
+                    mapper.using(instantToDateConverter).map(PartitionDto::getCollectionEndDate, PartitioningCreateContextDto::setClosingDate);
                     // Use the custom converter for Instant to Date conversion
-                    mapper.using(instantToDateConverter).map(CollectionBatchDto::getCollectionStartDate, PartitioningCreateContextDto::setOpeningDate);
+                    mapper.using(instantToDateConverter).map(PartitionDto::getCollectionStartDate, PartitioningCreateContextDto::setOpeningDate);
                 }
         );
-        return partitioningMapper.map(collectionBatchDto, PartitioningCreateContextDto.class);
+        return partitioningMapper.map(partitionDto, PartitioningCreateContextDto.class);
     }
 
 }
