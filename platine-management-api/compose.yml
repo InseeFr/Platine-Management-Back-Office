@@ -1,0 +1,15 @@
+services:
+  platine-db:
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=${PLATINE_DB_USER}
+      - POSTGRES_PASSWORD=${PLATINE_DB_PASSWORD}
+      - POSTGRES_DB=${PLATINE_DB}
+    command: ["postgres"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PLATINE_DB_USER} -d ${PLATINE_DB} -h localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    ports:
+      - ${PLATINE_DB_PORT}:5432
