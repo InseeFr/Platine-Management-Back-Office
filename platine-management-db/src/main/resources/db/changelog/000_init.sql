@@ -103,9 +103,9 @@ CREATE TABLE public."view" (
 	identifier varchar(255) NULL,
 	CONSTRAINT view_pkey PRIMARY KEY (id)
 );
-CREATE INDEX view_campaignid_index ON public.view USING btree (campaign_id);
-CREATE INDEX view_identifier_index ON public.view USING btree (identifier);
-CREATE INDEX view_idsu_index ON public.view USING btree (id_su);
+CREATE INDEX view_campaignid_index ON public."view" USING btree (campaign_id);
+CREATE INDEX view_identifier_index ON public."view" USING btree (identifier);
+CREATE INDEX view_idsu_index ON public."view" USING btree (id_su);
 
 CREATE TABLE public.contact (
 	identifier varchar(255) NOT NULL,
@@ -188,15 +188,6 @@ CREATE TABLE public.source_params (
 	CONSTRAINT fklbisi5m1bxuojuo4dv62t4pf1 FOREIGN KEY (source_id) REFERENCES public."source"(id)
 );
 
-CREATE TABLE public.support_sources (
-	support_id varchar(255) NOT NULL,
-	sources_id varchar(255) NOT NULL,
-	CONSTRAINT support_sources_pkey PRIMARY KEY (support_id, sources_id),
-	CONSTRAINT uk_b5jwvjfcqm2p8t3sr076a4m35 UNIQUE (sources_id),
-	CONSTRAINT fk7du4ksu8ri8dr49ffbsid7axa FOREIGN KEY (sources_id) REFERENCES public."source"(id),
-	CONSTRAINT fkgpvyjdej7tc6deqmejrf36s9l FOREIGN KEY (support_id) REFERENCES public."support"(id)
-);
-
 CREATE TABLE public.survey (
 	id varchar(255) NOT NULL,
 	cnis_url varchar(255) NULL,
@@ -261,15 +252,6 @@ CREATE TABLE public.survey_unit_comment (
 	CONSTRAINT fketbscimhfndnnd87j2437j2kh FOREIGN KEY (survey_unit_id_su) REFERENCES public.survey_unit(id_su)
 );
 
-CREATE TABLE public.survey_unit_survey_unit_comments (
-	survey_unit_id_su varchar(255) NOT NULL,
-	survey_unit_comments_id int8 NOT NULL,
-	CONSTRAINT survey_unit_survey_unit_comments_pkey PRIMARY KEY (survey_unit_id_su, survey_unit_comments_id),
-	CONSTRAINT uklpkrv9on19rkokc843ylo7676 UNIQUE (survey_unit_comments_id),
-	CONSTRAINT fknnu0mu5hruvkus9v0h9nw5dii FOREIGN KEY (survey_unit_comments_id) REFERENCES public.survey_unit_comment(id),
-	CONSTRAINT fkqxrv1i9i6j33s2u03cv9bnc4t FOREIGN KEY (survey_unit_id_su) REFERENCES public.survey_unit(id_su)
-);
-
 CREATE TABLE public.user_event (
 	id int8 NOT NULL,
 	event_date timestamp NULL,
@@ -312,15 +294,6 @@ CREATE TABLE public.campaign_params (
 	CONSTRAINT uk4ncdvvwo5mksemb2lqntfhdpq UNIQUE (params_metadata_id, params_param_id),
 	CONSTRAINT fki0iosamcbwd7lhsmdxmfdalhq FOREIGN KEY (campaign_id) REFERENCES public.campaign(id),
 	CONSTRAINT fkqg4fx1r7rsnkn3ghpfqb9pu5y FOREIGN KEY (params_metadata_id,params_param_id) REFERENCES public.parameters(metadata_id,param_id)
-);
-
-CREATE TABLE public.owner_sources (
-	owner_id varchar(255) NOT NULL,
-	sources_id varchar(255) NOT NULL,
-	CONSTRAINT owner_sources_pkey PRIMARY KEY (owner_id, sources_id),
-	CONSTRAINT uk_ifriihpwqdiyfmcosywfae9s UNIQUE (sources_id),
-	CONSTRAINT fk8l1oqfl2ljrcgpuj4wq03jic5 FOREIGN KEY (sources_id) REFERENCES public."source"(id),
-	CONSTRAINT fks66rsepc2my0suf4thcdq2h2a FOREIGN KEY (owner_id) REFERENCES public."owner"(id)
 );
 
 CREATE TABLE public.partitioning (
