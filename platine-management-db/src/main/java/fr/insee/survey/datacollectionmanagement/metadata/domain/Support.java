@@ -19,19 +19,19 @@ public class Support {
     private String mail;
     private String signatoryName;
     private String signatoryFunction;
-    @Column(name = "address_line1")
+    @Column(name = "address_line_1")
     private String  addressLine1;
-    @Column(name = "address_line2")
+    @Column(name = "address_line_2")
     private String  addressLine2;
-    @Column(name = "address_line3")
+    @Column(name = "address_line_3")
     private String  addressLine3;
-    @Column(name = "address_line4")
+    @Column(name = "address_line_4")
     private String  addressLine4;
-    @Column(name = "address_line5")
+    @Column(name = "address_line_5")
     private String  addressLine5;
-    @Column(name = "address_line6")
+    @Column(name = "address_line_6")
     private String  addressLine6;
-    @Column(name = "address_line7")
+    @Column(name = "address_line_7")
     private String  addressLine7;
 
 

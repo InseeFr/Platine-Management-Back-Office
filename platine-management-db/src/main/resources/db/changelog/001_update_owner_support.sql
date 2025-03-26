@@ -11,13 +11,13 @@ ALTER TABLE public."owner" add signatory_fonction varchar NULL;
 ALTER TABLE public."support" add signatory_name varchar NULL;
 ALTER TABLE public."support" add signatory_fonction varchar NULL;
 
-ALTER TABLE public."support" add address_line1 varchar NULL;
-ALTER TABLE public."support" add address_line2 varchar NULL;
-ALTER TABLE public."support" add address_line3 varchar NULL;
-ALTER TABLE public."support" add address_line4 varchar NULL;
-ALTER TABLE public."support" add address_line5 varchar NULL;
-ALTER TABLE public."support" add address_line6 varchar NULL;
-ALTER TABLE public."support" add address_line7 varchar NULL;
+ALTER TABLE public."support" add address_line_1 varchar NULL;
+ALTER TABLE public."support" add address_line_2 varchar NULL;
+ALTER TABLE public."support" add address_line_3 varchar NULL;
+ALTER TABLE public."support" add address_line_4 varchar NULL;
+ALTER TABLE public."support" add address_line_5 varchar NULL;
+ALTER TABLE public."support" add address_line_6 varchar NULL;
+ALTER TABLE public."support" add address_line_7 varchar NULL;
 
 ALTER TABLE public."source" add storage_time varchar NULL;
 ALTER TABLE public."source" add personal-data varchar NULL;
