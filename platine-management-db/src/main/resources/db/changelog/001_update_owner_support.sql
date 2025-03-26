@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset bettybecuwe:001_update_owner_support.sql context:prod
+--changeset bettybecuwe:001_update_owner_support.sql
 
 ALTER TABLE public."owner" add determiner varchar NULL;
 ALTER TABLE public."owner" add signatory_name varchar NULL;
