@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +32,12 @@ class ContactEventControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    private ContactEventService contactEventService;
+
+    @Autowired
+    private ContactService contactService;
 
     @BeforeEach
     void init() {
@@ -62,6 +70,75 @@ class ContactEventControllerTest {
         JSONArray ja = new JSONArray();
         ja.put(jo);
         return ja.toString();
+    }
+
+    @Test
+    void getAllContactEventsOk() throws Exception {
+        String contactId = "CONT1";
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
+
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT_CONTACTEVENTS))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void postNewContactEventOk() throws Exception {
+        String contactId = "CONT1";
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
+
+        JSONObject joPayload = new JSONObject();
+        joPayload.put("identifier", contactId);
+        joPayload.put("type", "firstConnect");
+        joPayload.put("date", "2024-01-01T00:00:00Z");
+
+        this.mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .contentType("application/json")
+                                .content(joPayload.toString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void postNewContactEvent_NotMatchingIdentifiers_ShouldReturn403() throws Exception {
+        String contactId = "CONT1";
+        String payloadId = "OTHER";
+
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
+
+        JSONObject joPayload = new JSONObject();
+        joPayload.put("identifier", payloadId);
+        joPayload.put("type", "firstConnect");
+        joPayload.put("date", "2024-01-01T00:00:00Z");
+
+        this.mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .contentType("application/json")
+                                .content(joPayload.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void postNewContactEvent_ContactNotFound_ShouldReturn404() throws Exception {
+        String contactId = "DOES_NOT_EXIST";
+
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
+
+        JSONObject joPayload = new JSONObject();
+        joPayload.put("identifier", contactId);
+        joPayload.put("type", "firstConnect");
+        joPayload.put("date", "2024-01-01T00:00:00Z");
+
+        this.mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .contentType("application/json")
+                                .content(joPayload.toString()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
 }

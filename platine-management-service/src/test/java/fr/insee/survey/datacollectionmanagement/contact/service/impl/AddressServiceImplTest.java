@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AddressServiceImplTest {
+class AddressServiceImplTest {
 
     private final AddressRepository addressRepository = mock(AddressRepository.class);
     private final ModelMapper modelMapper = new ModelMapper();
