@@ -19,4 +19,7 @@ ALTER TABLE public."support" add address_line5 varchar NULL;
 ALTER TABLE public."support" add address_line6 varchar NULL;
 ALTER TABLE public."support" add address_line7 varchar NULL;
 
+ALTER TABLE public."source" add storage_time varchar NULL;
+ALTER TABLE public."source" add personal-data varchar NULL;
+
 
