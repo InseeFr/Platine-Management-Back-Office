@@ -29,5 +29,5 @@ public interface ContactEventService {
 
     ContactEventDto addContactEvent(ContactEventDto contactEventDto);
 
-    List<ContactEventDto> findContactEventsByContactId(String upperCase);
+    List<ContactEventDto> findContactEventsByContactId(String contactId);
 }

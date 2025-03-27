@@ -59,13 +59,11 @@ public class ContactEventController {
     @Operation(summary = "Find all contact-events")
     @GetMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
-    public ResponseEntity<List<ContactEventDto>> getAllContactEvents(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
+    public List<ContactEventDto> getAllContactEvents(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
             throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
         }
-        List<ContactEventDto> allContactEvents = contactEventService.findContactEventsByContactId(contactId.toUpperCase());
-
-        return ResponseEntity.ok().body(allContactEvents);
+        return contactEventService.findContactEventsByContactId(contactId.toUpperCase());
     }
 
     /**

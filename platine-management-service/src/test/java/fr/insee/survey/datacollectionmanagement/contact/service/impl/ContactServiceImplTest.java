@@ -164,10 +164,7 @@ class ContactServiceImplTest {
         addressDto.setStreetName("rue des Lilas");
         contactDto.setAddress(addressDto);
 
-        // On simule que le service d'adresse retourne l'adresse mise à jour
         when(addressService.updateOrCreateAddress(any(AddressDto.class))).thenReturn(addressDto);
-
-        // On mocke la création de l'événement
         when(contactEventService.createContactEvent(any(), eq(ContactEventTypeEnum.update), any()))
                 .thenReturn(new ContactEvent());
 

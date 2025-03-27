@@ -19,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -75,9 +76,9 @@ class ContactEventControllerTest {
     @Test
     void getAllContactEventsOk() throws Exception {
         String contactId = "CONT1";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
-        this.mockMvc.perform(get(UrlConstants.API_CONTACT_CONTACTEVENTS))
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"));
     }
@@ -85,7 +86,6 @@ class ContactEventControllerTest {
     @Test
     void postNewContactEventOk() throws Exception {
         String contactId = "CONT1";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", contactId);
@@ -95,6 +95,7 @@ class ContactEventControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType("application/json")
                                 .content(joPayload.toString()))
                 .andExpect(status().isCreated())
@@ -106,8 +107,6 @@ class ContactEventControllerTest {
         String contactId = "CONT1";
         String payloadId = "OTHER";
 
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
-
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", payloadId);
         joPayload.put("type", "firstConnect");
@@ -116,6 +115,7 @@ class ContactEventControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType("application/json")
                                 .content(joPayload.toString()))
                 .andExpect(status().isBadRequest());
@@ -125,8 +125,6 @@ class ContactEventControllerTest {
     void postNewContactEvent_ContactNotFound_ShouldReturn404() throws Exception {
         String contactId = "DOES_NOT_EXIST";
 
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
-
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", contactId);
         joPayload.put("type", "firstConnect");
@@ -135,6 +133,7 @@ class ContactEventControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType("application/json")
                                 .content(joPayload.toString()))
                 .andDo(print())

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -237,9 +238,9 @@ class ContactControllerTest {
     @Test
     void getContactInfoOk() throws Exception {
         String contactId = "CONT1";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
-        this.mockMvc.perform(get(UrlConstants.API_CONTACT))
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"));
     }
@@ -247,16 +248,15 @@ class ContactControllerTest {
     @Test
     void getContactInfoNotFound() throws Exception {
         String contactId = "DOES_NOT_EXIST";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
-        this.mockMvc.perform(get(UrlConstants.API_CONTACT))
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void putContactInfoOk() throws Exception {
         String contactId = "CONT1";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", contactId);
@@ -268,6 +268,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType("application/json")
                                 .content(joPayload.toString()))
                 .andDo(print())
@@ -279,7 +280,6 @@ class ContactControllerTest {
     void putContactInfo_NotMatchingIdentifiers_ShouldReturn403() throws Exception {
         String contactId = "CONT1";
         String payloadId = "OTHER";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT));
 
         JSONObject joPayload = new JSONObject();
         joPayload.put("identifier", payloadId);
@@ -291,6 +291,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType("application/json")
                                 .content(joPayload.toString()))
                 .andDo(print())
