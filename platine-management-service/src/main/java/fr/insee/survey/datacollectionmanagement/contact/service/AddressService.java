@@ -21,4 +21,5 @@ public interface AddressService {
 
     Address convertToEntity(AddressDto addressDto);
 
+    AddressDto updateOrCreateAddress(AddressDto addressDto);
 }

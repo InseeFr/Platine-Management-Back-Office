@@ -1,8 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
@@ -17,6 +19,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -56,6 +59,45 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact findByIdentifier(String identifier) {
         return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
+    }
+
+    @Override
+    public ContactDto update(ContactDto contactDto, JsonNode payload) {
+        Contact existingContact = contactRepository.findById(contactDto.getIdentifier())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
+
+        existingContact.setExternalId(contactDto.getExternalId());
+        existingContact.setFirstName(contactDto.getFirstName());
+        existingContact.setLastName(contactDto.getLastName());
+        existingContact.setEmail(contactDto.getEmail());
+        existingContact.setFunction(contactDto.getFunction());
+        existingContact.setPhone(contactDto.getPhone());
+        existingContact.setOtherPhone(contactDto.getOtherPhone());
+        existingContact.setUsualCompanyName(contactDto.getUsualCompanyName());
+        if (contactDto.getCivility() != null) {
+            existingContact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
+        }
+        AddressDto addressDto = contactDto.getAddress();
+
+        if (addressDto != null) {
+            Address existingAddress = existingContact.getAddress();
+            Long existingAddressId = existingAddress != null ? existingAddress.getId() : null;
+            addressDto.setId(existingAddressId);
+            AddressDto updatedAddress = addressService.updateOrCreateAddress(addressDto);
+            existingContact.setAddress(modelMapper.map(updatedAddress, Address.class));
+        }
+        Contact savedContact = contactRepository.save(existingContact);
+
+        ContactEvent contactEventUpdate = contactEventService.createContactEvent(savedContact, ContactEventTypeEnum.update,
+                payload);
+        contactEventService.saveContactEvent(contactEventUpdate);
+
+        return modelMapper.map(savedContact, ContactDto.class);
+    }
+
+    @Override
+    public boolean existsByIdentifier(String identifier) {
+        return contactRepository.existsById(identifier);
     }
 
     @Override

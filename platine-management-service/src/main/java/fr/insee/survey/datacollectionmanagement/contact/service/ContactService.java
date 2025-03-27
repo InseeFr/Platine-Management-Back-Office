@@ -35,6 +35,22 @@ public interface ContactService {
     Contact findByIdentifier(String identifier);
 
     /**
+     * Update an existing contact and its address
+     *
+     * @param contactDto Contact to update
+     * @param payload
+     * @return contact updated
+     */
+    ContactDto update(ContactDto contactDto, JsonNode payload);
+
+    /**
+     * check if a contact exists
+     * @param identifier
+     * @return boolean
+     */
+    boolean existsByIdentifier(String identifier);
+
+    /**
      * Find all contacts by identifiers list
      *
      * @param identifiers
