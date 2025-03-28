@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,6 +18,8 @@ public class Partitioning {
 
     @Id
     private String id;
+    @Column(unique = true)
+    private UUID technicalId;
     private String label;
     private Date openingDate;
     private Date closingDate;
@@ -49,5 +52,13 @@ public class Partitioning {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Enumerated(EnumType.STRING)
     private Set<Parameters> params;
+
+    @PrePersist
+    public void generateUUID() {
+        // Only generate a UUID if it's not already set (i.e., it's null)
+        if (technicalId == null) {
+            technicalId = UUID.randomUUID();
+        }
+    }
 
 }

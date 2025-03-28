@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -19,6 +20,9 @@ public class Campaign {
 
     @Id
     private String id;
+
+    @Column(unique = true)
+    private UUID technicalId;
 
     @Column(name = "YEAR_VALUE")
     @NonNull
@@ -50,5 +54,13 @@ public class Campaign {
     @ManyToOne
     @JoinColumn(name = "survey_id")
     private Survey survey;
+
+    @PrePersist
+    public void generateUUID() {
+        // Only generate a UUID if it's not already set (i.e., it's null)
+        if (technicalId == null) {
+            technicalId = UUID.randomUUID();
+        }
+    }
 
 }
