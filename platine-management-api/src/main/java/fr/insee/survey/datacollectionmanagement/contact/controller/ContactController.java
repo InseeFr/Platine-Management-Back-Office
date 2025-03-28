@@ -34,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -51,7 +52,7 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactService;
-    
+
     private final ViewService viewService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
@@ -79,13 +80,32 @@ public class ContactController {
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
-        Contact contact = contactService.findByIdentifier(idContact);
-        List<String> listCampaigns = viewService.findDistinctCampaignByIdentifier(idContact);
-        return contactService.convertToContactDetailsDto(contact, listCampaigns);
-
-
+        return contactService.getContactDetails(idContact);
     }
 
+    @Operation(summary = "Get contact info")
+    @GetMapping(value = UrlConstants.API_CONTACT)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    public ContactDetailsDto getContactInfo(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
+        return contactService.getContactDetails(contactId.toUpperCase());
+    }
+
+    @Operation(summary = "Put contact info")
+    @PutMapping(value = UrlConstants.API_CONTACT, produces = "application/json", consumes = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
+                                                     @CurrentSecurityContext(expression = "authentication.name") String contactId) {
+        if (!contactDto.getIdentifier().equalsIgnoreCase(contactId)) {
+            throw new NotMatchException("contactId and contact identifier don't match");
+        }
+        if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
+            throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
+        }
+        JsonNode payload = PayloadUtil.getPayloadAuthor(contactId.toUpperCase());
+        ContactDto contact = contactService.update(contactDto, payload);
+        return ResponseEntity.ok(contact);
+
+    }
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")

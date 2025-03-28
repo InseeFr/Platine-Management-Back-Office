@@ -13,32 +13,34 @@ import java.util.List;
 @Service
 public interface CampaignService {
 
-  Collection<CampaignMoogDto> getCampaigns();
+    Collection<CampaignMoogDto> getCampaigns();
 
-  Campaign findById(String idCampaign);
+    Campaign findById(String idCampaign);
 
-  Page<Campaign> findAll(Pageable pageable);
+    Page<Campaign> findAll(Pageable pageable);
 
-  List<Campaign> findAll();
+    List<Campaign> findAll();
 
-  Campaign insertOrUpdateCampaign(Campaign campaign);
+    Campaign insertOrUpdateCampaign(Campaign campaign);
 
-  void deleteCampaignById(String id);
+    void deleteCampaignById(String id);
 
-  /**
-   * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are
-   * ongoing
-   *
-   * @param campaignId of the campaign
-   * @return true
-   */
-  boolean isCampaignOngoing(String campaignId);
+    /**
+     * Check if a campaign is ongoing, which means checks if all the partitiongs of the campaign are
+     * ongoing
+     *
+     * @param campaignId of the campaign
+     * @return true
+     */
+    boolean isCampaignOngoing(String campaignId);
 
-  List<CampaignOngoingDto> getCampaignOngoingDtos();
+    List<CampaignOngoingDto> getCampaignOngoingDtos();
 
-  List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto);
+    List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto);
 
-  Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of);
+    Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of);
 
-  CampaignHeaderDto findCampaignHeaderById(String id);
+    CampaignHeaderDto findCampaignHeaderById(String id);
+
+    List<CampaignStatusDto> findCampaignStatusByCampaignIdIn(List<String> ids);
 }
