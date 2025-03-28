@@ -34,7 +34,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @RequiredArgsConstructor
@@ -61,6 +60,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "404", description = "NotFound")
     })
     @Deprecated(since = "3.4.0")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<QuestioningDto> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         log.warn("DEPRECATED");
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
@@ -83,6 +83,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<List<QuestioningDto>> getQuestioningsBySurveyUnit(@PathVariable("id") String id) {
         SurveyUnit su = surveyUnitService.findbyId(StringUtils.upperCase(id));
         return new ResponseEntity<>(su.getQuestionings().stream().map(this::convertToDto).toList(), HttpStatus.OK);
@@ -91,6 +92,7 @@ public class QuestioningController {
 
     @Operation(summary = "Get questioning assistance mail")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
         Questioning questioning = questioningService.findById(questioningId);
         Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
@@ -100,6 +102,7 @@ public class QuestioningController {
 
     @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
     @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
     }

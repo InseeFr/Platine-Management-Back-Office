@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
@@ -61,18 +60,21 @@ public class SourceController {
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = UrlConstants.API_SOURCES, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<SourceDto> getSources() {
         return sourceService.findAll().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Get all sources ongoing")
     @GetMapping(value = UrlConstants.API_SOURCES_ONGOING, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public List<SourceDto> getOngoingSources() {
         return sourceService.getOngoingSources();
     }
 
     @Operation(summary = "Search for a source by its id")
     @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public SourceOnlineStatusDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return convertToCompleteDto(source);
@@ -81,6 +83,7 @@ public class SourceController {
 
     @Operation(summary = "Update or create a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<SourceOnlineStatusDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOnlineStatusDto sourceOnlineStatusDto) {
         if (!sourceOnlineStatusDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
@@ -110,6 +113,7 @@ public class SourceController {
     @DeleteMapping(value = UrlConstants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void deleteSource(@PathVariable("id") String id) {
         int nbQuestioningDeleted = 0;
         int nbViewDeleted = 0;
@@ -137,6 +141,7 @@ public class SourceController {
 
     @Operation(summary = "Check if a source is opened")
     @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
         Source source = sourceService.findById(id.toUpperCase());
@@ -155,6 +160,7 @@ public class SourceController {
 
     @Operation(summary = "Search for surveys by the owner id")
     @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<SourceDto> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return owner.getSources().stream().map(this::convertToDto).toList();
@@ -164,6 +170,7 @@ public class SourceController {
 
     @Operation(summary = "Get source parameters")
     @GetMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return source.getParams().stream().map(parametersService::convertToDto).toList();
@@ -172,6 +179,7 @@ public class SourceController {
 
     @Operation(summary = "Create a parameter for a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);
