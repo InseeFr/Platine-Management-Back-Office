@@ -17,7 +17,7 @@ public class Source {
 
     @Id
     private String id;
-    @Column(unique = true)
+    @Column(name = "technical-id",unique = true)
     private String technicalId;
     private String longWording;
     private String shortWording;

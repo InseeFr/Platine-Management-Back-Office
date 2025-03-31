@@ -18,7 +18,7 @@ public class Partitioning {
 
     @Id
     private String id;
-    @Column(unique = true)
+    @Column(name = "technical-id",unique = true)
     private UUID technicalId;
     private String label;
     private Date openingDate;

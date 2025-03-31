@@ -21,7 +21,7 @@ public class Campaign {
     @Id
     private String id;
 
-    @Column(unique = true)
+    @Column(name = "technical-id",unique = true)
     private UUID technicalId;
 
     @Column(name = "YEAR_VALUE")

@@ -19,7 +19,7 @@ public class Survey {
 
     @Id
     private String id;
-    @Column(unique = true)
+    @Column(name = "technical-id",unique = true)
     private String technicalId;
     @Column(name = "YEAR_VALUE")
     @NonNull
