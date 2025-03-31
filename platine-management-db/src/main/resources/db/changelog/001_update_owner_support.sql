@@ -20,6 +20,6 @@ ALTER TABLE public."support" add address_line_6 varchar NULL;
 ALTER TABLE public."support" add address_line_7 varchar NULL;
 
 ALTER TABLE public."source" add storage_time varchar NULL;
-ALTER TABLE public."source" add personal-data varchar NULL;
+ALTER TABLE public."source" add personal_data varchar NULL;
 
 
