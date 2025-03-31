@@ -5,4 +5,5 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
     <include file="changelog/000_init.sql" relativeToChangelogFile="true"/>
     <include file="changelog/001_update_owner_support.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/002_update_source_survey_campaign_partitioning_with_technicalId.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
