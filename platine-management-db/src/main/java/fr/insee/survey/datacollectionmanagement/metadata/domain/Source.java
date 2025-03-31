@@ -25,6 +25,8 @@ public class Source {
     private String messageSurveyOffline;
     private String messageInfoSurveyOffline;
     private String logo;
+    private String storageTime;
+    private String personalData;
     @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodicityEnum periodicity;
