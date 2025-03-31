@@ -151,8 +151,8 @@ public class ContactRepositoryStub implements ContactRepository {
     }
 
     @Override
-    public boolean existsById(String s) {
-        return false;
+    public boolean existsById(String id) {
+        return contacts.containsKey(id);
     }
 
     @Override
