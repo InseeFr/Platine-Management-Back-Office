@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ActiveProfiles("test")
-public class QuestioningControllerSecurityTest {
+class QuestioningControllerSecurityTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    private static RequestPostProcessor jwtWithRole(String role) {
-        return jwt().authorities(() -> "ROLE_" + role);
+    private static RequestPostProcessor jwtWithRole(AuthorityRoleEnum role) {
+        return jwt().authorities(role::securityRole);
     }
 
     // === /api/survey-units/{id}/questionings ===
@@ -42,7 +43,7 @@ public class QuestioningControllerSecurityTest {
     void getQuestioningsBySurveyUnit_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, "100000000")
                         .accept(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
 
@@ -50,7 +51,7 @@ public class QuestioningControllerSecurityTest {
     void getQuestioningsBySurveyUnit_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, "100000000")
                         .accept(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -65,14 +66,14 @@ public class QuestioningControllerSecurityTest {
     @Test
     void getAssistance_200_asPortal() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getAssistance_200_asAdmin() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -91,7 +92,7 @@ public class QuestioningControllerSecurityTest {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGSID)
                         .param("campaignId", "SOURCE12023T01")
                         .param("surveyUnitId", "100000000")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
 
@@ -100,7 +101,7 @@ public class QuestioningControllerSecurityTest {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGSID)
                         .param("campaignId", "SOURCE12023T01")
                         .param("surveyUnitId", "100000000")
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 

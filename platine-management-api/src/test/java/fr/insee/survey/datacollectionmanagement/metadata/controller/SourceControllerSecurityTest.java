@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
@@ -29,8 +30,8 @@ class SourceControllerSecurityTest {
     @Autowired
     MockMvc mockMvc;
 
-    private static RequestPostProcessor jwtWithRole(String role) {
-        return jwt().authorities(() -> "ROLE_" + role);
+    private static RequestPostProcessor jwtWithRole(AuthorityRoleEnum role) {
+        return jwt().authorities(role::securityRole);
     }
 
     // === /api/sources ===
@@ -43,13 +44,13 @@ class SourceControllerSecurityTest {
     @Test
     void getSources_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void getSources_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES)
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -63,7 +64,7 @@ class SourceControllerSecurityTest {
     @Test
     void getOngoingSources_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES_ONGOING)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isOk());
     }
 
@@ -77,13 +78,13 @@ class SourceControllerSecurityTest {
     @Test
     void getSource_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES_ID, "SOURCE1")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void getSource_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES_ID, "SOURCE1")
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -100,14 +101,14 @@ class SourceControllerSecurityTest {
     void putSource_403() throws Exception {
         mockMvc.perform(put(UrlConstants.API_SOURCES_ID, "SOURCE1").content(createJsonSource())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void putSource_2xx() throws Exception {
         mockMvc.perform(put(UrlConstants.API_SOURCES_ID, "SOURCE1").content(createJsonSource())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().is2xxSuccessful());
     }
 
@@ -121,13 +122,13 @@ class SourceControllerSecurityTest {
     @Test
     void deleteSource_403() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_SOURCES_ID, "SOURCE1")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void deleteSource_204() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_SOURCES_ID, "SOURCE1")
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isNoContent());
     }
 
@@ -141,7 +142,7 @@ class SourceControllerSecurityTest {
     @Test
     void isSourceOpened_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCE_ID_OPENED, "SOURCE1")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isOk());
     }
 
@@ -155,13 +156,13 @@ class SourceControllerSecurityTest {
     @Test
     void getSourcesByOwner_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_OWNERS_ID_SOURCES, "Insee")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void getSourcesByOwner_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_OWNERS_ID_SOURCES, "Insee")
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -175,13 +176,13 @@ class SourceControllerSecurityTest {
     @Test
     void getParams_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES_ID_PARAMS, "SOURCE1")
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test
     void getParams_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SOURCES_ID_PARAMS, "SOURCE1")
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
@@ -197,14 +198,14 @@ class SourceControllerSecurityTest {
         mockMvc.perform(put(UrlConstants.API_SOURCES_ID_PARAMS, "SOURCE1")
                         .content(createJsonParams())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("PORTAL")))
+                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isForbidden());
     }
     @Test void putParams_200() throws Exception {
         mockMvc.perform(put(UrlConstants.API_SOURCES_ID_PARAMS, "SOURCE1")
                         .content(createJsonParams())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(jwtWithRole("ADMIN")))
+                        .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }
 
