@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ActiveProfiles("test")
 public class QuestioningControllerSecurityTest {
 
@@ -28,21 +30,24 @@ public class QuestioningControllerSecurityTest {
     }
 
     // === /api/survey-units/{id}/questionings ===
-    @Test void getQuestioningsBySurveyUnit_401() throws Exception {
+    @Test
+    void getQuestioningsBySurveyUnit_401() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, "100000000")
                         .accept(MediaType.APPLICATION_JSON)
                         .with(anonymous()))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test void getQuestioningsBySurveyUnit_403() throws Exception {
+    @Test
+    void getQuestioningsBySurveyUnit_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, "100000000")
                         .accept(MediaType.APPLICATION_JSON)
                         .with(jwtWithRole("PORTAL")))
                 .andExpect(status().isForbidden());
     }
 
-    @Test void getQuestioningsBySurveyUnit_200() throws Exception {
+    @Test
+    void getQuestioningsBySurveyUnit_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, "100000000")
                         .accept(MediaType.APPLICATION_JSON)
                         .with(jwtWithRole("ADMIN")))
@@ -50,26 +55,30 @@ public class QuestioningControllerSecurityTest {
     }
 
     // === /api/questionings/{id}/assistance ===
-    @Test void getAssistance_401() throws Exception {
+    @Test
+    void getAssistance_401() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
                         .with(anonymous()))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test void getAssistance_200_asPortal() throws Exception {
+    @Test
+    void getAssistance_200_asPortal() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
                         .with(jwtWithRole("PORTAL")))
                 .andExpect(status().isOk());
     }
 
-    @Test void getAssistance_200_asAdmin() throws Exception {
+    @Test
+    void getAssistance_200_asAdmin() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
                         .with(jwtWithRole("ADMIN")))
                 .andExpect(status().isOk());
     }
 
     // === /api/questionings-id?campaignId=X&surveyUnitId=Y ===
-    @Test void getQuestioningId_401() throws Exception {
+    @Test
+    void getQuestioningId_401() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGSID)
                         .param("campaignId", "SOURCE12023T01")
                         .param("surveyUnitId", "100000000")
@@ -77,7 +86,8 @@ public class QuestioningControllerSecurityTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test void getQuestioningId_403() throws Exception {
+    @Test
+    void getQuestioningId_403() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGSID)
                         .param("campaignId", "SOURCE12023T01")
                         .param("surveyUnitId", "100000000")
@@ -85,12 +95,17 @@ public class QuestioningControllerSecurityTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test void getQuestioningId_200() throws Exception {
+    @Test
+    void getQuestioningId_200() throws Exception {
         mockMvc.perform(get(UrlConstants.API_QUESTIONINGSID)
                         .param("campaignId", "SOURCE12023T01")
                         .param("surveyUnitId", "100000000")
                         .with(jwtWithRole("ADMIN")))
                 .andExpect(status().isOk());
     }
+
+
+
+
 
 }
