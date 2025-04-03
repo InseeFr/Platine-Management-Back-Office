@@ -750,3 +750,23 @@ INSERT INTO public.questioning_communication
 (id, "date", status, "type", questioning_id)
 VALUES(10015, '2024-04-15 18:21:44.298', 'AUTOMATIC', 'COURRIER_OUVERTURE', 260);
 
+INSERT INTO public.contact_source (source_id, survey_unit_id, contact_id, is_main)
+SELECT source_id, survey_unit_id_su, id_contact, is_main
+FROM (
+    SELECT
+        s.source_id,
+        q.survey_unit_id_su,
+        qa.id_contact,
+        qa.is_main,
+        ROW_NUMBER() OVER (
+            PARTITION BY s.source_id, q.survey_unit_id_su, qa.id_contact
+            ORDER BY CASE WHEN qa.is_main THEN 1 ELSE 2 END
+        ) AS rn
+    FROM public.questioning q
+    JOIN public.questioning_accreditation qa ON q.id = qa.questioning_id
+    JOIN public.partitioning p ON q.id_partitioning = p.id
+    JOIN public.campaign c ON p.campaign_id = c.id
+    JOIN public.survey s ON c.survey_id = s.id
+) sub
+WHERE rn = 1;
+
