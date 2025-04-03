@@ -37,7 +37,7 @@ public class MetadataServiceImpl implements MetadataService {
         return businessMetadataDto;
     }
 
-    private static OwnerBusinessDto getOwnerBusinessDto(Campaign campaign) {
+    OwnerBusinessDto getOwnerBusinessDto(Campaign campaign) {
         OwnerBusinessDto ownerBusinessDto = new OwnerBusinessDto();
         Owner owner = campaign.getSurvey().getSource().getOwner();
         ownerBusinessDto.setDeterminer(owner.getDeterminer());
@@ -46,11 +46,11 @@ public class MetadataServiceImpl implements MetadataService {
         return ownerBusinessDto;
     }
 
-    private static SurveyBusinessDto getSurveyBusinessDto(Campaign campaign) {
+    SurveyBusinessDto getSurveyBusinessDto(Campaign campaign) {
         SurveyBusinessDto surveyBusinessDto = new SurveyBusinessDto();
         Survey survey = campaign.getSurvey();
         surveyBusinessDto.setYear(survey.getYear());
-        surveyBusinessDto.setCompulsaryNature((Boolean.TRUE == survey.isCompulsoryNature())?"oui":"non" );
+        surveyBusinessDto.setCompulsaryNature((Boolean.TRUE == survey.isCompulsoryNature()) ? "oui" : "non");
         surveyBusinessDto.setShortObjectives(survey.getShortObjectives());
         surveyBusinessDto.setSurveyStatus(survey.getSurveyStatus());
         surveyBusinessDto.setDiffusionUrl(survey.getDiffusionUrl());
