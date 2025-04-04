@@ -770,3 +770,104 @@ FROM (
 ) sub
 WHERE rn = 1;
 
+SELECT setval(
+    'public.address_seq',
+    COALESCE((SELECT MAX(id) FROM public.address), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.campaign_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.campaign_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.contact_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.contact_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.operator_seq',
+    COALESCE((SELECT MAX(id) FROM public.operator), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.hibernate_sequence',
+    100000,
+    false
+);
+
+SELECT setval(
+    'public.operator_service_seq',
+    COALESCE((SELECT MAX(id) FROM public.operator_service), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.quest_comment_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_comment), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_accreditation_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_accreditation), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_communication_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_communication), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.seq_upload',
+    COALESCE((SELECT MAX(id) FROM public.uploads), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.source_accreditation_seq',
+    COALESCE((SELECT MAX(id) FROM public.source_accreditation), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.su_comment_seq',
+    COALESCE((SELECT MAX(id) FROM public.survey_unit_comment), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.survey_unit_address_seq',
+    COALESCE((SELECT MAX(id) FROM public.survey_unit_address), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.user_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.user_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.view_seq',
+    COALESCE((SELECT MAX(id) FROM public.view), 0) + 1,
+    false
+);
