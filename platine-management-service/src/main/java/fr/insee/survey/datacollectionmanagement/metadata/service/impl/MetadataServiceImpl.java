@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MetadataServiceImpl implements MetadataService {
 
+    public static final String OUI = "oui";
+    public static final String NON = "non";
     private final CampaignService campaignService;
 
     @Override
@@ -26,7 +28,6 @@ public class MetadataServiceImpl implements MetadataService {
         Campaign campaign = campaignService.findById(campaignId);
         campaignBusinessDto.setCampaignWording(campaign.getCampaignWording());
         businessMetadataDto.setCampaignBusinessDto(campaignBusinessDto);
-
 
         SurveyBusinessDto surveyBusinessDto = getSurveyBusinessDto(campaign);
         businessMetadataDto.setSurveyBusinessDto(surveyBusinessDto);
@@ -50,7 +51,7 @@ public class MetadataServiceImpl implements MetadataService {
         SurveyBusinessDto surveyBusinessDto = new SurveyBusinessDto();
         Survey survey = campaign.getSurvey();
         surveyBusinessDto.setYear(survey.getYear());
-        surveyBusinessDto.setCompulsaryNature((Boolean.TRUE == survey.isCompulsoryNature()) ? "oui" : "non");
+        surveyBusinessDto.setCompulsaryNature((Boolean.TRUE.equals(survey.isCompulsoryNature())) ? OUI : NON);
         surveyBusinessDto.setShortObjectives(survey.getShortObjectives());
         surveyBusinessDto.setSurveyStatus(survey.getSurveyStatus());
         surveyBusinessDto.setDiffusionUrl(survey.getDiffusionUrl());
