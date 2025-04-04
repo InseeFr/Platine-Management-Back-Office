@@ -12,6 +12,7 @@ CREATE TABLE public.contact_source (
     CONSTRAINT fk_contact_source_survey_unit FOREIGN KEY (survey_unit_id)
         REFERENCES public.survey_unit(id_su) ON DELETE CASCADE,
     CONSTRAINT fk_contact_source_contact FOREIGN KEY (contact_id)
-        REFERENCES public.contact(identifier) ON DELETE CASCADE,
-    INDEX idx_contact_source_source_survey (source_id, survey_unit_id)
-);
+        REFERENCES public.contact(identifier) ON DELETE CASCADE);
+
+CREATE INDEX idx_contact_source_source_survey
+    ON public.contact_source (source_id, survey_unit_id);
