@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,6 +15,7 @@ public class MyQuestionnaireDetailsDto {
     private String sourceId;
     private Long questioningId;
     private String partitioningLabel;
+    private Date partitioningClosingDate;
     private String partitioningId;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
