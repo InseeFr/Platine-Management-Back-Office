@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 public class MyQuestionnaireDto {
@@ -16,5 +18,6 @@ public class MyQuestionnaireDto {
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;
+    private Instant partitioningClosingDate;
     private String surveyUnitId;
 }
