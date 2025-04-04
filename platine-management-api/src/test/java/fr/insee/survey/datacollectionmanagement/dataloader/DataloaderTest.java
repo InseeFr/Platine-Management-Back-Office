@@ -288,6 +288,7 @@ public class DataloaderTest {
                     surveyRepository.save(survey);
                 }
                 source.setSurveys(setSurveys);
+                source.setOwner(ownerInsee);
                 sourceRepository.save(source);
                 log.info("Source created : " + source);
                 ownerInsee.setSources(setSourcesInsee);
