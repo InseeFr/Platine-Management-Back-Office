@@ -89,7 +89,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.OPEN.name());
         assertThat(dto.getDepositProofUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(new Timestamp(date.getTime()));
+        assertThat(dto.getPartitioningClosingDate()).isEqualTo(date.toInstant());
     }
 
     @Test
