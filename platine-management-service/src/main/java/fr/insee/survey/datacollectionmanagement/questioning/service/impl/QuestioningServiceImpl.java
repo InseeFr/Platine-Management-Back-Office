@@ -4,13 +4,11 @@ import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
-import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
+import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
@@ -23,6 +21,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -30,10 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -42,6 +38,8 @@ import java.util.*;
 public class QuestioningServiceImpl implements QuestioningService {
 
     private final QuestioningRepository questioningRepository;
+
+    private final QuestioningUrlComponent questioningUrlComponent;
 
     private final SurveyUnitService surveyUnitService;
 
@@ -55,16 +53,6 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final ModelMapper modelMapper;
 
-    private final String lunaticNormalUrl;
-
-    private final String lunaticSensitiveUrl;
-
-    private final String xform1Url;
-
-    private final String xform2Url;
-
-    private static final String PATH_LOGOUT = "pathLogout";
-    private static final String PATH_ASSISTANCE = "pathAssistance";
     private final PartitioningRepository partitioningRepository;
 
     @Override
@@ -133,39 +121,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         return questioningRepository.findBySurveyUnitIdSu(idSu);
     }
 
-
-    /**
-     * Generates an access URL based on the provided parameters.
-     *
-     * @param role        The user role (REVIEWER or INTERVIEWER).
-     * @param questioning The questioning object.
-     * @param part        Part of questioning
-     * @return The generated access URL.
-     */
-    public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
-        Campaign campaign = part.getCampaign();
-        DataCollectionEnum dataCollectionTarget = campaign.getDataCollectionTarget();
-        String surveyUnitId = questioning.getSurveyUnit().getIdSu();
-
-        if (dataCollectionTarget == null || dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_NORMAL)) {
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return buildLunaticUrl(lunaticNormalUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
-        }
-        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM1)) {
-            return buildXformUrl(xform1Url, role, questioning.getModelName(), surveyUnitId);
-        }
-        if (dataCollectionTarget.equals(DataCollectionEnum.XFORM2)) {
-            return buildXformUrl(xform2Url, role, questioning.getModelName(), surveyUnitId);
-        }
-
-        if (dataCollectionTarget.equals(DataCollectionEnum.LUNATIC_SENSITIVE)) {
-            String sourceId = part.getCampaign().getSurvey().getSource().getId().toLowerCase();
-            return buildLunaticUrl(lunaticSensitiveUrl, role, questioning.getModelName(), surveyUnitId, sourceId, questioning.getId());
-        }
-
-        return "";
-    }
-
     @Override
     public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
         if (!StringUtils.isEmpty(param)) {
@@ -197,7 +152,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         QuestioningSurveyUnitDto questioningSurveyUnitDto = new QuestioningSurveyUnitDto(su.getIdSu(), su.getIdentificationCode(), su.getIdentificationName(), su.getLabel());
 
         String campaignId = partitioning.getCampaign().getId();
-        String readOnlyUrl = getAccessUrl(UserRoles.REVIEWER, questioning, partitioning);
+        String readOnlyUrl = questioningUrlComponent.getAccessUrl(UserRoles.REVIEWER, questioning, partitioning);
 
         List<String> contactsId = questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList();
         List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsId);
@@ -236,50 +191,6 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .readOnlyUrl(readOnlyUrl)
                 .build();
     }
-
-
-    /**
-     * Builds a V1 access URL based on the provided parameters.
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param campaignId   The campaign ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V1 access URL.
-     */
-    protected String buildXformUrl(String baseUrl, String role, String campaignId, String surveyUnitId) {
-        if (role.equalsIgnoreCase(UserRoles.REVIEWER)) {
-            return String.format("%s/visualiser/%s/%s", baseUrl, campaignId, surveyUnitId);
-        }
-        if (role.equalsIgnoreCase(UserRoles.INTERVIEWER)) {
-            return String.format("%s/repondre/%s/%s", baseUrl, campaignId, surveyUnitId);
-        }
-        return "";
-    }
-
-
-    /**
-     * Builds a V3 access URL based on the provided parameters
-     *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
-     * @return The generated V3 access URL.
-     */
-    protected String buildLunaticUrl(String baseUrl, String role, String modelName, String surveyUnitId, String sourceId, Long questioningId) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId)).toUriString();
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            return UriComponentsBuilder.fromHttpUrl(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
-                    .queryParam(PATH_LOGOUT, URLEncoder.encode("/" + sourceId, StandardCharsets.UTF_8))
-                    .queryParam(PATH_ASSISTANCE, URLEncoder.encode("/" + sourceId + "/contacter-assistance/auth?questioningId=" + questioningId, StandardCharsets.UTF_8))
-                    .build().toUriString();
-        }
-        return "";
-    }
-
 
     private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
         SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
