@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +89,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.OPEN.name());
         assertThat(dto.getDepositProofUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(date.toInstant());
+        assertThat(dto.getPartitioningClosingDate()).isEqualTo(new Timestamp(date.getTime()));
     }
 
     @Test
