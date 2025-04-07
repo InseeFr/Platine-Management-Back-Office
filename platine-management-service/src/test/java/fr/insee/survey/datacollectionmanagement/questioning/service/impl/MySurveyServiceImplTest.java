@@ -48,7 +48,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
         myQuestionnaireDetailsDto.setQuestioningId(1L);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
-        myQuestionnaireDetailsDto.setPartitioningClosingDate(date);
+        myQuestionnaireDetailsDto.setPartitioningClosingDate(new Timestamp(date.getTime()));
 
         mySurveysService = new MySurveysServiceImpl(
                 questioningAccreditationService,
