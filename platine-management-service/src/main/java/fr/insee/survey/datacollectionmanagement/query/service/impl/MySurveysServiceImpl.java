@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,7 +102,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
             myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
             myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
-            myQuestionnaireDto.setPartitioningClosingDate(myQuestionnaireDetailsDto.getPartitioningClosingDate());
+            myQuestionnaireDto.setPartitioningClosingDate(myQuestionnaireDetailsDto.getPartitioningClosingDate().toInstant());
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
