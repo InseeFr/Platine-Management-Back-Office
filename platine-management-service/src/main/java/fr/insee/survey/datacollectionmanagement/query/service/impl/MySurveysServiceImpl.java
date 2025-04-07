@@ -105,6 +105,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
             myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
             myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
+            myQuestionnaireDto.setPartitioningClosingDate(myQuestionnaireDetailsDto.getPartitioningClosingDate().toInstant());
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
