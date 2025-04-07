@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ public class MyQuestionnaireDetailsDto {
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;
-    private Timestamp partitioningClosingDate;
+    private Instant partitioningClosingDate;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
     private String surveyUnitId;
