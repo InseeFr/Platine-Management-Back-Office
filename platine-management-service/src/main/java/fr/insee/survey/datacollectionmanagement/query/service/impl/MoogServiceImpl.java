@@ -16,6 +16,7 @@ import fr.insee.survey.datacollectionmanagement.query.repository.MoogRepository;
 import fr.insee.survey.datacollectionmanagement.query.service.MoogService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.util.JSONCollectionWrapper;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
@@ -40,6 +41,8 @@ public class MoogServiceImpl implements MoogService {
     private final MoogRepository moogRepository;
 
     private final QuestioningService questioningService;
+
+    private final QuestioningUrlComponent questioningUrlComponent;
 
     @Override
     public List<View> moogSearch(String field) {
@@ -120,7 +123,7 @@ public class MoogServiceImpl implements MoogService {
         for (Partitioning part : setParts) {
             Optional<Questioning> optionalQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
             if (optionalQuestioning.isPresent()) {
-                return questioningService.getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
+                return questioningUrlComponent.getAccessUrl(UserRoles.REVIEWER, optionalQuestioning.get(), part);
             }
         }
         String msg = "0 questioning found for campaign " + idCampaign + " and survey unit " + surveyUnitId;

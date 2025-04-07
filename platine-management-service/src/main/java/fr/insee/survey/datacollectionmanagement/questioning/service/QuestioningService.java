@@ -39,8 +39,6 @@ public interface QuestioningService {
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
-    String getAccessUrl(String role, Questioning questioning, Partitioning part);
-
     Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable);
 
     QuestioningDetailsDto getQuestioningDetails(Long id);

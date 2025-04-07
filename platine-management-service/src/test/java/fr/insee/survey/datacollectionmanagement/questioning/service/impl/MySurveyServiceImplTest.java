@@ -1,27 +1,37 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.MySurveysServiceImpl;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class MySurveyServiceImplTest {
 
     private MySurveysServiceImpl mySurveysService;
     private QuestioningAccreditationRepositoryStub questioningAccreditationRepositoryStub;
     private QuestioningServiceStub questioningService;
+    @Mock
+    private QuestioningUrlComponent questioningUrlComponent;
     private String questionnaireApiUrl;
     private String questionnaireApiUrlSensitive;
     private MyQuestionnaireDetailsDto myQuestionnaireDetailsDto;
@@ -56,6 +66,7 @@ class MySurveyServiceImplTest {
                 partitioningService,
                 questioningEventServiceStub,
                 questioningService,
+                questioningUrlComponent,
                 questioningAccreditationRepositoryStub,
                 questionnaireApiUrl,
                 questionnaireApiUrlSensitive);
@@ -70,12 +81,12 @@ class MySurveyServiceImplTest {
         mockPartitioning.setId(mockQuestioning.getIdPartitioning());
 
         partitioningService.setPartitioning(mockPartitioning);
-        questioningService.setAccessUrl("http://access-url");
     }
 
     @Test
     @DisplayName("Should return questionnaire list when status is OPEN")
     void getListMyQuestionnairesTest() {
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.OPEN);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
@@ -140,6 +151,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with XForm")
     void getListMyQuestionnairesTest4() {
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1.toString());
 
