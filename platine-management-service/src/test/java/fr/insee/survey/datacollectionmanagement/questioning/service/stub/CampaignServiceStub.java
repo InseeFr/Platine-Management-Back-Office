@@ -28,6 +28,7 @@ public class CampaignServiceStub implements CampaignService {
     public Campaign findById(String idCampaign) {
         Campaign campaign = new Campaign();
         campaign.setId(idCampaign);
+        campaign.setCampaignWording("Test Campaign");
         Partitioning partitioning = new Partitioning();
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, -1);
