@@ -77,7 +77,7 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         return contactService.getContactDetails(idContact);
