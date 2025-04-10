@@ -202,7 +202,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getSurveyUnitIdentificationName()).isEqualTo("identificationName");
         assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
         assertThat(result.getListContacts()).isNotEmpty();
-        assertThat(result.getListContacts().get(0).identifier()).isEqualTo("contact1");
+        assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
     }
 
     @Test
