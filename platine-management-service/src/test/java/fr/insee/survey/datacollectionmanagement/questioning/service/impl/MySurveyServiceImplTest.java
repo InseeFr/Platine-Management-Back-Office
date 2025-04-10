@@ -87,7 +87,7 @@ class MySurveyServiceImplTest {
     @DisplayName("Should return questionnaire list when status is OPEN")
     void getListMyQuestionnairesTest() {
         when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
-        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.OPEN);
+        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertThat(result).isNotEmpty().hasSize(1);
@@ -99,7 +99,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.getPartitioningId()).isEqualTo("partition1");
         assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.OPEN.name());
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.getDepositProofUrl()).isNull();
         assertThat(dto.getPartitioningClosingDate()).isEqualTo(instant);
     }
