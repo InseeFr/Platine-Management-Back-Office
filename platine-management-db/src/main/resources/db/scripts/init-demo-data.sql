@@ -750,3 +750,124 @@ INSERT INTO public.questioning_communication
 (id, "date", status, "type", questioning_id)
 VALUES(10015, '2024-04-15 18:21:44.298', 'AUTOMATIC', 'COURRIER_OUVERTURE', 260);
 
+INSERT INTO public.contact_source (source_id, survey_unit_id, contact_id, is_main)
+SELECT source_id, survey_unit_id_su, id_contact, is_main
+FROM (
+    SELECT
+        s.source_id,
+        q.survey_unit_id_su,
+        qa.id_contact,
+        qa.is_main,
+        ROW_NUMBER() OVER (
+            PARTITION BY s.source_id, q.survey_unit_id_su, qa.id_contact
+            ORDER BY CASE WHEN qa.is_main THEN 1 ELSE 2 END
+        ) AS rn
+    FROM public.questioning q
+    JOIN public.questioning_accreditation qa ON q.id = qa.questioning_id
+    JOIN public.partitioning p ON q.id_partitioning = p.id
+    JOIN public.campaign c ON p.campaign_id = c.id
+    JOIN public.survey s ON c.survey_id = s.id
+) sub
+WHERE rn = 1;
+
+SELECT setval(
+    'public.address_seq',
+    COALESCE((SELECT MAX(id) FROM public.address), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.campaign_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.campaign_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.contact_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.contact_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.operator_seq',
+    COALESCE((SELECT MAX(id) FROM public.operator), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.hibernate_sequence',
+    100000,
+    false
+);
+
+SELECT setval(
+    'public.operator_service_seq',
+    COALESCE((SELECT MAX(id) FROM public.operator_service), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.quest_comment_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_comment), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_accreditation_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_accreditation), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_communication_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_communication), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.questioning_seq',
+    COALESCE((SELECT MAX(id) FROM public.questioning), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.seq_upload',
+    COALESCE((SELECT MAX(id) FROM public.uploads), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.source_accreditation_seq',
+    COALESCE((SELECT MAX(id) FROM public.source_accreditation), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.su_comment_seq',
+    COALESCE((SELECT MAX(id) FROM public.survey_unit_comment), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.survey_unit_address_seq',
+    COALESCE((SELECT MAX(id) FROM public.survey_unit_address), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.user_event_seq',
+    COALESCE((SELECT MAX(id) FROM public.user_event), 0) + 1,
+    false
+);
+
+SELECT setval(
+    'public.view_seq',
+    COALESCE((SELECT MAX(id) FROM public.view), 0) + 1,
+    false
+);
