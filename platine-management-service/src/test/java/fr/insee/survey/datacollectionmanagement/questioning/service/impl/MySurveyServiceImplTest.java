@@ -59,7 +59,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
         myQuestionnaireDetailsDto.setQuestioningId(1L);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
-        myQuestionnaireDetailsDto.setPartitioningClosingDate(date);
+        myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
 
         mySurveysService = new MySurveysServiceImpl(
                 questioningAccreditationService,
@@ -87,7 +87,7 @@ class MySurveyServiceImplTest {
     @DisplayName("Should return questionnaire list when status is OPEN")
     void getListMyQuestionnairesTest() {
         when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
-        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.OPEN);
+        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertThat(result).isNotEmpty().hasSize(1);
@@ -99,9 +99,9 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.getPartitioningId()).isEqualTo("partition1");
         assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.OPEN.name());
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.getDepositProofUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(instant);
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
     }
 
     @Test
@@ -121,7 +121,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
         assertThat(dto.getQuestioningAccessUrl()).isNull();
         assertThat(dto.getDepositProofUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(instant);
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
     }
 
     @Test
@@ -145,7 +145,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.getDepositProofUrl()).isEqualTo(pathDepositProof);
         assertThat(dto.getQuestioningAccessUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(instant);
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
     }
 
     @Test
@@ -184,7 +184,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.getDepositProofUrl()).isEqualTo(pathDepositProof);
         assertThat(dto.getQuestioningAccessUrl()).isNull();
-        assertThat(dto.getPartitioningClosingDate()).isEqualTo(instant);
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
     }
 
     @Test

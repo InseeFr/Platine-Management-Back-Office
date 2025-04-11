@@ -105,7 +105,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
             myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
             myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
-            myQuestionnaireDto.setPartitioningClosingDate(myQuestionnaireDetailsDto.getPartitioningClosingDate().toInstant());
+            myQuestionnaireDto.setPartitioningReturnDate(myQuestionnaireDetailsDto.getPartitioningReturnDate().toInstant());
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
@@ -138,7 +138,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                 }
             }
 
-            if(QuestionnaireStatusTypeEnum.OPEN.equals(questioningStatus)) {
+            if(QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus)) {
                 myQuestionnaireDto.setQuestioningAccessUrl(
                         questioningUrlComponent.getAccessUrlWithContactId(
                                 UserRoles.INTERVIEWER,

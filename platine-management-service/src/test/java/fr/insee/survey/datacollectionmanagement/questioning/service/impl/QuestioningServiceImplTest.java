@@ -202,7 +202,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getSurveyUnitIdentificationName()).isEqualTo("identificationName");
         assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
         assertThat(result.getListContacts()).isNotEmpty();
-        assertThat(result.getListContacts().get(0).identifier()).isEqualTo("contact1");
+        assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
     }
 
     @Test
@@ -261,7 +261,7 @@ class QuestioningServiceImplTest {
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
     }
 
-    @DisplayName("Should return OPEN when opened event exists before closing date")
+    @DisplayName("Should return NOT_STARTED when interrogation not opened by user but accessible before closing date")
     @Test
     void getQuestioningStatusTest5() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
@@ -276,7 +276,7 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.OPEN);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED);
     }
 
     @DisplayName("Should return NOT_RECEIVED when no valid event exists after closing date")
@@ -324,5 +324,28 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
+    }
+
+    @DisplayName("Should return IN_PROGRESS when user started interrogation before closing date")
+    @Test
+    void getQuestioningStatusTest9() {
+        partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
+        partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
+        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEvent questioningEventOpen = new QuestioningEvent();
+        questioningEventOpen.setType(TypeQuestioningEvent.INITLA);
+        QuestioningEvent questioningEventStarted = new QuestioningEvent();
+        questioningEventStarted.setType(TypeQuestioningEvent.PARTIELINT);
+        events.add(questioningEventOpen);
+        events.add(questioningEventStarted);
+
+        questioning.setQuestioningEvents(events);
+
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(false);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS)).thenReturn(true);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
     }
 }
