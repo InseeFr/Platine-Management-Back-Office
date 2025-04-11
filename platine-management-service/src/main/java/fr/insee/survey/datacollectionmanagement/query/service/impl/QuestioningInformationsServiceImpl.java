@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
@@ -72,8 +71,10 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         // Map basic fields
         questioningInformationsDto.setReturnDate(infos.getReturnDate());
         questioningInformationsDto.setLogo(infos.getLogo());
-        questioningInformationsDto.setUrlLogout("/" + infos.getSourceId());
-        questioningInformationsDto.setUrlAssistance(URLEncoder.encode("/" + infos.getSourceId() + "/contacter-assistance/auth?questioningId=" + infos.getQuestioningId(), StandardCharsets.UTF_8));
+        questioningInformationsDto.setUrlLogout("/deconnexion");
+        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&idec=%s",
+                infos.getSourceId(), infos.getQuestioningId(), infos.getIdentificationCode(), infos.getIdentifier());
+        questioningInformationsDto.setUrlAssistance(URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8));
 
         // Map ContactInformationsDto
         ContactInformationsDto contactDto = new ContactInformationsDto();

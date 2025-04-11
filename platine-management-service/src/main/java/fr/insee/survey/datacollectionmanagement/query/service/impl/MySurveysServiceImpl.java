@@ -18,6 +18,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,8 @@ public class MySurveysServiceImpl implements MySurveysService {
 
     private final QuestioningService questioningService;
 
+    private final QuestioningUrlComponent questioningUrlComponent;
+
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
 
     private final String questionnaireApiUrl;
@@ -60,7 +63,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             surveyDto.setSurveyWording(survey.getLongWording());
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
             surveyDto.setAccessUrl(
-                    questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
+                    questioningUrlComponent.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
             surveyDto.setIdentificationCode(surveyUnitId);
             surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
             surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));
@@ -102,6 +105,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
             myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
             myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
+            myQuestionnaireDto.setPartitioningClosingDate(myQuestionnaireDetailsDto.getPartitioningClosingDate().toInstant());
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
@@ -112,10 +116,11 @@ public class MySurveysServiceImpl implements MySurveysService {
                 DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
                 if(DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
 
-                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
+                    myQuestionnaireDto.setQuestioningAccessUrl(questioningUrlComponent.getAccessUrlWithContactId(
                             UserRoles.INTERVIEWER,
                             questioning,
-                            partitioning));
+                            partitioning,
+                            id));
 
                     continue;
                 }
@@ -134,7 +139,14 @@ public class MySurveysServiceImpl implements MySurveysService {
             }
 
             if(QuestionnaireStatusTypeEnum.OPEN.equals(questioningStatus)) {
-                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, partitioning));
+                myQuestionnaireDto.setQuestioningAccessUrl(
+                        questioningUrlComponent.getAccessUrlWithContactId(
+                                UserRoles.INTERVIEWER,
+                                questioning,
+                                partitioning,
+                                id
+                        )
+                );
             }
         }
 

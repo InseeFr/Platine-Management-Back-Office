@@ -288,10 +288,11 @@ public class DataloaderTest {
                     surveyRepository.save(survey);
                 }
                 source.setSurveys(setSurveys);
+                ownerRepository.saveAll(List.of(ownerInsee));
+                source.setOwner(ownerInsee);
                 sourceRepository.save(source);
                 log.info("Source created : " + source);
                 ownerInsee.setSources(setSourcesInsee);
-                ownerRepository.saveAll(Arrays.asList(ownerInsee));
             }
 
         }

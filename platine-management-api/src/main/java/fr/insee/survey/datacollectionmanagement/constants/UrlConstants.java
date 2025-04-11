@@ -89,7 +89,7 @@ public class UrlConstants {
     public static final String API_PERIODICITIES_ID_PERIODS = "/api/periodicities/{periodicity}/periods";
     public static final String API_PERIODS = "/api/periods";
 
-
+    public static final String API_METADATA_BUSINESS ="/api/metadata/business/{campaignId}";
 
 
 
