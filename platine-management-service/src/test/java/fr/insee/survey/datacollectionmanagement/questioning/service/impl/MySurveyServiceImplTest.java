@@ -84,7 +84,7 @@ class MySurveyServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return questionnaire list when status is OPEN")
+    @DisplayName("Should return questionnaire list when status is IN_PROGRESS")
     void getListMyQuestionnairesTest() {
         when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
@@ -194,5 +194,26 @@ class MySurveyServiceImplTest {
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("456");
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return questionnaire list when status is NOT_STARTED")
+    void getListMyQuestionnairesTest7() {
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
+        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
+        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
+
+        assertThat(result).isNotEmpty().hasSize(1);
+
+        MyQuestionnaireDto dto = result.getFirst();
+        assertThat(dto.getPartitioningLabel()).isEqualTo("Partition Label");
+        assertThat(dto.getSurveyUnitIdentificationCode()).isEqualTo("Code123");
+        assertThat(dto.getSurveyUnitIdentificationName()).isEqualTo("Name123");
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.getPartitioningId()).isEqualTo("partition1");
+        assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.getDepositProofUrl()).isNull();
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
     }
 }

@@ -138,7 +138,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                 }
             }
 
-            if(QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus)) {
+            if(QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus)) {
                 myQuestionnaireDto.setQuestioningAccessUrl(
                         questioningUrlComponent.getAccessUrlWithContactId(
                                 UserRoles.INTERVIEWER,
