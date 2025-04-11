@@ -18,6 +18,6 @@ public class MyQuestionnaireDto {
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;
-    private Instant partitioningClosingDate;
+    private Instant partitioningReturnDate;
     private String surveyUnitId;
 }

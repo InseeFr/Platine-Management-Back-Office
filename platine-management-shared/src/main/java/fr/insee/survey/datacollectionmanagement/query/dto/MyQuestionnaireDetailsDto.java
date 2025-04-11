@@ -16,7 +16,7 @@ public class MyQuestionnaireDetailsDto {
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;
-    private Date partitioningClosingDate;
+    private Date partitioningReturnDate;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
     private String surveyUnitId;
