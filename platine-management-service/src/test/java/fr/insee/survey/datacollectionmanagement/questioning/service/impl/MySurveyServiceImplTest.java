@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MySurveyServiceImplTest {
@@ -215,5 +215,119 @@ class MySurveyServiceImplTest {
         assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
         assertThat(dto.getDepositProofUrl()).isNull();
         assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
+    }
+
+    @Test
+    @DisplayName("Should set access URL for XFORM1 and status RECEIVED")
+    void handleStatusTest1() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1.name());
+
+
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://mock-url");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isEqualTo("http://mock-url");
+        assertThat(questionnaireDto.getDepositProofUrl()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should set deposit URL for LUNATIC_NORMAL and status RECEIVED")
+    void handleStatusTest2() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+        String pathDepositProof = questionnaireApiUrl + "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId() + "/deposit-proof";
+
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isNull();
+        assertThat(questionnaireDto.getDepositProofUrl()).isEqualTo(pathDepositProof);
+    }
+
+    @Test
+    @DisplayName("Should set nothing with a status INCOMING")
+    void handleStatusTest3() {
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto =  spy(new MyQuestionnaireDto());
+
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.INCOMING,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        verify(questionnaireDto, never()).setQuestioningAccessUrl(any());
+        verify(questionnaireDto, never()).setDepositProofUrl(any());
+    }
+
+    @Test
+    @DisplayName("Should set access URL for status IN_PROGRESS")
+    void handleStatusTest4() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://mock-url");
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.NOT_STARTED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isEqualTo("http://mock-url");
+        assertThat(questionnaireDto.getDepositProofUrl()).isNull();
     }
 }

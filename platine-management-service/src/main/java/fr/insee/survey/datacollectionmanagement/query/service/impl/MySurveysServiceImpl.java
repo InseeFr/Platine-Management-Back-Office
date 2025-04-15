@@ -88,6 +88,51 @@ public class MySurveysServiceImpl implements MySurveysService {
         return listSurveys;
     }
 
+        public void handleStatus(QuestionnaireStatusTypeEnum questioningStatus,
+                                 MyQuestionnaireDetailsDto myQuestionnaireDetailsDto,
+                                 MyQuestionnaireDto myQuestionnaireDto,
+                                 Questioning questioning,
+                                 Partitioning partitioning,
+                                 String id) {
+
+        if (QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
+            DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
+            if (DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
+
+                myQuestionnaireDto.setQuestioningAccessUrl(questioningUrlComponent.getAccessUrlWithContactId(
+                        UserRoles.INTERVIEWER,
+                        questioning,
+                        partitioning,
+                        id));
+
+                return;
+            }
+
+            String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId() + "/deposit-proof";
+
+            if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollectionEnum)) {
+                myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
+                return;
+            }
+
+            if (DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollectionEnum)) {
+                myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
+                return;
+            }
+        }
+
+        if (QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus)) {
+            myQuestionnaireDto.setQuestioningAccessUrl(
+                    questioningUrlComponent.getAccessUrlWithContactId(
+                            UserRoles.INTERVIEWER,
+                            questioning,
+                            partitioning,
+                            id
+                    )
+            );
+        }
+    }
+
 
     @Override
     public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
@@ -112,44 +157,8 @@ public class MySurveysServiceImpl implements MySurveysService {
             QuestionnaireStatusTypeEnum questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning);
             myQuestionnaireDto.setQuestioningStatus(questioningStatus.name());
 
-            if(QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
-                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
-                if(DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
-
-                    myQuestionnaireDto.setQuestioningAccessUrl(questioningUrlComponent.getAccessUrlWithContactId(
-                            UserRoles.INTERVIEWER,
-                            questioning,
-                            partitioning,
-                            id));
-
-                    continue;
-                }
-
-                String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
-
-                if(DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollectionEnum)){
-                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
-                    continue;
-                }
-
-                if(DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollectionEnum)){
-                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
-                    continue;
-                }
-            }
-
-            if(QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus)) {
-                myQuestionnaireDto.setQuestioningAccessUrl(
-                        questioningUrlComponent.getAccessUrlWithContactId(
-                                UserRoles.INTERVIEWER,
-                                questioning,
-                                partitioning,
-                                id
-                        )
-                );
-            }
+            handleStatus(questioningStatus, myQuestionnaireDetailsDto, myQuestionnaireDto, questioning, partitioning, id);
         }
-
         return myQuestionnaireDtos;
     }
 }
