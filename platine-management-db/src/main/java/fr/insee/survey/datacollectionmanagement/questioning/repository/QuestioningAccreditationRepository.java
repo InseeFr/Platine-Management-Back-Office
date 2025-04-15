@@ -28,6 +28,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "JOIN survey s ON c.survey_id = s.id " +
             "JOIN source so ON s.source_id = so.id " +
             "JOIN survey_unit su ON q.survey_unit_id_su = su.id_su " +
-            "WHERE qa.id_contact = :idec", nativeQuery = true)
+            "WHERE qa.id_contact = :idec " +
+            "LIMIT 500", nativeQuery = true)
     List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec);
 }
