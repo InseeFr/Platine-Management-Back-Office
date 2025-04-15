@@ -138,9 +138,12 @@ public class MySurveysServiceImpl implements MySurveysService {
             DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
             if (isXForm(dataCollectionEnum)) {
                 setQuestioningAccessUrl(myQuestionnaireDto, questioning, partitioning, id);
+                return;
             }
             String depositProofUrl = buildDepositProofUrl(myQuestionnaireDetailsDto, dataCollectionEnum);
             myQuestionnaireDto.setDepositProofUrl(depositProofUrl);
+            return;
+
         }
 
         if (isOpen(questioningStatus)) {
