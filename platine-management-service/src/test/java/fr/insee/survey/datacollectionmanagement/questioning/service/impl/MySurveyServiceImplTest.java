@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -330,4 +331,78 @@ class MySurveyServiceImplTest {
         assertThat(questionnaireDto.getQuestioningAccessUrl()).isEqualTo("http://mock-url");
         assertThat(questionnaireDto.getDepositProofUrl()).isNull();
     }
+
+    @Test
+    @DisplayName("Should throw exception for unsupported data collection type")
+    void handleStatusTest5() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget("N/A"); // Invalid enum value
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        assertThatThrownBy(() -> mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No enum constant"); // or whatever message fits
+    }
+
+    @Test
+    @DisplayName("Should return true for XFORM1 and XFORM2 in isXForm")
+    void isXFormShouldReturnTrueForXFormTypes() {
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.XFORM1)).isTrue();
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.XFORM2)).isTrue();
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.LUNATIC_NORMAL)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return true for NOT_STARTED and IN_PROGRESS in isOpen")
+    void isOpenShouldReturnTrueForOpenStatuses() {
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.NOT_STARTED)).isTrue();
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.IN_PROGRESS)).isTrue();
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.RECEIVED)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should set access URL correctly")
+    void setQuestioningAccessUrlShouldSetUrl() {
+        MyQuestionnaireDto dto = new MyQuestionnaireDto();
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://url");
+
+        mySurveysService.setQuestioningAccessUrl(dto, questioning, partitioning, "999");
+
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://url");
+    }
+
+    @Test
+    @DisplayName("Should build correct deposit proof URL based on collection type")
+    void buildDepositProofUrlShouldReturnCorrectUrls() {
+        MyQuestionnaireDetailsDto dto = new MyQuestionnaireDetailsDto();
+        dto.setSurveyUnitId("SU42");
+
+        String path = "/api/survey-unit/SU42/deposit-proof";
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.LUNATIC_NORMAL))
+                .isEqualTo(questionnaireApiUrl + path);
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.LUNATIC_SENSITIVE))
+                .isEqualTo(questionnaireApiUrlSensitive + path);
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.XFORM1))
+                .isNull();
+    }
+
 }
