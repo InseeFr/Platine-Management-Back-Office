@@ -21,8 +21,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MySurveyServiceImplTest {
@@ -84,7 +85,7 @@ class MySurveyServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return questionnaire list when status is OPEN")
+    @DisplayName("Should return questionnaire list when status is IN_PROGRESS")
     void getListMyQuestionnairesTest() {
         when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
@@ -195,4 +196,213 @@ class MySurveyServiceImplTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    @DisplayName("Should return questionnaire list when status is NOT_STARTED")
+    void getListMyQuestionnairesTest7() {
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
+        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
+        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
+
+        assertThat(result).isNotEmpty().hasSize(1);
+
+        MyQuestionnaireDto dto = result.getFirst();
+        assertThat(dto.getPartitioningLabel()).isEqualTo("Partition Label");
+        assertThat(dto.getSurveyUnitIdentificationCode()).isEqualTo("Code123");
+        assertThat(dto.getSurveyUnitIdentificationName()).isEqualTo("Name123");
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.getPartitioningId()).isEqualTo("partition1");
+        assertThat(dto.getSurveyUnitId()).isEqualTo("SU123");
+        assertThat(dto.getQuestioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.getDepositProofUrl()).isNull();
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
+    }
+
+    @Test
+    @DisplayName("Should set access URL for XFORM1 and status RECEIVED")
+    void handleStatusTest1() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.XFORM1.name());
+
+
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://mock-url");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isEqualTo("http://mock-url");
+        assertThat(questionnaireDto.getDepositProofUrl()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should set deposit URL for LUNATIC_NORMAL and status RECEIVED")
+    void handleStatusTest2() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+        String pathDepositProof = questionnaireApiUrl + "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId() + "/deposit-proof";
+
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isNull();
+        assertThat(questionnaireDto.getDepositProofUrl()).isEqualTo(pathDepositProof);
+    }
+
+    @Test
+    @DisplayName("Should set nothing with a status INCOMING")
+    void handleStatusTest3() {
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto =  spy(new MyQuestionnaireDto());
+
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.INCOMING,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        verify(questionnaireDto, never()).setQuestioningAccessUrl(any());
+        verify(questionnaireDto, never()).setDepositProofUrl(any());
+    }
+
+    @Test
+    @DisplayName("Should set access URL for status IN_PROGRESS")
+    void handleStatusTest4() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://mock-url");
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.NOT_STARTED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        );
+
+        assertThat(questionnaireDto.getQuestioningAccessUrl()).isEqualTo("http://mock-url");
+        assertThat(questionnaireDto.getDepositProofUrl()).isNull();
+    }
+
+    @Test
+    @DisplayName("Should throw exception for unsupported data collection type")
+    void handleStatusTest5() {
+        myQuestionnaireDetailsDto.setDataCollectionTarget("N/A"); // Invalid enum value
+
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+        MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
+
+        questioning.setIdPartitioning("partition1");
+        partitioning.setLabel("Label");
+        partitioning.setId("partition1");
+
+        assertThatThrownBy(() -> mySurveysService.handleStatus(
+                QuestionnaireStatusTypeEnum.RECEIVED,
+                myQuestionnaireDetailsDto,
+                questionnaireDto,
+                questioning,
+                partitioning,
+                "123"
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No enum constant"); // or whatever message fits
+    }
+
+    @Test
+    @DisplayName("Should return true for XFORM1 and XFORM2 in isXForm")
+    void isXFormShouldReturnTrueForXFormTypes() {
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.XFORM1)).isTrue();
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.XFORM2)).isTrue();
+        assertThat(mySurveysService.isXForm(DataCollectionEnum.LUNATIC_NORMAL)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return true for NOT_STARTED and IN_PROGRESS in isOpen")
+    void isOpenShouldReturnTrueForOpenStatuses() {
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.NOT_STARTED)).isTrue();
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.IN_PROGRESS)).isTrue();
+        assertThat(mySurveysService.isOpen(QuestionnaireStatusTypeEnum.RECEIVED)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should set access URL correctly")
+    void setQuestioningAccessUrlShouldSetUrl() {
+        MyQuestionnaireDto dto = new MyQuestionnaireDto();
+        Questioning questioning = new Questioning();
+        Partitioning partitioning = new Partitioning();
+
+        when(questioningUrlComponent.getAccessUrlWithContactId(any(), any(), any(), any()))
+                .thenReturn("http://url");
+
+        mySurveysService.setQuestioningAccessUrl(dto, questioning, partitioning, "999");
+
+        assertThat(dto.getQuestioningAccessUrl()).isEqualTo("http://url");
+    }
+
+    @Test
+    @DisplayName("Should build correct deposit proof URL based on collection type")
+    void buildDepositProofUrlShouldReturnCorrectUrls() {
+        MyQuestionnaireDetailsDto dto = new MyQuestionnaireDetailsDto();
+        dto.setSurveyUnitId("SU42");
+
+        String path = "/api/survey-unit/SU42/deposit-proof";
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.LUNATIC_NORMAL))
+                .isEqualTo(questionnaireApiUrl + path);
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.LUNATIC_SENSITIVE))
+                .isEqualTo(questionnaireApiUrlSensitive + path);
+
+        assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.XFORM1))
+                .isNull();
+    }
+
 }
