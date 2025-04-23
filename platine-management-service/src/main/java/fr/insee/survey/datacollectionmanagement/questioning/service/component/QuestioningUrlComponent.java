@@ -45,7 +45,7 @@ public class QuestioningUrlComponent {
      * @param role        The user role (REVIEWER or INTERVIEWER).
      * @param questioning The questioning object.
      * @param part        Part of questioning
-     * @param contactId        Contact id
+     * @param contactId   Contact id
      * @return The generated access URL.
      */
     public String getAccessUrlWithContactId(String role, Questioning questioning, Partitioning part, String contactId) {
@@ -55,12 +55,16 @@ public class QuestioningUrlComponent {
         Campaign campaign = part.getCampaign();
         DataCollectionEnum target = campaign.getDataCollectionTarget();
         String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
+        String campaignId = sourceId + "-" + campaign.getSurvey().getYear() + "-" + campaign.getPeriod();
+
 
         return switch (target != null ? target : DataCollectionEnum.LUNATIC_NORMAL) {
-            case LUNATIC_NORMAL -> buildLunaticUrl(role, lunaticNormalUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
-            case LUNATIC_SENSITIVE -> buildLunaticUrl(role, lunaticSensitiveUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
-            case XFORM1 -> buildXformUrl(xform1Url, role, campaign.getId(), surveyUnitId);
-            case XFORM2 -> buildXformUrl(xform2Url, role, campaign.getId(), surveyUnitId);
+            case LUNATIC_NORMAL ->
+                    buildLunaticUrl(role, lunaticNormalUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
+            case LUNATIC_SENSITIVE ->
+                    buildLunaticUrl(role, lunaticSensitiveUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
+            case XFORM1 -> buildXformUrl(xform1Url, role, campaignId, surveyUnitId);
+            case XFORM2 -> buildXformUrl(xform2Url, role, campaignId, surveyUnitId);
         };
     }
 
