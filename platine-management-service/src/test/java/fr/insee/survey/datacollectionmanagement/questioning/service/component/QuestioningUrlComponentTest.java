@@ -26,6 +26,7 @@ class QuestioningUrlComponentTest {
     private final String xform2Url = "https://xform2";
 
     private final String modelName = "MODEL";
+    private final String campaignId = "CAMPAIGNID";
     private final String surveyUnitId = "SURVEYID";
     private final Long questioningId = 1L;
     private final String sourceId = "SOURCEID";
@@ -46,6 +47,7 @@ class QuestioningUrlComponentTest {
 
 
         Campaign campaign = mock(Campaign.class);
+        when(campaign.getId()).thenReturn(campaignId);
         when(campaign.getSurvey()).thenReturn(survey);
         when(campaign.getPeriod()).thenReturn(PeriodEnum.T04);
 
