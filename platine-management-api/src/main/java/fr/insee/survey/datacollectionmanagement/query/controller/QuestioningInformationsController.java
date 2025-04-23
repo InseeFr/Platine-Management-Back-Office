@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor
