@@ -59,8 +59,8 @@ public class QuestioningUrlComponent {
         return switch (target != null ? target : DataCollectionEnum.LUNATIC_NORMAL) {
             case LUNATIC_NORMAL -> buildLunaticUrl(role, lunaticNormalUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
             case LUNATIC_SENSITIVE -> buildLunaticUrl(role, lunaticSensitiveUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
-            case XFORM1 -> buildXformUrl(xform1Url, role, modelName, surveyUnitId);
-            case XFORM2 -> buildXformUrl(xform2Url, role, modelName, surveyUnitId);
+            case XFORM1 -> buildXformUrl(xform1Url, role, campaign.getId(), surveyUnitId);
+            case XFORM2 -> buildXformUrl(xform2Url, role, campaign.getId(), surveyUnitId);
         };
     }
 

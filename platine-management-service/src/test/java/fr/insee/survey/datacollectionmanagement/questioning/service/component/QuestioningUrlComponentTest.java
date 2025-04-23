@@ -25,6 +25,7 @@ class QuestioningUrlComponentTest {
     private final String xform2Url = "https://xform2";
 
     private final String modelName = "MODEL";
+    private final String campaignId = "CAMPAIGNID";
     private final String surveyUnitId = "SURVEYID";
     private final Long questioningId = 1L;
     private final String sourceId = "SOURCEID";
@@ -43,10 +44,12 @@ class QuestioningUrlComponentTest {
         when(survey.getSource()).thenReturn(source);
 
         Campaign campaign = mock(Campaign.class);
+        when(campaign.getId()).thenReturn(campaignId);
         when(campaign.getSurvey()).thenReturn(survey);
         when(campaign.getDataCollectionTarget()).thenReturn(target);
 
         Partitioning partitioning = mock(Partitioning.class);
+        partitioning.setCampaign(campaign);
         when(partitioning.getCampaign()).thenReturn(campaign);
 
         return partitioning;
@@ -95,14 +98,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer() {
         String url = component.getAccessUrlWithContactId(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1), contactId);
-        String expected = "https://xform1/repondre/MODEL/SURVEYID";
+        String expected = "https://xform1/repondre/CAMPAIGNID/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer() {
         String url = component.getAccessUrlWithContactId(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2), contactId);
-        String expected = "https://xform2/visualiser/MODEL/SURVEYID";
+        String expected = "https://xform2/visualiser/CAMPAIGNID/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
@@ -146,14 +149,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1));
-        String expected = "https://xform1/repondre/MODEL/SURVEYID";
+        String expected = "https://xform1/repondre/CAMPAIGNID/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2));
-        String expected = "https://xform2/visualiser/MODEL/SURVEYID";
+        String expected = "https://xform2/visualiser/CAMPAIGNID/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
