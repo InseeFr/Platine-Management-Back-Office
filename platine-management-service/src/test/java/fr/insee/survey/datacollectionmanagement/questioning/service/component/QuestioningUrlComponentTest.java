@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +43,14 @@ class QuestioningUrlComponentTest {
 
         Survey survey = mock(Survey.class);
         when(survey.getSource()).thenReturn(source);
+        when(survey.getYear()).thenReturn(2024);
+
 
         Campaign campaign = mock(Campaign.class);
         when(campaign.getId()).thenReturn(campaignId);
         when(campaign.getSurvey()).thenReturn(survey);
+        when(campaign.getPeriod()).thenReturn(PeriodEnum.T04);
+
         when(campaign.getDataCollectionTarget()).thenReturn(target);
 
         Partitioning partitioning = mock(Partitioning.class);
@@ -98,14 +103,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer() {
         String url = component.getAccessUrlWithContactId(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1), contactId);
-        String expected = "https://xform1/repondre/CAMPAIGNID/SURVEYID";
+        String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer() {
         String url = component.getAccessUrlWithContactId(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2), contactId);
-        String expected = "https://xform2/visualiser/CAMPAIGNID/SURVEYID";
+        String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
@@ -149,14 +154,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1));
-        String expected = "https://xform1/repondre/CAMPAIGNID/SURVEYID";
+        String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2));
-        String expected = "https://xform2/visualiser/CAMPAIGNID/SURVEYID";
+        String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
