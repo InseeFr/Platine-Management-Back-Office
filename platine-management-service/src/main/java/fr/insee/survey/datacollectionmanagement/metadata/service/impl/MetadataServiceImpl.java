@@ -57,6 +57,7 @@ public class MetadataServiceImpl implements MetadataService {
         surveyBusinessDto.setDiffusionUrl(survey.getDiffusionUrl());
         surveyBusinessDto.setNoticeUrl(survey.getNoticeUrl());
         surveyBusinessDto.setSpecimenUrl(survey.getSpecimenUrl());
+        surveyBusinessDto.setVisaNumber(survey.getVisaNumber());
         return surveyBusinessDto;
     }
 }
