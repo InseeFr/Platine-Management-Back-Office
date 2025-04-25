@@ -59,6 +59,7 @@ public class SupportController {
 
     @Operation(summary = "Update or create a support")
     @PutMapping(value = UrlConstants.API_SUPPORTS_ID, produces = "application/json", consumes = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<SupportDto> putSupport(@PathVariable("id") String id, @RequestBody @Valid SupportDto supportDto) {
         if (!supportDto.getId().equals(id)) {
             throw new NotMatchException("id and support id don't match");

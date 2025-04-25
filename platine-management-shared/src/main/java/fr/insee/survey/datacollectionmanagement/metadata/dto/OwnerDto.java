@@ -13,5 +13,8 @@ public class OwnerDto {
     private String label;
     private String ministry;
     private String logo;
+    private String determiner;
+    private String signatoryFunction;
+    private String signatoryName;
 
 }
