@@ -56,9 +56,9 @@ public class ContactEventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newContactEvent);
     }
 
-    @Operation(summary = "Create a contactEvent (accessible only by the 'platine-service' service account)")
+    @Operation(summary = "Create a contactEvent (accessible only by user with PORTAL_PRIVILEGE)")
     @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PLATINEACCOUNT, produces = "application/json", consumes = "application/json")
-    @PreAuthorize("authentication.principal.username == 'platine-service'")
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
 
         if (!contactService.existsByIdentifier(contactEventDto.getIdentifier().toUpperCase())) {
