@@ -61,8 +61,8 @@ public class ContactEventController {
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
 
-        if (!contactService.existsByIdentifier(contactEventDto.getIdentifier().toUpperCase())) {
-            throw new NotFoundException(String.format("contact %s not found", contactEventDto.getIdentifier().toUpperCase()));
+        if (!contactService.existsByIdentifier(contactEventDto.getIdentifier())) {
+            throw new NotFoundException(String.format("contact %s not found", contactEventDto.getIdentifier()));
         }
 
         ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
