@@ -21,6 +21,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	private SurveyUnit surveyUnit;
 	private List<SearchSurveyUnitDto> echoes;
 	private List<SurveyUnit> surveyUnits;
+	private List<ContactAccreditedToSurveyUnitDto> listContactAccreditedToSurveyUnitDto;
 
 
 	@Override
@@ -55,7 +56,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 
 	@Override
 	public List<ContactAccreditedToSurveyUnitDto> findContactsAccreditedToSurveyUnit(String surveyUnitId) {
-		return List.of();
+		return listContactAccreditedToSurveyUnitDto;
 	}
 
 	@Override
