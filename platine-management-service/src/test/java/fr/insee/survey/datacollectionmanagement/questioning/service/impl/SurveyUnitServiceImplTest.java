@@ -39,7 +39,7 @@ class SurveyUnitServiceImplTest {
         viewService = new ViewServiceStub();
         surveyUnitRepositoryStub = new SurveyUnitRepositoryStub();
         SurveyUnitAddressRepositoryStub surveyUnitAddressRepositoryStub = new SurveyUnitAddressRepositoryStub();
-        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub, viewService);
+        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub);
     }
 
     @Test
@@ -265,8 +265,8 @@ class SurveyUnitServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return contacts even when no campaigns are found")
-    void findContactsBySurveyUnitId_shouldReturnContacts_whenNoCampaignsFound() {
+    @DisplayName("Should not return contacts even no campaigns are found")
+    void findContactsBySurveyUnitId_shouldNotReturnContacts_whenNoCampaignsFound() {
         // Given
         String surveyUnitId = "SU123";
         String contactId = "C1";
@@ -284,12 +284,7 @@ class SurveyUnitServiceImplTest {
         List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
 
         // Then
-        assertThat(result).hasSize(1);
-        SearchSurveyUnitContactDto dto = result.get(0);
-        assertThat(dto.getIdentifier()).isEqualTo(contactId);
-        assertThat(dto.getFirstName()).isEqualTo("Alice");
-        assertThat(dto.getLastName()).isEqualTo("Smith");
-        assertThat(dto.getCampaigns()).isEmpty();
+        assertThat(result).isEmpty();
     }
 
 }
