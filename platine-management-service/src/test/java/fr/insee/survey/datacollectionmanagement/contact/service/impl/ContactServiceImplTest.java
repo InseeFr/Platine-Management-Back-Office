@@ -23,6 +23,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,18 +108,25 @@ class ContactServiceImplTest {
         contact2.setFirstName("Jane");
         contactRepository.save(contact2);
 
-        List<QuestioningContactDto> result = contactService.findByIdentifiers(List.of("id1", "id2"));
+        Map<String, Boolean> mapContactIdentifierMain = Map.of(
+                "id1", true,
+                "id2", false
+        );
+
+        List<QuestioningContactDto> result = contactService.findByIdentifiers(mapContactIdentifierMain);
 
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(QuestioningContactDto::identifier).containsExactlyInAnyOrder("id1", "id2");
         assertThat(result).extracting(QuestioningContactDto::lastName).containsExactlyInAnyOrder("Smith", "Doe");
         assertThat(result).extracting(QuestioningContactDto::firstName).containsExactlyInAnyOrder("Jane", "John");
+        assertThat(result).extracting(QuestioningContactDto::isMain).containsExactlyInAnyOrder(true, false);
+
     }
 
     @Test
     void shouldReturnEmptyListWhenNoIdentifiersMatch() {
-        List<QuestioningContactDto> result = contactService.findByIdentifiers(List.of("id3"));
+        List<QuestioningContactDto> result = contactService.findByIdentifiers(Map.of("id3", false));
         assertThat(result).isEmpty();
     }
 

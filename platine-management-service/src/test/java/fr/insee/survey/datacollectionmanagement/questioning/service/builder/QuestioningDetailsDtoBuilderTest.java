@@ -58,8 +58,8 @@ class QuestioningDetailsDtoBuilderTest {
     @Test
     void shouldSetContacts() {
         List<QuestioningContactDto> contacts = List.of(
-                new QuestioningContactDto("ID1", "Doe", "John"),
-                new QuestioningContactDto("ID2", "Smith", "Jane")
+                new QuestioningContactDto("ID1", "Doe", "John", false),
+                new QuestioningContactDto("ID2", "Smith", "Jane", true)
         );
 
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
@@ -68,6 +68,7 @@ class QuestioningDetailsDtoBuilderTest {
 
         assertThat(dto.getListContacts()).hasSize(2);
         assertThat(dto.getListContacts()).containsExactlyInAnyOrder(contacts.get(0), contacts.get(1));
+
     }
 
     @Test
