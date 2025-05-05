@@ -116,9 +116,4 @@ public class ContactEventController {
         return ceDto;
     }
 
-    private ContactEvent convertToEntity(ContactEventDto contactEventDto) {
-         return modelMapper.map(contactEventDto, ContactEvent.class);
-    }
-
-
 }
