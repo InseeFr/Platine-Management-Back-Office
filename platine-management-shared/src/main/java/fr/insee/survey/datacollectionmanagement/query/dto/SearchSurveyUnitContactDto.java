@@ -18,5 +18,6 @@ public class SearchSurveyUnitContactDto {
     private String city;
     private String phoneNumber;
     private String function;
+    private boolean isMain;
     private Set<String> campaigns;
 }

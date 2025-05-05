@@ -5,11 +5,12 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContactDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,13 +31,11 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     private final ContactRepository contactRepository;
 
-    private final ViewService viewService;
-
     @Override
     public SurveyUnit findbyId(String idSu) {
         return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit" +
-                " " +
-                "%s not found", idSu)));
+                                                                                                         " " +
+                                                                                                         "%s not found", idSu)));
     }
 
     @Override
@@ -103,20 +103,31 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     @Override
     public List<SearchSurveyUnitContactDto> findContactsBySurveyUnitId(String id) {
-        List<String> contactIdentifiers = viewService.findIdentifiersByIdSu(id);
-        if (contactIdentifiers.isEmpty()) {
-            return Collections.emptyList();
-        }
+        List<ContactAccreditedToSurveyUnit> contactAccredited = surveyUnitRepository
+                .findContactsAccreditedToSurveyUnit(id)
+                .stream()
+                .map(ContactAccreditedToSurveyUnitDto::toRecord)
+                .toList();
 
+        Map<String, List<ContactAccreditedToSurveyUnit>> contactAccreditedMap = contactAccredited
+                .stream()
+                .collect(Collectors.groupingBy(ContactAccreditedToSurveyUnit::contactId));
+
+        List<String> contactIdentifiers = new ArrayList<>(contactAccreditedMap.keySet());
         List<Contact> contacts = contactRepository.findAllById(contactIdentifiers);
-        Map<String, Set<String>> campaignsByIdentifier = viewService.findDistinctCampaignByIdentifiers(contactIdentifiers);
 
         return contacts.stream()
                 .map(contact -> {
                     String identifier = contact.getIdentifier();
                     String city = (contact.getAddress() != null) ? contact.getAddress().getCityName() : null;
-                    Set<String> campaigns = campaignsByIdentifier
-                            .getOrDefault(identifier, Collections.emptySet());
+                    List<ContactAccreditedToSurveyUnit> records = contactAccreditedMap.getOrDefault(identifier, List.of());
+
+                    Set<String> campaigns = records.stream()
+                            .flatMap(c -> c.campaignIds().stream())
+                            .collect(Collectors.toSet());
+
+                    boolean isMain = records.stream()
+                            .anyMatch(ContactAccreditedToSurveyUnit::isMain);
 
                     return SearchSurveyUnitContactDto.builder()
                             .identifier(identifier)
@@ -127,8 +138,10 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
                             .phoneNumber(contact.getPhone())
                             .city(city)
                             .campaigns(campaigns)
+                            .isMain(isMain)
                             .build();
                 }).toList();
+
     }
 
 }
