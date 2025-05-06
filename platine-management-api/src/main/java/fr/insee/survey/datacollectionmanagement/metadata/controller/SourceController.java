@@ -53,9 +53,8 @@ public class SourceController {
 
     private final QuestioningService questioningService;
 
-    private final CampaignService campaignService;
-
     private final ParametersService parametersService;
+    
     private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
