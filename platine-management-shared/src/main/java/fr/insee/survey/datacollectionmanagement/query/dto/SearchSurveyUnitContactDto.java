@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class SearchSurveyUnitContactDto {
     private String city;
     private String phoneNumber;
     private String function;
+    @JsonProperty("isMain")
     private boolean isMain;
     private Set<String> campaigns;
 }
