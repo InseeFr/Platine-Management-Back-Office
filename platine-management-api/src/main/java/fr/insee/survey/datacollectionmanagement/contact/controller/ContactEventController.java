@@ -40,10 +40,10 @@ public class ContactEventController {
 
     private final ModelMapper modelMapper;
 
-    @Operation(summary = "Create a new contact event")
+    @Operation(summary = "Create a contact event")
     @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
-    public ResponseEntity<ContactEventDto> postNewContactEvent(@RequestBody @Valid ContactEventDto contactEventDto,
+    public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto,
                                                                @CurrentSecurityContext(expression = "authentication.name") String contactId) {
         if (!contactEventDto.getIdentifier().equalsIgnoreCase(contactId)) {
             throw new NotMatchException("contactId and contact identifier don't match");
@@ -51,6 +51,20 @@ public class ContactEventController {
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
             throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
         }
+        ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(newContactEvent);
+    }
+
+    @Operation(summary = "Create a contactEvent (accessible only by user with PORTAL_PRIVILEGE)")
+    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PLATINEACCOUNT, produces = "application/json", consumes = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
+    public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
+
+        if (!contactService.existsByIdentifier(contactEventDto.getIdentifier())) {
+            throw new NotFoundException(String.format("contact %s not found", contactEventDto.getIdentifier()));
+        }
+
         ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newContactEvent);
@@ -81,26 +95,6 @@ public class ContactEventController {
     }
 
 
-    /**
-     * @deprecated
-     */
-    @Operation(summary = "Create a contactEvent")
-    @PostMapping(value = UrlConstants.API_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
-    @Deprecated(since = "2.6.0", forRemoval = true)
-    public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto) {
-
-        contactService.findByIdentifier(contactEventDto.getIdentifier());
-        ContactEvent contactEvent = convertToEntity(contactEventDto);
-        ContactEvent newContactEvent = contactEventService.saveContactEvent(contactEvent);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
-        return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders)
-                .body(convertToDto(newContactEvent));
-
-    }
-
-
 
     /**
      * @deprecated
@@ -121,10 +115,5 @@ public class ContactEventController {
         ceDto.setIdentifier(contactEvent.getContact().getIdentifier());
         return ceDto;
     }
-
-    private ContactEvent convertToEntity(ContactEventDto contactEventDto) {
-         return modelMapper.map(contactEventDto, ContactEvent.class);
-    }
-
 
 }
