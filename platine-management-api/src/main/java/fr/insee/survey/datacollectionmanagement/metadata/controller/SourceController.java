@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOwnerSupportDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -74,16 +75,16 @@ public class SourceController {
     @Operation(summary = "Search for a source by its id")
     @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public SourceDto getSource(@PathVariable("id") String id) {
+    public SourceOwnerSupportDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
-        return convertToDto(source);
+        return convertToCompleteDto(source);
 
     }
 
     @Operation(summary = "Update or create a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public ResponseEntity<SourceDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceDto sourceDto) {
+    public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceDto sourceDto) {
         if (!sourceDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
 
@@ -105,7 +106,7 @@ public class SourceController {
 
 
         source = sourceService.insertOrUpdateSource(convertToEntity(sourceDto));
-        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToDto(source));
+        return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToCompleteDto(source));
     }
 
     @Operation(summary = "Delete a source, its surveys, campaigns, partitionings, questionings ...")
@@ -193,6 +194,10 @@ public class SourceController {
 
     private Source convertToEntity(SourceDto sourceDto) {
         return modelmapper.map(sourceDto, Source.class);
+    }
+
+    private SourceOwnerSupportDto convertToCompleteDto(Source source) {
+        return modelmapper.map(source, SourceOwnerSupportDto.class);
     }
 
 
