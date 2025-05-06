@@ -48,4 +48,11 @@ public class AddressServiceImpl implements AddressService {
         return modelMapper.map(addressDto, Address.class);
     }
 
+    @Override
+    public AddressDto updateOrCreateAddress(AddressDto addressDto) {
+        Address address = modelMapper.map(addressDto, Address.class);
+        address = addressRepository.save(address);
+        return  modelMapper.map(address, AddressDto.class);
+    }
+
 }

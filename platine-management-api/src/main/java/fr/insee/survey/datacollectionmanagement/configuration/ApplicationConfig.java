@@ -31,6 +31,12 @@ public class ApplicationConfig {
     @Value("#{'${fr.insee.datacollectionmanagement.roles.internal.user.role}'.split(',')}")
     private List<String> roleInternalUser;
 
+    @Value("#{'${fr.insee.datacollectionmanagement.roles.portal.role}'.split(',')}")
+    private List<String> rolePortal;
+
+    @Value("#{'${fr.insee.datacollectionmanagement.roles.reader.role}'.split(',')}")
+    private List<String> roleReader;
+
     @Value("${fr.insee.datacollectionmanagement.auth.mode}")
     private String authType;
 

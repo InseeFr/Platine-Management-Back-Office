@@ -1,8 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyRole('INTERNAL_USER', 'WEB_CLIENT', 'RESPONDENT', 'ADMIN')")
+@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 @Slf4j
 @Tag(name = "6 - Webclients", description = "Enpoints for webclients")
 @RequiredArgsConstructor
@@ -38,9 +38,6 @@ public class QuestioningInformationsController {
     private final QuestioningInformationsService questioningInformationsService;
 
     private final CheckHabilitationService checkHabilitationService;
-
-
-    private final ContactService contactService;
 
 
     @Operation(summary = "Informations to fill in an Orbeon questionnaire")

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -233,5 +234,69 @@ class ContactControllerTest {
         jo.put("countryName", contact.getAddress().getCountryName());
         return jo;
     }
+
+    @Test
+    void getContactInfoOk() throws Exception {
+        String contactId = "CONT1";
+
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void getContactInfoNotFound() throws Exception {
+        String contactId = "DOES_NOT_EXIST";
+
+        this.mockMvc.perform(get(UrlConstants.API_CONTACT)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void putContactInfoOk() throws Exception {
+        String contactId = "CONT1";
+
+        JSONObject joPayload = new JSONObject();
+        joPayload.put("identifier", contactId);
+        joPayload.put("lastName", "Doe");
+        joPayload.put("firstName", "John");
+        joPayload.put("civility", "Undefined");
+        joPayload.put("email", "john.doe@example.com");
+
+        this.mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .put(UrlConstants.API_CONTACT)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .contentType("application/json")
+                                .content(joPayload.toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"));
+    }
+
+    @Test
+    void putContactInfo_NotMatchingIdentifiers_ShouldReturn403() throws Exception {
+        String contactId = "CONT1";
+        String payloadId = "OTHER";
+
+        JSONObject joPayload = new JSONObject();
+        joPayload.put("identifier", payloadId);
+        joPayload.put("lastName", "Doe");
+        joPayload.put("firstName", "John");
+        joPayload.put("civility", "Undefined");
+        joPayload.put("email", "john.doe@example.com");
+
+        this.mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .put(UrlConstants.API_CONTACT)
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .contentType("application/json")
+                                .content(joPayload.toString()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 
 }

@@ -27,6 +27,9 @@ public class GrantedAuthorityConverter implements Converter<Jwt, Collection<Gran
         fillGrantedRoles(applicationConfig.getRoleRespondent(), AuthorityRoleEnum.RESPONDENT);
         fillGrantedRoles(applicationConfig.getRoleInternalUser(), AuthorityRoleEnum.INTERNAL_USER);
         fillGrantedRoles(applicationConfig.getRoleWebClient(), AuthorityRoleEnum.WEB_CLIENT);
+        fillGrantedRoles(applicationConfig.getRolePortal(), AuthorityRoleEnum.PORTAL);
+        fillGrantedRoles(applicationConfig.getRoleReader(), AuthorityRoleEnum.READER);
+
     }
 
     @SuppressWarnings("unchecked")

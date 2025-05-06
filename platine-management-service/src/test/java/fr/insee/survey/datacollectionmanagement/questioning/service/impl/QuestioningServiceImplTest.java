@@ -1,23 +1,28 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
-import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +35,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,10 +43,6 @@ class QuestioningServiceImplTest {
 
 
     private static final String SURVEY_UNIT_ID = "12345";
-    private static final String QUESTIONING_NORMAL_URL = "http://questioning.com/normal";
-    private static final String QUESTIONING_SENSITIVE_URL = "http://questioning.com/sensitive";
-    private static final String QUESTIONING_XFORMS1 = "http://questioning.com/xforms1";
-    private static final String QUESTIONING_XFORMS2 = "http://questioning.com/xforms2";
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -52,82 +54,27 @@ class QuestioningServiceImplTest {
     private PartitioningService partitioningService;
 
     @Mock
+    private ContactService contactService;
+
+    @Mock
     private QuestioningEventService questioningEventService;
 
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
 
-    @Mock
-    private QuestioningCommunicationService questioningCommunicationService;
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Mock
-    private QuestioningCommentService questioningCommentService;
-
-    @Mock
-    private CampaignService campaignService;
-
-    @Mock
-    private ModelMapper modelMapper;
-
-    private Partitioning part = initPartitioning();
+    private PartitioningRepository partitioningRepository;
 
     private Questioning questioning = initQuestioning();
 
     private QuestioningServiceImpl questioningService;
 
+    @Mock
+    private QuestioningUrlComponent questioningUrlComponent;
+
     private Partitioning partitioning;
-
-    @Test
-    @DisplayName("Check the V1 url in interviewer mode")
-    void getV1UrlInterviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.INTERVIEWER;
-        String modelName = "m1";
-        String surveyUnitId = "999999999";
-        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
-        String expected = "https://urlBase/repondre/m1/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Check the V1 url in reviewer mode")
-    void getV1UrlReviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.REVIEWER;
-        String modelName = "m1";
-        String surveyUnitId = "999999999";
-        String url = questioningService.buildXformUrl(baseUrl, role, modelName, surveyUnitId);
-        String expected = "https://urlBase/visualiser/m1/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Check the V3 url in interviewer mode")
-    void getV3UrlInterviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.INTERVIEWER;
-        String modelName = "model";
-        String surveyUnitId = "999999999";
-        String sourceId = "enq";
-        Long questioningId = 123456789L;
-        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
-        String expected = "https://urlBase/v3/questionnaire/model/unite-enquetee/999999999?pathLogout=%2Fenq&pathAssistance=%2Fenq%2Fcontacter-assistance%2Fauth%3FquestioningId%3D123456789";
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("Check the V3 url in reviewer mode")
-    void getV3UrlReviewer() {
-        String baseUrl = "https://urlBase";
-        String role = UserRoles.REVIEWER;
-        String modelName = "model";
-        String surveyUnitId = "999999999";
-        String sourceId = "enq";
-        Long questioningId = 123456789L;
-        String url = questioningService.buildLunaticUrl(baseUrl, role, modelName, surveyUnitId, sourceId, questioningId);
-        String expected = "https://urlBase/v3/review/questionnaire/model/unite-enquetee/999999999";
-        assertThat(url).isEqualTo(expected);
-    }
 
 
     @BeforeEach
@@ -137,49 +84,11 @@ class QuestioningServiceImplTest {
 
 
         questioningService = new QuestioningServiceImpl(
-                questioningRepository, surveyUnitService, partitioningService,
-                questioningEventService, questioningAccreditationService,
-                questioningCommunicationService, questioningCommentService,
-                modelMapper, QUESTIONING_NORMAL_URL, QUESTIONING_SENSITIVE_URL,
-                QUESTIONING_XFORMS1, QUESTIONING_XFORMS2);
-
+                questioningRepository, questioningUrlComponent, surveyUnitService, partitioningService,
+                contactService, questioningEventService, questioningAccreditationService,
+                modelMapper, partitioningRepository);
     }
 
-    @Test
-    void testGetAccessUrl_V1() {
-        Campaign campaign = part.getCampaign();
-        campaign.setDataCollectionTarget(DataCollectionEnum.XFORM1);
-        part.setCampaign(campaign);
-
-        String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
-
-        assertThat(result).isNotNull().contains(QUESTIONING_XFORMS1);
-    }
-
-    @Test
-    void testGetAccessUrl_V3_Sensitive() {
-        Campaign campaign = part.getCampaign();
-        campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
-        part.setCampaign(campaign);
-        String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
-
-        assertThat(result).isNotNull().contains(QUESTIONING_SENSITIVE_URL);
-    }
-
-    @Test
-    void testGetAccessUrl_V3_NonSensitive() {
-        String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
-
-        assertThat(result).isNotNull().contains(QUESTIONING_NORMAL_URL);
-    }
-
-    @Test
-    void testGetAccessUrl_Default() {
-
-        String result = questioningService.getAccessUrl(UserRoles.REVIEWER, questioning, part);
-
-        assertThat(result).isNotNull().contains("v3");
-    }
     @Test
     @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")
     void findByCampaignIdAndSurveyUnitIdSuEmptyResult() {
@@ -224,22 +133,6 @@ class QuestioningServiceImplTest {
         assertThat(questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId).getQuestioningId()).isEqualTo(q.getId());
     }
 
-
-    private Partitioning initPartitioning() {
-        Source source = new Source();
-        source.setId("SOURCEID");
-        Survey survey = new Survey();
-        survey.setId("SURVEYID");
-        survey.setSource(source);
-        Campaign campaign = new Campaign();
-        campaign.setId("CAMPAIGNID");
-        campaign.setSurvey(survey);
-        part = new Partitioning();
-        part.setId("PARTITIONINGID");
-        part.setCampaign(campaign);
-        return part;
-    }
-
     private Questioning initQuestioning() {
         questioning = new Questioning();
         questioning.setId(1L);
@@ -257,6 +150,72 @@ class QuestioningServiceImplTest {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
+    }
+    @Test
+    @DisplayName("Should return QuestioningDetailsDto when questioning exists")
+    void testGetQuestioningDetails() {
+        // Given
+        Long questioningId = 1L;
+        questioning = new Questioning();
+        questioning.setId(questioningId);
+        SurveyUnit su = new SurveyUnit();
+        su.setIdSu("1");
+        su.setIdentificationName("identificationName");
+        su.setIdentificationCode("identificationCode");
+        su.setLabel("label");
+        questioning.setSurveyUnit(su);
+        partitioning = new Partitioning();
+        partitioning.setId("1");
+        Campaign campaign = new Campaign();
+        campaign.setId("CAMP123");
+        Survey survey = new Survey();
+        survey.setId("SURVEY123");
+        Source source = new Source();
+        source.setId("SOURCEID");
+        survey.setSource(source);
+        campaign.setSurvey(survey);
+        partitioning.setCampaign(campaign);
+        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
+        questioningAccreditation.setIdContact("contactId");
+        questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
+        questioning.setQuestioningEvents(Set.of());
+        questioning.setQuestioningComments(Set.of());
+        questioning.setQuestioningCommunications(Set.of());
+
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
+        when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
+
+        when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John")));
+        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
+
+        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
+
+        // when
+        QuestioningDetailsDto result = questioningService.getQuestioningDetails(questioningId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getQuestioningId()).isEqualTo(questioningId);
+        assertThat(result.getCampaignId()).isEqualTo("CAMP123");
+        assertThat(result.getSurveyUnitId()).isEqualTo("1");
+        assertThat(result.getSurveyUnitIdentificationCode()).isEqualTo("identificationCode");
+        assertThat(result.getSurveyUnitIdentificationName()).isEqualTo("identificationName");
+        assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
+        assertThat(result.getListContacts()).isNotEmpty();
+        assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when questioning does not exist")
+    void shouldThrowNotFoundExceptionWhenQuestioningNotFound() {
+        // Given
+        Long questioningId = 99L;
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> questioningService.getQuestioningDetails(questioningId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Questioning 99 not found");
     }
 
     @DisplayName("Should return NOT_RECEIVED when no events exist")
@@ -302,7 +261,7 @@ class QuestioningServiceImplTest {
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
     }
 
-    @DisplayName("Should return OPEN when opened event exists before closing date")
+    @DisplayName("Should return NOT_STARTED when interrogation not opened by user but accessible before closing date")
     @Test
     void getQuestioningStatusTest5() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
@@ -317,7 +276,7 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
-        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.OPEN);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED);
     }
 
     @DisplayName("Should return NOT_RECEIVED when no valid event exists after closing date")
@@ -365,5 +324,28 @@ class QuestioningServiceImplTest {
         when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
+    }
+
+    @DisplayName("Should return IN_PROGRESS when user started interrogation before closing date")
+    @Test
+    void getQuestioningStatusTest9() {
+        partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
+        partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
+        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEvent questioningEventOpen = new QuestioningEvent();
+        questioningEventOpen.setType(TypeQuestioningEvent.INITLA);
+        QuestioningEvent questioningEventStarted = new QuestioningEvent();
+        questioningEventStarted.setType(TypeQuestioningEvent.PARTIELINT);
+        events.add(questioningEventOpen);
+        events.add(questioningEventStarted);
+
+        questioning.setQuestioningEvents(events);
+
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(false);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
+        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS)).thenReturn(true);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
     }
 }

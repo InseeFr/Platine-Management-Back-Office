@@ -5,7 +5,9 @@ public enum AuthorityRoleEnum {
     ADMIN,
     WEB_CLIENT,
     INTERNAL_USER,
-    RESPONDENT;
+    RESPONDENT,
+    PORTAL,
+    READER;
 
     public static final String ROLE_PREFIX = "ROLE_";
 

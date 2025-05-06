@@ -18,6 +18,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,11 +41,15 @@ public class MySurveysServiceImpl implements MySurveysService {
 
     private final QuestioningService questioningService;
 
+    private final QuestioningUrlComponent questioningUrlComponent;
+
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
 
     private final String questionnaireApiUrl;
 
     private final String questionnaireApiSensitiveUrl;
+
+
 
     @Override
     public List<MyQuestioningDto> getListMySurveys(String id) {
@@ -60,7 +65,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             surveyDto.setSurveyWording(survey.getLongWording());
             surveyDto.setSurveyObjectives(survey.getLongObjectives());
             surveyDto.setAccessUrl(
-                    questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
+                    questioningUrlComponent.getAccessUrl(UserRoles.INTERVIEWER, questioning, part));
             surveyDto.setIdentificationCode(surveyUnitId);
             surveyDto.setOpeningDate(new Timestamp(part.getOpeningDate().getTime()));
             surveyDto.setClosingDate(new Timestamp(part.getClosingDate().getTime()));
@@ -85,6 +90,67 @@ public class MySurveysServiceImpl implements MySurveysService {
         return listSurveys;
     }
 
+    public boolean isXForm(DataCollectionEnum dataCollection) {
+        return DataCollectionEnum.XFORM1.equals(dataCollection) || DataCollectionEnum.XFORM2.equals(dataCollection);
+    }
+
+    public boolean isOpen(QuestionnaireStatusTypeEnum questioningStatus) {
+        return QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus);
+    }
+
+
+    public void setQuestioningAccessUrl(MyQuestionnaireDto questionnaireDto,
+                                         Questioning questioning,
+                                         Partitioning partitioning,
+                                         String id) {
+
+        String url = questioningUrlComponent.getAccessUrlWithContactId(
+                UserRoles.INTERVIEWER,
+                questioning,
+                partitioning,
+                id
+        );
+        questionnaireDto.setQuestioningAccessUrl(url);
+    }
+
+    public String buildDepositProofUrl(MyQuestionnaireDetailsDto detailsDto, DataCollectionEnum dataCollection) {
+        String path = "/api/survey-unit/" + detailsDto.getSurveyUnitId() + "/deposit-proof";
+
+        if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollection)) {
+            return questionnaireApiUrl + path;
+        }
+
+        if (DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollection)) {
+            return questionnaireApiSensitiveUrl + path;
+        }
+
+        return null;
+    }
+
+    public void handleStatus(QuestionnaireStatusTypeEnum questioningStatus,
+                                 MyQuestionnaireDetailsDto myQuestionnaireDetailsDto,
+                                 MyQuestionnaireDto myQuestionnaireDto,
+                                 Questioning questioning,
+                                 Partitioning partitioning,
+                                 String id) {
+
+        if (QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
+            DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
+            if (isXForm(dataCollectionEnum)) {
+                setQuestioningAccessUrl(myQuestionnaireDto, questioning, partitioning, id);
+                return;
+            }
+            String depositProofUrl = buildDepositProofUrl(myQuestionnaireDetailsDto, dataCollectionEnum);
+            myQuestionnaireDto.setDepositProofUrl(depositProofUrl);
+            return;
+
+        }
+
+        if (isOpen(questioningStatus)) {
+            setQuestioningAccessUrl(myQuestionnaireDto, questioning, partitioning, id);
+        }
+    }
+
 
     @Override
     public List<MyQuestionnaireDto> getListMyQuestionnaires(String id) {
@@ -102,42 +168,15 @@ public class MySurveysServiceImpl implements MySurveysService {
             myQuestionnaireDto.setSurveyUnitIdentificationName(myQuestionnaireDetailsDto.getSurveyUnitIdentificationName());
             myQuestionnaireDto.setSurveyUnitId(myQuestionnaireDetailsDto.getSurveyUnitId());
             myQuestionnaireDto.setPartitioningId(myQuestionnaireDetailsDto.getPartitioningId());
+            myQuestionnaireDto.setPartitioningReturnDate(myQuestionnaireDetailsDto.getPartitioningReturnDate().toInstant());
 
             Questioning questioning = questioningService.findById(myQuestionnaireDetailsDto.getQuestioningId());
             Partitioning partitioning = partitioningService.findById(myQuestionnaireDetailsDto.getPartitioningId());
             QuestionnaireStatusTypeEnum questioningStatus = questioningService.getQuestioningStatus(questioning, partitioning);
             myQuestionnaireDto.setQuestioningStatus(questioningStatus.name());
 
-            if(QuestionnaireStatusTypeEnum.RECEIVED.equals(questioningStatus)) {
-                DataCollectionEnum dataCollectionEnum = DataCollectionEnum.valueOf(myQuestionnaireDetailsDto.getDataCollectionTarget());
-                if(DataCollectionEnum.XFORM1.equals(dataCollectionEnum) || DataCollectionEnum.XFORM2.equals(dataCollectionEnum)) {
-
-                    myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(
-                            UserRoles.INTERVIEWER,
-                            questioning,
-                            partitioning));
-
-                    continue;
-                }
-
-                String pathDepositProof = "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId()+ "/deposit-proof";
-
-                if(DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollectionEnum)){
-                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiUrl + pathDepositProof);
-                    continue;
-                }
-
-                if(DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollectionEnum)){
-                    myQuestionnaireDto.setDepositProofUrl(questionnaireApiSensitiveUrl + pathDepositProof);
-                    continue;
-                }
-            }
-
-            if(QuestionnaireStatusTypeEnum.OPEN.equals(questioningStatus)) {
-                myQuestionnaireDto.setQuestioningAccessUrl(questioningService.getAccessUrl(UserRoles.INTERVIEWER, questioning, partitioning));
-            }
+            handleStatus(questioningStatus, myQuestionnaireDetailsDto, myQuestionnaireDto, questioning, partitioning, id);
         }
-
         return myQuestionnaireDtos;
     }
 }

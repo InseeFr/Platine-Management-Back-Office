@@ -18,6 +18,7 @@ public class ContactGenderValidator implements ConstraintValidator<ContactGender
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null)
             return false;
-        return Arrays.stream(GenderEnum.values()).anyMatch(v -> value.equals(v.name()));
+        return Arrays.stream(GenderEnum.values())
+                .anyMatch(v -> value.equalsIgnoreCase(v.name()));
     }
 }

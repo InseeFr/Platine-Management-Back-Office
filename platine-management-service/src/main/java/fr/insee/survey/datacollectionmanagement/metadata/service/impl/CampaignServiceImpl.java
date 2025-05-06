@@ -26,112 +26,111 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CampaignServiceImpl implements CampaignService {
 
-  private final CampaignRepository campaignRepository;
+    private final CampaignRepository campaignRepository;
 
-  private final PartitioningService partitioningService;
+    private final PartitioningService partitioningService;
 
-  private final ParametersService parametersService;
+    private final ParametersService parametersService;
 
-  private final ModelMapper modelmapper;
+    private final ModelMapper modelmapper;
 
-  public Collection<CampaignMoogDto> getCampaigns() {
+    public Collection<CampaignMoogDto> getCampaigns() {
 
-    List<CampaignMoogDto> moogCampaigns = new ArrayList<>();
-    List<Campaign> campaigns = campaignRepository.findAll().stream()
-        .filter(c -> !c.getPartitionings().isEmpty()).toList();
+        List<CampaignMoogDto> moogCampaigns = new ArrayList<>();
+        List<Campaign> campaigns = campaignRepository.findAll().stream()
+                .filter(c -> !c.getPartitionings().isEmpty()).toList();
 
-    for (Campaign campaign : campaigns) {
-      CampaignMoogDto campaignMoogDto = new CampaignMoogDto();
-      campaignMoogDto.setId(campaign.getId());
-      campaignMoogDto.setLabel(campaign.getCampaignWording());
+        for (Campaign campaign : campaigns) {
+            CampaignMoogDto campaignMoogDto = new CampaignMoogDto();
+            campaignMoogDto.setId(campaign.getId());
+            campaignMoogDto.setLabel(campaign.getCampaignWording());
 
-      Optional<Date> dateMin = campaign.getPartitionings().stream()
-          .map(Partitioning::getOpeningDate)
-          .min(Comparator.comparing(Date::getTime));
-      Optional<Date> dateMax = campaign.getPartitionings().stream()
-          .map(Partitioning::getClosingDate)
-          .max(Comparator.comparing(Date::getTime));
+            Optional<Date> dateMin = campaign.getPartitionings().stream()
+                    .map(Partitioning::getOpeningDate)
+                    .min(Comparator.comparing(Date::getTime));
+            Optional<Date> dateMax = campaign.getPartitionings().stream()
+                    .map(Partitioning::getClosingDate)
+                    .max(Comparator.comparing(Date::getTime));
 
-      if (dateMin.isPresent() && dateMax.isPresent()) {
-        campaignMoogDto.setCollectionStartDate(dateMin.get().getTime());
-        campaignMoogDto.setCollectionEndDate(dateMax.get().getTime());
-        moogCampaigns.add(campaignMoogDto);
-      } else {
-        log.warn("No start date or end date found for campaign {}", campaign.getId());
-      }
+            if (dateMin.isPresent() && dateMax.isPresent()) {
+                campaignMoogDto.setCollectionStartDate(dateMin.get().getTime());
+                campaignMoogDto.setCollectionEndDate(dateMax.get().getTime());
+                moogCampaigns.add(campaignMoogDto);
+            } else {
+                log.warn("No start date or end date found for campaign {}", campaign.getId());
+            }
+        }
+        return moogCampaigns;
     }
-    return moogCampaigns;
-  }
 
-  @Override
-  public Campaign findById(String idCampaign) {
-    return campaignRepository.findById(idCampaign).orElseThrow(
-        () -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
-  }
+    @Override
+    public Campaign findById(String idCampaign) {
+        return campaignRepository.findById(idCampaign).orElseThrow(
+                () -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
+    }
 
 
-  @Override
-  public Page<Campaign> findAll(Pageable pageable) {
-    return campaignRepository.findAll(pageable);
-  }
+    @Override
+    public Page<Campaign> findAll(Pageable pageable) {
+        return campaignRepository.findAll(pageable);
+    }
 
-  @Override
-  public List<Campaign> findAll() {
-    return campaignRepository.findAll();
-  }
+    @Override
+    public List<Campaign> findAll() {
+        return campaignRepository.findAll();
+    }
 
-  @Override
-  public Campaign insertOrUpdateCampaign(Campaign campaign) {
-      if (campaign.getDataCollectionTarget() == null)
+     @Override
+    public Campaign insertOrUpdateCampaign(Campaign campaign) {
+        if (campaign.getDataCollectionTarget() == null)
           campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
-    return campaignRepository.save(campaign);
+        return campaignRepository.save(campaign);
+    }
 
-  }
-
-  @Override
-  public void deleteCampaignById(String id) {
-    campaignRepository.deleteById(id);
-  }
+    @Override
+    public void deleteCampaignById(String id) {
+        campaignRepository.deleteById(id);
+    }
 
 
-  @Override
-  public boolean isCampaignOngoing(String campaignId) {
-      return campaignRepository.findById(campaignId)
-              .map(campaign -> {
-                  Instant now = Instant.now();
-                  Set<Partitioning> partitionings = campaign.getPartitionings();
-                  if (partitionings != null) {
-                      return partitionings
-                              .stream()
-                              .anyMatch(part -> partitioningService.isOnGoing(part, now));
-                  }
-                  return false;
-              })
-              .orElse(false);
-  }
+    @Override
+    public boolean isCampaignOngoing(String campaignId) {
+        return campaignRepository.findById(campaignId)
+                .map(campaign -> {
+                    Instant now = Instant.now();
+                    Set<Partitioning> partitionings = campaign.getPartitionings();
+                    if (partitionings != null) {
+                        return partitionings
+                                .stream()
+                                .anyMatch(part -> partitioningService.isOnGoing(part, now));
+                    }
+                    return false;
+                })
+                .orElse(false);
+    }
 
-  @Override
-  public List<CampaignOngoingDto> getCampaignOngoingDtos() {
-      return campaignRepository.findAll().stream()
-              .filter(campaign -> isCampaignOngoing(campaign.getId()))
-              .map(this::convertToCampaignOngoingDto).toList();
-  }
+    @Override
+    public List<CampaignOngoingDto> getCampaignOngoingDtos() {
+        return campaignRepository.findAll().stream()
+                .filter(campaign -> isCampaignOngoing(campaign.getId()))
+                .map(this::convertToCampaignOngoingDto).toList();
+    }
 
-  @Override
-  public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
-    Parameters param = parametersService.convertToEntity(paramsDto);
-    param.setMetadataId(StringUtils.upperCase(campaign.getId()));
-    Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
-    campaign.setParams(updatedParams);
-    insertOrUpdateCampaign(campaign);
-    return updatedParams.stream().map(parametersService::convertToDto).toList();
-  }
+    @Override
+    public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
+        Parameters param = parametersService.convertToEntity(paramsDto);
+        param.setMetadataId(StringUtils.upperCase(campaign.getId()));
+        Set<Parameters> updatedParams = parametersService.updateCampaignParams(campaign, param);
+        campaign.setParams(updatedParams);
+        insertOrUpdateCampaign(campaign);
+        return updatedParams.stream().map(parametersService::convertToDto).toList();
+    }
 
-  private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
-    CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
-    result.setSourceId(campaign.getSurvey().getSource().getId());
-    return result;
-  }
+    private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
+        CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
+        result.setSourceId(campaign.getSurvey().getSource().getId());
+        return result;
+    }
 
 
     @Override
@@ -149,6 +148,18 @@ public class CampaignServiceImpl implements CampaignService {
         return convertToCampaignHeaderDto(campaign);
     }
 
+    @Override
+    public List<CampaignStatusDto> findCampaignStatusByCampaignIdIn(List<String> campaignIds) {
+        if (campaignIds == null || campaignIds.isEmpty()) {
+            return List.of();
+        }
+        return campaignIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(campaignId -> new CampaignStatusDto(campaignId, getCollectionStatus(campaignId)))
+                .toList();
+    }
+
     private CampaignHeaderDto convertToCampaignHeaderDto(Campaign c) {
         CampaignHeaderDto campaignHeaderDto = new CampaignHeaderDto();
         campaignHeaderDto.setCampaignId(c.getId());
@@ -156,7 +167,7 @@ public class CampaignServiceImpl implements CampaignService {
         campaignHeaderDto.setSource(getSourceFromCampaign(c));
         campaignHeaderDto.setPeriod(c.getPeriod().getValue());
         campaignHeaderDto.setYear(c.getYear());
-        campaignHeaderDto.setStatus(getCollectionStatus(c));
+        campaignHeaderDto.setStatus(getCollectionStatus(c.getId()));
         return campaignHeaderDto;
     }
 
@@ -166,7 +177,7 @@ public class CampaignServiceImpl implements CampaignService {
         campaignSummaryDto.setSource(getSourceFromCampaign(c));
         campaignSummaryDto.setYear(c.getYear());
         campaignSummaryDto.setPeriod(c.getPeriod().getValue());
-        campaignSummaryDto.setStatus(getCollectionStatus(c));
+        campaignSummaryDto.setStatus(getCollectionStatus(c.getId()));
         Date openingDate = getEarliestOpeningDate(c.getPartitionings());
         Date closingDate = getLatestClosingDate(c.getPartitionings());
         campaignSummaryDto.setOpeningDate(openingDate);
@@ -203,15 +214,11 @@ public class CampaignServiceImpl implements CampaignService {
                 .orElse(null);
     }
 
-    private CollectionStatus getCollectionStatus(Campaign c) {
-
-        if (c.getPartitionings() == null || c.getPartitionings().isEmpty()) {
-            return CollectionStatus.UNDEFINED;
-        }
-        if (isCampaignOngoing(c.getId())) {
-            return CollectionStatus.OPEN;
-        }
-        return CollectionStatus.CLOSED;
+    private CollectionStatus getCollectionStatus(String campaignId) {
+        return campaignRepository.findById(campaignId)
+                .filter(campaign -> campaign.getPartitionings() != null && !campaign.getPartitionings().isEmpty())
+                .map(campaign -> isCampaignOngoing(campaign.getId()) ? CollectionStatus.OPEN : CollectionStatus.CLOSED)
+                .orElse(CollectionStatus.UNDEFINED);
     }
 
 }
