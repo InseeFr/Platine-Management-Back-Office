@@ -46,7 +46,6 @@ public class SourceController {
 
     private final OwnerService ownerService;
 
-
     private final ViewService viewService;
 
     private final ModelMapper modelmapper;
@@ -83,7 +82,7 @@ public class SourceController {
     @Operation(summary = "Update or create a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceDto sourceDto) {
+    public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOwnerSupportDto sourceDto) {
         if (!sourceDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
 
@@ -190,8 +189,7 @@ public class SourceController {
         return modelmapper.map(source, SourceDto.class);
     }
 
-
-    private Source convertToEntity(SourceDto sourceDto) {
+    private Source convertToEntity(SourceOwnerSupportDto sourceDto) {
         return modelmapper.map(sourceDto, Source.class);
     }
 
