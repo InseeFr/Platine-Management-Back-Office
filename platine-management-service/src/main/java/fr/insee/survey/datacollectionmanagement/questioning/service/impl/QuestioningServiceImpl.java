@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.Partitioning
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
@@ -36,6 +37,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class QuestioningServiceImpl implements QuestioningService {
+
+    private final InterrogationEventComparator interrogationEventComparator;
 
     private final QuestioningRepository questioningRepository;
 
@@ -158,18 +161,22 @@ public class QuestioningServiceImpl implements QuestioningService {
         List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsId);
 
         List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .sorted(interrogationEventComparator.reversed())
                 .map(event -> modelMapper.map(event, QuestioningEventDto.class))
                 .toList();
 
-        Optional<QuestioningEvent> lastEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        QuestioningEventDto lastEventDto = lastEvent
-                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
-                .orElse(new QuestioningEventDto());
+       QuestioningEventDto highestPriorityEventDto = questioningEventsDto
+                .stream()
+                .findFirst()
+                .orElse(null);
 
-        Optional<QuestioningEvent> validatedEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        QuestioningEventDto validatedEventDto = validatedEvent
-                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
-                .orElse(new QuestioningEventDto());
+        QuestioningEventDto validatedEventDto = questioningEventsDto.stream()
+                .filter(qe ->
+                        TypeQuestioningEvent.VALIDATED_EVENTS.contains(
+                                TypeQuestioningEvent.valueOf(qe.getType())))
+                .findFirst()
+                .orElse(null);
 
         List<QuestioningCommunicationDto> questioningCommunicationsDto = questioning.getQuestioningCommunications().stream()
                 .map(comm -> modelMapper.map(comm, QuestioningCommunicationDto.class))
@@ -185,7 +192,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .campaignId(campaignId)
                 .surveyUnit(questioningSurveyUnitDto)
                 .contacts(questioningContactDtoList)
-                .events(questioningEventsDto, lastEventDto, validatedEventDto)
+                .events(questioningEventsDto, highestPriorityEventDto, validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
@@ -199,12 +206,22 @@ public class QuestioningServiceImpl implements QuestioningService {
         searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
         searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
         searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
-        Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
+        List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .sorted(interrogationEventComparator.reversed())
+                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
+                .toList();
+
+        Optional<QuestioningEventDto> highestPriorityEventDto = questioningEventsDto.stream().findFirst();
+        highestPriorityEventDto.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType()));
+        Optional<QuestioningEventDto> validatedEventDto = questioningEventsDto.stream()
+                .filter(qe ->
+                        TypeQuestioningEvent.VALIDATED_EVENTS.contains(
+                                TypeQuestioningEvent.valueOf(qe.getType())))
+                .findFirst();
+        validatedEventDto.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getEventDate()));
         Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
         questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
-        Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
         return searchQuestioningDto;
     }
 
