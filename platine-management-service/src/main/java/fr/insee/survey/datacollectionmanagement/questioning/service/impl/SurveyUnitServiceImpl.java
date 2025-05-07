@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,44 +104,40 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     @Override
     public List<SearchSurveyUnitContactDto> findContactsBySurveyUnitId(String id) {
-        List<ContactAccreditedToSurveyUnit> contactAccredited = surveyUnitRepository
+        List<ContactAccreditedToSurveyUnit> contactAccreditedGroupByMainValue = surveyUnitRepository
                 .findContactsAccreditedToSurveyUnit(id)
                 .stream()
                 .map(ContactAccreditedToSurveyUnitDto::toRecord)
                 .toList();
 
-        Map<String, List<ContactAccreditedToSurveyUnit>> contactAccreditedMap = contactAccredited
-                .stream()
-                .collect(Collectors.groupingBy(ContactAccreditedToSurveyUnit::contactId));
+        Set<String> contactIdentifiers = contactAccreditedGroupByMainValue.stream()
+                .map(ContactAccreditedToSurveyUnit::contactId)
+                .collect(Collectors.toSet());
 
-        List<String> contactIdentifiers = new ArrayList<>(contactAccreditedMap.keySet());
-        List<Contact> contacts = contactRepository.findAllById(contactIdentifiers);
+        List<Contact> contacts = contactRepository.findAllById(new ArrayList<>(contactIdentifiers));
 
-        return contacts.stream()
-                .map(contact -> {
-                    String identifier = contact.getIdentifier();
-                    String city = (contact.getAddress() != null) ? contact.getAddress().getCityName() : null;
-                    List<ContactAccreditedToSurveyUnit> records = contactAccreditedMap.getOrDefault(identifier, List.of());
+        Map<String, Contact> contactMap = contacts.stream()
+                .collect(Collectors.toMap(Contact::getIdentifier, Function.identity()));
 
-                    Set<String> campaigns = records.stream()
-                            .flatMap(c -> c.campaignIds().stream())
-                            .collect(Collectors.toSet());
-
-                    boolean isMain = records.stream()
-                            .anyMatch(ContactAccreditedToSurveyUnit::isMain);
+        return contactAccreditedGroupByMainValue.stream()
+                .map(c -> {
+                    Contact contact = contactMap.get(c.contactId());
+                    if (contact == null) return null; // skip if contact not found
 
                     return SearchSurveyUnitContactDto.builder()
-                            .identifier(identifier)
+                            .identifier(contact.getIdentifier())
                             .function(contact.getFunction())
                             .firstName(contact.getFirstName())
                             .lastName(contact.getLastName())
                             .email(contact.getEmail())
                             .phoneNumber(contact.getPhone())
-                            .city(city)
-                            .campaigns(campaigns)
-                            .isMain(isMain)
+                            .city(contact.getAddress() != null ? contact.getAddress().getCityName() : null)
+                            .campaigns(new HashSet<>(c.campaignIds()))
+                            .isMain(c.isMain())
                             .build();
-                }).toList();
+                })
+                .filter(Objects::nonNull)
+                .toList();
 
     }
 
