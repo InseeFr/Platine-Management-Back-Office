@@ -217,9 +217,6 @@ class QuestioningServiceImplTest {
         when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
 
         when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John", true)));
-        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
-
-        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
 
         // when
         QuestioningDetailsDto result = questioningService.getQuestioningDetails(questioningId);
