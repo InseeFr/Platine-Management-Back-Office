@@ -12,12 +12,12 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.Partitioning
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.InterrogationEventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
@@ -27,22 +27,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
 
 
     private static final String SURVEY_UNIT_ID = "12345";
+
+    @Mock
+    private InterrogationEventOrderRepository eventOrderRepository;
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -76,18 +84,37 @@ class QuestioningServiceImplTest {
 
     private Partitioning partitioning;
 
+    private static final int O_INITLA     = 1;
+    private static final int O_PARTIEL_VAL = 2;
+    private static final int O_REF_WAST   = 3;
+    private static final int O_HC         = 4;
 
     @BeforeEach
     void setUp() {
 
         partitioning = new Partitioning();
 
+        when(eventOrderRepository.findAll()).thenReturn(List.of(
+                order("INITLA",     O_INITLA),
+                order("PARTIELINT", O_PARTIEL_VAL),
+                order("VALINT",     O_PARTIEL_VAL),
+                order("VALPAP",     O_PARTIEL_VAL),
+                order("REFUSAL",    O_REF_WAST),
+                order("WASTE",      O_REF_WAST),
+                order("HC",         O_HC)
+        ));
+
+        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(eventOrderRepository);
 
         questioningService = new QuestioningServiceImpl(
-                questioningRepository, questioningUrlComponent, surveyUnitService, partitioningService,
-                contactService, questioningEventService, questioningAccreditationService,
+                interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
+                partitioningService, contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, partitioningRepository);
     }
+    private static InterrogationEventOrder order(String status, int valeur) {
+        return new InterrogationEventOrder(null, status, valeur);
+    }
+
 
     @Test
     @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")
@@ -178,7 +205,11 @@ class QuestioningServiceImplTest {
         QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
         questioningAccreditation.setIdContact("contactId");
         questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
-        questioning.setQuestioningEvents(Set.of());
+        QuestioningEvent event = new QuestioningEvent(
+                new Date(),
+                TypeQuestioningEvent.INITLA,
+                questioning);
+        questioning.setQuestioningEvents(Set.of(event));
         questioning.setQuestioningComments(Set.of());
         questioning.setQuestioningCommunications(Set.of());
 
@@ -186,9 +217,6 @@ class QuestioningServiceImplTest {
         when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
 
         when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John")));
-        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
-
-        when(questioningEventService.getLastQuestioningEvent(any(), any())).thenReturn(Optional.empty());
 
         // when
         QuestioningDetailsDto result = questioningService.getQuestioningDetails(questioningId);
@@ -348,4 +376,87 @@ class QuestioningServiceImplTest {
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
     }
+
+    @Test
+    @DisplayName("searchQuestioning with param should query repository findQuestioningByParam and map results")
+    void testSearchQuestioningWithParam() {
+        // Given
+        String param = "abc";
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        Questioning q2 = buildQuestioning(2L, "SU2");
+        Campaign c = new Campaign();
+        c.setId("CAMP01");
+        partitioning.setCampaign(c);
+        when(partitioningService.findById(any())).thenReturn(partitioning);
+        when(questioningRepository.findQuestioningByParam("ABC")).thenReturn(List.of(q1, q2));
+        Pageable pageable = PageRequest.of(0, 10);
+
+
+        // When
+        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
+
+        // Then
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
+        verify(questioningRepository).findQuestioningByParam("ABC");
+        verify(questioningRepository, never()).findQuestioningIds(any());
+        verify(questioningRepository, never()).findQuestioningsByIds(any());
+    }
+
+    @Test
+    @DisplayName("searchQuestioning without param should retrieve ids page then full questionings")
+    void testSearchQuestioningWithoutParam() {
+        // Given
+        String param = "";
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        Questioning q2 = buildQuestioning(2L, "SU2");
+        Campaign c = new Campaign();
+        c.setId("CAMP01");
+        partitioning.setCampaign(c);
+        when(partitioningService.findById(any())).thenReturn(partitioning);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Long> idsPage = new PageImpl<>(List.of(1L, 2L), pageable, 2);
+        when(questioningRepository.findQuestioningIds(pageable)).thenReturn(idsPage);
+        when(questioningRepository.findQuestioningsByIds(List.of(1L, 2L))).thenReturn(List.of(q1, q2));
+
+        // When
+        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
+
+        // Then
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
+        verify(questioningRepository).findQuestioningIds(pageable);
+
+        ArgumentCaptor<List<Long>> captor = ArgumentCaptor.forClass(List.class);
+        verify(questioningRepository).findQuestioningsByIds(captor.capture());
+        assertThat(captor.getValue()).containsExactlyInAnyOrder(1L, 2L);
+
+        verify(questioningRepository, never()).findQuestioningByParam(any());
+    }
+
+    private Questioning buildQuestioning(Long id, String suId) {
+        Questioning q = new Questioning();
+        q.setId(id);
+        q.setIdPartitioning("PART001");
+
+        SurveyUnit su = new SurveyUnit();
+        su.setIdSu(suId);
+        su.setIdentificationCode("IC_" + suId);
+        q.setSurveyUnit(su);
+        QuestioningEvent event = new QuestioningEvent();
+        event.setType(TypeQuestioningEvent.INITLA);
+        event.setQuestioning(q);
+        event.setId(1L);
+        event.setDate(new Date(System.currentTimeMillis()));
+        QuestioningEvent event2 = new QuestioningEvent();
+        event2.setType(TypeQuestioningEvent.VALINT);
+        event2.setQuestioning(q);
+        event2.setId(2L);
+        event2.setDate(new Date(System.currentTimeMillis()));
+        q.setQuestioningAccreditations(new HashSet<>());
+        q.setQuestioningEvents(Set.of(event, event2));
+        q.setQuestioningCommunications(new HashSet<>());
+        return q;
+    }
+
 }
