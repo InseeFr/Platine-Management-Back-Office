@@ -13,5 +13,8 @@ public class SourceDto {
     private String shortWording;
     private PeriodicityEnum periodicity;
     private boolean mandatoryMySurveys;
+    private String logo;
+    private String storageTime;
+    private String personalData;
 
 }

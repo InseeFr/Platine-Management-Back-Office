@@ -11,7 +11,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOnlineStatusDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOwnerSupportDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -53,9 +53,8 @@ public class SourceController {
 
     private final QuestioningService questioningService;
 
-    private final CampaignService campaignService;
-
     private final ParametersService parametersService;
+    
     private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
@@ -75,7 +74,7 @@ public class SourceController {
     @Operation(summary = "Search for a source by its id")
     @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public SourceOnlineStatusDto getSource(@PathVariable("id") String id) {
+    public SourceOwnerSupportDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return convertToCompleteDto(source);
 
@@ -84,8 +83,8 @@ public class SourceController {
     @Operation(summary = "Update or create a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public ResponseEntity<SourceOnlineStatusDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOnlineStatusDto sourceOnlineStatusDto) {
-        if (!sourceOnlineStatusDto.getId().equalsIgnoreCase(id)) {
+    public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceDto sourceDto) {
+        if (!sourceDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
 
         }
@@ -93,19 +92,19 @@ public class SourceController {
         Source source;
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.LOCATION,
-                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(sourceOnlineStatusDto.getId()).toUriString());
+                ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(sourceDto.getId()).toUriString());
         HttpStatus httpStatus;
         try {
             sourceService.findById(id);
-            log.warn("Update source with the id {}", sourceOnlineStatusDto.getId());
+            log.warn("Update source with the id {}", sourceDto.getId());
             httpStatus = HttpStatus.OK;
         } catch (NotFoundException e) {
-            log.info("Create source with the id {}", sourceOnlineStatusDto.getId());
+            log.info("Create source with the id {}", sourceDto.getId());
             httpStatus = HttpStatus.CREATED;
         }
 
 
-        source = sourceService.insertOrUpdateSource(convertToEntity(sourceOnlineStatusDto));
+        source = sourceService.insertOrUpdateSource(convertToEntity(sourceDto));
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(convertToCompleteDto(source));
     }
 
@@ -187,18 +186,17 @@ public class SourceController {
     }
 
 
-
     private SourceDto convertToDto(Source source) {
         return modelmapper.map(source, SourceDto.class);
     }
 
-    private SourceOnlineStatusDto convertToCompleteDto(Source source) {
-        return modelmapper.map(source, SourceOnlineStatusDto.class);
+
+    private Source convertToEntity(SourceDto sourceDto) {
+        return modelmapper.map(sourceDto, Source.class);
     }
 
-
-    private Source convertToEntity(SourceOnlineStatusDto sourceOnlineStatusDto) {
-        return modelmapper.map(sourceOnlineStatusDto, Source.class);
+    private SourceOwnerSupportDto convertToCompleteDto(Source source) {
+        return modelmapper.map(source, SourceOwnerSupportDto.class);
     }
 
 
