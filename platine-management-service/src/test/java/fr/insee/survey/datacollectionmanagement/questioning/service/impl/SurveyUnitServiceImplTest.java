@@ -286,4 +286,53 @@ class SurveyUnitServiceImplTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    @DisplayName("Should return multiple contact lines  for the same contact when accredited according to main character")
+    void findContactsBySurveyUnitId_shouldReturnMultipleDtos_forSameContact() {
+        // Given
+        String surveyUnitId = "SU123";
+        String contactId = "C1";
+
+        // Mock contact entity
+        Contact contact = new Contact();
+        contact.setIdentifier(contactId);
+        contact.setFirstName("John");
+        contact.setLastName("Doe");
+        contact.setFunction("Manager");
+
+        // Simulate multiple accreditations
+        ContactAccreditedToSurveyUnitDto accreditationMain = new ContactAccreditedToSurveyUnitDto(
+                contactId, true, "Campaign1"
+        );
+        ContactAccreditedToSurveyUnitDto accreditationNotMain = new ContactAccreditedToSurveyUnitDto(
+                contactId, false, "Campaign2"
+        );
+
+        contactRepositoryStub.setContacts(List.of(contact));
+        surveyUnitRepositoryStub.setListContactAccreditedToSurveyUnitDto(List.of(accreditationMain, accreditationNotMain));
+
+        contactRepositoryStub.setContacts(List.of(contact));
+
+
+        // When
+        List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
+
+        // Then
+        assertThat(result).hasSize(2);
+
+        // Check contents of each DTO
+        SearchSurveyUnitContactDto dto1 = result.get(0);
+        SearchSurveyUnitContactDto dto2 = result.get(1);
+
+        assertThat(dto1.getCampaigns()).containsExactlyInAnyOrder("Campaign1");
+        assertThat(dto2.getCampaigns()).containsExactlyInAnyOrder("Campaign2");
+
+        assertThat(dto1.isMain()).isTrue();
+        assertThat(dto2.isMain()).isFalse();
+
+        // Optional: check both DTOs have same contact info
+        assertThat(dto1.getIdentifier()).isEqualTo(contactId);
+        assertThat(dto2.getIdentifier()).isEqualTo(contactId);
+    }
+
 }
