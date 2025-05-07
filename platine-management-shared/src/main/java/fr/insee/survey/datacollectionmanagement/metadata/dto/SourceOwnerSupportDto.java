@@ -17,6 +17,6 @@ public class SourceOwnerSupportDto {
     private String storageTime;
     private String personalData;
     private String ownerId;
-    private String sourceId;
+    private String supportId;
 
 }
