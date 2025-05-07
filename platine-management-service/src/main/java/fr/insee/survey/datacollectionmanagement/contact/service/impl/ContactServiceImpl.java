@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -101,10 +102,10 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<QuestioningContactDto> findByIdentifiers(List<String> identifier) {
-        List<Contact> contacts = contactRepository.findAllById(identifier);
+    public List<QuestioningContactDto> findByIdentifiers(Map<String, Boolean> mapContactsIdMain) {
+        List<Contact> contacts = contactRepository.findAllById(mapContactsIdMain.keySet());
         return contacts.stream()
-                .map(contact -> new QuestioningContactDto(contact.getIdentifier(), contact.getLastName(), contact.getFirstName()))
+                .map(contact -> new QuestioningContactDto(contact.getIdentifier(), contact.getLastName(), contact.getFirstName(), mapContactsIdMain.get(contact.getIdentifier())))
                 .toList();
     }
 

@@ -4,9 +4,9 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContactDto;
-import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SearchSurveyUnitFixture;
@@ -20,8 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,16 +28,14 @@ class SurveyUnitServiceImplTest {
 
     private SurveyUnitRepositoryStub surveyUnitRepositoryStub;
     private SurveyUnitServiceImpl surveyUnitService;
-    private ViewServiceStub viewService;
     private ContactRepositoryStub contactRepositoryStub;
 
     @BeforeEach
     void init() {
         contactRepositoryStub = new ContactRepositoryStub();
-        viewService = new ViewServiceStub();
         surveyUnitRepositoryStub = new SurveyUnitRepositoryStub();
         SurveyUnitAddressRepositoryStub surveyUnitAddressRepositoryStub = new SurveyUnitAddressRepositoryStub();
-        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub, viewService);
+        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub);
     }
 
     @Test
@@ -220,7 +216,7 @@ class SurveyUnitServiceImplTest {
     void findContactsBySurveyUnitId_shouldReturnEmptyList_whenNoContactsFound() {
         // Given
         String surveyUnitId = "SU123";
-        viewService.setIdentifiersByIdSu(surveyUnitId, List.of());
+        surveyUnitRepositoryStub.setListContactAccreditedToSurveyUnitDto(List.of());
 
         // When
         List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
@@ -246,27 +242,30 @@ class SurveyUnitServiceImplTest {
         contact.setAddress(address);
         contact.setPhone("123456789");
 
-        viewService.setIdentifiersByIdSu(surveyUnitId, List.of(contactId));
+        List<ContactAccreditedToSurveyUnitDto> contactAccreditedToSurveyUnitList =
+                List.of(new ContactAccreditedToSurveyUnitDto(contactId,true, "Campaign1,Campaign2"));
+
         contactRepositoryStub.setContacts(List.of(contact));
-        viewService.setCampaignsByIdentifiers(Map.of(contactId, Set.of("Campaign1", "Campaign2")));
+        surveyUnitRepositoryStub.setListContactAccreditedToSurveyUnitDto(contactAccreditedToSurveyUnitList);
 
         // When
         List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
 
         // Then
         assertThat(result).hasSize(1);
-        SearchSurveyUnitContactDto dto = result.get(0);
+        SearchSurveyUnitContactDto dto = result.getFirst();
         assertThat(dto.getIdentifier()).isEqualTo(contactId);
         assertThat(dto.getFirstName()).isEqualTo("John");
         assertThat(dto.getLastName()).isEqualTo("Doe");
         assertThat(dto.getEmail()).isEqualTo("john.doe@example.com");
         assertThat(dto.getPhoneNumber()).isEqualTo("123456789");
+        assertThat(dto.isMain()).isTrue();
         assertThat(dto.getCampaigns()).containsExactlyInAnyOrder("Campaign1", "Campaign2");
     }
 
     @Test
-    @DisplayName("Should return contacts even when no campaigns are found")
-    void findContactsBySurveyUnitId_shouldReturnContacts_whenNoCampaignsFound() {
+    @DisplayName("Should not return contacts even no campaigns are found")
+    void findContactsBySurveyUnitId_shouldNotReturnContacts_whenNoCampaignsFound() {
         // Given
         String surveyUnitId = "SU123";
         String contactId = "C1";
@@ -276,20 +275,64 @@ class SurveyUnitServiceImplTest {
         contact.setFirstName("Alice");
         contact.setLastName("Smith");
 
-        viewService.setIdentifiersByIdSu(surveyUnitId, List.of(contactId));
         contactRepositoryStub.setContacts(List.of(contact));
-        viewService.setCampaignsByIdentifiers(Map.of());
+        surveyUnitRepositoryStub.setListContactAccreditedToSurveyUnitDto(List.of());
+
 
         // When
         List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
 
         // Then
-        assertThat(result).hasSize(1);
-        SearchSurveyUnitContactDto dto = result.get(0);
-        assertThat(dto.getIdentifier()).isEqualTo(contactId);
-        assertThat(dto.getFirstName()).isEqualTo("Alice");
-        assertThat(dto.getLastName()).isEqualTo("Smith");
-        assertThat(dto.getCampaigns()).isEmpty();
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return multiple contact lines  for the same contact when accredited according to main character")
+    void findContactsBySurveyUnitId_shouldReturnMultipleDtos_forSameContact() {
+        // Given
+        String surveyUnitId = "SU123";
+        String contactId = "C1";
+
+        // Mock contact entity
+        Contact contact = new Contact();
+        contact.setIdentifier(contactId);
+        contact.setFirstName("John");
+        contact.setLastName("Doe");
+        contact.setFunction("Manager");
+
+        // Simulate multiple accreditations
+        ContactAccreditedToSurveyUnitDto accreditationMain = new ContactAccreditedToSurveyUnitDto(
+                contactId, true, "Campaign1"
+        );
+        ContactAccreditedToSurveyUnitDto accreditationNotMain = new ContactAccreditedToSurveyUnitDto(
+                contactId, false, "Campaign2"
+        );
+
+        contactRepositoryStub.setContacts(List.of(contact));
+        surveyUnitRepositoryStub.setListContactAccreditedToSurveyUnitDto(List.of(accreditationMain, accreditationNotMain));
+
+        contactRepositoryStub.setContacts(List.of(contact));
+
+
+        // When
+        List<SearchSurveyUnitContactDto> result = surveyUnitService.findContactsBySurveyUnitId(surveyUnitId);
+
+        // Then
+        assertThat(result).hasSize(2);
+
+        // Check contents of each DTO
+        SearchSurveyUnitContactDto dto1 = result.get(0);
+        SearchSurveyUnitContactDto dto2 = result.get(1);
+
+        assertThat(dto1.getCampaigns()).containsExactlyInAnyOrder("Campaign1");
+        assertThat(dto2.getCampaigns()).containsExactlyInAnyOrder("Campaign2");
+
+        assertThat(dto1.isMain()).isTrue();
+        assertThat(dto2.isMain()).isFalse();
+
+        // Optional: check both DTOs have same contact info
+        assertThat(dto1.getIdentifier()).isEqualTo(contactId);
+        assertThat(dto2.getIdentifier()).isEqualTo(contactId);
     }
 
 }

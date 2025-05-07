@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface ContactService {
@@ -53,10 +54,10 @@ public interface ContactService {
     /**
      * Find all contacts by identifiers list
      *
-     * @param identifiers
+     * @param mapContactsIdMain
      * @return
      */
-    List<QuestioningContactDto> findByIdentifiers(List<String> identifiers);
+    List<QuestioningContactDto> findByIdentifiers(Map<String, Boolean> mapContactsIdMain);
 
     /**
      * Update an existing contact and its address, or creates a new one

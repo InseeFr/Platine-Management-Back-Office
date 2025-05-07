@@ -32,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -157,8 +158,11 @@ public class QuestioningServiceImpl implements QuestioningService {
         String campaignId = partitioning.getCampaign().getId();
         String readOnlyUrl = questioningUrlComponent.getAccessUrl(UserRoles.REVIEWER, questioning, partitioning);
 
-        List<String> contactsId = questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList();
-        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsId);
+        Map<String, Boolean> contactsIdMain = questioning.getQuestioningAccreditations().stream()
+                .collect(Collectors.toMap(
+                        QuestioningAccreditation::getIdContact,
+                        QuestioningAccreditation::isMain
+                ));        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsIdMain);
 
         List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
                 .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))

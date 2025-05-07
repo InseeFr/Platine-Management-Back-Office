@@ -5,11 +5,12 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContactDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
-import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,13 +32,11 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     private final ContactRepository contactRepository;
 
-    private final ViewService viewService;
-
     @Override
     public SurveyUnit findbyId(String idSu) {
         return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit" +
-                " " +
-                "%s not found", idSu)));
+                                                                                                         " " +
+                                                                                                         "%s not found", idSu)));
     }
 
     @Override
@@ -103,32 +104,41 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     @Override
     public List<SearchSurveyUnitContactDto> findContactsBySurveyUnitId(String id) {
-        List<String> contactIdentifiers = viewService.findIdentifiersByIdSu(id);
-        if (contactIdentifiers.isEmpty()) {
-            return Collections.emptyList();
-        }
+        List<ContactAccreditedToSurveyUnit> contactAccreditedGroupByMainValue = surveyUnitRepository
+                .findContactsAccreditedToSurveyUnit(id)
+                .stream()
+                .map(ContactAccreditedToSurveyUnitDto::toRecord)
+                .toList();
 
-        List<Contact> contacts = contactRepository.findAllById(contactIdentifiers);
-        Map<String, Set<String>> campaignsByIdentifier = viewService.findDistinctCampaignByIdentifiers(contactIdentifiers);
+        Set<String> contactIdentifiers = contactAccreditedGroupByMainValue.stream()
+                .map(ContactAccreditedToSurveyUnit::contactId)
+                .collect(Collectors.toSet());
 
-        return contacts.stream()
-                .map(contact -> {
-                    String identifier = contact.getIdentifier();
-                    String city = (contact.getAddress() != null) ? contact.getAddress().getCityName() : null;
-                    Set<String> campaigns = campaignsByIdentifier
-                            .getOrDefault(identifier, Collections.emptySet());
+        List<Contact> contacts = contactRepository.findAllById(new ArrayList<>(contactIdentifiers));
+
+        Map<String, Contact> contactMap = contacts.stream()
+                .collect(Collectors.toMap(Contact::getIdentifier, Function.identity()));
+
+        return contactAccreditedGroupByMainValue.stream()
+                .map(c -> {
+                    Contact contact = contactMap.get(c.contactId());
+                    if (contact == null) return null; // skip if contact not found
 
                     return SearchSurveyUnitContactDto.builder()
-                            .identifier(identifier)
+                            .identifier(contact.getIdentifier())
                             .function(contact.getFunction())
                             .firstName(contact.getFirstName())
                             .lastName(contact.getLastName())
                             .email(contact.getEmail())
                             .phoneNumber(contact.getPhone())
-                            .city(city)
-                            .campaigns(campaigns)
+                            .city(contact.getAddress() != null ? contact.getAddress().getCityName() : null)
+                            .campaigns(new HashSet<>(c.campaignIds()))
+                            .isMain(c.isMain())
                             .build();
-                }).toList();
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
     }
 
 }
