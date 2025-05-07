@@ -57,11 +57,11 @@ public class ContactEventController {
     }
 
     @Operation(summary = "Create a contactEvent (accessible only by user with PORTAL_PRIVILEGE)")
-    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PLATINEACCOUNT, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE, produces = "application/json", consumes = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
 
-        if (!contactService.existsByIdentifier(contactEventDto.getIdentifier())) {
+        if (!contactService.existsByIdentifier(contactEventDto.getIdentifier().toUpperCase())) {
             throw new NotFoundException(String.format("contact %s not found", contactEventDto.getIdentifier()));
         }
 
