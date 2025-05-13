@@ -16,5 +16,7 @@ public interface QuestioningAccreditationService {
    
     QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
+    List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning);
+
     void deleteAccreditation(QuestioningAccreditation c);
 }

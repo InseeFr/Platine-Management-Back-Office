@@ -4,7 +4,6 @@ import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetails
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 public interface QuestioningAccreditationRepository extends JpaRepository<QuestioningAccreditation, Long> {
@@ -31,4 +30,8 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "WHERE qa.id_contact = :idec " +
             "LIMIT 500", nativeQuery = true)
     List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec);
+
+    List<QuestioningAccreditation> findAccreditationByQuestioningId(Long idQuestioning);
+
+
 }

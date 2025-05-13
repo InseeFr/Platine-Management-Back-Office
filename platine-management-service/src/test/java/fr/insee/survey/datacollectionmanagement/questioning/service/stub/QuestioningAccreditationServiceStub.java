@@ -34,6 +34,11 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
+    public List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning) {
+        return List.of();
+    }
+
+    @Override
     public void deleteAccreditation(QuestioningAccreditation c) {
         //not used
     }

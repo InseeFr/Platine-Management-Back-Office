@@ -95,4 +95,7 @@ public interface ContactService {
     Contact convertToEntityNewContact(ContactDto contactDto);
 
     ContactDetailsDto getContactDetails(String idContact);
+
+    void updateMainContactInterrogation(String contactId, Long questioningId);
+
 }
