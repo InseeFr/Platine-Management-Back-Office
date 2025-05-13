@@ -30,6 +30,12 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
+    public List<QuestioningAccreditation> findAccreditationByQuestioningId(Long idQuestioning) {
+        return List.of();
+    }
+
+
+    @Override
     public void flush() {
         // not used
     }

@@ -40,6 +40,11 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
+    public List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning) {
+        return questioningAccreditationRepository.findAccreditationByQuestioningId(idQuestioning);
+    }
+
+    @Override
     public void deleteAccreditation(QuestioningAccreditation acc) {
         questioningAccreditationRepository.deleteById(acc.getId());
     }
