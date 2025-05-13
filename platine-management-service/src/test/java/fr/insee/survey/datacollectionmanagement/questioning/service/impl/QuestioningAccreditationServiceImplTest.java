@@ -32,7 +32,6 @@ class QuestioningAccreditationServiceImplTest {
         Long contactId = Integer.toUnsignedLong(123);
         assertThrows(NotFoundException.class, () ->
             questioningAccreditationService.setQuestioningAccreditationToContact("testId", contactId));
-
     }
 
 }
