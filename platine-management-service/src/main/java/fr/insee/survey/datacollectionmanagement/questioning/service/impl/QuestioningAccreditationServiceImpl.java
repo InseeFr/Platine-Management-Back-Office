@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
@@ -18,7 +17,6 @@ import java.util.List;
 public class QuestioningAccreditationServiceImpl implements QuestioningAccreditationService {
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
-    private final PartitioningService partitioningService;
     private final ContactService contactService;
 
 
@@ -57,7 +55,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         if(!contactService.existsByIdentifier(contactId))
         {
-            throw new IllegalArgumentException("Contact not found");
+            throw new NotFoundException("Contact not found");
         }
 
         List<QuestioningAccreditation> questioningAccreditations = findBydIdQuestioning(questioningId);
