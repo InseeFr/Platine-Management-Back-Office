@@ -96,6 +96,6 @@ public interface ContactService {
 
     ContactDetailsDto getContactDetails(String idContact);
 
-    void updateMainContactInterrogation(String contactId, Long questioningId);
+    void setQuestioningAccreditationToContact(String contactId, Long questioningId);
 
 }
