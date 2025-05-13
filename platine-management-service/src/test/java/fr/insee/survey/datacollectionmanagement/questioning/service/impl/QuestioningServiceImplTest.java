@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
@@ -75,6 +76,9 @@ class QuestioningServiceImplTest {
     @Mock
     private PartitioningRepository partitioningRepository;
 
+    @Mock
+    private ParametersService parametersService;
+
     private Questioning questioning = initQuestioning();
 
     private QuestioningServiceImpl questioningService;
@@ -109,7 +113,7 @@ class QuestioningServiceImplTest {
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
-                modelMapper, partitioningRepository);
+                modelMapper, partitioningRepository, parametersService);
     }
     private static InterrogationEventOrder order(String status, int valeur) {
         return new InterrogationEventOrder(null, status, valeur);
