@@ -42,4 +42,9 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     public void deleteAccreditation(QuestioningAccreditation c) {
         //not used
     }
+
+    @Override
+    public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        //not used
+    }
 }

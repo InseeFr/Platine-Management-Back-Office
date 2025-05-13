@@ -19,4 +19,7 @@ public interface QuestioningAccreditationService {
     List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning);
 
     void deleteAccreditation(QuestioningAccreditation c);
-}
+
+    public void setQuestioningAccreditationToContact(String contactId, Long questioningId);
+
+    }

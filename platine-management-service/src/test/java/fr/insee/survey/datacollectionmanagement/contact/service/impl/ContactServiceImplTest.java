@@ -40,7 +40,6 @@ class ContactServiceImplTest {
     private ContactEventService contactEventService;
     private ViewServiceStub viewService;
     private CampaignServiceStub campaignService;
-    private QuestioningAccreditationServiceStub questioningAccreditationService;
     private ModelMapper modelMapper = new ModelMapper();
 
     @BeforeEach
@@ -50,9 +49,8 @@ class ContactServiceImplTest {
         contactEventService = Mockito.mock(ContactEventService.class);
         viewService = new ViewServiceStub();
         campaignService = new CampaignServiceStub();
-        questioningAccreditationService = new QuestioningAccreditationServiceStub();
         contactService = new ContactServiceImpl(contactRepository, addressService,
-                contactEventService, viewService, modelMapper, campaignService, questioningAccreditationService);
+                contactEventService, viewService, modelMapper, campaignService);
     }
 
     @Test
