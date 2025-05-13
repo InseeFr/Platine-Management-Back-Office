@@ -243,7 +243,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public void updateMainContactInterrogation(String contactId, Long questioningId) {
+    public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
 
         if(!existsByIdentifier(contactId))
         {
@@ -253,10 +253,9 @@ public class ContactServiceImpl implements ContactService {
         List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findBydIdQuestioning(questioningId);
 
         for(QuestioningAccreditation qa :  questioningAccreditations){
-            if(qa.isMain())
-            {
-                qa.setIdContact(contactId);
-            }
+            qa.setIdContact(contactId);
+            qa.setMain(true);
+            questioningAccreditationService.saveQuestioningAccreditation(qa);
         }
     }
 }
