@@ -143,7 +143,7 @@ public class ContactController {
             @PathVariable @RequestParam Long questioningId,
                                                     Authentication auth)  {
         try {
-            questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
+            contactService.setQuestioningAccreditationToContact(contactId, questioningId);
 
         } catch (NotFoundException e) {
             log.info("Contact {} not found", contactId);
