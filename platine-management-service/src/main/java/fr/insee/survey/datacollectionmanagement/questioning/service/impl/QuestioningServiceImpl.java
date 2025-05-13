@@ -5,7 +5,9 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -59,6 +61,9 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     private final PartitioningRepository partitioningRepository;
 
+    private final ParametersService parametersService;
+
+
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
         return questioningRepository.findAll(pageable);
@@ -103,6 +108,18 @@ public class QuestioningServiceImpl implements QuestioningService {
 
         return new QuestioningIdDto(listQuestionings.getFirst().getId());
     }
+
+    @Override
+    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+        Questioning questioning = findById(questioningId);
+        String mail = questioning.getAssistanceMail();
+        if (StringUtils.isBlank(mail)) {
+            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
+        }
+        return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
+    }
+
 
     @Override
     public int deleteQuestioningsOfOnePartitioning(Partitioning partitioning) {
@@ -162,7 +179,8 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .collect(Collectors.toMap(
                         QuestioningAccreditation::getIdContact,
                         QuestioningAccreditation::isMain
-                ));        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsIdMain);
+                ));
+        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsIdMain);
 
         List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
                 .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
@@ -170,7 +188,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(event -> modelMapper.map(event, QuestioningEventDto.class))
                 .toList();
 
-       QuestioningEventDto highestPriorityEventDto = questioningEventsDto
+        QuestioningEventDto highestPriorityEventDto = questioningEventsDto
                 .stream()
                 .findFirst()
                 .orElse(null);
@@ -230,12 +248,11 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part)
-    {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
         Date today = new Date();
-        Date openingDate  = part.getOpeningDate();
+        Date openingDate = part.getOpeningDate();
 
-        if(today.before(openingDate)) {
+        if (today.before(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
 
@@ -243,7 +260,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         Date closingDate = part.getClosingDate();
         boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if(questioningEvents.isEmpty() || refused || !closingDate.after(today))
+        if (questioningEvents.isEmpty() || refused || !closingDate.after(today))
             return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
 
         boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
@@ -251,16 +268,18 @@ public class QuestioningServiceImpl implements QuestioningService {
         boolean started = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS);
 
 
-        if(validated) {
+        if (validated) {
             return QuestionnaireStatusTypeEnum.RECEIVED;
         }
-        if(started) {
+        if (started) {
             return QuestionnaireStatusTypeEnum.IN_PROGRESS;
         }
-        if(opened) {
+        if (opened) {
             return QuestionnaireStatusTypeEnum.NOT_STARTED;
         }
 
         return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
     }
+
+
 }

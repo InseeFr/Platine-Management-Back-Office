@@ -65,13 +65,6 @@ public class ParametersServiceImpl implements ParametersService {
     }
 
 
-    @Override
-    public String findSuitableParameterValue(Campaign campaign, ParameterEnum paramValue) {
-        return findParameterValueInSet(campaign.getParams(), paramValue)
-                .orElse(findParameterValueInSet(campaign.getSurvey().getParams(), paramValue)
-                        .orElse(findParameterValueInSet(campaign.getSurvey().getSource().getParams(), paramValue)
-                                .orElse("")));
-    }
 
     private Optional<String> findParameterValueInSet(Set<Parameters> params, ParameterEnum paramValue) {
         return params.stream()
