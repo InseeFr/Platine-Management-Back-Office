@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.contact.validation.ValidContactP
 import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -135,6 +136,23 @@ public class ContactController {
 
     }
 
+    @Operation(summary = "Update main contact's interrogations")
+    @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public ResponseEntity<Void> updateMainContactInterrogations(
+            @PathVariable @RequestParam String contactId,
+            @PathVariable @RequestParam Long questioningId,
+                                                    Authentication auth)  {
+        try {
+            contactService.updateMainContactInterrogation(contactId, questioningId);
+
+        } catch (NotFoundException e) {
+            log.info("Contact {} not found", contactId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
 
     /**
      * @deprecated
