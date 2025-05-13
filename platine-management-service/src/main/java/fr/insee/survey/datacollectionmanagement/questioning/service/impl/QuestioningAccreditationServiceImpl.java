@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -18,6 +19,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
     private final PartitioningService partitioningService;
+    private final ContactService contactService;
+
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -47,6 +50,23 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     @Override
     public void deleteAccreditation(QuestioningAccreditation acc) {
         questioningAccreditationRepository.deleteById(acc.getId());
+    }
+
+    @Override
+    public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
+
+        if(!contactService.existsByIdentifier(contactId))
+        {
+            throw new IllegalArgumentException("Contact not found");
+        }
+
+        List<QuestioningAccreditation> questioningAccreditations = findBydIdQuestioning(questioningId);
+
+        for(QuestioningAccreditation qa :  questioningAccreditations){
+            qa.setIdContact(contactId);
+            qa.setMain(true);
+            saveQuestioningAccreditation(qa);
+        }
     }
 
 }
