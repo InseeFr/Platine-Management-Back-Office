@@ -139,8 +139,8 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<Void> updateMainContactInterrogation(
-            @PathVariable @RequestParam String contactId,
-            @PathVariable @RequestParam Long questioningId,
+            @PathVariable String contactId,
+            @PathVariable Long questioningId,
                                                     Authentication auth)  {
         try {
             questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
