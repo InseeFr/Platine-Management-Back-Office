@@ -1,12 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationRepositoryStub;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class QuestioningAccreditationServiceImplTest {
     @DisplayName("Should throw error with unknown contact")
     void setQuestioningAccreditationToUnknownContact() {
         Long questioningId = 123L;
-        assertThrows(NotFoundException.class, () ->
+        assertThrows(EntityNotFoundException.class, () ->
             questioningAccreditationService.setQuestioningAccreditationToContact("testId", questioningId));
     }
 

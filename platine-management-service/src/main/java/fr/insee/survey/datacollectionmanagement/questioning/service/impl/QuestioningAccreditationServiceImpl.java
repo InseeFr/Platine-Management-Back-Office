@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +56,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         if(!contactService.existsByIdentifier(contactId))
         {
-            throw new NotFoundException("Contact not found");
+            throw new EntityNotFoundException("Contact not found");
         }
 
         List<QuestioningAccreditation> questioningAccreditations = findBydIdQuestioning(questioningId);

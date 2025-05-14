@@ -141,15 +141,9 @@ public class ContactController {
     public ResponseEntity<Void> updateInterrogationToMainContactAsMain(
             @PathVariable("questioningId") Long questioningId,
             @PathVariable("contactId") String contactId)  {
-        try {
-            questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
 
-        } catch (NotFoundException e) {
-            log.info("Contact {} not found", contactId);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**

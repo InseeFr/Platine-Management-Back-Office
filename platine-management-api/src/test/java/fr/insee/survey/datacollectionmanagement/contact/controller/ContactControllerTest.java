@@ -12,6 +12,8 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactReposi
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,6 +57,9 @@ class ContactControllerTest {
 
     @Autowired
     ContactRepository contactRepository;
+
+    @Autowired
+    QuestioningAccreditationRepository questioningAccreditationRepository;
 
     @BeforeEach
     void init() {
@@ -305,7 +311,16 @@ class ContactControllerTest {
 
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
-                .andExpect(status().isAccepted());
+                .andExpect(status().isOk());
+
+        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationByQuestioningId(questioningId);
+
+        for(QuestioningAccreditation qa : questioningAccreditations)
+        {
+            assertThat(qa.isMain()).isTrue();
+            assertThat(qa.getIdContact()).isEqualTo(contactId);
+            assertThat(qa.getQuestioning().getId()).isEqualTo(questioningId);
+        }
     }
 
     @Test
