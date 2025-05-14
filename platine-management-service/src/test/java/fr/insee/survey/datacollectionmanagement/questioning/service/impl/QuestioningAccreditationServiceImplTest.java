@@ -34,7 +34,7 @@ class QuestioningAccreditationServiceImplTest {
     @Test
     @DisplayName("Should throw error with unknown contact")
     void setQuestioningAccreditationToUnknownContact() {
-        Long questioningId = Integer.toUnsignedLong(123);
+        Long questioningId = 123L;
         assertThrows(NotFoundException.class, () ->
             questioningAccreditationService.setQuestioningAccreditationToContact("testId", questioningId));
     }
@@ -43,14 +43,14 @@ class QuestioningAccreditationServiceImplTest {
     @DisplayName("Should set questioning accreditation to specified contact")
     void setQuestioningAccreditationToContact() {
         QuestioningAccreditation qa = new QuestioningAccreditation();
-        Long questioningId = Integer.toUnsignedLong(123);
+        Long questioningId = 123L;
         String contactId = "testId";
 
         Contact contact = new Contact();
         contact.setIdentifier(contactId);
         contactService.saveContact(contact);
 
-        qa.setId(Integer.toUnsignedLong(1));
+        qa.setId(1L);
         qa.setIdContact("otherId");
         qa.setMain(false);
 

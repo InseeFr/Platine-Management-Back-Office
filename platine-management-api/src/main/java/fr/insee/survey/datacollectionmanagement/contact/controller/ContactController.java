@@ -138,7 +138,7 @@ public class ContactController {
     @Operation(summary = "Give questioning accreditation to contact as main")
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public ResponseEntity<Void> updateMainContactInterrogation(
+    public ResponseEntity<Void> updateInterrogationToMainContactAsMain(
             @PathVariable("questioningId") Long questioningId,
             @PathVariable("contactId") String contactId)  {
         try {
@@ -211,5 +211,4 @@ public class ContactController {
             super(content, pageable, total);
         }
     }
-
 }

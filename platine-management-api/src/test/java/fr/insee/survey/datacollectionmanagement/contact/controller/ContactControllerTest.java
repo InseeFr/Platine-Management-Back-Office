@@ -298,5 +298,23 @@ class ContactControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void updateInterrogation_ToMainContactAsMain_ok() throws Exception {
+        Long questioningId = 1L;
+        String contactId = "CONT1";
 
+        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
+                .andExpect(status().isAccepted());
+    }
+
+    @Test
+    void updateInterrogation_ToMainContactAsMain_notFound() throws Exception {
+        Long questioningId = 999L;
+        String contactId = "UNKNOWN";
+
+        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
+                .andExpect(status().isNotFound());
+    }
 }
