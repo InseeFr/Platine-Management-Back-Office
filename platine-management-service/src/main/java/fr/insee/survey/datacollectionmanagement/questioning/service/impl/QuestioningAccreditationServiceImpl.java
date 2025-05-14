@@ -43,7 +43,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning) {
-        return questioningAccreditationRepository.findAccreditationByQuestioningId(idQuestioning);
+        return questioningAccreditationRepository.findAccreditationsByQuestioningId(idQuestioning);
     }
 
     @Override

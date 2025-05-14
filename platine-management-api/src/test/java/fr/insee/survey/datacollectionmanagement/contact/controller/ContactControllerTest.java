@@ -313,7 +313,7 @@ class ContactControllerTest {
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
                 .andExpect(status().isOk());
 
-        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationByQuestioningId(questioningId);
+        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationsByQuestioningId(questioningId);
 
         for(QuestioningAccreditation qa : questioningAccreditations)
         {

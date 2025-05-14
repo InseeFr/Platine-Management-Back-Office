@@ -33,7 +33,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public List<QuestioningAccreditation> findAccreditationByQuestioningId(Long questioningId) {
+    public List<QuestioningAccreditation> findAccreditationsByQuestioningId(Long questioningId) {
         return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).toList();
     }
 

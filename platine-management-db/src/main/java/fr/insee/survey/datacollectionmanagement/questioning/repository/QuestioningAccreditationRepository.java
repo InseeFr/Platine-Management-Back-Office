@@ -31,7 +31,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "LIMIT 500", nativeQuery = true)
     List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec);
 
-    List<QuestioningAccreditation> findAccreditationByQuestioningId(Long questioningId);
+    List<QuestioningAccreditation> findAccreditationsByQuestioningId(Long questioningId);
 
 
 }
