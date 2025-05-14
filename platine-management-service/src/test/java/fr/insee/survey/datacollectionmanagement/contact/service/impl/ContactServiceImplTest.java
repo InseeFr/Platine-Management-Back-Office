@@ -16,7 +16,6 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,7 +40,6 @@ class ContactServiceImplTest {
     private ViewServiceStub viewService;
     private CampaignServiceStub campaignService;
     private ModelMapper modelMapper = new ModelMapper();
-    private QuestioningAccreditationServiceStub questioningAccreditationServiceStub;
 
     @BeforeEach
     void init() {
@@ -50,9 +48,8 @@ class ContactServiceImplTest {
         contactEventService = Mockito.mock(ContactEventService.class);
         viewService = new ViewServiceStub();
         campaignService = new CampaignServiceStub();
-        questioningAccreditationServiceStub = new QuestioningAccreditationServiceStub();
         contactService = new ContactServiceImpl(contactRepository, addressService,
-                contactEventService, viewService, modelMapper, campaignService, questioningAccreditationServiceStub);
+                contactEventService, viewService, modelMapper, campaignService);
     }
 
     @Test

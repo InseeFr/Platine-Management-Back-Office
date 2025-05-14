@@ -139,11 +139,10 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<Void> updateMainContactInterrogation(
-            @PathVariable String contactId,
-            @PathVariable Long questioningId,
-                                                    Authentication auth)  {
+            @PathVariable("questioningId") Long questioningId,
+            @PathVariable("contactId") String contactId)  {
         try {
-            contactService.setQuestioningAccreditationToContact(contactId, questioningId);
+            questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
 
         } catch (NotFoundException e) {
             log.info("Contact {} not found", contactId);

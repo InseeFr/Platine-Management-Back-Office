@@ -18,8 +18,6 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +46,6 @@ public class ContactServiceImpl implements ContactService {
     private final ModelMapper modelMapper;
 
     private final CampaignService campaignService;
-
-    private final QuestioningAccreditationService questioningAccreditationService;
 
 
     @Override
@@ -240,22 +236,5 @@ public class ContactServiceImpl implements ContactService {
         contactDetailsDto.setCivility(contact.getGender());
         contactDetailsDto.setListCampaigns(campaignsStatus);
         return contactDetailsDto;
-    }
-
-    @Override
-    public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
-
-        if(!existsByIdentifier(contactId))
-        {
-            throw new IllegalArgumentException("Contact not found");
-        }
-
-        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findBydIdQuestioning(questioningId);
-
-        for(QuestioningAccreditation qa :  questioningAccreditations){
-            qa.setIdContact(contactId);
-            qa.setMain(true);
-            questioningAccreditationService.saveQuestioningAccreditation(qa);
-        }
     }
 }
