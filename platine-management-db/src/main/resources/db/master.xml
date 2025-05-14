@@ -9,4 +9,5 @@
     <include file="changelog/010_create-contact-source.sql" relativeToChangelogFile="true"/>
     <include file="changelog/020_create-interrogation-event-order.sql" relativeToChangelogFile="true"/>
     <include file="changelog/021_add_column_date_last_extraction_source.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/022_add-id-interrogation.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
