@@ -138,12 +138,11 @@ public class ContactController {
     @Operation(summary = "Give questioning accreditation to contact as main")
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public ResponseEntity<Void> updateInterrogationToMainContactAsMain(
+    public void updateInterrogationToMainContactAsMain(
             @PathVariable("questioningId") Long questioningId,
             @PathVariable("contactId") String contactId)  {
 
         questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**

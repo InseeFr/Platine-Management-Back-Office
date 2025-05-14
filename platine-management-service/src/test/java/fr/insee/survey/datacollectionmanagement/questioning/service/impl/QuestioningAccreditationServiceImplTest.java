@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -35,8 +35,10 @@ class QuestioningAccreditationServiceImplTest {
     @DisplayName("Should throw error with unknown contact")
     void setQuestioningAccreditationToUnknownContact() {
         Long questioningId = 123L;
-        assertThrows(EntityNotFoundException.class, () ->
-            questioningAccreditationService.setQuestioningAccreditationToContact("testId", questioningId));
+        assertThatThrownBy(
+                () -> questioningAccreditationService.setQuestioningAccreditationToContact("testId", questioningId))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Contact not found");
     }
 
     @Test
