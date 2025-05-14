@@ -8,13 +8,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class ParametersServiceStub implements ParametersService {
-
-    private final Map<String, String> parameterValues = new HashMap<>();
 
     @Override
     public Parameters convertToEntity(ParamsDto paramsDto) {
@@ -42,12 +38,4 @@ public class ParametersServiceStub implements ParametersService {
     }
 
 
-    public void setParameterValue(Campaign campaign, ParameterEnum parameter, String value) {
-        parameterValues.put(campaign.getId() + "_" + parameter.name(), value);
-    }
-
-    @Override
-    public String findSuitableParameterValue(Campaign campaign, ParameterEnum parameter) {
-        return parameterValues.getOrDefault(campaign.getId() + "_" + parameter.name(), "");
-    }
 }

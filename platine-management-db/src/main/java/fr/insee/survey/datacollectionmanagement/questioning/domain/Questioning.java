@@ -24,6 +24,8 @@ public class Questioning {
     @NonNull
     private String idPartitioning;
 
+    private String assistanceMail;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
     private Set<QuestioningAccreditation> questioningAccreditations;
 
