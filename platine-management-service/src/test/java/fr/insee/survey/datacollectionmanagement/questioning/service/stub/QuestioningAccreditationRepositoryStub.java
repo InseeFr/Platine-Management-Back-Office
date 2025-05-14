@@ -10,12 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Setter
 public class QuestioningAccreditationRepositoryStub implements QuestioningAccreditationRepository {
+
+    List<QuestioningAccreditation> questioningAccreditations = new ArrayList<QuestioningAccreditation>();
 
     private List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDto;
 
@@ -31,7 +34,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public List<QuestioningAccreditation> findAccreditationByQuestioningId(Long questioningId) {
-        return List.of();
+        return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).toList();
     }
 
 
@@ -117,7 +120,9 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public <S extends QuestioningAccreditation> S save(S entity) {
-        return null;
+        delete(entity);
+        questioningAccreditations.add(entity);
+        return entity;
     }
 
     @Override
@@ -157,7 +162,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public void delete(QuestioningAccreditation entity) {
-        // not used
+        questioningAccreditations.removeIf(e -> e.getId().equals(entity.getId()));
     }
 
     @Override

@@ -11,10 +11,14 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ContactServiceStub implements ContactService {
+
+    List<Contact> contacts = new ArrayList<>();
+
     @Override
     public Page<Contact> findAll(Pageable pageable) {
         return null;
@@ -35,9 +39,8 @@ public class ContactServiceStub implements ContactService {
         return null;
     }
 
-    @Override
     public boolean existsByIdentifier(String identifier) {
-        return false;
+        return contacts.stream().anyMatch(contact -> contact.getIdentifier().equals(identifier));
     }
 
     @Override
@@ -47,7 +50,8 @@ public class ContactServiceStub implements ContactService {
 
     @Override
     public Contact saveContact(Contact contact) {
-        return null;
+        contacts.add(contact);
+        return contact;
     }
 
     @Override
