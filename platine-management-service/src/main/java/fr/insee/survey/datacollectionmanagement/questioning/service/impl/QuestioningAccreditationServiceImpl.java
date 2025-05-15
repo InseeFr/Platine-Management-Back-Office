@@ -5,7 +5,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import jakarta.persistence.EntityNotFoundException;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +19,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
     private final ContactService contactService;
+    private final QuestioningService questioningService;
 
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
@@ -42,8 +43,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning) {
-        return questioningAccreditationRepository.findAccreditationsByQuestioningId(idQuestioning);
+    public List<QuestioningAccreditation> findByQuestioningIdAndIsMain(Long questioningId) {
+        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
     }
 
     @Override
@@ -53,17 +54,13 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        contactService.findByIdentifier(contactId);
+        questioningService.findById(questioningId);
 
-        if(!contactService.existsByIdentifier(contactId))
-        {
-            throw new EntityNotFoundException("Contact not found");
-        }
-
-        List<QuestioningAccreditation> questioningAccreditations = findBydIdQuestioning(questioningId);
+        List<QuestioningAccreditation> questioningAccreditations = findByQuestioningIdAndIsMain(questioningId);
 
         for(QuestioningAccreditation qa :  questioningAccreditations){
             qa.setIdContact(contactId);
-            qa.setMain(true);
             saveQuestioningAccreditation(qa);
         }
     }

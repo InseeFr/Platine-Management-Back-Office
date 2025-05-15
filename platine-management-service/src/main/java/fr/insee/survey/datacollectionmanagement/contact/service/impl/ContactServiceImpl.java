@@ -60,7 +60,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Contact findByIdentifier(String identifier) {
-        return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
+        return contactRepository.findById(identifier).orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", identifier)));
     }
 
     @Override

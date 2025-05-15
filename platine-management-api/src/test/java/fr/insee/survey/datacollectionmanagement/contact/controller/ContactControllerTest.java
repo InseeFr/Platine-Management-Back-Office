@@ -313,20 +313,30 @@ class ContactControllerTest {
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
                 .andExpect(status().isOk());
 
-        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationsByQuestioningId(questioningId);
+        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
-        for(QuestioningAccreditation qa : questioningAccreditations)
-        {
-            assertThat(qa.isMain()).isTrue();
-            assertThat(qa.getIdContact()).isEqualTo(contactId);
-            assertThat(qa.getQuestioning().getId()).isEqualTo(questioningId);
-        }
+        assertThat(questioningAccreditations).hasSize(1);
+        QuestioningAccreditation qa = questioningAccreditations.getFirst();
+
+        assertThat(qa.isMain()).isTrue();
+        assertThat(qa.getIdContact()).isEqualTo(contactId);
+        assertThat(qa.getQuestioning().getId()).isEqualTo(questioningId);
     }
 
     @Test
     void updateInterrogation_ToMainContactAsMain_notFound() throws Exception {
         Long questioningId = 999L;
         String contactId = "UNKNOWN";
+
+        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateInterrogation_ToMainContactAsInterrogation_notFound() throws Exception {
+        Long questioningId = 999L;
+        String contactId = "CONT1";
 
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))

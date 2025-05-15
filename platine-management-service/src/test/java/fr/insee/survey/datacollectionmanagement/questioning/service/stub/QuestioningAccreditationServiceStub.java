@@ -34,7 +34,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public List<QuestioningAccreditation> findBydIdQuestioning(Long idQuestioning) {
+    public List<QuestioningAccreditation> findByQuestioningIdAndIsMain(Long questioningId) {
         return List.of();
     }
 

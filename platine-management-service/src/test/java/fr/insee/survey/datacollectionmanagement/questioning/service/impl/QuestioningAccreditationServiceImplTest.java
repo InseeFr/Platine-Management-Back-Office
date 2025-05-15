@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,22 +24,41 @@ class QuestioningAccreditationServiceImplTest {
     private QuestioningAccreditationService questioningAccreditationService;
     private QuestioningAccreditationRepositoryStub questioningAccreditationRepository;
     private ContactServiceStub contactService;
+    private QuestioningServiceStub questioningService;
 
     @BeforeEach
     void init() {
         questioningAccreditationRepository = new QuestioningAccreditationRepositoryStub();
         contactService = new ContactServiceStub();
-        questioningAccreditationService = new QuestioningAccreditationServiceImpl(questioningAccreditationRepository, contactService);
+        questioningService = new QuestioningServiceStub();
+        questioningAccreditationService = new QuestioningAccreditationServiceImpl(questioningAccreditationRepository, contactService, questioningService);
     }
 
     @Test
     @DisplayName("Should throw error with unknown contact")
     void setQuestioningAccreditationToUnknownContact() {
-        Long questioningId = 123L;
+        String contactId = "testId";
         assertThatThrownBy(
-                () -> questioningAccreditationService.setQuestioningAccreditationToContact("testId", questioningId))
+                () -> questioningAccreditationService.setQuestioningAccreditationToContact(contactId, 123L))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Contact not found");
+                .hasMessage(String.format("Contact %s not found", contactId));
+    }
+
+    @Test
+    @DisplayName("Should throw error with unknown interrogation")
+    void setQuestioningAccreditationToUnknownInterrogation() {
+
+        Long questioningId = 123L;
+        String contactId = "testId";
+
+        Contact contact = new Contact();
+        contact.setIdentifier(contactId);
+        contactService.saveContact(contact);
+
+        assertThatThrownBy(
+                () -> questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(String.format("Questioning %s not found", questioningId));
     }
 
     @Test
@@ -54,10 +74,11 @@ class QuestioningAccreditationServiceImplTest {
 
         qa.setId(1L);
         qa.setIdContact("otherId");
-        qa.setMain(false);
+        qa.setMain(true);
 
         Questioning questioning = new Questioning();
         questioning.setId(questioningId);
+        questioningService.saveQuestioning(questioning);
 
         qa.setQuestioning(questioning);
 
@@ -65,6 +86,5 @@ class QuestioningAccreditationServiceImplTest {
         questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
 
         assertThat(qa.getIdContact()).isEqualTo(contactId);
-        assertThat(qa.isMain()).isTrue();
     }
 }

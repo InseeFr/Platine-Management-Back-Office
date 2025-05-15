@@ -139,10 +139,10 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updateInterrogationToMainContactAsMain(
-            @PathVariable("questioningId") Long questioningId,
+            @PathVariable("interrogationId") Long interrogationId,
             @PathVariable("contactId") String contactId)  {
 
-        questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
+        questioningAccreditationService.setQuestioningAccreditationToContact(contactId, interrogationId);
     }
 
     /**

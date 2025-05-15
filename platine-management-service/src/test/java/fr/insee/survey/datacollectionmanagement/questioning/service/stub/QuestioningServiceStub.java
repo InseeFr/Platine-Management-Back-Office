@@ -7,10 +7,12 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,6 +21,8 @@ public class QuestioningServiceStub implements QuestioningService {
 
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
+    ArrayList<Questioning> questionings = new ArrayList<>();
+
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
         return null;
@@ -26,17 +30,19 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public Questioning findById(Long id) {
-        return null;
+        Optional<Questioning> questioning = questionings.stream().filter(q -> q.getId().equals(id)).findFirst();
+        return questioning.orElseThrow(() -> new EntityNotFoundException(String.format("Questioning %s not found", id)));
     }
 
     @Override
     public Questioning saveQuestioning(Questioning questioning) {
-        return null;
+        questionings.add(questioning);
+        return questioning;
     }
 
     @Override
     public void deleteQuestioning(Long id) {
-        //not used
+        questionings.remove(findById(id));
     }
 
     @Override
