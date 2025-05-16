@@ -16,5 +16,10 @@ public interface QuestioningAccreditationService {
    
     QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
+    QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId);
+
     void deleteAccreditation(QuestioningAccreditation c);
-}
+
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId);
+
+    }

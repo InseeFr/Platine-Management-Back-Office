@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
@@ -10,12 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Setter
 public class QuestioningAccreditationRepositoryStub implements QuestioningAccreditationRepository {
+
+    List<QuestioningAccreditation> questioningAccreditations = new ArrayList<QuestioningAccreditation>();
 
     private List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDto;
 
@@ -28,6 +32,13 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     public List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec) {
         return myQuestionnaireDetailsDto;
     }
+
+    @Override
+    public QuestioningAccreditation findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId) {
+        return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId))
+                .findFirst().orElseThrow(() -> new NotFoundException(String.format("Questioning accreditation %s not found", questioningId)));
+    }
+
 
     @Override
     public void flush() {
@@ -111,7 +122,9 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public <S extends QuestioningAccreditation> S save(S entity) {
-        return null;
+        delete(entity);
+        questioningAccreditations.add(entity);
+        return entity;
     }
 
     @Override
@@ -151,7 +164,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public void delete(QuestioningAccreditation entity) {
-        // not used
+        questioningAccreditations.removeIf(e -> e.getId().equals(entity.getId()));
     }
 
     @Override
