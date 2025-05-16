@@ -20,6 +20,6 @@ public interface QuestioningAccreditationService {
 
     void deleteAccreditation(QuestioningAccreditation c);
 
-    public void setQuestioningAccreditationToContact(String contactId, Long questioningId);
+    public void setMainQuestioningAccreditationToContactAsMain(String contactId, Long questioningId);
 
     }

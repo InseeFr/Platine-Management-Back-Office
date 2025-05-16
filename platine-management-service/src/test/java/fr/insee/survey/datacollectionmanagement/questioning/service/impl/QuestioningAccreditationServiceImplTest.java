@@ -31,17 +31,7 @@ class QuestioningAccreditationServiceImplTest {
         questioningAccreditationRepository = new QuestioningAccreditationRepositoryStub();
         contactService = new ContactServiceStub();
         questioningService = new QuestioningServiceStub();
-        questioningAccreditationService = new QuestioningAccreditationServiceImpl(questioningAccreditationRepository, contactService, questioningService);
-    }
-
-    @Test
-    @DisplayName("Should throw error with unknown contact")
-    void setQuestioningAccreditationToUnknownContact() {
-        String contactId = "testId";
-        assertThatThrownBy(
-                () -> questioningAccreditationService.setQuestioningAccreditationToContact(contactId, 123L))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage(String.format("Contact %s not found", contactId));
+        questioningAccreditationService = new QuestioningAccreditationServiceImpl(questioningAccreditationRepository);
     }
 
     @Test
@@ -56,14 +46,14 @@ class QuestioningAccreditationServiceImplTest {
         contactService.saveContact(contact);
 
         assertThatThrownBy(
-                () -> questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId))
+                () -> questioningAccreditationService.setMainQuestioningAccreditationToContactAsMain(contactId, questioningId))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage(String.format("Questioning %s not found", questioningId));
     }
 
     @Test
     @DisplayName("Should set questioning accreditation to specified contact")
-    void setQuestioningAccreditationToContact() {
+    void setMainQuestioningAccreditationToContactAsMain() {
         QuestioningAccreditation qa = new QuestioningAccreditation();
         Long questioningId = 123L;
         String contactId = "testId";
@@ -83,7 +73,7 @@ class QuestioningAccreditationServiceImplTest {
         qa.setQuestioning(questioning);
 
         questioningAccreditationRepository.save(qa);
-        questioningAccreditationService.setQuestioningAccreditationToContact(contactId, questioningId);
+        questioningAccreditationService.setMainQuestioningAccreditationToContactAsMain(contactId, questioningId);
 
         assertThat(qa.getIdContact()).isEqualTo(contactId);
     }

@@ -1,11 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +16,6 @@ import java.util.List;
 public class QuestioningAccreditationServiceImpl implements QuestioningAccreditationService {
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
-    private final ContactService contactService;
-    private final QuestioningService questioningService;
-
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -53,9 +48,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public void setQuestioningAccreditationToContact(String contactId, Long questioningId) {
-        contactService.findByIdentifier(contactId);
-        questioningService.findById(questioningId);
+    public void setMainQuestioningAccreditationToContactAsMain(String contactId, Long questioningId) {
 
         List<QuestioningAccreditation> questioningAccreditations = findByQuestioningIdAndIsMain(questioningId);
 
