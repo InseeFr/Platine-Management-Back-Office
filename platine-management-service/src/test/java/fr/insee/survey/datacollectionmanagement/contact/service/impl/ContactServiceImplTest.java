@@ -10,12 +10,12 @@ import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -76,7 +76,7 @@ class ContactServiceImplTest {
     @Test
     void getContactDetails_shouldThrowException_whenContactNotFound() {
         String contactId = "999";
-        assertThrows(EntityNotFoundException.class, () -> contactService.getContactDetails(contactId));
+        assertThrows(NotFoundException.class, () -> contactService.getContactDetails(contactId));
     }
 
     @Test

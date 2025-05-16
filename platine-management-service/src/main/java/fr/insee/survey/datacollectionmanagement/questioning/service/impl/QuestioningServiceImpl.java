@@ -23,7 +23,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningS
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -67,7 +66,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public Questioning findById(Long id) {
-        return questioningRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Questioning %s not found", id)));
+        return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
     @Override

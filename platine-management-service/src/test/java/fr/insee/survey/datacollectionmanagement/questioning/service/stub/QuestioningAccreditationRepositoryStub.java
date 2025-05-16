@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
@@ -33,8 +34,9 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public List<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId) {
-        return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).toList();
+    public QuestioningAccreditation findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId) {
+        return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId))
+                .findFirst().orElseThrow(() -> new NotFoundException(String.format("Questioning accreditation %s not found", questioningId)));
     }
 
 

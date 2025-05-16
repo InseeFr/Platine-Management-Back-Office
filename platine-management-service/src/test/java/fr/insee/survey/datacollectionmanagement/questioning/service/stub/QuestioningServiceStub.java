@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -7,7 +8,6 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +31,7 @@ public class QuestioningServiceStub implements QuestioningService {
     @Override
     public Questioning findById(Long id) {
         Optional<Questioning> questioning = questionings.stream().filter(q -> q.getId().equals(id)).findFirst();
-        return questioning.orElseThrow(() -> new EntityNotFoundException(String.format("Questioning %s not found", id)));
+        return questioning.orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
     @Override

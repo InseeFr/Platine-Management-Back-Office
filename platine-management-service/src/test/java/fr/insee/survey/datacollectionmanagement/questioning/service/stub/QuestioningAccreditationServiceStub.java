@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import lombok.Setter;
@@ -34,8 +35,10 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public List<QuestioningAccreditation> findByQuestioningIdAndIsMain(Long questioningId) {
-        return List.of();
+    public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
+        return questioningAccreditationList.stream()
+                .filter(qa -> qa.isMain() && qa.getQuestioning().getId().equals(questioningId)).findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning accreditation %s not found", questioningId)));
     }
 
     @Override
@@ -44,7 +47,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContactAsMain(String contactId, Long questioningId) {
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
         //not used
     }
 }

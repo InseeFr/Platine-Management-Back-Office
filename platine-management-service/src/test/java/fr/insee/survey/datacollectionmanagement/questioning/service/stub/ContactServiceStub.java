@@ -8,7 +8,6 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,7 +33,7 @@ public class ContactServiceStub implements ContactService {
     @Override
     public Contact findByIdentifier(String identifier) {
         Optional<Contact> contact = contacts.stream().filter(c -> c.getIdentifier().equals(identifier)).findFirst();
-        return contact.orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", identifier)));
+        return contact.orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
     }
 
     @Override

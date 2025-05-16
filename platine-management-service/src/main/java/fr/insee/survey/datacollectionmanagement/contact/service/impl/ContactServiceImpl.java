@@ -19,7 +19,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -60,13 +59,13 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public Contact findByIdentifier(String identifier) {
-        return contactRepository.findById(identifier).orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", identifier)));
+        return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
     }
 
     @Override
     public ContactDto update(ContactDto contactDto, JsonNode payload) {
         Contact existingContact = contactRepository.findById(contactDto.getIdentifier())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
+                .orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
 
         existingContact.setExternalId(contactDto.getExternalId());
         existingContact.setFirstName(contactDto.getFirstName());

@@ -38,7 +38,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public List<QuestioningAccreditation> findByQuestioningIdAndIsMain(Long questioningId) {
+    public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
         return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
     }
 
@@ -48,14 +48,10 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContactAsMain(String contactId, Long questioningId) {
-
-        List<QuestioningAccreditation> questioningAccreditations = findByQuestioningIdAndIsMain(questioningId);
-
-        for(QuestioningAccreditation qa :  questioningAccreditations){
-            qa.setIdContact(contactId);
-            saveQuestioningAccreditation(qa);
-        }
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        QuestioningAccreditation questioningAccreditation = findByQuestioningIdAndIsMain(questioningId);
+        questioningAccreditation.setIdContact(contactId);
+        saveQuestioningAccreditation(questioningAccreditation);
     }
 
 }

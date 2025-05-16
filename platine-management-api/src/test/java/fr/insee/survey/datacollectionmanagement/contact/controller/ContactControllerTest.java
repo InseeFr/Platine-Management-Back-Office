@@ -11,10 +11,10 @@ import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
-import jakarta.persistence.EntityNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +131,7 @@ class ContactControllerTest {
         // delete contact
         mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertThrows(EntityNotFoundException.class, () -> contactService.findByIdentifier(identifier));
+        assertThrows(NotFoundException.class, () -> contactService.findByIdentifier(identifier));
         assertTrue(contactEventService.findContactEventsByContact(contactFoundAfterUpdate).isEmpty());
 
         // delete contact not found
@@ -167,7 +167,7 @@ class ContactControllerTest {
         // delete contact
         mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        assertThrows(EntityNotFoundException.class, () -> contactService.findByIdentifier(identifier));
+        assertThrows(NotFoundException.class, () -> contactService.findByIdentifier(identifier));
 
     }
 
@@ -313,11 +313,7 @@ class ContactControllerTest {
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
                 .andExpect(status().isOk());
 
-        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
-
-        assertThat(questioningAccreditations).hasSize(1);
-        QuestioningAccreditation qa = questioningAccreditations.getFirst();
-
+        QuestioningAccreditation qa = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
         assertThat(qa.isMain()).isTrue();
         assertThat(qa.getIdContact()).isEqualTo(contactId);
         assertThat(qa.getQuestioning().getId()).isEqualTo(questioningId);

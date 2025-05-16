@@ -17,7 +17,6 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +24,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +121,7 @@ public class ContactController {
         HttpStatus httpStatus = HttpStatus.OK;
         try {
             contactService.findByIdentifier(id);
-        } catch (EntityNotFoundException e) {
+        } catch (NotFoundException e) {
             log.info("Creating contact with the identifier {}", contactDto.getIdentifier());
             httpStatus = HttpStatus.CREATED;
         }
@@ -133,7 +131,7 @@ public class ContactController {
 
     }
 
-    @Operation(summary = "Give questioning accreditation to contact as main")
+    @Operation(summary = "Give questioning main accreditation to target contact")
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updateInterrogationToMainContactAsMain(
@@ -141,7 +139,7 @@ public class ContactController {
             @PathVariable("contactId") String contactId)  {
         questioningService.findById(interrogationId);
         contactService.findByIdentifier(contactId);
-        questioningAccreditationService.setMainQuestioningAccreditationToContactAsMain(contactId, interrogationId);
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);
     }
 
     /**
