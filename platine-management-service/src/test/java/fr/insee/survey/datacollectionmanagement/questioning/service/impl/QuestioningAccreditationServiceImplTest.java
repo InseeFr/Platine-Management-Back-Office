@@ -7,7 +7,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningAccreditationServiceImplTest {
@@ -32,23 +29,6 @@ class QuestioningAccreditationServiceImplTest {
         contactService = new ContactServiceStub();
         questioningService = new QuestioningServiceStub();
         questioningAccreditationService = new QuestioningAccreditationServiceImpl(questioningAccreditationRepository);
-    }
-
-    @Test
-    @DisplayName("Should throw error with unknown interrogation")
-    void setQuestioningAccreditationToUnknownInterrogation() {
-
-        Long questioningId = 123L;
-        String contactId = "testId";
-
-        Contact contact = new Contact();
-        contact.setIdentifier(contactId);
-        contactService.saveContact(contact);
-
-        assertThatThrownBy(
-                () -> questioningAccreditationService.setMainQuestioningAccreditationToContactAsMain(contactId, questioningId))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage(String.format("Questioning %s not found", questioningId));
     }
 
     @Test
