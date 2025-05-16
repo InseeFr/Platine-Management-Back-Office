@@ -127,7 +127,6 @@ public class ContactController {
         }
         Contact contact = contactService.updateOrCreateContact(id, contactDto, payload);
 
-
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(contactService.convertToDto(contact));
 
     }
@@ -138,8 +137,6 @@ public class ContactController {
     public void updateInterrogationToMainContactAsMain(
             @PathVariable("interrogationId") Long interrogationId,
             @PathVariable("contactId") String contactId)  {
-
-
         questioningService.findById(interrogationId);
         contactService.findByIdentifier(contactId);
         questioningAccreditationService.setMainQuestioningAccreditationToContactAsMain(contactId, interrogationId);
