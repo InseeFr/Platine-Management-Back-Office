@@ -39,7 +39,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
-        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
+        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation %s not found", questioningId)));
     }
 
     @Override

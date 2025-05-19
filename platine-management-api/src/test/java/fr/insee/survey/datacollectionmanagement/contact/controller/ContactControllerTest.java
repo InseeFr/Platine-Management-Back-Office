@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -313,10 +314,11 @@ class ContactControllerTest {
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
                 .andExpect(status().isOk());
 
-        QuestioningAccreditation qa = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
-        assertThat(qa.isMain()).isTrue();
-        assertThat(qa.getIdContact()).isEqualTo(contactId);
-        assertThat(qa.getQuestioning().getId()).isEqualTo(questioningId);
+        Optional<QuestioningAccreditation> qa = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
+        assertThat(qa).isPresent();
+        assertThat(qa.get().isMain()).isTrue();
+        assertThat(qa.get().getIdContact()).isEqualTo(contactId);
+        assertThat(qa.get().getQuestioning().getId()).isEqualTo(questioningId);
     }
 
     @Test

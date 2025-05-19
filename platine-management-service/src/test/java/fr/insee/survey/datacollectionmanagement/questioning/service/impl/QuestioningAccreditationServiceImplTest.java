@@ -42,7 +42,7 @@ class QuestioningAccreditationServiceImplTest {
         assertThatThrownBy(
                 () -> questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, questioningId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Questioning accreditation %s not found", questioningId);
+                .hasMessage("QuestioningAccreditation %s not found", questioningId);
     }
 
     @Test
