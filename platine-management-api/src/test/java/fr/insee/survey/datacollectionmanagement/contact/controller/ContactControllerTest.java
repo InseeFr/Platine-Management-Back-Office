@@ -31,9 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -58,9 +56,6 @@ class ContactControllerTest {
 
     @Autowired
     ContactRepository contactRepository;
-
-    @Autowired
-    QuestioningAccreditationRepository questioningAccreditationRepository;
 
     @BeforeEach
     void init() {
@@ -303,41 +298,5 @@ class ContactControllerTest {
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void updateInterrogation_ToMainContactAsMain_ok() throws Exception {
-        Long questioningId = 1L;
-        String contactId = "CONT1";
-
-        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
-                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
-                .andExpect(status().isOk());
-
-        Optional<QuestioningAccreditation> qa = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
-        assertThat(qa).isPresent();
-        assertThat(qa.get().isMain()).isTrue();
-        assertThat(qa.get().getIdContact()).isEqualTo(contactId);
-        assertThat(qa.get().getQuestioning().getId()).isEqualTo(questioningId);
-    }
-
-    @Test
-    void updateInterrogation_ToMainContactAsMain_notFound() throws Exception {
-        Long questioningId = 999L;
-        String contactId = "UNKNOWN";
-
-        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
-                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void updateInterrogation_ToMainContactAsInterrogation_notFound() throws Exception {
-        Long questioningId = 999L;
-        String contactId = "CONT1";
-
-        mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
-                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
-                .andExpect(status().isNotFound());
     }
 }

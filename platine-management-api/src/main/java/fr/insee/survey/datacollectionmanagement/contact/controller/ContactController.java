@@ -16,7 +16,6 @@ import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteExce
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,8 +51,8 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactService;
+
     private final QuestioningAccreditationService questioningAccreditationService;
-    private final QuestioningService questioningService;
 
     /**
      * @deprecated
@@ -129,17 +128,6 @@ public class ContactController {
 
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(contactService.convertToDto(contact));
 
-    }
-
-    @Operation(summary = "Give questioning main accreditation to target contact")
-    @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public void updateInterrogationToMainContactAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
-            @PathVariable("contactId") String contactId)  {
-        questioningService.findById(interrogationId);
-        contactService.findByIdentifier(contactId);
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);
     }
 
     /**

@@ -1,6 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.Setter;
@@ -12,6 +14,8 @@ public class ViewServiceStub implements ViewService {
     private Long countViewByIdentifier;
     private Map<String, List<String>> identifiersBySurveyUnit = new HashMap<>();
     private Map<String, Set<String>> campaignsByIdentifiers = new HashMap<>();
+    List<View> views = List.of();
+
 
     public void setIdentifiersByIdSu(String idSu, List<String> identifiers) {
         identifiersBySurveyUnit.put(idSu, identifiers);
@@ -25,9 +29,21 @@ public class ViewServiceStub implements ViewService {
         campaignsByIdentifiers.computeIfAbsent(contactId, k -> new HashSet<>()).add(campaignId);
     }
 
+    private View findViewById(Long id)
+    {
+        return views.stream().filter(v -> v.getId().equals(id)).findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format("No View found with id %s", id)));
+    }
+
     @Override
     public View saveView(View view) {
-        return null;
+        if(findViewById(view.getId()).equals(view))
+        {
+            deleteView(view);
+        }
+
+        views.add(view);
+        return view;
     }
 
     @Override
@@ -77,7 +93,7 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public void deleteView(View view) {
-        // Stub
+        views.remove(findViewById(view.getId()));
     }
 
     @Override
@@ -102,5 +118,17 @@ public class ViewServiceStub implements ViewService {
             result.put(identifier, campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
         }
         return result;
+    }
+
+    @Override
+    public View findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
+        return views.stream().filter(v -> v.getCampaignId().equals(campaignId)
+                && v.getIdentifier().equals(contactId)
+                && v.getIdSu().equals(idSu)).findFirst().orElseThrow(() ->  new NotFoundException(String.format("View %s, %s and %s not found", contactId, idSu, campaignId)));
+    }
+
+    @Override
+    public void updateViewForQuestioningAccreditationReplacement(QuestioningAccreditation questioningAccreditation, String newContactId) {
+        // not used
     }
 }
