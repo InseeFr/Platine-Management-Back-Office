@@ -389,8 +389,8 @@ class QuestioningServiceImplTest {
     void testSearchQuestioningWithParam() {
         // Given
         String param = "abc";
-        Questioning q1 = buildQuestioning(1L, "SU1", "PART001");
-        Questioning q2 = buildQuestioning(2L, "SU2", "PART001");
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        Questioning q2 = buildQuestioning(2L, "SU2");
         Campaign c = new Campaign();
         c.setId("CAMP01");
         partitioning.setCampaign(c);
@@ -415,8 +415,8 @@ class QuestioningServiceImplTest {
     void testSearchQuestioningWithoutParam() {
         // Given
         String param = "";
-        Questioning q1 = buildQuestioning(1L, "SU1","PART001");
-        Questioning q2 = buildQuestioning(2L, "SU2","PART001");
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        Questioning q2 = buildQuestioning(2L, "SU2");
         Campaign c = new Campaign();
         c.setId("CAMP01");
         partitioning.setCampaign(c);
@@ -444,7 +444,7 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance without personalisation returns null")
     void getMailAssistanceDtoNoMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1", "PART001");
+        Questioning q1 = buildQuestioning(1L, "SU1");
 
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
 
@@ -456,9 +456,8 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with questioning personalisation returns the right mail")
     void getMailAssistanceDtoQuestioningMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1", "PART001");
+        Questioning q1 = buildQuestioning(1L, "SU1");
         String assistanceMail = "assistanceq1@assistance.fr";
-        String assistancePart = "assistancePart@assistance.fr";
 
         q1.setAssistanceMail(assistanceMail);
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
@@ -472,7 +471,7 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with campaign personalisation returns the right mail")
     void getMailAssistanceDtoCampaignMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1", "PART001");
+        Questioning q1 = buildQuestioning(1L, "SU1");
         String assistancePart = "assistancePart@assistance.fr";
 
         when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
@@ -486,10 +485,10 @@ class QuestioningServiceImplTest {
     }
 
 
-    private Questioning buildQuestioning(Long id, String suId, String part) {
+    private Questioning buildQuestioning(Long id, String suId) {
         Questioning q = new Questioning();
         q.setId(id);
-        q.setIdPartitioning(part);
+        q.setIdPartitioning("PART001");
 
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(suId);
