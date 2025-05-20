@@ -8,8 +8,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -40,6 +43,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -75,6 +79,9 @@ class QuestioningServiceImplTest {
     @Mock
     private PartitioningRepository partitioningRepository;
 
+    @Mock
+    private ParametersService parametersService;
+
     private Questioning questioning = initQuestioning();
 
     private QuestioningServiceImpl questioningService;
@@ -109,7 +116,7 @@ class QuestioningServiceImplTest {
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
-                modelMapper, partitioningRepository);
+                modelMapper, partitioningRepository, parametersService);
     }
     private static InterrogationEventOrder order(String status, int valeur) {
         return new InterrogationEventOrder(null, status, valeur);
@@ -434,6 +441,50 @@ class QuestioningServiceImplTest {
         verify(questioningRepository, never()).findQuestioningByParam(any());
     }
 
+    @Test
+    @DisplayName("getMailAssistance without personalisation returns null")
+    void getMailAssistanceDtoNoMail() {
+        Questioning q1 = buildQuestioning(1L, "SU1");
+
+        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        assertNull(assistanceDto.getMailAssistance());
+        assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
+    }
+
+    @Test
+    @DisplayName("getMailAssistance with questioning personalisation returns the right mail")
+    void getMailAssistanceDtoQuestioningMail() {
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        String assistanceMail = "assistanceq1@assistance.fr";
+
+        q1.setAssistanceMail(assistanceMail);
+        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistanceMail);
+        assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
+
+    }
+
+    @Test
+    @DisplayName("getMailAssistance with campaign personalisation returns the right mail")
+    void getMailAssistanceDtoCampaignMail() {
+        Questioning q1 = buildQuestioning(1L, "SU1");
+        String assistancePart = "assistancePart@assistance.fr";
+
+        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(partitioningService.findById(q1.getIdPartitioning())).thenReturn(partitioning);
+        when(parametersService.findSuitableParameterValue(partitioning, ParameterEnum.MAIL_ASSISTANCE)).thenReturn(assistancePart);
+
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistancePart);
+        assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
+
+    }
+
+
     private Questioning buildQuestioning(Long id, String suId) {
         Questioning q = new Questioning();
         q.setId(id);
@@ -458,5 +509,6 @@ class QuestioningServiceImplTest {
         q.setQuestioningCommunications(new HashSet<>());
         return q;
     }
+
 
 }

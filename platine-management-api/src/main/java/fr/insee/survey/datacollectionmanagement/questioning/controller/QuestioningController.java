@@ -2,9 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -44,8 +41,6 @@ public class QuestioningController {
     private final SurveyUnitService surveyUnitService;
 
     private final PartitioningService partitioningService;
-
-    private final ParametersService parametersService;
 
     private final ModelMapper modelMapper;
 
@@ -94,11 +89,10 @@ public class QuestioningController {
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
-        Questioning questioning = questioningService.findById(questioningId);
-        Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
-        String mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
-        return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
+        return questioningService.getMailAssistanceDto(questioningId);
     }
+
+
 
     @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
     @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = "application/json")

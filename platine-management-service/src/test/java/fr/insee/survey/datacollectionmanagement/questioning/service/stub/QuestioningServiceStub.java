@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -51,6 +52,11 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu) {
+        return null;
+    }
+
+    @Override
+    public AssistanceDto getMailAssistanceDto(Long questioningId) {
         return null;
     }
 
