@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;

@@ -108,7 +108,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     @Override
     public void logContactUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
         contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
-        contactSourceService.saveContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu());
+        contactSourceService.saveContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu(), true);
     }
 
     @Override

@@ -23,12 +23,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class QuestioningAccreditationServiceImplTest {
 
@@ -82,7 +80,7 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(contactEvent.get().getContact()).isEqualTo(contact);
         assertThat(contactEvent.get().getType()).isEqualTo(ContactEventTypeEnum.update);
         assertThat(contactEvent.get().getPayload()).isEqualTo(payload);
-        assertThat(contactEvent.get().getEventDate()).isToday();
+        assertThat(contactEvent.get().getEventDate()).isCloseTo(new Date(), 5000L);
 
         ContactSourceId contactSourceId = new ContactSourceId(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu());
         ContactSource contactSource = contactSourceServiceStub.findContactSource(
