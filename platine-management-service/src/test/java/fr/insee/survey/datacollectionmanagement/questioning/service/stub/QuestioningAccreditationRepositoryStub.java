@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Setter
 public class QuestioningAccreditationRepositoryStub implements QuestioningAccreditationRepository {
 
-    List<QuestioningAccreditation> questioningAccreditations = new ArrayList<QuestioningAccreditation>();
+    List<QuestioningAccreditation> questioningAccreditations = new ArrayList<>();
 
     private List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDto;
 

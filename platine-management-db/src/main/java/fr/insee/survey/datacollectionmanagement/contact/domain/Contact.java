@@ -43,5 +43,4 @@ public class Contact {
 
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
-
 }
