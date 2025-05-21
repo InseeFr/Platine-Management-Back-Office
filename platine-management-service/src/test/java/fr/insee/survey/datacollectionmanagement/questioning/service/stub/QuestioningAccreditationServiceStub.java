@@ -53,22 +53,27 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
 
     @Override
     public void createQuestioningAccreditation(Questioning questioning, boolean isMain, String contactId, Date date) {
-
+        // not used
     }
 
     @Override
     public void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning) {
-
+        // not used
     }
 
     @Override
-    public void updateExistingAccreditation(Contact contact, Questioning questioning, JsonNode payload, Source source) throws NotFoundException {
-
+    public void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Source source) throws NotFoundException {
+        // not used
     }
 
     @Override
-    public void logContactUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+    public void logContactAccrediationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+        // not used
+    }
 
+    @Override
+    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+        // not used
     }
 
     @Override

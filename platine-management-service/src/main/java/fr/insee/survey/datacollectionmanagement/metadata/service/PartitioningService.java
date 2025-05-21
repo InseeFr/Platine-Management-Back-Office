@@ -13,6 +13,4 @@ public interface PartitioningService {
     void deletePartitioningById(String id);
 
     boolean isOnGoing(Partitioning part, Instant instant);
-
-
 }

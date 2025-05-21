@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -30,9 +29,11 @@ public interface QuestioningAccreditationService {
 
     void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning);
 
-    void updateExistingAccreditation(Contact contact, Questioning questioning, JsonNode payload, Source source) throws NotFoundException;
+    void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Source source);
 
-    void logContactUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source);
+    void logContactAccrediationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source);
+
+    void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source);
 
     JsonNode createPayload(String sourceLabel);
 }

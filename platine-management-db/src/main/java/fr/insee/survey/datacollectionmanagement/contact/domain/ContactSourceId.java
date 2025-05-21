@@ -8,6 +8,7 @@ import jakarta.persistence.Embeddable;
 @AllArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class ContactSourceId implements Serializable {
     private String sourceId;
     private String contactId;

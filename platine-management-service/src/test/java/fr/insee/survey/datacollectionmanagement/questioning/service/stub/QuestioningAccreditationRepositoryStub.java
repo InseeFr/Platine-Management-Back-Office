@@ -120,7 +120,8 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public <S extends QuestioningAccreditation> S save(S entity) {
-        delete(entity);
+        Optional<QuestioningAccreditation> existingQa = findById(entity.getId());
+        existingQa.ifPresent(this::delete);
         questioningAccreditations.add(entity);
         return entity;
     }
@@ -132,7 +133,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public Optional<QuestioningAccreditation> findById(Long aLong) {
-        return Optional.empty();
+        return questioningAccreditations.stream().filter(questioningAccreditation -> questioningAccreditation.getId().equals(aLong)).findFirst();
     }
 
     @Override

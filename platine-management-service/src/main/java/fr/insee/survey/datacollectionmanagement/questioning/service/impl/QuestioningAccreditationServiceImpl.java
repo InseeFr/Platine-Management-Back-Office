@@ -56,7 +56,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
-        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation %s not found", questioningId)));
+        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation for %s questioningId not found", questioningId)));
     }
 
     @Override
@@ -81,32 +81,35 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         Date date = Date.from(Instant.now());
         Source source = partitioningService.findById(questioning.getIdPartitioning())
                 .getCampaign().getSurvey().getSource();
-
         JsonNode payload = createPayload("platine-pilotage");
 
         try {
-            updateExistingAccreditation(contact, questioning, payload, source);
+            updateExistingMainAccreditationToNewContact(contact, questioning, payload, source);
         } catch (NotFoundException e) {
             createQuestioningAccreditation(questioning, true, contact.getIdentifier(), date);
         }
 
-        logContactUpdate(contact, questioning, payload, source);
+        logContactAccreditationGainUpdate(contact, questioning, payload, source);
     }
 
     @Override
-    public void updateExistingAccreditation(Contact contact, Questioning questioning, JsonNode payload, Source source) throws NotFoundException {
+    public void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Source source)  {
         QuestioningAccreditation existingAccreditation = findByQuestioningIdAndIsMain(questioning.getId());
         Contact previousContact = contactService.findByIdentifier(existingAccreditation.getIdContact());
 
-        existingAccreditation.setIdContact(contact.getIdentifier());
+        existingAccreditation.setIdContact(newContact.getIdentifier());
         saveQuestioningAccreditation(existingAccreditation);
-
-        contactSourceService.deleteContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu());
-        contactEventService.createContactEvent(previousContact, ContactEventTypeEnum.update, payload);
+        logContactAccrediationLossUpdate(previousContact, questioning, payload, source);
     }
 
     @Override
-    public void logContactUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+    public void logContactAccrediationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+        contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
+        contactSourceService.deleteContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu());
+    }
+
+    @Override
+    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
         contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
         contactSourceService.saveContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu(), true);
     }
