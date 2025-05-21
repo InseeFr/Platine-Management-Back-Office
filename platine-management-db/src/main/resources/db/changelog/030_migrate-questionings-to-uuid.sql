@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset davdarras:023-01 context:migrate-questioning-id
+--changeset davdarras:030-01 context:migrate-questioning-id
 
 ALTER TABLE questioning RENAME COLUMN id TO old_id;
 ALTER TABLE questioning RENAME COLUMN interrogation_id TO id;
