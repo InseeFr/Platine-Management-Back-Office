@@ -20,5 +20,4 @@ public interface ParametersService {
 
     String findSuitableParameterValue(Partitioning part, ParameterEnum paramValue);
 
-    String findSuitableParameterValue(Campaign campaign, ParameterEnum paramValue);
 }

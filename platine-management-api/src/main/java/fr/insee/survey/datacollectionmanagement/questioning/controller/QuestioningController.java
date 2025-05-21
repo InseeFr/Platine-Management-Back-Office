@@ -5,7 +5,6 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
@@ -113,7 +112,6 @@ public class QuestioningController {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
     }
 
-
     @Operation(summary = "Give questioning main accreditation to target contact")
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -132,6 +130,5 @@ public class QuestioningController {
     private QuestioningDto convertToDto(Questioning questioning) {
         return modelMapper.map(questioning, QuestioningDto.class);
     }
-
 
 }
