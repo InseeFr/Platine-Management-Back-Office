@@ -80,7 +80,7 @@ class MySurveyServiceImplTest {
         Partitioning mockPartitioning = new Partitioning();
         mockPartitioning.setLabel("Partition Label");
         mockPartitioning.setId(mockQuestioning.getIdPartitioning());
-        partitioningService.setPartitioning(mockPartitioning);
+        partitioningService.setStubbedPartition(mockPartitioning);
     }
 
     @Test

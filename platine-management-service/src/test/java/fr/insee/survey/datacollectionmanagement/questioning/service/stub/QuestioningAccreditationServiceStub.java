@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -62,17 +63,17 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Source source) throws NotFoundException {
+    public void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void logContactAccrediationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+    public void logContactAccreditationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source) {
+    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
     }
 

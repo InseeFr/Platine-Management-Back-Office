@@ -11,16 +11,17 @@ import java.time.Instant;
 @Setter
 public class PartitioningServiceStub implements PartitioningService {
 
-    private Partitioning partitioning;
+    private Partitioning stubbedPartition;
 
     @Override
     public Partitioning findById(String id) {
-        return partitioning;
+        return stubbedPartition;
     }
 
     @Override
     public Partitioning insertOrUpdatePartitioning(Partitioning partitioning) {
-        return null;
+        stubbedPartition = partitioning;
+        return stubbedPartition;
     }
 
     @Override

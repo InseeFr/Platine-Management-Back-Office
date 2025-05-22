@@ -14,8 +14,8 @@ public class ViewServiceStub implements ViewService {
     private Long countViewByIdentifier;
     private Map<String, List<String>> identifiersBySurveyUnit = new HashMap<>();
     private Map<String, Set<String>> campaignsByIdentifiers = new HashMap<>();
-    List<View> views = List.of();
 
+    ArrayList<View> views = new ArrayList<>();
 
     public void setIdentifiersByIdSu(String idSu, List<String> identifiers) {
         identifiersBySurveyUnit.put(idSu, identifiers);
@@ -37,9 +37,12 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public View saveView(View view) {
-        if(findViewById(view.getId()).equals(view))
-        {
+        try {
+            findViewById(view.getId());
             deleteView(view);
+        }
+        catch (NotFoundException e)
+        {
         }
 
         views.add(view);
@@ -88,7 +91,11 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public View createView(String identifier, String idSu, String campaignId) {
-        return null;
+        View newView = new View();
+        newView.setIdentifier(identifier);
+        newView.setIdSu(idSu);
+        newView.setCampaignId(campaignId);
+        return saveView(newView);
     }
 
     @Override

@@ -16,10 +16,14 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
+import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +42,8 @@ class QuestioningAccreditationServiceImplTest {
     private ContactEventService contactEventServiceStub;
     private ContactService contactServiceStub;
     private ContactSourceService contactSourceServiceStub;
-    private PartitioningServiceStub partitioningServiceStub;
+    private PartitioningService partitioningServiceStub;
+    private ViewService viewServiceStub;
 
     @BeforeEach
     void setUp() {
@@ -47,13 +52,16 @@ class QuestioningAccreditationServiceImplTest {
         contactServiceStub = new ContactServiceStub();
         contactSourceServiceStub = new ContactSourceServiceStub();
         partitioningServiceStub = new PartitioningServiceStub();
+        viewServiceStub = new ViewServiceStub();
+
 
         service = new QuestioningAccreditationServiceImpl(
                 accreditationRepoStub,
                 contactEventServiceStub,
                 contactServiceStub,
                 contactSourceServiceStub,
-                partitioningServiceStub
+                partitioningServiceStub,
+                viewServiceStub
         );
     }
 
@@ -73,10 +81,9 @@ class QuestioningAccreditationServiceImplTest {
         Questioning questioning = buildQuestioning("su-id", 1L);
         JsonNode payload = service.createPayload("platine-pilotage");
 
-        Source source = new Source();
-        source.setId("source-id");
+        Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
 
-        service.logContactAccreditationGainUpdate(contact, questioning, payload, source);
+        service.logContactAccreditationGainUpdate(contact, questioning, payload, campaign );
 
         Optional<ContactEvent> contactEvent = contactEventServiceStub.findContactEventsByContact(contact).stream().findFirst();
 
@@ -86,7 +93,11 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(contactEvent.get().getPayload()).isEqualTo(payload);
         assertThat(contactEvent.get().getEventDate()).isCloseTo(new Date(), 5000L);
 
-        ContactSourceId contactSourceId = new ContactSourceId(source.getId(), contact.getIdentifier(), questioning.getSurveyUnit().getIdSu());
+        ContactSourceId contactSourceId = new ContactSourceId(
+                campaign.getSurvey().getSource().getId(),
+                contact.getIdentifier(),
+                questioning.getSurveyUnit().getIdSu());
+
         ContactSource contactSource = contactSourceServiceStub.findContactSource(
                 contactSourceId.getContactId(),
                 contactSourceId.getSourceId(), contactSourceId.getSurveyUnitId());
@@ -102,12 +113,19 @@ class QuestioningAccreditationServiceImplTest {
         contact.setIdentifier("contact-id");
         Questioning questioning = buildQuestioning("su-id", 1L);
         JsonNode payload = service.createPayload("platine-pilotage");
+        Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
 
-        Source source = new Source();
-        source.setId("source-id");
-        contactSourceServiceStub.saveContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu(), true);
+        viewServiceStub.createView(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
 
-        service.logContactAccrediationLossUpdate(contact, questioning, payload, source);
+        contactSourceServiceStub.saveContactSource(
+                contact.getIdentifier(),
+                campaign.getSurvey().getSource().getId(),
+                questioning.getSurveyUnit().getIdSu(), true);
+
+        service.logContactAccreditationLossUpdate(contact,
+                questioning,
+                payload,
+                campaign);
 
         Optional<ContactEvent> contactEvent = contactEventServiceStub.findContactEventsByContact(contact).stream().findFirst();
 
@@ -117,9 +135,12 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(contactEvent.get().getPayload()).isEqualTo(payload);
         assertThat(contactEvent.get().getEventDate()).isCloseTo(new Date(), 5000L);
         assertThatThrownBy(() -> contactSourceServiceStub.findContactSource(
-                contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu()))
+                contact.getIdentifier(), campaign.getSurvey().getSource().getId(), questioning.getSurveyUnit().getIdSu()))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage(String.format("ContactSource not found for %s, %s and %s", contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu()));
+                .hasMessage(String.format("ContactSource not found for %s, %s and %s",
+                        contact.getIdentifier(),
+                        campaign.getSurvey().getSource().getId(),
+                        questioning.getSurveyUnit().getIdSu()));
     }
 
     @Test
@@ -137,8 +158,8 @@ class QuestioningAccreditationServiceImplTest {
         contactServiceStub.saveContact(oldContact);
         contactServiceStub.saveContact(newContact);
 
-        Source source = partitioningServiceStub.getPartitioning().getCampaign().getSurvey().getSource();
-        contactSourceServiceStub.saveContactSource(oldContactId, source.getId(),questioning.getSurveyUnit().getIdSu(), true );
+        Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
+        contactSourceServiceStub.saveContactSource(oldContactId, campaign.getSurvey().getSource().getId(),questioning.getSurveyUnit().getIdSu(), true );
 
         QuestioningAccreditation existingAccreditation = new QuestioningAccreditation();
         existingAccreditation.setQuestioning(questioning);
@@ -151,7 +172,7 @@ class QuestioningAccreditationServiceImplTest {
                 newContact,
                 questioning,
                 service.createPayload("platine-pilotage"),
-                partitioningServiceStub.getPartitioning().getCampaign().getSurvey().getSource());
+                campaign);
 
         Optional<QuestioningAccreditation> updatedAccreditation = accreditationRepoStub
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -160,9 +181,12 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(updatedAccreditation.get().getIdContact()).isEqualTo(contactId);
         assertThat(contactEventServiceStub.findContactEventsByContact(oldContact)).hasSize(1);
         assertThatThrownBy(() -> contactSourceServiceStub.findContactSource(
-                oldContactId, source.getId(), questioning.getSurveyUnit().getIdSu()))
+                oldContactId, campaign.getSurvey().getSource().getId(), questioning.getSurveyUnit().getIdSu()))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage(String.format("ContactSource not found for %s, %s and %s", oldContactId, source.getId(), questioning.getSurveyUnit().getIdSu()));
+                .hasMessage(String.format("ContactSource not found for %s, %s and %s",
+                        oldContactId,
+                        campaign.getSurvey().getSource().getId(),
+                        questioning.getSurveyUnit().getIdSu()));
     }
 
     @Test
@@ -180,7 +204,7 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(createdAccreditation.get().getQuestioning()).isEqualTo(questioning);
         assertThat(createdAccreditation.get().getCreationDate()).isCloseTo(new Date(), 5000);
 
-        Source source = partitioningServiceStub.getPartitioning().getCampaign().getSurvey().getSource();
+        Source source = partitioningServiceStub.findById("partition-id").getCampaign().getSurvey().getSource();
         assertThat(contactSourceServiceStub.findContactSource(contact.getIdentifier(), source.getId(), questioning.getSurveyUnit().getIdSu())).isNotNull();
         assertThat(contactEventServiceStub.findContactEventsByContact(contact)).hasSize(1);
     }
@@ -218,7 +242,7 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(updatedAccreditation.get().getQuestioning()).isEqualTo(existing.getQuestioning());
         assertThat(updatedAccreditation.get().getCreationDate()).isCloseTo(existing.getCreationDate(), 5000);
 
-        Source source = partitioningServiceStub.getPartitioning().getCampaign().getSurvey().getSource();
+        Source source = partitioningServiceStub.findById("partition-id").getCampaign().getSurvey().getSource();
         assertThat(contactSourceServiceStub.findContactSource(newContact.getIdentifier(), source.getId(),
                 questioning.getSurveyUnit().getIdSu()).getId().getContactId()).isEqualTo(newContact.getIdentifier());
         assertThat(contactEventServiceStub.findContactEventsByContact(oldContact)).hasSize(1);
@@ -232,8 +256,16 @@ class QuestioningAccreditationServiceImplTest {
         contact.setIdentifier("new-contact");
         Questioning questioning = buildQuestioning("nonexistent", 1L);
 
+        Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
+
         assertThatThrownBy(() ->
-                service.updateExistingMainAccreditationToNewContact(contact, questioning, service.createPayload("platine"), new Source())
+                service.updateExistingMainAccreditationToNewContact(
+                        contact,
+                        questioning,
+                        service.createPayload("platine"),
+                        campaign
+
+                        )
         ).isInstanceOf(NotFoundException.class).hasMessage(String.format("QuestioningAccreditation for %s questioningId not found", questioning.getId()));
     }
 
@@ -246,11 +278,12 @@ class QuestioningAccreditationServiceImplTest {
 
         Campaign campaign = new Campaign();
         campaign.setSurvey(survey);
+        campaign.setId("campaign-id");
 
         Partitioning partitioning = new Partitioning();
         partitioning.setCampaign(campaign);
         partitioning.setId("partition-id");
-        partitioningServiceStub.setPartitioning(partitioning);
+        partitioningServiceStub.insertOrUpdatePartitioning(partitioning);
 
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(suId);

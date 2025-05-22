@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -29,11 +30,20 @@ public interface QuestioningAccreditationService {
 
     void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning);
 
-    void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Source source);
+    void updateExistingMainAccreditationToNewContact(Contact newContact,
+                                                     Questioning questioning,
+                                                     JsonNode payload,
+                                                     Campaign campaign);
 
-    void logContactAccrediationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source);
+    void logContactAccreditationLossUpdate(Contact contact,
+                                           Questioning questioning,
+                                           JsonNode payload,
+                                           Campaign campaign);
 
-    void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Source source);
+    void logContactAccreditationGainUpdate(Contact contact,
+                                           Questioning questioning,
+                                           JsonNode payload,
+                                           Campaign campaign);
 
     JsonNode createPayload(String sourceLabel);
 }

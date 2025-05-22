@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.contact.stub;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 
 public class ContactEventRepositoryStub implements ContactEventRepository {
 
-    ArrayList<ContactEvent> contactEvents = ArrayList<>();
+    ArrayList<ContactEvent> contactEvents = new ArrayList<>();
 
     @Override
     public Set<ContactEvent> findByContact(Contact contact) {
@@ -66,7 +67,8 @@ public class ContactEventRepositoryStub implements ContactEventRepository {
 
     @Override
     public ContactEvent getById(Long aLong) {
-        return null;
+        Optional<ContactEvent> contactEvent = contactEvents.stream().filter(ce -> ce.getId().equals(aLong)).findFirst();
+        return contactEvent.orElseThrow(() -> new NotFoundException(String.format("ContactEvent not found for %s", aLong)));
     }
 
     @Override
@@ -111,7 +113,8 @@ public class ContactEventRepositoryStub implements ContactEventRepository {
 
     @Override
     public <S extends ContactEvent> S save(S entity) {
-        return null;
+        contactEvents.add(entity);
+        return  entity;
     }
 
     @Override
