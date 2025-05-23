@@ -37,12 +37,17 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public View saveView(View view) {
+        View alreadyExistingView;
         try {
-            findViewById(view.getId());
-            deleteView(view);
+            if(view.getId() != null)
+            {
+                alreadyExistingView = findViewById(view.getId());
+                deleteView(alreadyExistingView);
+            }
         }
         catch (NotFoundException e)
         {
+            // not used
         }
 
         views.add(view);
@@ -51,7 +56,8 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public List<View> findViewByIdentifier(String identifier) {
-        return List.of();
+        return views.stream().filter(v ->
+                v.getIdentifier().equals(identifier)).toList();
     }
 
     @Override
@@ -91,11 +97,16 @@ public class ViewServiceStub implements ViewService {
 
     @Override
     public View createView(String identifier, String idSu, String campaignId) {
-        View newView = new View();
-        newView.setIdentifier(identifier);
-        newView.setIdSu(idSu);
-        newView.setCampaignId(campaignId);
-        return saveView(newView);
+        View view = new View();
+        view.setIdentifier(identifier);
+        view.setCampaignId(campaignId);
+        view.setIdSu(idSu);
+        List<View> listContactView = findViewByIdentifier(identifier);
+        listContactView.forEach(v -> {
+            if (v.getIdSu() == null)
+                deleteView(v);
+        });
+        return saveView(view);
     }
 
     @Override

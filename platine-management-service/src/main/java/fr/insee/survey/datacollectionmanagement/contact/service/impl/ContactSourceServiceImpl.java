@@ -22,7 +22,8 @@ public class ContactSourceServiceImpl implements ContactSourceService {
 
     @Override
     public ContactSource saveContactSource(String contactId, String sourceId, String surveyUnitId, boolean isMain) {
-        ContactSource contactSource = findContactSource(contactId, sourceId, surveyUnitId);
+        ContactSource contactSource = new ContactSource();
+        contactSource.setId(new ContactSourceId(sourceId, contactId, surveyUnitId));
         contactSource.setMain(isMain);
         return contactSourceRepository.save(contactSource);
     }

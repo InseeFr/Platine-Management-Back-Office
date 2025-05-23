@@ -16,11 +16,12 @@ import java.util.function.Function;
 
 public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
+
     ArrayList<ContactSource> contactSources = new ArrayList<>();
 
     @Override
     public void flush() {
-
+        // not used
     }
 
     @Override
@@ -35,17 +36,17 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
     @Override
     public void deleteAllInBatch(Iterable<ContactSource> entities) {
-
+        // not used
     }
 
     @Override
     public void deleteAllByIdInBatch(Iterable<ContactSourceId> contactSourceIds) {
-
+        // not used
     }
 
     @Override
     public void deleteAllInBatch() {
-
+        // not used
     }
 
     @Override
@@ -85,7 +86,7 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
     @Override
     public <S extends ContactSource> long count(Example<S> example) {
-        return 0;
+        return contactSources.size();
     }
 
     @Override
@@ -100,7 +101,10 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
     @Override
     public <S extends ContactSource> S save(S entity) {
-        return null;
+        Optional<ContactSource> contactSource = contactSources.stream().filter(e -> e.getId().equals(entity.getId())).findFirst();
+        contactSource.ifPresent(source -> contactSources.remove(source));
+        contactSources.add(entity);
+        return entity;
     }
 
     @Override
@@ -110,7 +114,7 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
     @Override
     public Optional<ContactSource> findById(ContactSourceId contactSourceId) {
-        return Optional.empty();
+        return contactSources.stream().filter(contactSource -> contactSource.getId().equals(contactSourceId)).findFirst();
     }
 
     @Override
@@ -130,32 +134,33 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
 
     @Override
     public long count() {
-        return 0;
+        return contactSources.size();
     }
 
     @Override
     public void deleteById(ContactSourceId contactSourceId) {
-
+        Optional<ContactSource> contactSource = findById(contactSourceId);
+        contactSource.ifPresent(this::delete);
     }
 
     @Override
     public void delete(ContactSource entity) {
-
+        contactSources.remove(entity);
     }
 
     @Override
     public void deleteAllById(Iterable<? extends ContactSourceId> contactSourceIds) {
-
+        // not used
     }
 
     @Override
     public void deleteAll(Iterable<? extends ContactSource> entities) {
-
+        // not used
     }
 
     @Override
     public void deleteAll() {
-
+        // not used
     }
 
     @Override

@@ -22,8 +22,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
+import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import jakarta.servlet.http.Part;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,7 +78,7 @@ class QuestioningAccreditationServiceImplTest {
     void testLogContactAccreditationGainUpdate() {
         Contact contact = new Contact();
         contact.setIdentifier("contact-id");
-        Questioning questioning = buildQuestioning("su-id", 1L);
+        Questioning questioning = buildQuestioning("su-id");
         JsonNode payload = service.createPayload("platine-pilotage");
 
         Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
@@ -111,11 +111,16 @@ class QuestioningAccreditationServiceImplTest {
     void testLogContactAccreditationLossUpdate() {
         Contact contact = new Contact();
         contact.setIdentifier("contact-id");
-        Questioning questioning = buildQuestioning("su-id", 1L);
+        Questioning questioning = buildQuestioning("su-id");
         JsonNode payload = service.createPayload("platine-pilotage");
         Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
 
-        viewServiceStub.createView(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
+        View view = new View();
+        view.setCampaignId(campaign.getId());
+        view.setIdSu(questioning.getSurveyUnit().getIdSu());
+        view.setIdentifier(contact.getIdentifier());
+        view.setId(1L);
+        viewServiceStub.saveView(view);
 
         contactSourceServiceStub.saveContactSource(
                 contact.getIdentifier(),
@@ -153,7 +158,7 @@ class QuestioningAccreditationServiceImplTest {
         oldContact.setIdentifier(oldContactId);
         Contact newContact = new Contact();
         newContact.setIdentifier(contactId);
-        Questioning questioning = buildQuestioning("su-id", 1L);
+        Questioning questioning = buildQuestioning("su-id");
 
         contactServiceStub.saveContact(oldContact);
         contactServiceStub.saveContact(newContact);
@@ -167,6 +172,13 @@ class QuestioningAccreditationServiceImplTest {
         existingAccreditation.setIdContact(oldContactId);
         existingAccreditation.setId(1L);
         accreditationRepoStub.save(existingAccreditation);
+
+        View view = new View();
+        view.setCampaignId(campaign.getId());
+        view.setIdSu(questioning.getSurveyUnit().getIdSu());
+        view.setIdentifier(oldContact.getIdentifier());
+        view.setId(1L);
+        viewServiceStub.saveView(view);
 
         service.updateExistingMainAccreditationToNewContact(
                 newContact,
@@ -194,7 +206,7 @@ class QuestioningAccreditationServiceImplTest {
     void testSetMainQuestioningAccreditationToContact_WhenNotFound_ShouldCreate() {
         Contact contact = new Contact();
         contact.setIdentifier("new-contact");
-        Questioning questioning = buildQuestioning("su-id", 1L);
+        Questioning questioning = buildQuestioning("su-id");
         service.setMainQuestioningAccreditationToContact(contact, questioning);
 
         Optional<QuestioningAccreditation> createdAccreditation = accreditationRepoStub.findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -220,7 +232,7 @@ class QuestioningAccreditationServiceImplTest {
         oldContact.setIdentifier(oldContactId);
         Contact newContact = new Contact();
         newContact.setIdentifier(contactId);
-        Questioning questioning = buildQuestioning("su-id", 1L);
+        Questioning questioning = buildQuestioning("su-id");
 
         contactServiceStub.saveContact(oldContact);
         contactServiceStub.saveContact(newContact);
@@ -232,6 +244,14 @@ class QuestioningAccreditationServiceImplTest {
         existing.setIdContact(oldContact.getIdentifier());
         existing.setCreationDate(new Date());
         accreditationRepoStub.save(existing);
+
+        Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
+        View view = new View();
+        view.setCampaignId(campaign.getId());
+        view.setIdSu(questioning.getSurveyUnit().getIdSu());
+        view.setIdentifier(oldContact.getIdentifier());
+        view.setId(1L);
+        viewServiceStub.saveView(view);
 
         service.setMainQuestioningAccreditationToContact(newContact, questioning);
 
@@ -254,7 +274,7 @@ class QuestioningAccreditationServiceImplTest {
     void testUpdateExistingMainAccreditation_ToNewContact_Throws_WhenNotFound() {
         Contact contact = new Contact();
         contact.setIdentifier("new-contact");
-        Questioning questioning = buildQuestioning("nonexistent", 1L);
+        Questioning questioning = buildQuestioning("nonexistent");
 
         Campaign campaign = partitioningServiceStub.findById("partition-id").getCampaign();
 
@@ -269,7 +289,7 @@ class QuestioningAccreditationServiceImplTest {
         ).isInstanceOf(NotFoundException.class).hasMessage(String.format("QuestioningAccreditation for %s questioningId not found", questioning.getId()));
     }
 
-    private Questioning buildQuestioning(String suId, Long questioningId) {
+    private Questioning buildQuestioning(String suId) {
         Source source = new Source();
         source.setId("source-id");
 
@@ -289,7 +309,7 @@ class QuestioningAccreditationServiceImplTest {
         su.setIdSu(suId);
 
         Questioning questioning = new Questioning();
-        questioning.setId(questioningId);
+        questioning.setId(1L);
         questioning.setSurveyUnit(su);
         questioning.setIdPartitioning(partitioning.getId());
         return questioning;

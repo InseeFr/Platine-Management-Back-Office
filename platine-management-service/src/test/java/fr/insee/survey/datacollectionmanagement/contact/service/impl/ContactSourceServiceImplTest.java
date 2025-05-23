@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ContactSourceServiceImplTest {
+class ContactSourceServiceImplTest {
 
     public ContactSourceService contactSourceService;
     public ContactSourceRepository contactSourceRepository;
@@ -32,25 +32,24 @@ public class ContactSourceServiceImplTest {
 
         ContactSourceId contactSourceId = new ContactSourceId(sourceId, contactId, surveyUnitId);
 
-         ContactSource savedContactSource = contactSourceService.saveContactSource(
+        ContactSource savedContactSource = contactSourceService.saveContactSource(
                 contactSourceId.getContactId(),
                 contactSourceId.getSourceId(),
                 contactSourceId.getSurveyUnitId(), isMain);
 
-        assertThat(contactSourceRepository.findById(contactSourceId)).isEqualTo(savedContactSource);
-
         ContactSource foundContactSource = contactSourceService.findContactSource(
                 contactSourceId.getContactId(),
-                contactSourceId.getContactId(),
+                contactSourceId.getSourceId(),
                 contactSourceId.getSurveyUnitId());
 
         assertThat(foundContactSource).isEqualTo(savedContactSource);
+        assertThat(contactSourceRepository.count()).isEqualTo(1L);
 
         contactSourceService.deleteContactSource(
                 contactSourceId.getContactId(),
                 contactSourceId.getSourceId(),
                 contactSourceId.getSurveyUnitId());
 
-//        assertThat(contactSourceRepository.findById(contactSourceId)).isNull();
+        assertThat(contactSourceRepository.count()).isZero();
     }
 }
