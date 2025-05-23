@@ -37,7 +37,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
 
 
         List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
-                stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu) != null).toList();
+                stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu).isPresent()).toList();
 
         if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
@@ -52,7 +52,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
 
 
         List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
-                stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu) != null).toList();
+                stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu).isPresent()).toList();
 
         if (listParts.isEmpty()) {
             throw new NotFoundException(String.format("Questioning not found for campaign %s and survey unit %s", idCampaign, idsu));
@@ -65,14 +65,14 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
 
 
 
-    private QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
+    protected QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
         QuestioningInformationsDto questioningInformationsDto = new QuestioningInformationsDto();
 
         // Map basic fields
         questioningInformationsDto.setReturnDate(infos.getReturnDate());
         questioningInformationsDto.setLogo(infos.getLogo());
-        questioningInformationsDto.setUrlLogout("/deconnexion");
-        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&idec=%s",
+        questioningInformationsDto.setUrlLogout("/mes-enquetes");
+        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
                 infos.getSourceId(), infos.getQuestioningId(), infos.getIdentificationCode(), infos.getIdentifier());
         questioningInformationsDto.setUrlAssistance(URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8));
 
@@ -91,7 +91,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         // Map SurveyUnitInformationsDto
         SurveyUnitInformationsDto surveyUnitDto = new SurveyUnitInformationsDto();
         surveyUnitDto.setLabel(infos.getLabel());
-        surveyUnitDto.setSurveyUnitId(infos.getIdentificationCode());
+        surveyUnitDto.setSurveyUnitId(infos.getIdSu());
         surveyUnitDto.setIdentificationName(infos.getIdentificationName());
         questioningInformationsDto.setSurveyUnitInformationsDto(surveyUnitDto);
         return questioningInformationsDto;
@@ -112,6 +112,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         addressDto.setCountryName(infos.getCountryName());
         addressDto.setStreetName(infos.getStreetName());
         addressDto.setStreetType(infos.getStreetType());
+        addressDto.setAddressSupplement(infos.getAddressSupplement());
         addressDto.setStreetNumber(infos.getStreetNumber());
         addressDto.setRepetitionIndex(infos.getRepetitionIndex());
         addressDto.setZipCode(infos.getZipCode());
