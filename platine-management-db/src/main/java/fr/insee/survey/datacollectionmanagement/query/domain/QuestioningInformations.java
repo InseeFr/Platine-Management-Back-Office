@@ -26,6 +26,7 @@ public class QuestioningInformations {
     private String repetitionIndex;
     private String streetType;
     private String label;
+    private String idSu;
     private String identificationCode;
     private String identificationName;
     private String returnDate;

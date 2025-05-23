@@ -24,6 +24,7 @@ public class InformationsRepository {
                     c.phone2,
                     c.usual_company_name,
                     a.*,
+                    su.id_su,
                     su.label,
                     su.identification_code,
                     su.identification_name,
@@ -58,6 +59,7 @@ public class InformationsRepository {
                 c.phone2,
                 c.usual_company_name,
                 a.*,
+                su.id_su,
                 su.label,
                 su.identification_code,
                 su.identification_name,
@@ -79,17 +81,17 @@ public class InformationsRepository {
                 q.id_partitioning = ?
                 AND q.survey_unit_id_su = ?
                 AND qa.is_main = TRUE
-                """;
+            """;
 
-    public QuestioningInformations findQuestioningInformationsInterviewer(String idCampaign, String idSu, String contactId) {
+    public QuestioningInformations findQuestioningInformationsInterviewer(String idPartitioning, String idSu, String contactId) {
 
-        return jdbcTemplate.queryForObject(GET_QUESTIONING_INFORMATIONS_INTERVIEWER, new BeanPropertyRowMapper<>(QuestioningInformations.class), idCampaign, idSu, contactId);
+        return jdbcTemplate.queryForObject(GET_QUESTIONING_INFORMATIONS_INTERVIEWER, new BeanPropertyRowMapper<>(QuestioningInformations.class), idPartitioning, idSu, contactId);
 
     }
 
-    public QuestioningInformations findQuestioningInformationsReviewer(String idCampaign, String idSu) {
+    public QuestioningInformations findQuestioningInformationsReviewer(String idPartitioning, String idSu) {
 
-        return jdbcTemplate.queryForObject(GET_QUESTIONING_INFORMATIONS_REVIEWER, new BeanPropertyRowMapper<>(QuestioningInformations.class), idCampaign, idSu);
+        return jdbcTemplate.queryForObject(GET_QUESTIONING_INFORMATIONS_REVIEWER, new BeanPropertyRowMapper<>(QuestioningInformations.class), idPartitioning, idSu);
 
     }
 
