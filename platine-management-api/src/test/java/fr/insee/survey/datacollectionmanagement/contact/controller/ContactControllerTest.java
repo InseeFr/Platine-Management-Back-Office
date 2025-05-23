@@ -297,6 +297,4 @@ class ContactControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
-
-
 }

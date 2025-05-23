@@ -75,13 +75,12 @@ class MySurveyServiceImplTest {
         Questioning mockQuestioning = new Questioning();
         mockQuestioning.setId(1L);
         mockQuestioning.setIdPartitioning("partition1");
-
+        questioningService.saveQuestioning(mockQuestioning);
 
         Partitioning mockPartitioning = new Partitioning();
         mockPartitioning.setLabel("Partition Label");
         mockPartitioning.setId(mockQuestioning.getIdPartitioning());
-
-        partitioningService.setPartitioning(mockPartitioning);
+        partitioningService.setStubbedPartition(mockPartitioning);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.view.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public interface ViewService {
 
     List<View> findViewByIdSuContaining(String field);
 
-    View createView(String identifier, String idSu, String campaignId);
+    View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId);
 
     void deleteView(View view);
 
@@ -40,4 +41,8 @@ public interface ViewService {
     List<String> findIdentifiersByIdSu(String id);
 
     Map<String, Set<String>> findDistinctCampaignByIdentifiers(List<String> identifiers);
+
+    View findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId);
+
+    public void updateViewForQuestioningAccreditationReplacement(QuestioningAccreditation questioningAccreditation, String newContactId);
 }

@@ -21,7 +21,7 @@ class PartitioningServiceImplTest {
     @BeforeEach
     void init() {
         partitioningRepositoryStub = new PartitioningRepositoryStub();
-        partitioningService = new PartioningServiceImpl(partitioningRepositoryStub);
+        partitioningService = new PartitioningServiceImpl(partitioningRepositoryStub);
     }
 
     @Test

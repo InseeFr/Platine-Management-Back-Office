@@ -1,16 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.view.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class ViewServiceImpl implements ViewService {
 
     private final ViewRepository viewRepository;
+    private final PartitioningService partitioningService;
 
     @Override
     public List<View> findViewByIdentifier(String identifier) {
@@ -75,7 +76,7 @@ public class ViewServiceImpl implements ViewService {
     }
 
     @Override
-    public View createView(String identifier, String idSu, String campaignId) {
+    public View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId) {
         View view = new View();
         view.setIdentifier(identifier);
         view.setCampaignId(campaignId);
@@ -118,5 +119,25 @@ public class ViewServiceImpl implements ViewService {
 
     }
 
+    @Override
+    public View findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
+        return viewRepository.findByIdentifierAndIdSuAndCampaignId(contactId, idSu, campaignId).orElseThrow(() -> new NotFoundException(String.format("View %s, %s and %s not found", contactId, idSu, campaignId)));
+    }
 
+    @Override
+    public void updateViewForQuestioningAccreditationReplacement(QuestioningAccreditation questioningAccreditation, String newContactId)
+    {
+        String campaignId = partitioningService.findById(questioningAccreditation.getQuestioning().getIdPartitioning()).getCampaign().getId();
+        String idSu = questioningAccreditation.getQuestioning().getSurveyUnit().getIdSu();
+        View viewToUpdate = findByIdentifierAndIdSuAndCampaignId(questioningAccreditation.getIdContact(), idSu, campaignId);
+        View viewToAdd = new View();
+
+        viewToAdd.setIdentifier(newContactId);
+        viewToAdd.setIdSu(idSu);
+        viewToAdd.setCampaignId(campaignId);
+        viewToUpdate.setIdSu("");
+
+        saveView(viewToAdd);
+        saveView(viewToUpdate);
+    }
 }
