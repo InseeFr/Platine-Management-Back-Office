@@ -169,6 +169,57 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(acc.get().isMain()).isTrue();
     }
 
+    @Test
+    @DisplayName("Should create and save new questioning accreditation")
+    void shouldCreateQuestioningAccreditation() {
+        Questioning questioning = createAndRegisterQuestioning("su-id");
+        Date now = new Date();
+
+        service.createQuestioningAccreditation(questioning, true, "contact-id", now);
+
+        Optional<QuestioningAccreditation> saved = accreditationRepo
+                .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+
+        assertThat(saved).isPresent();
+        assertThat(saved.get().getIdContact()).isEqualTo("contact-id");
+        assertThat(saved.get().getQuestioning()).isEqualTo(questioning);
+        assertThat(saved.get().isMain()).isTrue();
+        assertThat(saved.get().getCreationDate()).isEqualTo(now);
+    }
+
+    @Test
+    @DisplayName("Should create new main accreditation if none exists")
+    void shouldSetMainAccreditationWhenNoneExists() {
+        Contact contact = createAndSaveContact("new-contact");
+        Questioning questioning = createAndRegisterQuestioning("su-id");
+
+        service.setMainQuestioningAccreditationToContact(contact, questioning);
+
+        Optional<QuestioningAccreditation> saved = accreditationRepo
+                .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+
+        assertThat(saved).isPresent();
+        assertThat(saved.get().getIdContact()).isEqualTo("new-contact");
+    }
+
+    @Test
+    @DisplayName("Should update existing main accreditation to new contact")
+    void shouldUpdateExistingMainAccreditation() {
+        Contact oldContact = createAndSaveContact("old");
+        Contact newContact = createAndSaveContact("new");
+        Questioning questioning = createAndRegisterQuestioning("su-id");
+
+        saveMainAccreditation(oldContact, questioning);
+
+        service.setMainQuestioningAccreditationToContact(newContact, questioning);
+
+        Optional<QuestioningAccreditation> updated = accreditationRepo
+                .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+
+        assertThat(updated).isPresent();
+        assertThat(updated.get().getIdContact()).isEqualTo("new");
+    }
+
     private Questioning createAndRegisterQuestioning(String suId) {
         Source source = new Source();
         source.setId("source-id");
