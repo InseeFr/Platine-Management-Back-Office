@@ -65,7 +65,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
 
 
 
-    private QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
+    protected QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
         QuestioningInformationsDto questioningInformationsDto = new QuestioningInformationsDto();
 
         // Map basic fields

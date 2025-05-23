@@ -1,9 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.query.domain.QuestioningInformations;
+import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class QuestioningInformationsServiceImplTest {
 
@@ -133,5 +139,56 @@ class QuestioningInformationsServiceImplTest {
         QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
         String result = service.getFormattedPhone(" ", "0987654321");
         assertEquals("0987654321", result);
+    }
+
+    @Test
+    void testMapQuestioningInformationsDto_shouldMapCorrectly() {
+        // Given
+        QuestioningInformations infos = new QuestioningInformations();
+        infos.setReturnDate("2025-05-10");
+        infos.setLogo("logo.png");
+        infos.setSourceId("source123");
+        infos.setQuestioningId("qst456");
+        infos.setIdentificationCode("id789");
+        infos.setIdentifier("cont123");
+        infos.setGender("Male");
+        infos.setFirstName("John");
+        infos.setLastName("Doe");
+        infos.setEmail("john.doe@example.com");
+        infos.setPhone("123456789");
+        infos.setPhone2("987654321");
+        infos.setUsualCompanyName("Doe Inc.");
+        infos.setLabel("Survey Label");
+        infos.setIdSu("su123");
+        infos.setIdentificationName("Name123");
+        infos.setStreetName("Main St");
+        infos.setStreetNumber("123");
+
+
+        // When
+        QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
+        QuestioningInformationsDto result = service.mapQuestioningInformationsDto(infos);
+        // Then
+        assertNotNull(result);
+        assertEquals("2025-05-10", result.getReturnDate());
+        assertEquals("logo.png", result.getLogo());
+        assertEquals("/mes-enquetes", result.getUrlLogout());
+
+        String expectedUrlAssistance = String.format("/mes-enquetes/source123/contacter-assistance/auth?questioningId=qst456&surveyUnitId=id789&contactId=cont123");
+        assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
+
+        assertNotNull(result.getContactInformationsDto());
+        assertEquals("M. John Doe", result.getContactInformationsDto().getIdentity());
+        assertEquals("john.doe@example.com", result.getContactInformationsDto().getEmail());
+        assertEquals("123456789", result.getContactInformationsDto().getPhoneNumber());
+        assertEquals("Doe Inc.", result.getContactInformationsDto().getUsualCompanyName());
+        assertEquals("Main St", result.getContactInformationsDto().getAddressInformationsDto().getStreetName());
+        assertEquals("123", result.getContactInformationsDto().getAddressInformationsDto().getStreetNumber());
+
+
+        assertNotNull(result.getSurveyUnitInformationsDto());
+        assertEquals("Survey Label", result.getSurveyUnitInformationsDto().getLabel());
+        assertEquals("su123", result.getSurveyUnitInformationsDto().getSurveyUnitId());
+        assertEquals("Name123", result.getSurveyUnitInformationsDto().getIdentificationName());
     }
 }
