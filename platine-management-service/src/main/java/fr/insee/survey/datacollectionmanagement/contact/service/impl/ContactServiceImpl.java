@@ -140,7 +140,7 @@ public class ContactServiceImpl implements ContactService {
 
         Contact createdContact = createAddressAndEvent(newContact, payload);
 
-        viewService.createView(id, null, null);
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(id, null, null);
 
         return createdContact;
 

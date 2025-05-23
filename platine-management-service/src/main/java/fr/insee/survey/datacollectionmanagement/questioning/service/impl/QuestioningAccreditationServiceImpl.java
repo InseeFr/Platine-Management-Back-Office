@@ -123,7 +123,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         List<View> views = viewService.findViewByIdentifier(contact.getIdentifier());
         if(views.isEmpty())
         {
-            viewService.createView(contact.getIdentifier(), "", "");
+            viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(contact.getIdentifier(), "", "");
         }
 
         contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
@@ -146,7 +146,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                 questioning.getSurveyUnit().getIdSu(),
                 true);
 
-        viewService.createView(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
     }
 
     @Override

@@ -5,12 +5,15 @@ import java.io.Serializable;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-@AllArgsConstructor
-@Getter
-@Setter
 @EqualsAndHashCode
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ContactSourceId implements Serializable {
+
     private String sourceId;
     private String contactId;
     private String surveyUnitId;
 }
+

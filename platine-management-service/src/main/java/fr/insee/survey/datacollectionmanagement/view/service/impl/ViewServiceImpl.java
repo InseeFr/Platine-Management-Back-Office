@@ -76,7 +76,7 @@ public class ViewServiceImpl implements ViewService {
     }
 
     @Override
-    public View createView(String identifier, String idSu, String campaignId) {
+    public View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId) {
         View view = new View();
         view.setIdentifier(identifier);
         view.setCampaignId(campaignId);
