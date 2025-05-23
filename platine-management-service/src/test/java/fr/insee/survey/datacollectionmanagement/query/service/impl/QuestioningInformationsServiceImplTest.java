@@ -1,7 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.domain.QuestioningInformations;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -190,5 +194,28 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("Survey Label", result.getSurveyUnitInformationsDto().getLabel());
         assertEquals("su123", result.getSurveyUnitInformationsDto().getSurveyUnitId());
         assertEquals("Name123", result.getSurveyUnitInformationsDto().getIdentificationName());
+    }
+
+
+    @Test
+    void testFindQuestioningInformationsDtoReviewer_noPartsFound() {
+        // Arrange
+        CampaignServiceStub campaignService = new CampaignServiceStub();
+        QuestioningServiceStub questioningService = new QuestioningServiceStub();
+
+        QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, campaignService, questioningService);
+
+        Assertions.assertThatThrownBy(()->service.findQuestioningInformationsDtoReviewer("camp1", "su1")).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void testFindQuestioningInformationsDtoInterviewer_noPartsFound() {
+        // Arrange
+        CampaignServiceStub campaignService = new CampaignServiceStub();
+        QuestioningServiceStub questioningService = new QuestioningServiceStub();
+
+        QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, campaignService, questioningService);
+
+        Assertions.assertThatThrownBy(()->service.findQuestioningInformationsDtoInterviewer("camp1", "su1", "cont123")).isInstanceOf(NotFoundException.class);
     }
 }
