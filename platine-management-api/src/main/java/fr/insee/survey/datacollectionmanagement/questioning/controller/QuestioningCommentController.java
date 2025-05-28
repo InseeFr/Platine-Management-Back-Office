@@ -21,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
@@ -40,7 +42,7 @@ public class QuestioningCommentController {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
+    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable UUID id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
         Questioning questioning = questioningService.findById(id);
         return questioningCommentService.saveQuestioningComment(questioning, questioningCommentInputDto);
 

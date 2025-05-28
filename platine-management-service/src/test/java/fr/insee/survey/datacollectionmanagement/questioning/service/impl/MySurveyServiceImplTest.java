@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,6 +41,7 @@ class MySurveyServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        UUID questioningId = UUID.randomUUID();
         questionnaireApiUrl = "api";
         questionnaireApiUrlSensitive = "apiSensitive";
         questioningAccreditationRepositoryStub = new QuestioningAccreditationRepositoryStub();
@@ -58,7 +60,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setSurveyUnitIdentificationName("Name123");
         myQuestionnaireDetailsDto.setSourceId("source1");
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
-        myQuestionnaireDetailsDto.setQuestioningId(1L);
+        myQuestionnaireDetailsDto.setQuestioningId(questioningId);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
         myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
 
@@ -73,7 +75,7 @@ class MySurveyServiceImplTest {
                 questionnaireApiUrlSensitive);
 
         Questioning mockQuestioning = new Questioning();
-        mockQuestioning.setId(1L);
+        mockQuestioning.setId(questioningId);
         mockQuestioning.setIdPartitioning("partition1");
 
 

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
@@ -44,11 +46,7 @@ public class SearchQuestioningController {
 
     @Operation(summary = "Get questioning details")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = "application/json")
-    public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {
-
+    public QuestioningDetailsDto getQuestioning (@PathVariable("id") UUID id) {
         return questioningService.getQuestioningDetails(id);
-
     }
-
-
 }

@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,7 +39,7 @@ class QuestioningCommunicationServiceImplTest {
     @Test
     void shouldReturnDtoListWhenQuestioningExistsWithCommunications() {
         // Given
-        Long questioningId = 1L;
+        UUID questioningId = UUID.randomUUID();
         Questioning questioning = new Questioning();
         QuestioningCommunication communication1 = new QuestioningCommunication();
         QuestioningCommunication communication2 = new QuestioningCommunication();
@@ -60,7 +61,7 @@ class QuestioningCommunicationServiceImplTest {
     @Test
     void shouldReturnEmptyListWhenQuestioningDoesNotExist() {
         // Given
-        Long questioningId = 2L;
+        UUID questioningId = UUID.randomUUID();
         when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
 
         // When
@@ -73,7 +74,7 @@ class QuestioningCommunicationServiceImplTest {
     @Test
     void shouldReturnEmptyListWhenQuestioningExistsButHasNoCommunications() {
         // Given
-        Long questioningId = 3L;
+        UUID questioningId = UUID.randomUUID();
         Questioning questioning = new Questioning();
         questioning.setQuestioningCommunications(Set.of());
 

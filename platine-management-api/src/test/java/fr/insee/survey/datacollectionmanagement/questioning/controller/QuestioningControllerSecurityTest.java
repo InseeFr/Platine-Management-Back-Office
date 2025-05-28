@@ -12,6 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.UUID;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -58,21 +60,21 @@ class QuestioningControllerSecurityTest {
     // === /api/questionings/{id}/assistance ===
     @Test
     void getAssistance_401() throws Exception {
-        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
+        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, UUID.randomUUID())
                         .with(anonymous()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void getAssistance_200_asPortal() throws Exception {
-        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
+        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
                         .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
                 .andExpect(status().isOk());
     }
 
     @Test
     void getAssistance_200_asAdmin() throws Exception {
-        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, 1L)
+        mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
                         .with(jwtWithRole(AuthorityRoleEnum.ADMIN)))
                 .andExpect(status().isOk());
     }

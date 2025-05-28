@@ -70,7 +70,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Questioning findById(Long id) {
+    public Questioning findById(UUID id) {
         return questioningRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
 
@@ -80,7 +80,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public void deleteQuestioning(Long id) {
+    public void deleteQuestioning(UUID id) {
         questioningRepository.deleteById(id);
     }
 
@@ -110,7 +110,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+    public AssistanceDto getMailAssistanceDto(UUID questioningId) {
         Questioning questioning = findById(questioningId);
         String mail = questioning.getAssistanceMail();
         if (StringUtils.isBlank(mail)) {
@@ -152,7 +152,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
             return new PageImpl<>(searchDtos, pageable, searchDtos.size());
         } else {
-            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
+            Page<UUID> idsPage = questioningRepository.findQuestioningIds(pageable);
             List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
             List<SearchQuestioningDto> searchDtos = questionings
                     .stream()
@@ -163,7 +163,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(Long id) {
+    public QuestioningDetailsDto getQuestioningDetails(UUID id) {
         Questioning questioning = questioningRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
         Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())

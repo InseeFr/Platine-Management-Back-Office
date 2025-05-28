@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -21,7 +22,7 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
     private final QuestioningRepository questioningRepository;
 
     @Override
-    public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(Long questioningId) {
+    public List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(UUID questioningId) {
         Optional<Questioning> questioning = questioningRepository.findById(questioningId);
         if (questioning.isEmpty()) {
             return List.of();

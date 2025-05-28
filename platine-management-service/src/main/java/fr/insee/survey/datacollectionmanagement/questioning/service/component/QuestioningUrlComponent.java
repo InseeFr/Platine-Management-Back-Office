@@ -11,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class QuestioningUrlComponent {
     public String getAccessUrlWithContactId(String role, Questioning questioning, Partitioning part, String contactId) {
         String modelName = questioning.getModelName();
         String surveyUnitId = questioning.getSurveyUnit().getIdSu();
-        Long questioningId = questioning.getId();
+        UUID questioningId = questioning.getId();
         Campaign campaign = part.getCampaign();
         DataCollectionEnum target = campaign.getDataCollectionTarget();
         String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
@@ -97,7 +98,7 @@ public class QuestioningUrlComponent {
      * @param surveyUnitId The survey unit ID.
      * @return The generated V3 access URL.
      */
-    protected String buildLunaticUrl(String role, String baseUrl, String modelName, String surveyUnitId, String sourceId, Long questioningId, String contactId) {
+    protected String buildLunaticUrl(String role, String baseUrl, String modelName, String surveyUnitId, String sourceId, UUID questioningId, String contactId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder
                     .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))

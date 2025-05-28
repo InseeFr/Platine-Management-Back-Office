@@ -168,8 +168,9 @@ class QuestioningServiceImplTest {
     }
 
     private Questioning initQuestioning() {
+        UUID questioningId = UUID.randomUUID();
         questioning = new Questioning();
-        questioning.setId(1L);
+        questioning.setId(questioningId);
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(SURVEY_UNIT_ID);
         questioning.setSurveyUnit(su);
@@ -189,7 +190,7 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return QuestioningDetailsDto when questioning exists")
     void testGetQuestioningDetails() {
         // Given
-        Long questioningId = 1L;
+        UUID questioningId = UUID.randomUUID();
         questioning = new Questioning();
         questioning.setId(questioningId);
         SurveyUnit su = new SurveyUnit();
@@ -244,13 +245,13 @@ class QuestioningServiceImplTest {
     @DisplayName("Should throw NotFoundException when questioning does not exist")
     void shouldThrowNotFoundExceptionWhenQuestioningNotFound() {
         // Given
-        Long questioningId = 99L;
+        UUID questioningId = UUID.randomUUID();
         when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> questioningService.getQuestioningDetails(questioningId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Questioning 99 not found");
+                .hasMessageContaining("Questioning "+questioningId+" not found");
     }
 
     @DisplayName("Should return NOT_RECEIVED when no events exist")
@@ -388,9 +389,11 @@ class QuestioningServiceImplTest {
     @DisplayName("searchQuestioning with param should query repository findQuestioningByParam and map results")
     void testSearchQuestioningWithParam() {
         // Given
+        UUID questioningId1 = UUID.randomUUID();
+        UUID questioningId2 = UUID.randomUUID();
         String param = "abc";
-        Questioning q1 = buildQuestioning(1L, "SU1");
-        Questioning q2 = buildQuestioning(2L, "SU2");
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
+        Questioning q2 = buildQuestioning(questioningId2, "SU2");
         Campaign c = new Campaign();
         c.setId("CAMP01");
         partitioning.setCampaign(c);
@@ -404,7 +407,7 @@ class QuestioningServiceImplTest {
 
         // Then
         assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
+        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(questioningId1, questioningId2);
         verify(questioningRepository).findQuestioningByParam("ABC");
         verify(questioningRepository, never()).findQuestioningIds(any());
         verify(questioningRepository, never()).findQuestioningsByIds(any());
@@ -414,29 +417,31 @@ class QuestioningServiceImplTest {
     @DisplayName("searchQuestioning without param should retrieve ids page then full questionings")
     void testSearchQuestioningWithoutParam() {
         // Given
+        UUID questioningId1 = UUID.randomUUID();
+        UUID questioningId2 = UUID.randomUUID();
         String param = "";
-        Questioning q1 = buildQuestioning(1L, "SU1");
-        Questioning q2 = buildQuestioning(2L, "SU2");
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
+        Questioning q2 = buildQuestioning(questioningId2, "SU2");
         Campaign c = new Campaign();
         c.setId("CAMP01");
         partitioning.setCampaign(c);
         when(partitioningService.findById(any())).thenReturn(partitioning);
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Long> idsPage = new PageImpl<>(List.of(1L, 2L), pageable, 2);
+        Page<UUID> idsPage = new PageImpl<>(List.of(questioningId1,questioningId2), pageable, 2);
         when(questioningRepository.findQuestioningIds(pageable)).thenReturn(idsPage);
-        when(questioningRepository.findQuestioningsByIds(List.of(1L, 2L))).thenReturn(List.of(q1, q2));
+        when(questioningRepository.findQuestioningsByIds(List.of(questioningId1,questioningId2))).thenReturn(List.of(q1, q2));
 
         // When
         Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
 
         // Then
         assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
+        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(questioningId1, questioningId2);
         verify(questioningRepository).findQuestioningIds(pageable);
 
-        ArgumentCaptor<List<Long>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
         verify(questioningRepository).findQuestioningsByIds(captor.capture());
-        assertThat(captor.getValue()).containsExactlyInAnyOrder(1L, 2L);
+        assertThat(captor.getValue()).containsExactlyInAnyOrder(questioningId1,questioningId2);
 
         verify(questioningRepository, never()).findQuestioningByParam(any());
     }
@@ -444,11 +449,12 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance without personalisation returns null")
     void getMailAssistanceDtoNoMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
 
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertNull(assistanceDto.getMailAssistance());
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
     }
@@ -456,13 +462,14 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with questioning personalisation returns the right mail")
     void getMailAssistanceDtoQuestioningMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
         String assistanceMail = "assistanceq1@assistance.fr";
 
         q1.setAssistanceMail(assistanceMail);
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistanceMail);
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
 
@@ -471,21 +478,22 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with campaign personalisation returns the right mail")
     void getMailAssistanceDtoCampaignMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
         String assistancePart = "assistancePart@assistance.fr";
 
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
         when(partitioningService.findById(q1.getIdPartitioning())).thenReturn(partitioning);
         when(parametersService.findSuitableParameterValue(partitioning, ParameterEnum.MAIL_ASSISTANCE)).thenReturn(assistancePart);
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistancePart);
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
 
     }
 
 
-    private Questioning buildQuestioning(Long id, String suId) {
+    private Questioning buildQuestioning(UUID id, String suId) {
         Questioning q = new Questioning();
         q.setId(id);
         q.setIdPartitioning("PART001");

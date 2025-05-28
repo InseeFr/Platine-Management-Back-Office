@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,7 +51,7 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
+    public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") UUID id) {
         Questioning questioning = questioningService.findById(id);
         Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
         return setQe.stream().map(questioningEventService::convertToDto).toList();
@@ -64,7 +65,7 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") Long id,
+    public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") UUID id,
                                                     @RequestBody QuestioningEventDto questioningEventDto) {
         questioningService.findById(id);
         QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
@@ -94,10 +95,10 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> deleteQuestioningEvent(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteQuestioningEvent(@PathVariable("id") Long id) {
         QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
 
-        Upload upload = (questioningEvent.getUpload() != null ? questioningEvent.getUpload() : null);
+        Upload upload = questioningEvent.getUpload();
         Questioning quesitoning = questioningEvent.getQuestioning();
         quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
                 .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));

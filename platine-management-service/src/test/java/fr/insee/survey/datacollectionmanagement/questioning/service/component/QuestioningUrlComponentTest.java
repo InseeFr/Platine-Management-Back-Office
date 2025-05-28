@@ -12,6 +12,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,7 +30,7 @@ class QuestioningUrlComponentTest {
     private final String modelName = "MODEL";
     private final String campaignId = "CAMPAIGNID";
     private final String surveyUnitId = "SURVEYID";
-    private final Long questioningId = 1L;
+    private final UUID questioningId = UUID.randomUUID();
     private final String sourceId = "SOURCEID";
     private final String contactId = "TOTO";
 
@@ -77,7 +79,7 @@ class QuestioningUrlComponentTest {
 
         String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
                 "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D"+questioningId+"%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -88,7 +90,7 @@ class QuestioningUrlComponentTest {
 
         String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
                 "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D"+questioningId+"%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -128,7 +130,7 @@ class QuestioningUrlComponentTest {
 
         String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
                 "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D"+questioningId+"%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -139,7 +141,7 @@ class QuestioningUrlComponentTest {
 
         String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
                 "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D"+questioningId+"%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }

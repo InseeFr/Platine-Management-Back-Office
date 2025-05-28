@@ -4,9 +4,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommu
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public interface QuestioningCommunicationService {
 
-    List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(Long questioningId);
+    List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(UUID questioningId);
 }

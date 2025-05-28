@@ -10,8 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
-public interface QuestioningRepository extends JpaRepository<Questioning, Long> {
+public interface QuestioningRepository extends JpaRepository<Questioning, UUID> {
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
 
@@ -76,7 +77,7 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
     @Query("""
                 SELECT q.id FROM Questioning q
             """)
-    Page<Long> findQuestioningIds(Pageable pageable);
+    Page<UUID> findQuestioningIds(Pageable pageable);
 
     @Query("""
                 SELECT q FROM Questioning q
@@ -85,6 +86,6 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
                     LEFT JOIN FETCH q.questioningCommunications comm
                 WHERE q.id IN :ids
             """)
-    List<Questioning> findQuestioningsByIds(@Param("ids") List<Long> ids);
+    List<Questioning> findQuestioningsByIds(@Param("ids") List<UUID> ids);
 
 }

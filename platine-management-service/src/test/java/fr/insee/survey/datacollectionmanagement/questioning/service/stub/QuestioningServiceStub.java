@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
@@ -26,7 +27,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Questioning findById(Long id) {
+    public Questioning findById(UUID id) {
         return null;
     }
 
@@ -36,7 +37,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public void deleteQuestioning(Long id) {
+    public void deleteQuestioning(UUID id) {
         //not used
     }
 
@@ -56,7 +57,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+    public AssistanceDto getMailAssistanceDto(UUID questioningId) {
         return null;
     }
 
@@ -76,7 +77,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(Long id) {
+    public QuestioningDetailsDto getQuestioningDetails(UUID id) {
         return null;
     }
 

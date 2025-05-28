@@ -8,11 +8,12 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class QuestioningDetailsDto {
-    private Long questioningId;
+    private UUID questioningId;
     private String campaignId;
     private List<QuestioningContactDto> listContacts;
     private String surveyUnitId;

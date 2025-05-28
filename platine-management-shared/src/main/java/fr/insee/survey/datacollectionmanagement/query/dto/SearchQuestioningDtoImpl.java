@@ -5,12 +5,13 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class SearchQuestioningDtoImpl implements SearchQuestioningDto {
 
-    private Long questioningId;
+    private UUID questioningId;
     private String campaignId;
     private List<String> listContactIdentifiers;
     private String surveyUnitId;

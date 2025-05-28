@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class MyQuestionnaireDto {
     private String questioningStatus;
     private String questioningAccessUrl;
     private String depositProofUrl;
-    private Long questioningId;
+    private UUID questioningId;
     private String partitioningLabel;
     private String partitioningId;
     private Instant partitioningReturnDate;

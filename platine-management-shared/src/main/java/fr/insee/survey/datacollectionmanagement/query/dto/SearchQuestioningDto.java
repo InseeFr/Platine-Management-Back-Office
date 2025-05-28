@@ -2,9 +2,10 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public interface SearchQuestioningDto {
-    Long getQuestioningId();
+    UUID getQuestioningId();
 
     String getCampaignId();
 

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,13 +18,14 @@ class QuestioningDetailsDtoBuilderTest {
 
     @Test
     void shouldBuildQuestioningDetailsDtoWithMinimalData() {
+        UUID questioningId = UUID.randomUUID();
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .questioningId(123L)
+                .questioningId(questioningId)
                 .campaignId("CAMP2025")
                 .build();
 
         assertThat(dto).isNotNull();
-        assertThat(dto.getQuestioningId()).isEqualTo(123L);
+        assertThat(dto.getQuestioningId()).isEqualTo(questioningId);
         assertThat(dto.getCampaignId()).isEqualTo("CAMP2025");
     }
 

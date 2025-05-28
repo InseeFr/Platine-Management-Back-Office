@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,8 +17,7 @@ import java.util.Set;
 public class Questioning {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_seq")
-    private Long id;
+    private UUID id;
 
     @NonNull
     private String modelName;
