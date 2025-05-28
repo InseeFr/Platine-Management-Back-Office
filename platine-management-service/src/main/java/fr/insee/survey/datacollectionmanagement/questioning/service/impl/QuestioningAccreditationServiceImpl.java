@@ -59,11 +59,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
-        return questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(questioningId).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation for %s questioningId not found", questioningId)));
-    }
-
-    @Override
     public void deleteAccreditation(QuestioningAccreditation acc) {
         questioningAccreditationRepository.deleteById(acc.getId());
     }
@@ -93,19 +88,20 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
         JsonNode payload = createPayload("platine-pilotage");
 
-        try {
-            updateExistingMainAccreditationToNewContact(contact, questioning, payload, campaign);
-        } catch (NotFoundException e) {
-            createQuestioningAccreditation(questioning, true, contact, payload, date, campaign);
-        }
+        Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
+        .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+
+        questioningAccreditation.ifPresentOrElse(
+                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning, payload, campaign),
+                () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
     }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(Contact newContact,
+    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
+                                                            Contact newContact,
                                                             Questioning questioning,
                                                             JsonNode payload,
                                                             Campaign campaign)  {
-        QuestioningAccreditation existingAccreditation = findByQuestioningIdAndIsMain(questioning.getId());
 
         if(existingAccreditation.getIdContact().equals(newContact.getIdentifier()))
         {

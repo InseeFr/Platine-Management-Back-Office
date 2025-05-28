@@ -21,8 +21,6 @@ public interface QuestioningAccreditationService {
    
     QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
-    QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId);
-
     void deleteAccreditation(QuestioningAccreditation c);
 
     void createQuestioningAccreditation(Questioning questioning,
@@ -34,7 +32,8 @@ public interface QuestioningAccreditationService {
 
     void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning);
 
-    void updateExistingMainAccreditationToNewContact(Contact newContact,
+    void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
+                                                     Contact newContact,
                                                      Questioning questioning,
                                                      JsonNode payload,
                                                      Campaign campaign);

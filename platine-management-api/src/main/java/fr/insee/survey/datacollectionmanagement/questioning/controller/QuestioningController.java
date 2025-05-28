@@ -111,6 +111,7 @@ public class QuestioningController {
     public void updateInterrogationToMainContactAsMain(
             @PathVariable("interrogationId") Long interrogationId,
             @PathVariable("contactId") String contactId)  {
+
         Questioning questioning = questioningService.findById(interrogationId);
         Contact contact = contactService.findByIdentifier(contactId);
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contact, questioning);

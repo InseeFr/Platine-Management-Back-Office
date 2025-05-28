@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
@@ -40,13 +39,6 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public QuestioningAccreditation findByQuestioningIdAndIsMain(Long questioningId) {
-        return questioningAccreditationList.stream()
-                .filter(qa -> qa.isMain() && qa.getQuestioning().getId().equals(questioningId)).findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("Questioning accreditation %s not found", questioningId)));
-    }
-
-    @Override
     public void deleteAccreditation(QuestioningAccreditation c) {
         //not used
     }
@@ -68,7 +60,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(Contact newContact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
     }
 

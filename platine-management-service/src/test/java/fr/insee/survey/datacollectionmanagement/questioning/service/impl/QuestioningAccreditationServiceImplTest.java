@@ -114,13 +114,13 @@ class QuestioningAccreditationServiceImplTest {
         Contact newContact = createAndSaveContact("new-contact");
         Questioning questioning = createAndRegisterQuestioning();
         Campaign campaign = getCampaignFromPartition();
+        QuestioningAccreditation qa = saveMainAccreditation(oldContact, questioning);
 
-        saveMainAccreditation(oldContact, questioning);
         setupViewAndSource(oldContact, campaign, questioning);
 
         JsonNode payload = service.createPayload("platine-pilotage");
 
-        service.updateExistingMainAccreditationToNewContact(newContact, questioning, payload, campaign);
+        service.updateExistingMainAccreditationToNewContact(qa, newContact, questioning, payload, campaign);
 
         assertMainAccreditation(newContact, questioning);
         assertContactEvent(oldContact, payload);
@@ -138,7 +138,7 @@ class QuestioningAccreditationServiceImplTest {
         return partitioningService.findById("partition-id").getCampaign();
     }
 
-    private void saveMainAccreditation(Contact contact, Questioning questioning) {
+    private QuestioningAccreditation saveMainAccreditation(Contact contact, Questioning questioning) {
         QuestioningAccreditation acc = new QuestioningAccreditation();
         acc.setId(1L);
         acc.setQuestioning(questioning);
@@ -146,6 +146,7 @@ class QuestioningAccreditationServiceImplTest {
         acc.setIdContact(contact.getIdentifier());
         acc.setCreationDate(new Date());
         accreditationRepo.save(acc);
+        return acc;
     }
 
     private void setupSource(Contact contact, Campaign campaign, Questioning questioning) {
