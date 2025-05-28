@@ -10,12 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 @Setter
 public class QuestioningAccreditationRepositoryStub implements QuestioningAccreditationRepository {
+
+    List<QuestioningAccreditation> questioningAccreditations = new ArrayList<>();
 
     private List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDto;
 
@@ -30,8 +33,8 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public List<QuestioningAccreditation> findAccreditationByQuestioningId(Long idQuestioning) {
-        return List.of();
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId) {
+        return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).findFirst();
     }
 
 
@@ -117,7 +120,10 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public <S extends QuestioningAccreditation> S save(S entity) {
-        return null;
+        Optional<QuestioningAccreditation> existingQa = findById(entity.getId());
+        existingQa.ifPresent(this::delete);
+        questioningAccreditations.add(entity);
+        return entity;
     }
 
     @Override
@@ -127,7 +133,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public Optional<QuestioningAccreditation> findById(Long aLong) {
-        return Optional.empty();
+        return questioningAccreditations.stream().filter(questioningAccreditation -> questioningAccreditation.getId().equals(aLong)).findFirst();
     }
 
     @Override
@@ -157,7 +163,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public void delete(QuestioningAccreditation entity) {
-        // not used
+        questioningAccreditations.removeIf(e -> e.getId().equals(entity.getId()));
     }
 
     @Override

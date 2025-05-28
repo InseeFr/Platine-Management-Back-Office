@@ -18,10 +18,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -49,8 +46,6 @@ public class ContactServiceImpl implements ContactService {
 
     private final CampaignService campaignService;
 
-    private final QuestioningAccreditationService questioningAccreditationService;
-
 
     @Override
     public Page<Contact> findAll(Pageable pageable) {
@@ -70,7 +65,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto update(ContactDto contactDto, JsonNode payload) {
         Contact existingContact = contactRepository.findById(contactDto.getIdentifier())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
+                .orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
 
         existingContact.setExternalId(contactDto.getExternalId());
         existingContact.setFirstName(contactDto.getFirstName());
@@ -145,7 +140,7 @@ public class ContactServiceImpl implements ContactService {
 
         Contact createdContact = createAddressAndEvent(newContact, payload);
 
-        viewService.createView(id, null, null);
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(id, null, null);
 
         return createdContact;
 
@@ -240,23 +235,5 @@ public class ContactServiceImpl implements ContactService {
         contactDetailsDto.setCivility(contact.getGender());
         contactDetailsDto.setListCampaigns(campaignsStatus);
         return contactDetailsDto;
-    }
-
-    @Override
-    public void updateMainContactInterrogation(String contactId, Long questioningId) {
-
-        if(!existsByIdentifier(contactId))
-        {
-            throw new IllegalArgumentException("Contact not found");
-        }
-
-        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findBydIdQuestioning(questioningId);
-
-        for(QuestioningAccreditation qa :  questioningAccreditations){
-            if(qa.isMain())
-            {
-                qa.setIdContact(contactId);
-            }
-        }
     }
 }

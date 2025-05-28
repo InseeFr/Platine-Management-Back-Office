@@ -2,12 +2,15 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +47,9 @@ public class QuestioningController {
 
     private final ModelMapper modelMapper;
 
+    private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final ContactService contactService;
 
     /**
      * @deprecated
@@ -92,13 +98,22 @@ public class QuestioningController {
         return questioningService.getMailAssistanceDto(questioningId);
     }
 
-
-
     @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
     @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
+    }
+
+    @Operation(summary = "Give questioning main accreditation to target contact")
+    @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public void updateInterrogationToMainContactAsMain(
+            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("contactId") String contactId)  {
+        Questioning questioning = questioningService.findById(interrogationId);
+        Contact contact = contactService.findByIdentifier(contactId);
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contact, questioning);
     }
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {
