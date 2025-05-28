@@ -179,9 +179,11 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(source.getId().getContactId()).isEqualTo(contactId);
     }
 
-    private void assertContactSourceNotFound(String contactId, Campaign campaign, String idSu) {
+    private void assertContactSourceNotFound(String contactId, Campaign campaign, String idSu)
+    {
+        String campaignId = campaign.getSurvey().getSource().getId();
         assertThatThrownBy(() -> contactSourceService.findContactSource(
-                contactId, campaign.getSurvey().getSource().getId(), idSu))
+                contactId, campaignId, idSu))
                 .isInstanceOf(NotFoundException.class);
     }
 
