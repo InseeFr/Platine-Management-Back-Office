@@ -130,7 +130,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic")
     void getListMyQuestionnairesTest3() {
-        String pathDepositProof = questionnaireApiUrl + "/api/survey-unit/" + "SU123" + "/deposit-proof";
+        String pathDepositProof = questionnaireApiUrl + "/api/interrogation/" + myQuestionnaireDetailsDto.getQuestioningId() + "/deposit-proof";
 
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
 
@@ -170,7 +170,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic Sensitive")
     void getListMyQuestionnairesTest5() {
-        String pathDepositProof = questionnaireApiUrlSensitive + "/api/survey-unit/" + "SU123" + "/deposit-proof";
+        String pathDepositProof = questionnaireApiUrlSensitive + "/api/interrogation/" + myQuestionnaireDetailsDto.getQuestioningId() + "/deposit-proof";
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE.toString());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
@@ -259,7 +259,7 @@ class MySurveyServiceImplTest {
         Questioning questioning = new Questioning();
         Partitioning partitioning = new Partitioning();
         MyQuestionnaireDto questionnaireDto = new MyQuestionnaireDto();
-        String pathDepositProof = questionnaireApiUrl + "/api/survey-unit/" + myQuestionnaireDetailsDto.getSurveyUnitId() + "/deposit-proof";
+        String pathDepositProof = questionnaireApiUrl + "/api/interrogation/" + myQuestionnaireDetailsDto.getQuestioningId() + "/deposit-proof";
 
 
         questioning.setIdPartitioning("partition1");
@@ -393,9 +393,10 @@ class MySurveyServiceImplTest {
     @DisplayName("Should build correct deposit proof URL based on collection type")
     void buildDepositProofUrlShouldReturnCorrectUrls() {
         MyQuestionnaireDetailsDto dto = new MyQuestionnaireDetailsDto();
-        dto.setSurveyUnitId("SU42");
+        UUID questioningId = UUID.randomUUID();
+        dto.setQuestioningId(questioningId);
 
-        String path = "/api/survey-unit/SU42/deposit-proof";
+        String path = "/api/interrogation/" + questioningId + "/deposit-proof";
 
         assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.LUNATIC_NORMAL))
                 .isEqualTo(questionnaireApiUrl + path);

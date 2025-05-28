@@ -101,13 +101,13 @@ public class QuestioningUrlComponent {
     protected String buildLunaticUrl(String role, String baseUrl, String modelName, String surveyUnitId, String sourceId, UUID questioningId, String contactId) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
+                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, questioningId))
                     .toUriString();
         }
         if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
             String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
                     sourceId, questioningId, surveyUnitId, contactId);
-            return UriComponentsBuilder.fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
+            return UriComponentsBuilder.fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, questioningId))
                     .queryParam(PATH_LOGOUT, URLEncoder.encode("/deconnexion", StandardCharsets.UTF_8))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
                     .build().toUriString();
