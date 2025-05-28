@@ -353,6 +353,11 @@ public class DataloaderTest {
         }
         for (Long i = nbExistingQuestionings; i < 10; i++) {
             qu = new Questioning();
+            // add last segment of uuid (12 decimals) and fill with zero
+            // if i = 1   -> 000000000001
+            // if i = 123 -> 000000000123
+            String uuidSuffix = String.format("%012d", i);
+            qu.setId(UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-" + uuidSuffix));
             List<QuestioningEvent> qeList = new ArrayList<>();
             questioningAccreditations = new HashSet<>();
 

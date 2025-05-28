@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class QuestioningDetailsDtoBuilder {
     private final QuestioningDetailsDto instance;
@@ -23,6 +24,7 @@ public class QuestioningDetailsDtoBuilder {
     }
 
     public QuestioningDetailsDtoBuilder questioningId(Long id) {
+    public QuestioningDetailsDtoBuilder questioningId(UUID id) {
         instance.setQuestioningId(id);
         return this;
     }

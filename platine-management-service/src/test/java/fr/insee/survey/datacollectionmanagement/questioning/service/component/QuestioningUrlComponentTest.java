@@ -13,6 +13,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlCo
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,7 +33,7 @@ class QuestioningUrlComponentTest {
     private final String modelName = "MODEL";
     private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
-    private final Long questioningId = 1L;
+    private final UUID questioningId = UUID.randomUUID();
     private final String sourceId = "SOURCEID";
     private final String contactId = "TOTO";
     private final Integer surveyYear = 2024;

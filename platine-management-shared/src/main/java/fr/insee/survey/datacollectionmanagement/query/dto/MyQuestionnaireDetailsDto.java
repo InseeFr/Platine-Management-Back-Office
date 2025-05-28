@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class MyQuestionnaireDetailsDto {
     private String sourceId;
+    private UUID questioningId;
     private Integer surveyYear;
     private String period;
     private Long questioningId;

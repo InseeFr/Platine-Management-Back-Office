@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor

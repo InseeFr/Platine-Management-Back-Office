@@ -31,6 +31,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -63,7 +64,7 @@ public class QuestioningAccreditationController {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Deprecated(since = "2.6.0")
-    public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") Long id) {
+    public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") UUID id) {
         log.warn("DEPRECATED");
 
         Questioning optQuestioning = questioningService.findById(id);
@@ -89,7 +90,7 @@ public class QuestioningAccreditationController {
     })
     @Transactional
     @Deprecated(since = "2.6.0")
-    public ResponseEntity<QuestioningAccreditationDto> postQuestioningAccreditation(@PathVariable("id") Long id,
+    public ResponseEntity<QuestioningAccreditationDto> postQuestioningAccreditation(@PathVariable("id") UUID id,
                                                                                     @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
         log.warn("DEPRECATED");
@@ -154,7 +155,13 @@ public class QuestioningAccreditationController {
     }
 
     private QuestioningAccreditation convertToEntity(QuestioningAccreditationDto questioningAccreditationDto) {
-        return modelMapper.map(questioningAccreditationDto, QuestioningAccreditation.class);
+        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
+        questioningAccreditation.setId(questioningAccreditationDto.getId());
+        questioningAccreditation.setIdContact(questioningAccreditationDto.getIdContact());
+        questioningAccreditation.setMain(questioningAccreditationDto.isMain());
+        questioningAccreditation.setCreationAuthor(questioningAccreditationDto.getCreationAuthor());
+        questioningAccreditation.setCreationDate(questioningAccreditationDto.getCreationDate());
+        return questioningAccreditation;
     }
 
     private QuestioningAccreditationDto convertToDto(QuestioningAccreditation questioningAccreditation) {

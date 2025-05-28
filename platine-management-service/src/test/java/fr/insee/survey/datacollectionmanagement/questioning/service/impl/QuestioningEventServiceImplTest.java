@@ -46,16 +46,17 @@ class QuestioningEventServiceImplTest {
     private QuestioningEventInputDto validatedDto;
     private Questioning questioning;
     private QuestioningEvent existingEvent;
+    private final UUID questioningId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
         validatedDto = new QuestioningEventInputDto();
-        validatedDto.setQuestioningId(1L);
+        validatedDto.setQuestioningId(questioningId);
         validatedDto.setDate(Date.from(Instant.now()));
         validatedDto.setPayload(createPayload());
 
         questioning = new Questioning();
-        questioning.setId(1L);
+        questioning.setId(questioningId);
 
         existingEvent = new QuestioningEvent();
         existingEvent.setId(100L);
@@ -72,18 +73,18 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should throw NotFoundException when questioning does not exist")
     void postValintQuestioningEventTest() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.empty());
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> questioningEventService.postQuestioningEvent("eventType", validatedDto))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Questioning 1 does not exist");
+                .hasMessage("Questioning "+validatedDto.getQuestioningId()+" does not exist");
     }
 
     @Test
     @DisplayName("Should throw TooManyValuesException when multiple VALINT events exist")
     void postValintQuestioningEventTest2() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
+        when(questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(new QuestioningEvent(), new QuestioningEvent()));
 
         String valintEvent = TypeQuestioningEvent.VALINT.name();
@@ -96,8 +97,8 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should update existing VALINT event when one exists")
     void postValintQuestioningEventTest3() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
+        when(questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of(existingEvent));
         Date dateExistingEvent = existingEvent.getDate();
         String valintEvent = TypeQuestioningEvent.VALINT.name();
@@ -110,8 +111,8 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should create new VALINT event when none exist")
     void postValintQuestioningEventTest4() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
+        when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
+        when(questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALINT))
                 .thenReturn(List.of());
         String valintEvent = TypeQuestioningEvent.VALINT.name();
 
