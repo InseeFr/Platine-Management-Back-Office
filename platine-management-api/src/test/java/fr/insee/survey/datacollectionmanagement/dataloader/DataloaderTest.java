@@ -4,14 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.domain.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.AddressRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
+import fr.insee.survey.datacollectionmanagement.contact.repository.ContactSourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
@@ -88,6 +87,10 @@ public class DataloaderTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ContactSourceRepository contactSourceRepository;
+
 
     @PostConstruct
     public void init() throws ParseException {
@@ -191,7 +194,8 @@ public class DataloaderTest {
 
     private Contact createContact(int i) {
         Contact contact = new Contact();
-        contact.setIdentifier("CONT" + Integer.toString(i));
+        String id = "CONT" + Integer.toString(i);
+        contact.setIdentifier(id);
         contact.setFirstName("firstName" + i);
         contact.setLastName("lastName" + i);
         contact.setEmail(contact.getFirstName() + contact.getLastName() + "@test.com");
@@ -361,6 +365,14 @@ public class DataloaderTest {
                 }
                 questioningAccreditations.add(accreditation);
                 questioningAccreditationRepository.save(accreditation);
+
+                Optional<Partitioning> partitioning = partitioningRepository.findById(accreditation.getQuestioning().getIdPartitioning());
+
+                if(partitioning.isPresent())
+                {
+                    ContactSource contactSource = createContactSource(accreditation, partitioning.get());
+                    contactSourceRepository.save(contactSource);
+                }
             }
             qu.setQuestioningEvents(new HashSet<>(qeList));
             qu.setQuestioningAccreditations(questioningAccreditations);
@@ -370,17 +382,35 @@ public class DataloaderTest {
         }
     }
 
+    private ContactSource createContactSource(QuestioningAccreditation accreditation, Partitioning partitioning) {
+        ContactSource contactSource = new ContactSource();
+        contactSource.setMain(true);
+        ContactSourceId contactSourceId = new ContactSourceId();
+        contactSourceId.setContactId(accreditation.getIdContact());
+        contactSourceId.setSurveyUnitId(accreditation.getQuestioning().getSurveyUnit().getIdSu());
+        contactSourceId.setSourceId(partitioning.getCampaign().getSurvey().getSource().getId());
+        contactSource.setId(contactSourceId);
+        return contactSource;
+    }
+
     private void initView() {
         if (viewRepository.count() == 0) {
 
             List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findAll();
             listAccreditations.stream().forEach(a -> {
                 Partitioning p = partitioningRepository.findById(a.getQuestioning().getIdPartitioning()).orElse(null);
-                View view = new View();
-                view.setIdentifier(contactRepository.findById(a.getIdContact()).orElse(null).getIdentifier());
-                view.setCampaignId(p.getCampaign().getId());
-                view.setIdSu(a.getQuestioning().getSurveyUnit().getIdSu());
-                viewRepository.save(view);
+                String contactId = contactRepository.findById(a.getIdContact()).orElse(null).getIdentifier();
+                String campaignId = p.getCampaign().getId();
+                String suId = a.getQuestioning().getSurveyUnit().getIdSu();
+                // Views with same id su and campaign id should not exist
+                if(viewRepository.findByIdSuAndCampaignId(suId, campaignId).isEmpty())
+                {
+                    View view = new View();
+                    view.setIdentifier(contactId);
+                    view.setCampaignId(campaignId);
+                    view.setIdSu(suId);
+                    viewRepository.save(view);
+                }
             });
 
             Iterable<Contact> listContacts = contactRepository.findAll();

@@ -13,7 +13,7 @@ import java.time.Instant;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PartioningServiceImpl implements PartitioningService {
+public class PartitioningServiceImpl implements PartitioningService {
 
     private final PartitioningRepository partitioningRepository;
 
@@ -30,7 +30,6 @@ public class PartioningServiceImpl implements PartitioningService {
 
     }
 
-
     @Override
     public void deletePartitioningById(String id) {
         partitioningRepository.deleteById(id);
@@ -41,5 +40,4 @@ public class PartioningServiceImpl implements PartitioningService {
         return part.getClosingDate().toInstant().isAfter(now) &&
                 part.getOpeningDate().toInstant().isBefore(now);
     }
-
 }

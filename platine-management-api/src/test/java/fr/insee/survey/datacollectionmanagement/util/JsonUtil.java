@@ -4,8 +4,6 @@ import net.minidev.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
 public class JsonUtil {
-
-
     public static String createJsonError(int code, String message) {
         JSONObject jo = new JSONObject();
         jo.put("code", code);

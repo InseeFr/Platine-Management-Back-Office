@@ -16,7 +16,6 @@ import fr.insee.survey.datacollectionmanagement.exception.ImpossibleToDeleteExce
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -53,10 +52,7 @@ public class ContactController {
 
     private final ContactService contactService;
 
-    private final ViewService viewService;
-
     private final QuestioningAccreditationService questioningAccreditationService;
-
 
     /**
      * @deprecated
@@ -130,11 +126,9 @@ public class ContactController {
         }
         Contact contact = contactService.updateOrCreateContact(id, contactDto, payload);
 
-
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(contactService.convertToDto(contact));
 
     }
-
 
     /**
      * @deprecated
@@ -195,5 +189,4 @@ public class ContactController {
             super(content, pageable, total);
         }
     }
-
 }
