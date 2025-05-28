@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.source.enums.SourceType;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,4 +50,5 @@ public class Source {
     @Enumerated(EnumType.STRING)
     private Set<Parameters> params;
 
+    private SourceType type;
 }
