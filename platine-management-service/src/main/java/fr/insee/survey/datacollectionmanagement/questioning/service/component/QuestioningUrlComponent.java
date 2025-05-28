@@ -24,6 +24,8 @@ public class QuestioningUrlComponent {
 
     private final String xform2Url;
 
+    private final String uploadDownloadUrl;
+
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
 
@@ -65,7 +67,12 @@ public class QuestioningUrlComponent {
                     buildLunaticUrl(role, lunaticSensitiveUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
             case XFORM1 -> buildXformUrl(xform1Url, role, campaignId, surveyUnitId);
             case XFORM2 -> buildXformUrl(xform2Url, role, campaignId, surveyUnitId);
+            case DOWNLAOAD_UPLOAD -> buildDownloadUrl(uploadDownloadUrl, sourceId, surveyUnitId );
         };
+    }
+
+    private String buildDownloadUrl(String uploadDownloadUrl, String sourceId, String surveyUnitId) {
+        return String.format("%s/visualiser/%s/%s", uploadDownloadUrl, sourceId, surveyUnitId);
     }
 
     /**

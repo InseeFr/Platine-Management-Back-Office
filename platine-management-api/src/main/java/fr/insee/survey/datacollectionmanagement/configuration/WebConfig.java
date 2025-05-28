@@ -55,4 +55,9 @@ public class WebConfig implements WebMvcConfigurer {
         return applicationConfig.getQuestionnaireApiSensitiveUrl();
     }
 
+    @Bean
+    public String uploadDownloadUrl() {
+        return applicationConfig.getUploadDownloadUrl();
+    }
+
 }

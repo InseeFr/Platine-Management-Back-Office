@@ -67,6 +67,9 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.api.questioning.sensitive.api.url}")
     private String questionnaireApiSensitiveUrl;
 
+    @Value("${fr.insee.datacollectionmanagement.api.upload.download.url}")
+    private String uploadDownloadUrl;
+
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;
 }

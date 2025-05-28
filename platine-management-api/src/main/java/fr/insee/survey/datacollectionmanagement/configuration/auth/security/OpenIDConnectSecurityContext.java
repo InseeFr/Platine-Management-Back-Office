@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthenticationUserHelper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 
@@ -90,5 +92,14 @@ public class OpenIDConnectSecurityContext {
 
     Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
         return new GrantedAuthorityConverter(applicationConfig);
+    }
+
+
+    @Bean
+    protected RestTemplate uploadDownloadRestTemplate(AuthenticationUserHelper authenticationHelper) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add(new RestTemplateAddJsonHeaderInterceptor());
+        restTemplate.getInterceptors().add(new ContactTokenInterceptor(authenticationHelper));
+        return restTemplate;
     }
 }

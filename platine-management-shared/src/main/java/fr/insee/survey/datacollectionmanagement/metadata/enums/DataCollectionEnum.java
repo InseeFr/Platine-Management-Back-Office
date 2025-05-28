@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum DataCollectionEnum {
 
-    LUNATIC_SENSITIVE("lunatic_sensitive"), LUNATIC_NORMAL("lunatic_normal"), XFORM1("xform1"), XFORM2("xform2");
+    LUNATIC_SENSITIVE("lunatic_sensitive"), LUNATIC_NORMAL("lunatic_normal"), XFORM1("xform1"), XFORM2("xform2"), DOWNLAOAD_UPLOAD("download_upload");
     final String value;
 
     DataCollectionEnum(String v) {
