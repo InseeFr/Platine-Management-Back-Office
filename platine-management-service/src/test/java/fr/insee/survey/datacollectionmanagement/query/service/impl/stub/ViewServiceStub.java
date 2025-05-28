@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
@@ -13,6 +14,8 @@ public class ViewServiceStub implements ViewService {
     private Map<String, List<String>> identifiersBySurveyUnit = new HashMap<>();
     private Map<String, Set<String>> campaignsByIdentifiers = new HashMap<>();
 
+    ArrayList<View> views = new ArrayList<>();
+
     public void setIdentifiersByIdSu(String idSu, List<String> identifiers) {
         identifiersBySurveyUnit.put(idSu, identifiers);
     }
@@ -25,14 +28,35 @@ public class ViewServiceStub implements ViewService {
         campaignsByIdentifiers.computeIfAbsent(contactId, k -> new HashSet<>()).add(campaignId);
     }
 
+    private View findViewById(Long id)
+    {
+        return views.stream().filter(v -> v.getId().equals(id)).findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format("No View found with id %s", id)));
+    }
+
     @Override
     public View saveView(View view) {
-        return null;
+        View alreadyExistingView;
+        try {
+            if(view.getId() != null)
+            {
+                alreadyExistingView = findViewById(view.getId());
+                deleteView(alreadyExistingView);
+            }
+        }
+        catch (NotFoundException e)
+        {
+            // not used
+        }
+
+        views.add(view);
+        return view;
     }
 
     @Override
     public List<View> findViewByIdentifier(String identifier) {
-        return List.of();
+        return views.stream().filter(v ->
+                v.getIdentifier().equals(identifier)).toList();
     }
 
     @Override
@@ -71,13 +95,22 @@ public class ViewServiceStub implements ViewService {
     }
 
     @Override
-    public View createView(String identifier, String idSu, String campaignId) {
-        return null;
+    public View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId) {
+        View view = new View();
+        view.setIdentifier(identifier);
+        view.setCampaignId(campaignId);
+        view.setIdSu(idSu);
+        List<View> listContactView = findViewByIdentifier(identifier);
+        listContactView.forEach(v -> {
+            if (v.getIdSu() == null)
+                deleteView(v);
+        });
+        return saveView(view);
     }
 
     @Override
     public void deleteView(View view) {
-        // Stub
+        views.remove(findViewById(view.getId()));
     }
 
     @Override
@@ -102,5 +135,12 @@ public class ViewServiceStub implements ViewService {
             result.put(identifier, campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
         }
         return result;
+    }
+
+    @Override
+    public Optional<View>  findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
+        return views.stream().filter(v -> v.getCampaignId().equals(campaignId)
+                && v.getIdentifier().equals(contactId)
+                && v.getIdSu().equals(idSu)).findFirst();
     }
 }

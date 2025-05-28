@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +18,6 @@ public class BusinessContactDto {
     private String facSimile;
     private String commentaire;
     private String ecivilite;
+    @JsonProperty("adresse")
     private BusinessAddressDto businessAddressDto;
 }

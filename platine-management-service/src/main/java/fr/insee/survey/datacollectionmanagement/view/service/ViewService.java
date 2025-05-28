@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -29,7 +30,7 @@ public interface ViewService {
 
     List<View> findViewByIdSuContaining(String field);
 
-    View createView(String identifier, String idSu, String campaignId);
+    View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId);
 
     void deleteView(View view);
 
@@ -40,4 +41,6 @@ public interface ViewService {
     List<String> findIdentifiersByIdSu(String id);
 
     Map<String, Set<String>> findDistinctCampaignByIdentifiers(List<String> identifiers);
+
+    Optional<View> findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId);
 }
