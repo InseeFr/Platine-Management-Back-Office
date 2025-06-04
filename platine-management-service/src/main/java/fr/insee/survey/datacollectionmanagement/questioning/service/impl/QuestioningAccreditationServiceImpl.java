@@ -86,24 +86,21 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     @Override
     public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
-        Optional<Questioning> questioning = questioningRepository.findById(questioningId);
-        if(questioning.isEmpty())
-        {
-            throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
-        }
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 
         Contact contact = contactService.findByIdentifier(contactId);
 
         Date date = Date.from(Instant.now());
-        Campaign campaign = partitioningService.findById(questioning.get().getIdPartitioning()).getCampaign();
+        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
         JsonNode payload = createPayload("platine-pilotage");
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
         questioningAccreditation.ifPresentOrElse(
-                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.get(), payload, campaign),
-                () -> createQuestioningAccreditation(questioning.get(), true, contact, payload, date, campaign));
+                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning, payload, campaign),
+                () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
     }
 
     @Override
