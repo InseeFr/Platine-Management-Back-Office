@@ -121,7 +121,7 @@ public class QuestioningAccreditationController {
             questioningService.saveQuestioning(questioning);
 
             // create view
-            viewService.createView(idContact, questioning.getSurveyUnit().getIdSu(),
+            viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(idContact, questioning.getSurveyUnit().getIdSu(),
                     part.getCampaign().getId());
 
             // location header

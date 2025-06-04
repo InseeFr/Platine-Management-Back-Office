@@ -32,7 +32,7 @@ class ViewServiceImplTest {
         reset(viewRepository);
     }
 
-    private View createView(String contactId, String campaignId, String surveyUnitId) {
+    private View createViewAndDeleteEmptyExistingOnesByIdentifier(String contactId, String campaignId, String surveyUnitId) {
         View view = new View();
         view.setIdentifier(contactId);
         view.setCampaignId(campaignId);
@@ -56,9 +56,9 @@ class ViewServiceImplTest {
     void findIdentifiersByIdSu_shouldReturnIdentifiers_whenViewsExist() {
         String idSu = "su1";
         List<View> views = List.of(
-                createView("id1", "campaignA", idSu),
-                createView("id2", "campaignA", idSu),
-                createView("id3", "campaignA", idSu)
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id1", "campaignA", idSu),
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id2", "campaignA", idSu),
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id3", "campaignA", idSu)
         );
 
         when(viewRepository.findByIdSu(idSu)).thenReturn(views);
@@ -88,8 +88,8 @@ class ViewServiceImplTest {
     void findDistinctCampaignByIdentifiers_shouldReturnCorrectMapping() {
         List<String> identifiers = List.of("id1", "id2");
         List<View> views = List.of(
-                createView("id1", "campaignA", "su1"),
-                createView("id2", "campaignB", "su2")
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id1", "campaignA", "su1"),
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id2", "campaignB", "su2")
         );
 
         when(viewRepository.findByIdentifierIn(identifiers)).thenReturn(views);
@@ -104,8 +104,8 @@ class ViewServiceImplTest {
     void findDistinctCampaignByIdentifiers_shouldReturnCorrectMapping_whenIdentifierLinkedToMultipleCampaign() {
         List<String> identifiers = List.of("id1");
         List<View> views = List.of(
-                createView("id1", "campaignA", "su1"),
-                createView("id1", "campaignB", "su2")
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id1", "campaignA", "su1"),
+                createViewAndDeleteEmptyExistingOnesByIdentifier("id1", "campaignB", "su2")
         );
 
         when(viewRepository.findByIdentifierIn(identifiers)).thenReturn(views);
