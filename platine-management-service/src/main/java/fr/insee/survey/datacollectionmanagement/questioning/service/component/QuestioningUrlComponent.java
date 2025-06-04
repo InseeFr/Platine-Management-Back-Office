@@ -26,6 +26,7 @@ public class QuestioningUrlComponent {
 
     private static final String PATH_LOGOUT = "pathLogout";
     private static final String PATH_ASSISTANCE = "pathAssistance";
+    private static final String PATH_EXIT = "pathExit";
 
     /**
      * Generates an access URL based on the provided parameters.
@@ -108,6 +109,7 @@ public class QuestioningUrlComponent {
                     sourceId, questioningId, surveyUnitId, contactId);
             return UriComponentsBuilder.fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
                     .queryParam(PATH_LOGOUT, URLEncoder.encode("/deconnexion", StandardCharsets.UTF_8))
+                    .queryParam(PATH_EXIT, URLEncoder.encode("/mes-enquetes", StandardCharsets.UTF_8))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
                     .build().toUriString();
         }
