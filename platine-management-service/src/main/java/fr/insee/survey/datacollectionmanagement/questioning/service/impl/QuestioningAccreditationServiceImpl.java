@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
@@ -38,6 +39,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     private final ContactSourceService contactSourceService;
     private final PartitioningService partitioningService;
     private final ViewService viewService;
+    private final QuestioningRepository questioningRepository;
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -83,17 +85,25 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning) {
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        Optional<Questioning> questioning = questioningRepository.findById(questioningId);
+        if(questioning.isEmpty())
+        {
+            throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
+        }
+
+        Contact contact = contactService.findByIdentifier(contactId);
+
         Date date = Date.from(Instant.now());
-        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
+        Campaign campaign = partitioningService.findById(questioning.get().getIdPartitioning()).getCampaign();
         JsonNode payload = createPayload("platine-pilotage");
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
-        .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+        .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
         questioningAccreditation.ifPresentOrElse(
-                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning, payload, campaign),
-                () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
+                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.get(), payload, campaign),
+                () -> createQuestioningAccreditation(questioning.get(), true, contact, payload, date, campaign));
     }
 
     @Override

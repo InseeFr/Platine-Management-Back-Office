@@ -55,7 +55,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning) {
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
         // not used
     }
 

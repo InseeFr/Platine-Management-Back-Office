@@ -30,7 +30,7 @@ public interface QuestioningAccreditationService {
                                         Date date,
                                         Campaign campaign);
 
-    void setMainQuestioningAccreditationToContact(Contact contact, Questioning questioning);
+    void setMainQuestioningAccreditationToContact(String contactId, Long questioningId);
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
                                                      Contact newContact,

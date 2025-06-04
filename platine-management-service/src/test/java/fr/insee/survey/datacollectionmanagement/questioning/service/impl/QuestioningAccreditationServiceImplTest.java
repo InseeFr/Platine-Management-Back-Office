@@ -10,6 +10,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
@@ -25,12 +27,13 @@ import static org.assertj.core.api.Assertions.*;
 class QuestioningAccreditationServiceImplTest {
 
     private QuestioningAccreditationServiceImpl service;
-    private QuestioningAccreditationRepositoryStub accreditationRepo;
+    private QuestioningAccreditationRepository accreditationRepo;
     private ContactEventService contactEventService;
     private ContactService contactService;
     private ContactSourceService contactSourceService;
     private PartitioningService partitioningService;
     private ViewService viewService;
+    private QuestioningRepository questioningRepository;
 
     @BeforeEach
     void initServiceWithStubs() {
@@ -40,10 +43,11 @@ class QuestioningAccreditationServiceImplTest {
         contactSourceService = new ContactSourceServiceStub();
         partitioningService = new PartitioningServiceStub();
         viewService = new ViewServiceStub();
+        questioningRepository = new QuestioningRepositoryStub();
 
         service = new QuestioningAccreditationServiceImpl(
                 accreditationRepo, contactEventService, contactService,
-                contactSourceService, partitioningService, viewService
+                contactSourceService, partitioningService, viewService, questioningRepository
         );
     }
 
@@ -125,6 +129,16 @@ class QuestioningAccreditationServiceImplTest {
         assertMainAccreditation(newContact, questioning);
         assertContactEvent(oldContact, payload);
         assertContactSourceNotFound(oldContact.getIdentifier(), campaign, questioning.getSurveyUnit().getIdSu());
+    }
+
+    @Test
+    @DisplayName("Should throw not found exception when questioning does not exist")
+    void shouldNotFindQuestioning()
+    {
+        Long questioningId = 1L;
+        assertThatThrownBy(() -> service.setMainQuestioningAccreditationToContact(
+                "contact-id", questioningId))
+                .isInstanceOf(NotFoundException.class).hasMessage(String.format("Missing Questioning with id %s", questioningId));
     }
 
     private Contact createAndSaveContact(String id) {
@@ -223,7 +237,7 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("new-contact");
         Questioning questioning = createAndRegisterQuestioning();
 
-        service.setMainQuestioningAccreditationToContact(contact, questioning);
+        service.setMainQuestioningAccreditationToContact(contact.getIdentifier(), questioning.getId());
 
         Optional<QuestioningAccreditation> saved = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -244,7 +258,7 @@ class QuestioningAccreditationServiceImplTest {
         setupViewAndSource(oldContact, campaign, questioning);
         saveMainAccreditation(oldContact, questioning);
 
-        service.setMainQuestioningAccreditationToContact(newContact, questioning);
+        service.setMainQuestioningAccreditationToContact(newContact.getIdentifier(), questioning.getId());
 
         Optional<QuestioningAccreditation> updated = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -276,6 +290,7 @@ class QuestioningAccreditationServiceImplTest {
         questioning.setId(1L);
         questioning.setSurveyUnit(su);
         questioning.setIdPartitioning(partitioning.getId());
+        questioningRepository.save(questioning);
 
         return questioning;
     }

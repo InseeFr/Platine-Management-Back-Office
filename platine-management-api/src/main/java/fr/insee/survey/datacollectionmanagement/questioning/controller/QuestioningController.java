@@ -2,8 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -48,8 +46,6 @@ public class QuestioningController {
     private final ModelMapper modelMapper;
 
     private final QuestioningAccreditationService questioningAccreditationService;
-
-    private final ContactService contactService;
 
     /**
      * @deprecated
@@ -112,9 +108,7 @@ public class QuestioningController {
             @PathVariable("interrogationId") Long interrogationId,
             @PathVariable("contactId") String contactId)  {
 
-        Questioning questioning = questioningService.findById(interrogationId);
-        Contact contact = contactService.findByIdentifier(contactId);
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(contact, questioning);
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);
     }
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {
