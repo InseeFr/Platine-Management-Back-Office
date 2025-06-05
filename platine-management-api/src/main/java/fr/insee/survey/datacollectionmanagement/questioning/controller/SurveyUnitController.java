@@ -92,6 +92,7 @@ public class SurveyUnitController {
 
     }
 
+    @Deprecated(since = "3.18.1")
     @Operation(summary = "Multi-criteria search survey-unit")
     @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH + "/V2", produces = "application/json")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
