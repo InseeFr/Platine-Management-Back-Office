@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidSurveyUnitParam {
-    String message() default "Invalid searchParam value.Only id, code or name are valid";
+    String message() default "Invalid searchType value.Only id, code or name are valid";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

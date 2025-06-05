@@ -15,9 +15,9 @@ public class SurveyUnitParamValidator implements ConstraintValidator<ValidSurvey
     }
 
     @Override
-    public boolean isValid(String searchParam, ConstraintValidatorContext context) {
-        if (searchParam == null)
+    public boolean isValid(String searchType, ConstraintValidatorContext context) {
+        if (searchType == null)
             return false;
-        return Arrays.stream(SurveyUnitParamEnum.values()).anyMatch(v -> searchParam.equalsIgnoreCase(v.name()));
+        return Arrays.stream(SurveyUnitParamEnum.values()).anyMatch(v -> searchType.equalsIgnoreCase(v.getValue()));
     }
 }
