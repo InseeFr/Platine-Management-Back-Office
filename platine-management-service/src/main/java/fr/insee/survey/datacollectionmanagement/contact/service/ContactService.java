@@ -95,4 +95,7 @@ public interface ContactService {
     Contact convertToEntityNewContact(ContactDto contactDto);
 
     ContactDetailsDto getContactDetails(String idContact);
+
+    ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId,
+                                                           ContactDto contact);
 }

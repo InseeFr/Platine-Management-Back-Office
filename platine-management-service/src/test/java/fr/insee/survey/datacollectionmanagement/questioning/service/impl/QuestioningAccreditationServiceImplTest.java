@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.*;
 import fr.insee.survey.datacollectionmanagement.contact.stub.*;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -29,7 +30,7 @@ class QuestioningAccreditationServiceImplTest {
     private QuestioningAccreditationServiceImpl service;
     private QuestioningAccreditationRepository accreditationRepo;
     private ContactEventService contactEventService;
-    private ContactService contactService;
+    private ContactRepository contactRepository;
     private ContactSourceService contactSourceService;
     private PartitioningService partitioningService;
     private ViewService viewService;
@@ -39,15 +40,16 @@ class QuestioningAccreditationServiceImplTest {
     void initServiceWithStubs() {
         accreditationRepo = new QuestioningAccreditationRepositoryStub();
         contactEventService = new ContactEventServiceStub();
-        contactService = new ContactServiceStub();
+        contactRepository = new ContactRepositoryStub();
         contactSourceService = new ContactSourceServiceStub();
         partitioningService = new PartitioningServiceStub();
         viewService = new ViewServiceStub();
         questioningRepository = new QuestioningRepositoryStub();
 
         service = new QuestioningAccreditationServiceImpl(
-                accreditationRepo, contactEventService, contactService,
-                contactSourceService, partitioningService, viewService, questioningRepository
+                accreditationRepo, contactEventService,
+                contactSourceService, partitioningService, viewService,
+                questioningRepository, contactRepository
         );
     }
 
@@ -144,7 +146,7 @@ class QuestioningAccreditationServiceImplTest {
     private Contact createAndSaveContact(String id) {
         Contact contact = new Contact();
         contact.setIdentifier(id);
-        contactService.saveContact(contact);
+        contactRepository.save(contact);
         return contact;
     }
 

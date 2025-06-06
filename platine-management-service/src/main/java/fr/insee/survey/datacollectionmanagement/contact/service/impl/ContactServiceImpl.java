@@ -15,9 +15,11 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -45,6 +47,10 @@ public class ContactServiceImpl implements ContactService {
     private final ModelMapper modelMapper;
 
     private final CampaignService campaignService;
+
+    private final LdapService ldapService;
+
+    private final QuestioningAccreditationService questioningAccreditationService;
 
 
     @Override
@@ -235,5 +241,14 @@ public class ContactServiceImpl implements ContactService {
         contactDetailsDto.setCivility(contact.getGender());
         contactDetailsDto.setListCampaigns(campaignsStatus);
         return contactDetailsDto;
+    }
+
+    @Override
+    public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
+        // TODO : see spec, check if user already exists
+        ContactDto ldapAddedContactDto = ldapService.createUser(contact);
+        contactRepository.save(modelMapper.map(ldapAddedContactDto, Contact.class));
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(ldapAddedContactDto.getIdentifier(), questioningId);
+        return ldapAddedContactDto;
     }
 }

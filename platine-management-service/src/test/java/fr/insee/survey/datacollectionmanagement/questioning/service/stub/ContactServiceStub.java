@@ -115,4 +115,9 @@ public class ContactServiceStub implements ContactService {
     public ContactDetailsDto getContactDetails(String idContact) {
         return null;
     }
+
+    @Override
+    public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
+        return null;
+    }
 }

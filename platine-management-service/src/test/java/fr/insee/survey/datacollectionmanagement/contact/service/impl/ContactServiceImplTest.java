@@ -11,11 +11,15 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.ldap.LdapServiceStub;
+import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,8 +41,10 @@ class ContactServiceImplTest {
     private ContactService contactService;
     private AddressService addressService;
     private ContactEventService contactEventService;
+    private LdapService ldapService;
     private ViewServiceStub viewService;
     private CampaignServiceStub campaignService;
+    private QuestioningAccreditationService questioningAccreditationService;
     private ModelMapper modelMapper = new ModelMapper();
 
     @BeforeEach
@@ -48,8 +54,11 @@ class ContactServiceImplTest {
         contactEventService = Mockito.mock(ContactEventService.class);
         viewService = new ViewServiceStub();
         campaignService = new CampaignServiceStub();
+        ldapService = new LdapServiceStub();
+        questioningAccreditationService = new QuestioningAccreditationServiceStub();
+
         contactService = new ContactServiceImpl(contactRepository, addressService,
-                contactEventService, viewService, modelMapper, campaignService);
+                contactEventService, viewService, modelMapper, campaignService, ldapService, questioningAccreditationService);
     }
 
     @Test

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
-import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -35,11 +35,11 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
     private final ContactEventService contactEventService;
-    private final ContactService contactService;
     private final ContactSourceService contactSourceService;
     private final PartitioningService partitioningService;
     private final ViewService viewService;
     private final QuestioningRepository questioningRepository;
+    private final ContactRepository contactRepository;
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -89,7 +89,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 
-        Contact contact = contactService.findByIdentifier(contactId);
+        Contact contact = contactRepository.findById(contactId)
+                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
         Date date = Date.from(Instant.now());
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
@@ -115,7 +116,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
             return;
         }
 
-        Contact previousContact = contactService.findByIdentifier(existingAccreditation.getIdContact());
+        Contact previousContact = contactRepository.findById(existingAccreditation.getIdContact())
+                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
         existingAccreditation.setIdContact(newContact.getIdentifier());
         saveQuestioningAccreditation(existingAccreditation);
         logContactAccreditationLossUpdate(previousContact, questioning, payload, campaign);
@@ -170,7 +172,10 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                 questioning.getSurveyUnit().getIdSu(),
                 true);
 
-        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
+                contact.getIdentifier(),
+                questioning.getSurveyUnit().getIdSu(),
+                campaign.getId());
     }
 
     @Override
