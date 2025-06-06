@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
@@ -19,8 +16,13 @@ import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +54,8 @@ public class ContactServiceImpl implements ContactService {
     private final LdapService ldapService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final QuestioningRepository questioningRepository;
 
 
     @Override
@@ -245,10 +250,22 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
-        // TODO : see spec, check if user already exists
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
+        QuestioningDto questioningDto = modelMapper.map(questioning, QuestioningDto.class);
+        contactRepository.findById(contact.getIdentifier()).ifPresent(c -> {
+            throw new EntityExistsException(String.format("Contact %s already exists", contact.getIdentifier())); });
+
         ContactDto ldapAddedContactDto = ldapService.createUser(contact);
         contactRepository.save(modelMapper.map(ldapAddedContactDto, Contact.class));
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(ldapAddedContactDto.getIdentifier(), questioningId);
+
+        ContactEventDto contactEventDto = new ContactEventDto();
+        contactEventDto.setEventDate(new Date());
+        contactEventDto.setType(ContactEventTypeEnum.create.toString());
+        contactEventDto.setPayload(JsonUtil.createPayload("platine-pilotage"));
+        contactEventService.saveContactEvent(modelMapper.map(contactEventDto, ContactEvent.class));
+
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(ldapAddedContactDto.getIdentifier(), questioningDto.getId());
         return ldapAddedContactDto;
     }
 }

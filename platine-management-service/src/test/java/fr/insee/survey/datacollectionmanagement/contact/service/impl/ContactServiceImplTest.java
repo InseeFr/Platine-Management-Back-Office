@@ -16,10 +16,12 @@ import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,6 +47,7 @@ class ContactServiceImplTest {
     private ViewServiceStub viewService;
     private CampaignServiceStub campaignService;
     private QuestioningAccreditationService questioningAccreditationService;
+    private QuestioningRepository questioningRepository;
     private ModelMapper modelMapper = new ModelMapper();
 
     @BeforeEach
@@ -56,9 +59,18 @@ class ContactServiceImplTest {
         campaignService = new CampaignServiceStub();
         ldapService = new LdapServiceStub();
         questioningAccreditationService = new QuestioningAccreditationServiceStub();
+        questioningRepository = new QuestioningRepositoryStub();
 
-        contactService = new ContactServiceImpl(contactRepository, addressService,
-                contactEventService, viewService, modelMapper, campaignService, ldapService, questioningAccreditationService);
+        contactService = new ContactServiceImpl(
+                contactRepository,
+                addressService,
+                contactEventService,
+                viewService,
+                modelMapper,
+                campaignService,
+                ldapService,
+                questioningAccreditationService,
+                questioningRepository);
     }
 
     @Test

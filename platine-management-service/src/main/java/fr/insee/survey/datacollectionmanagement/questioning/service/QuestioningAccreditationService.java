@@ -47,6 +47,4 @@ public interface QuestioningAccreditationService {
                                            Questioning questioning,
                                            JsonNode payload,
                                            Campaign campaign);
-
-    JsonNode createPayload(String sourceLabel);
 }

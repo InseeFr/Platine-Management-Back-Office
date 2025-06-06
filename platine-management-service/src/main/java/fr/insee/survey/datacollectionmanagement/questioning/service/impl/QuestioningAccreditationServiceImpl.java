@@ -1,8 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
@@ -17,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -94,7 +93,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         Date date = Date.from(Instant.now());
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
-        JsonNode payload = createPayload("platine-pilotage");
+        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
@@ -178,11 +177,4 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                 campaign.getId());
     }
 
-    @Override
-    public JsonNode createPayload(String sourceLabel) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode node = mapper.createObjectNode();
-        node.put("source", sourceLabel);
-        return node;
-    }
 }
