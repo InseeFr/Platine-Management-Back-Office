@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -187,6 +188,14 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ApiError> forbiddenAccessException(Exception e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ResponseEntity<ApiError> entityExistsException(EntityExistsException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.CONFLICT, request);
     }
 
 }

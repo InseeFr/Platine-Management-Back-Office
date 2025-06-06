@@ -73,9 +73,4 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
     }
-
-    @Override
-    public JsonNode createPayload(String sourceLabel) {
-        return null;
-    }
 }
