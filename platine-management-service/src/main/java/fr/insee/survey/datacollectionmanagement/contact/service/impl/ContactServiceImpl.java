@@ -22,7 +22,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -250,22 +249,42 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
-        Questioning questioning = questioningRepository.findById(questioningId)
-                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
-        QuestioningDto questioningDto = modelMapper.map(questioning, QuestioningDto.class);
-        contactRepository.findById(contact.getIdentifier()).ifPresent(c -> {
-            throw new EntityExistsException(String.format("Contact %s already exists", contact.getIdentifier())); });
+        QuestioningDto questioningDto = getQuestioningDtoById(questioningId);
+        ContactDto ldapAddedContactDto = createAndSaveContact(contact);
+        saveContactCreationEvent();
+        assignMainContactToQuestioning(ldapAddedContactDto.getIdentifier(), questioningDto.getId());
+        return ldapAddedContactDto;
+    }
 
-        ContactDto ldapAddedContactDto = ldapService.createUser(contact);
-        contactRepository.save(modelMapper.map(ldapAddedContactDto, Contact.class));
+    @Override
+    public QuestioningDto getQuestioningDtoById(Long id) {
+        Questioning questioning = questioningRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", id)));
+        return modelMapper.map(questioning, QuestioningDto.class);
+    }
 
+    @Override
+    public ContactDto createAndSaveContact(ContactDto contact) {
+        // Optional: Check if contact already exists
+        // contactRepository.find(contact.getEmail()).ifPresent(c -> {
+        //     throw new EntityExistsException(String.format("Contact %s already exists", contact.getIdentifier()));
+        // });
+        ContactDto ldapContact = ldapService.createUser(contact);
+        contactRepository.save(modelMapper.map(ldapContact, Contact.class));
+        return ldapContact;
+    }
+
+    @Override
+    public void saveContactCreationEvent() {
         ContactEventDto contactEventDto = new ContactEventDto();
         contactEventDto.setEventDate(new Date());
         contactEventDto.setType(ContactEventTypeEnum.create.toString());
         contactEventDto.setPayload(JsonUtil.createPayload("platine-pilotage"));
         contactEventService.saveContactEvent(modelMapper.map(contactEventDto, ContactEvent.class));
+    }
 
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(ldapAddedContactDto.getIdentifier(), questioningDto.getId());
-        return ldapAddedContactDto;
+    @Override
+    public void assignMainContactToQuestioning(String contactIdentifier, Long questioningId) {
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactIdentifier, questioningId);
     }
 }

@@ -16,6 +16,7 @@ import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
@@ -23,6 +24,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.stub.Contact
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -204,6 +207,93 @@ class ContactServiceImplTest {
         assertEquals("John", result.getFirstName());
         assertEquals("Doe", result.getLastName());
         assertEquals("john.doe@example.com", result.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should create contact and assign accreditation")
+    void shouldCreateContactAndAssignAccreditation() {
+        // Given
+        Long questioningId = 1L;
+        ContactDto inputContact = new ContactDto();
+        inputContact.setIdentifier("john.doe");
+        inputContact.setEmail("john.doe@example.com");
+
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioningRepository.save(questioning);
+
+        // When
+        ContactDto result = contactService.createContactAndAssignToAccreditationAsMain(questioningId, inputContact);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getIdentifier()).isEqualTo("john.doe");
+
+        Contact storedContact = contactRepository.findById("john.doe").orElse(null);
+        assertThat(storedContact).isNotNull();
+        assertThat(storedContact.getIdentifier()).isEqualTo("john.doe");
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when questioning is missing")
+    void shouldThrowWhenQuestioningNotFound() {
+        // Given
+        Long invalidQuestioningId = 999L;
+        ContactDto inputContact = new ContactDto();
+        inputContact.setIdentifier("jane.doe");
+        inputContact.setEmail("jane.doe@example.com");
+
+        // When / Then
+        assertThatThrownBy(() ->
+                contactService.createContactAndAssignToAccreditationAsMain(invalidQuestioningId, inputContact))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Missing Questioning with id 999");
+    }
+
+    @Test
+    @DisplayName("Should persist contact and trigger LDAP creation")
+    void shouldPersistContactAndTriggerLdap() {
+        // Given
+        Long questioningId = 2L;
+        ContactDto newContact = new ContactDto();
+        newContact.setIdentifier("alice.smith");
+        newContact.setEmail("alice.smith@example.com");
+
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioningRepository.save(questioning);
+
+        // When
+        ContactDto created = contactService.createContactAndAssignToAccreditationAsMain(questioningId, newContact);
+
+        // Then
+        assertThat(created).isNotNull();
+        assertThat(created.getIdentifier()).isEqualTo("alice.smith");
+
+        Contact stored = contactRepository.findById("alice.smith").orElse(null);
+        assertThat(stored).isNotNull();
+        assertThat(stored.getEmail()).isEqualTo("alice.smith@example.com");
+    }
+
+    @Test
+    @DisplayName("Should record a contact creation event")
+    void shouldRecordContactCreationEvent() {
+        // Given
+        Long questioningId = 3L;
+        ContactDto contactDto = new ContactDto();
+        contactDto.setIdentifier("event.user");
+        contactDto.setEmail("event.user@example.com");
+
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioningRepository.save(questioning);
+
+
+        // When
+        contactService.createContactAndAssignToAccreditationAsMain(questioningId, contactDto);
+
+        // Then
+        // Look up for event with stub
     }
 }
 

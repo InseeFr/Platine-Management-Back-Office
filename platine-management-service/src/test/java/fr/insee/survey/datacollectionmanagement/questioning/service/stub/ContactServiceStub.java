@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -119,5 +120,25 @@ public class ContactServiceStub implements ContactService {
     @Override
     public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
         return null;
+    }
+
+    @Override
+    public QuestioningDto getQuestioningDtoById(Long id) {
+        return null;
+    }
+
+    @Override
+    public ContactDto createAndSaveContact(ContactDto contact) {
+        return null;
+    }
+
+    @Override
+    public void saveContactCreationEvent() {
+
+    }
+
+    @Override
+    public void assignMainContactToQuestioning(String contactIdentifier, Long questioningId) {
+
     }
 }

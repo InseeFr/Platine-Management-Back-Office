@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 public class LdapServiceStub implements LdapService {
     @Override
     public ContactDto createUser(ContactDto contact) {
-        return null;
+        contact.setIdentifier("Id");
+        return  contact;
     }
 }

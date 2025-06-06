@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -98,4 +99,12 @@ public interface ContactService {
 
     ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId,
                                                            ContactDto contact);
+
+    QuestioningDto getQuestioningDtoById(Long id);
+
+    ContactDto createAndSaveContact(ContactDto contact);
+
+    void saveContactCreationEvent();
+
+    void assignMainContactToQuestioning(String contactIdentifier, Long questioningId);
 }
