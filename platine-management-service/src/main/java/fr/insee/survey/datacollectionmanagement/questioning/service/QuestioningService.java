@@ -7,8 +7,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import java.util.Optional;
 import java.util.Set;
@@ -40,7 +42,7 @@ public interface QuestioningService {
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
-    Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable);
+    Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable);
 
     QuestioningDetailsDto getQuestioningDetails(Long id);
 
