@@ -8,13 +8,13 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnitAddress;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SearchSurveyUnitFixture;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SurveyUnitAddressRepositoryStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SurveyUnitRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
+import fr.insee.survey.datacollectionmanagement.questioning.service.mapper.SurveyUnitMapper;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,13 +29,18 @@ class SurveyUnitServiceImplTest {
     private SurveyUnitRepositoryStub surveyUnitRepositoryStub;
     private SurveyUnitServiceImpl surveyUnitService;
     private ContactRepositoryStub contactRepositoryStub;
+    private QuestioningRepositoryStub questioningRepository;
+    private SurveyUnitMapper surveyUnitMapper;
 
     @BeforeEach
     void init() {
         contactRepositoryStub = new ContactRepositoryStub();
         surveyUnitRepositoryStub = new SurveyUnitRepositoryStub();
+        questioningRepository = new QuestioningRepositoryStub();
+        ModelMapper modelMapper = new ModelMapper();
+        surveyUnitMapper = new SurveyUnitMapper(modelMapper, questioningRepository);
         SurveyUnitAddressRepositoryStub surveyUnitAddressRepositoryStub = new SurveyUnitAddressRepositoryStub();
-        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub);
+        surveyUnitService = new SurveyUnitServiceImpl(surveyUnitRepositoryStub, surveyUnitAddressRepositoryStub, contactRepositoryStub, surveyUnitMapper);
     }
 
     @Test
@@ -333,6 +338,29 @@ class SurveyUnitServiceImplTest {
         // Optional: check both DTOs have same contact info
         assertThat(dto1.getIdentifier()).isEqualTo(contactId);
         assertThat(dto2.getIdentifier()).isEqualTo(contactId);
+    }
+
+    @Test
+    @DisplayName("Should return survey-unit details when survey-unit exist")
+    void getDetailsById_exiting_su_id() {
+        SurveyUnit su = new SurveyUnit();
+        su.setIdSu("SU1");
+        su.setLabel("entreprise");
+
+        surveyUnitRepositoryStub.setSurveyUnit(su);
+
+        SurveyUnitDetailsDto surveyUnitDetailsDto = surveyUnitService.getDetailsById("SU1");
+
+        assertThat(surveyUnitDetailsDto).isNotNull();
+        assertThat(surveyUnitDetailsDto.getIdSu()).isEqualTo("SU1");
+        assertThat(surveyUnitDetailsDto.getLabel()).isEqualTo("entreprise");
+    }
+
+    @Test
+    @DisplayName("Should throw 404 when survey-unit not exist")
+    void getDetailsById_not_exiting_su_id() {
+        surveyUnitRepositoryStub.setShouldThrow(true);
+        assertThatThrownBy(() -> surveyUnitService.getDetailsById("testId")).isInstanceOf(NotFoundException.class).hasMessage("SurveyUnit testId not found");
     }
 
 }

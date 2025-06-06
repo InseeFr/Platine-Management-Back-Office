@@ -71,6 +71,8 @@ public interface QuestioningRepository extends JpaRepository<Questioning, Long> 
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
+    boolean existsBySurveyUnitIdSu(String idSu);
+
     Page<Questioning> findAll(Pageable pageable);
 
     @Query("""
