@@ -44,6 +44,15 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
+    public boolean existsBySurveyUnitIdSu(String idSu) {
+        if (idSu == null) {
+            return false;
+        }
+        List<Questioning> byIdSu = questionings.stream().filter(q -> idSu.equals(q.getSurveyUnit().getIdSu())).toList();
+        return !byIdSu.isEmpty();
+    }
+
+    @Override
     public Page<Questioning> findAll(Pageable pageable) {
         return null;
     }

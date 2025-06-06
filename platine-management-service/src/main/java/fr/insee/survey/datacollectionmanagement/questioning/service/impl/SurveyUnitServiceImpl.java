@@ -8,9 +8,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitAddressRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.mapper.SurveyUnitMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,11 +34,12 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
 
     private final ContactRepository contactRepository;
 
+    private final SurveyUnitMapper surveyUnitMapper;
+
     @Override
     public SurveyUnit findbyId(String idSu) {
-        return surveyUnitRepository.findById(idSu).orElseThrow(() -> new NotFoundException(String.format("SurveyUnit" +
-                                                                                                         " " +
-                                                                                                         "%s not found", idSu)));
+        return surveyUnitRepository.findById(idSu)
+                .orElseThrow(() -> new NotFoundException(String.format("SurveyUnit %s not found", idSu)));
     }
 
     @Override
@@ -139,6 +142,12 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
                 .filter(Objects::nonNull)
                 .toList();
 
+    }
+
+    @Override
+    public SurveyUnitDetailsDto getDetailsById(String id) {
+        SurveyUnit surveyUnit = findbyId(id);
+        return surveyUnitMapper.toDto(surveyUnit);
     }
 
 }

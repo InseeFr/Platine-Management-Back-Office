@@ -12,6 +12,7 @@ public class SurveyUnitDetailsDto {
 
     @NotBlank
     private String idSu;
+    private String label;
     private String identificationCode;
     private String identificationName;
     private SurveyUnitAddressDto address;

@@ -12,7 +12,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.SurveyUnitParamEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.validation.ValidSurveyUnitParam;
-import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,7 +43,7 @@ import java.util.List;
 public class SurveyUnitController {
 
     private final SurveyUnitService surveyUnitService;
-    private final ViewService viewService;
+
     private final ModelMapper modelMapper;
 
 
@@ -83,13 +82,10 @@ public class SurveyUnitController {
 
     @Operation(summary = "Search for a survey unit by its id")
     @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = "application/json")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))),
+            @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
     public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
-        SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
-        SurveyUnitDetailsDto surveyUnitDetailsDto = convertToDetailsDto(surveyUnit);
-        surveyUnitDetailsDto.setHasQuestionings(!viewService.findViewByIdSu(id).isEmpty());
-        return surveyUnitDetailsDto;
-
+        return surveyUnitService.getDetailsById(id);
     }
 
     @Deprecated(since = "3.18.1")
@@ -157,11 +153,6 @@ public class SurveyUnitController {
     private SurveyUnitDto convertToDto(SurveyUnit surveyUnit) {
         return modelMapper.map(surveyUnit, SurveyUnitDto.class);
     }
-
-    private SurveyUnitDetailsDto convertToDetailsDto(SurveyUnit surveyUnit) {
-        return modelMapper.map(surveyUnit, SurveyUnitDetailsDto.class);
-    }
-
 
     private SurveyUnit convertToEntity(SurveyUnitDto surveyUnitDto) {
         return modelMapper.map(surveyUnitDto, SurveyUnit.class);
