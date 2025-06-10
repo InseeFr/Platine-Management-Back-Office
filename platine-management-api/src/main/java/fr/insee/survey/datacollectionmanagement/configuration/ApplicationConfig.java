@@ -69,10 +69,4 @@ public class ApplicationConfig {
 
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;
-
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.realm}")
-    private String createUserApiUrlRealm;
-
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.storage}")
-    private String createUserApiUrlStorage;
 }
