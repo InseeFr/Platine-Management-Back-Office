@@ -128,17 +128,18 @@ public class ContactServiceStub implements ContactService {
     }
 
     @Override
-    public ContactDto createAndSaveContact(ContactDto contact) {
+    public ContactDto createAndSaveContact(ContactDto contactDto) {
+        contactDto.setIdentifier("Id");
         return null;
     }
 
     @Override
-    public void saveContactCreationEvent() {
-
+    public void saveContactCreationEvent(ContactDto contactDto) {
+        // not used
     }
 
     @Override
     public void assignMainContactToQuestioning(String contactIdentifier, Long questioningId) {
-
+        // not used
     }
 }

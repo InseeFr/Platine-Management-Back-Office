@@ -84,6 +84,15 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
+    public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload)
+    {
+        qa.setMain(true);
+        questioningAccreditationRepository.save(qa);
+        ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, eventPayload);
+        contactEventService.saveContactEvent(contactEvent);
+    }
+
+    @Override
     public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
@@ -94,6 +103,15 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         Date date = Date.from(Instant.now());
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
         JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+
+        Optional<QuestioningAccreditation> questioningAccreditationAsSecondary = questioningAccreditationRepository
+                .findAccreditationsByQuestioningIdAndIsMainFalse(questioningId);
+
+        if(questioningAccreditationAsSecondary.isPresent())
+        {
+            setQuestioningAccreditationAsMain(questioningAccreditationAsSecondary.get(), contact, payload);
+            return;
+        }
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);

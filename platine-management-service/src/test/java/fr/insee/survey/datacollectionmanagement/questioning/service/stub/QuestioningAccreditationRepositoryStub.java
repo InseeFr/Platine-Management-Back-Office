@@ -37,6 +37,11 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
         return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).findFirst();
     }
 
+    @Override
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainFalse(Long questioningId) {
+        return Optional.empty();
+    }
+
 
     @Override
     public void flush() {

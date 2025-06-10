@@ -251,7 +251,7 @@ public class ContactServiceImpl implements ContactService {
     public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
         QuestioningDto questioningDto = getQuestioningDtoById(questioningId);
         ContactDto ldapAddedContactDto = createAndSaveContact(contact);
-        saveContactCreationEvent();
+        saveContactCreationEvent(ldapAddedContactDto);
         assignMainContactToQuestioning(ldapAddedContactDto.getIdentifier(), questioningDto.getId());
         return ldapAddedContactDto;
     }
@@ -264,22 +264,23 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactDto createAndSaveContact(ContactDto contact) {
+    public ContactDto createAndSaveContact(ContactDto contactDto) {
         // Optional: Check if contact already exists
         // contactRepository.find(contact.getEmail()).ifPresent(c -> {
         //     throw new EntityExistsException(String.format("Contact %s already exists", contact.getIdentifier()));
         // });
-        ContactDto ldapContact = ldapService.createUser(contact);
+        ContactDto ldapContact = ldapService.createUser(contactDto);
         contactRepository.save(modelMapper.map(ldapContact, Contact.class));
         return ldapContact;
     }
 
     @Override
-    public void saveContactCreationEvent() {
+    public void saveContactCreationEvent(ContactDto contactDto) {
         ContactEventDto contactEventDto = new ContactEventDto();
         contactEventDto.setEventDate(new Date());
         contactEventDto.setType(ContactEventTypeEnum.create.toString());
         contactEventDto.setPayload(JsonUtil.createPayload("platine-pilotage"));
+        contactEventDto.setContactDto(contactDto);
         contactEventService.saveContactEvent(modelMapper.map(contactEventDto, ContactEvent.class));
     }
 

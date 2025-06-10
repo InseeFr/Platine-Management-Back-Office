@@ -5,11 +5,14 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.contact.stub.AdressServiceStub;
+import fr.insee.survey.datacollectionmanagement.contact.stub.ContactEventServiceStub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.ldap.LdapServiceStub;
 import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
@@ -56,8 +59,8 @@ class ContactServiceImplTest {
     @BeforeEach
     void init() {
         contactRepository = new ContactRepositoryStub();
-        addressService = Mockito.mock(AddressService.class);
-        contactEventService = Mockito.mock(ContactEventService.class);
+        addressService = new AdressServiceStub(modelMapper);
+        contactEventService = new ContactEventServiceStub(modelMapper);
         viewService = new ViewServiceStub();
         campaignService = new CampaignServiceStub();
         ldapService = new LdapServiceStub();
@@ -196,10 +199,6 @@ class ContactServiceImplTest {
         addressDto.setStreetName("rue des Lilas");
         contactDto.setAddress(addressDto);
 
-        when(addressService.updateOrCreateAddress(any(AddressDto.class))).thenReturn(addressDto);
-        when(contactEventService.createContactEvent(any(), eq(ContactEventTypeEnum.update), any()))
-                .thenReturn(new ContactEvent());
-
         // WHEN
         ContactDto result = contactService.update(contactDto, null);
 
@@ -212,26 +211,28 @@ class ContactServiceImplTest {
     @Test
     @DisplayName("Should create contact and assign accreditation")
     void shouldCreateContactAndAssignAccreditation() {
-        // Given
         Long questioningId = 1L;
         ContactDto inputContact = new ContactDto();
-        inputContact.setIdentifier("john.doe");
         inputContact.setEmail("john.doe@example.com");
 
         Questioning questioning = new Questioning();
         questioning.setId(questioningId);
         questioningRepository.save(questioning);
 
-        // When
         ContactDto result = contactService.createContactAndAssignToAccreditationAsMain(questioningId, inputContact);
 
-        // Then
         assertThat(result).isNotNull();
-        assertThat(result.getIdentifier()).isEqualTo("john.doe");
 
-        Contact storedContact = contactRepository.findById("john.doe").orElse(null);
+        // LdapService stub will create a contact with "Id" as identifier
+        assertThat(result.getIdentifier()).isEqualTo("Id");
+        Contact storedContact = contactRepository.findById("Id").orElse(null);
         assertThat(storedContact).isNotNull();
-        assertThat(storedContact.getIdentifier()).isEqualTo("john.doe");
+        assertThat(storedContact.getIdentifier()).isEqualTo("Id");
+        assertThat(storedContact.getEmail()).isEqualTo("john.doe@example.com");
+
+        List<ContactEventDto> contactEvents = contactEventService.findContactEventsByContactId("Id");
+        assertThat(contactEvents).hasSize(1);
+        assertThat(contactEvents.getFirst().getType()).isEqualTo(ContactEventTypeEnum.create.toString());
     }
 
     @Test
@@ -248,52 +249,6 @@ class ContactServiceImplTest {
                 contactService.createContactAndAssignToAccreditationAsMain(invalidQuestioningId, inputContact))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Missing Questioning with id 999");
-    }
-
-    @Test
-    @DisplayName("Should persist contact and trigger LDAP creation")
-    void shouldPersistContactAndTriggerLdap() {
-        // Given
-        Long questioningId = 2L;
-        ContactDto newContact = new ContactDto();
-        newContact.setIdentifier("alice.smith");
-        newContact.setEmail("alice.smith@example.com");
-
-        Questioning questioning = new Questioning();
-        questioning.setId(questioningId);
-        questioningRepository.save(questioning);
-
-        // When
-        ContactDto created = contactService.createContactAndAssignToAccreditationAsMain(questioningId, newContact);
-
-        // Then
-        assertThat(created).isNotNull();
-        assertThat(created.getIdentifier()).isEqualTo("alice.smith");
-
-        Contact stored = contactRepository.findById("alice.smith").orElse(null);
-        assertThat(stored).isNotNull();
-        assertThat(stored.getEmail()).isEqualTo("alice.smith@example.com");
-    }
-
-    @Test
-    @DisplayName("Should record a contact creation event")
-    void shouldRecordContactCreationEvent() {
-        // Given
-        Long questioningId = 3L;
-        ContactDto contactDto = new ContactDto();
-        contactDto.setIdentifier("event.user");
-        contactDto.setEmail("event.user@example.com");
-
-        Questioning questioning = new Questioning();
-        questioning.setId(questioningId);
-        questioningRepository.save(questioning);
-
-
-        // When
-        contactService.createContactAndAssignToAccreditationAsMain(questioningId, contactDto);
-
-        // Then
-        // Look up for event with stub
     }
 }
 

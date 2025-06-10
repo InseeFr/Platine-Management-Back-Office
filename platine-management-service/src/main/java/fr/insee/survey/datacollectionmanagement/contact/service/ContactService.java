@@ -102,9 +102,9 @@ public interface ContactService {
 
     QuestioningDto getQuestioningDtoById(Long id);
 
-    ContactDto createAndSaveContact(ContactDto contact);
+    ContactDto createAndSaveContact(ContactDto contactDto);
 
-    void saveContactCreationEvent();
+    void saveContactCreationEvent(ContactDto contactDto);
 
     void assignMainContactToQuestioning(String contactIdentifier, Long questioningId);
 }

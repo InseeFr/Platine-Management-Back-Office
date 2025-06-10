@@ -20,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 
 import java.util.Date;
 import java.util.Optional;
@@ -40,7 +41,7 @@ class QuestioningAccreditationServiceImplTest {
     @BeforeEach
     void initServiceWithStubs() {
         accreditationRepo = new QuestioningAccreditationRepositoryStub();
-        contactEventService = new ContactEventServiceStub();
+        contactEventService = new ContactEventServiceStub(new ModelMapper());
         contactRepository = new ContactRepositoryStub();
         contactSourceService = new ContactSourceServiceStub();
         partitioningService = new PartitioningServiceStub();
