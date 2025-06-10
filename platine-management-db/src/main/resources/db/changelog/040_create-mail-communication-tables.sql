@@ -15,7 +15,7 @@ create table mail
             to_send_at timestamp,
             sent_at timestamp,
             recipients varchar ARRAY,
-            constraint unik_questid_template unique(questioning_id, template)
+            constraint unik_questid_template unique(questioning_id, template, to_send_at)
         );
 CREATE INDEX mail_questid_index ON mail USING btree (questioning_id);
 CREATE INDEX mail_propresolv_index ON mail USING btree (properties_resolvers_id);
