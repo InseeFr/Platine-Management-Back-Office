@@ -17,7 +17,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ContactEventServiceStub implements ContactEventService {
 
-    ArrayList<ContactEvent> contactEvents = new ArrayList<ContactEvent>();
+    ArrayList<ContactEvent> contactEvents = new ArrayList<>();
 
     private final ModelMapper modelMapper;
 
@@ -48,7 +48,7 @@ public class ContactEventServiceStub implements ContactEventService {
     public Set<ContactEvent> findContactEventsByContact(Contact contact) {
          List<ContactEvent> contactEventList = contactEvents.stream().filter(contactEvent -> contactEvent.getContact()
                  .getIdentifier().equals(contact.getIdentifier())).toList();
-         return new HashSet<ContactEvent>(contactEventList);
+         return new HashSet<>(contactEventList);
     }
 
     @Override
@@ -64,7 +64,8 @@ public class ContactEventServiceStub implements ContactEventService {
 
     @Override
     public ContactEventDto addContactEvent(ContactEventDto contactEventDto) {
-        return null;
+         contactEvents.add(modelMapper.map(contactEventDto, ContactEvent.class));
+         return  contactEventDto;
     }
 
     @Override
