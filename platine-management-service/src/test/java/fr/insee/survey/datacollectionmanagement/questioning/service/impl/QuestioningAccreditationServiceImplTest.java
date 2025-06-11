@@ -55,14 +55,6 @@ class QuestioningAccreditationServiceImplTest {
         );
     }
 
-//    @Test
-//    @DisplayName("Should generate non-null payload with correct source")
-//    void shouldGenerateCorrectPayload() {
-//        JsonNode payload = service.createPayload("platine-pilotage");
-//        assertThat(payload).isNotNull();
-//        assertThat(payload.get("source").asText()).isEqualTo("platine-pilotage");
-//    }
-
     @Test
     @DisplayName("Should add contact event and contact source on accreditation gain")
     void shouldLogAccreditationGain() {
@@ -298,4 +290,84 @@ class QuestioningAccreditationServiceImplTest {
 
         return questioning;
     }
+
+    @Test
+    @DisplayName("Should set questioning accreditation as main and create contact event")
+    void shouldSetQuestioningAccreditationAsMain() {
+        Questioning questioning = createAndRegisterQuestioning();
+        Contact contact = createAndSaveContact("contact-main-test");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+        QuestioningAccreditation qa = new QuestioningAccreditation();
+        qa.setId(100L);
+        qa.setQuestioning(questioning);
+        qa.setMain(false); // initially not main
+        qa.setIdContact(contact.getIdentifier());
+        accreditationRepo.save(qa);
+
+        service.setQuestioningAccreditationAsMain(qa, contact, payload);
+
+        Optional<QuestioningAccreditation> saved = accreditationRepo
+                .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+        assertThat(saved).isPresent();
+        assertThat(saved.get().getIdContact()).isEqualTo(contact.getIdentifier());
+        assertThat(saved.get().isMain()).isTrue();
+        Optional<ContactEvent> event = contactEventService.findContactEventsByContact(contact).stream().findFirst();
+        assertThat(event).isPresent();
+        assertThat(event.get().getType()).isEqualTo(ContactEventTypeEnum.update);
+        assertThat(event.get().getPayload()).isEqualTo(payload);
+    }
+
+    @Test
+    @DisplayName("Should not update accreditation or log events if contact is unchanged")
+    void shouldNotUpdateAccreditationIfContactIsUnchanged() {
+        Questioning questioning = createAndRegisterQuestioning();
+        Contact contact = createAndSaveContact("same-contact");
+        Campaign campaign = getCampaignFromPartition();
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+        QuestioningAccreditation qa = new QuestioningAccreditation();
+        qa.setId(999L);
+        qa.setQuestioning(questioning);
+        qa.setMain(true);
+        qa.setIdContact(contact.getIdentifier());
+        accreditationRepo.save(qa);
+
+        service.updateExistingMainAccreditationToNewContact(qa, contact, questioning, payload, campaign);
+
+        assertThat(contactEventService.findContactEventsByContact(contact)).isEmpty();
+        Optional<QuestioningAccreditation> result = accreditationRepo.findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+        assertThat(result).isPresent();
+        assertThat(result.get().getIdContact()).isEqualTo(contact.getIdentifier());
+    }
+
+    @Test
+    @DisplayName("Should update existing secondary accreditation instead of creating a new one")
+    void shouldUpdateExistingSecondaryAccreditation() {
+        Questioning questioning = createAndRegisterQuestioning();
+        Contact contact = createAndSaveContact("secondary-contact");
+        Campaign campaign = getCampaignFromPartition();
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+        Date now = new Date();
+        QuestioningAccreditation existing = new QuestioningAccreditation();
+        existing.setId(200L);
+        existing.setIdContact(contact.getIdentifier());
+        existing.setMain(false);
+        existing.setCreationDate(new Date(now.getTime() - 100000));
+        existing.setQuestioning(questioning);
+        accreditationRepo.save(existing);
+
+        service.createQuestioningAccreditation(questioning, true, contact, payload, now, campaign);
+
+        Optional<QuestioningAccreditation> result = accreditationRepo
+                .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
+        assertThat(result).isPresent();
+        assertThat(result.get().getIdContact()).isEqualTo(contact.getIdentifier());
+        assertThat(result.get().isMain()).isTrue();
+        assertThat(result.get().getId()).isEqualTo(existing.getId()); // should reuse the same object
+        Optional<ContactEvent> event = contactEventService.findContactEventsByContact(contact).stream().findFirst();
+        assertThat(event).isPresent();
+        assertThat(event.get().getType()).isEqualTo(ContactEventTypeEnum.update);
+        assertThat(event.get().getPayload()).isEqualTo(payload);
+    }
+
+
 }
