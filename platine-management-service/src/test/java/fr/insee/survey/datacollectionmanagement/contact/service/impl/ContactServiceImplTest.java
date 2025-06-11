@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
@@ -14,7 +13,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.stub.AdressServiceStub;
 import fr.insee.survey.datacollectionmanagement.contact.stub.ContactEventServiceStub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.ldap.LdapServiceStub;
+import fr.insee.survey.datacollectionmanagement.ldap.service.stub.LdapServiceStub;
 import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
@@ -29,7 +28,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.stub.Questio
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
@@ -41,7 +39,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 class ContactServiceImplTest {
 
