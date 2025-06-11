@@ -29,11 +29,6 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public List<Questioning> findQuestioningByParam(String searchParam) {
-        return List.of();
-    }
-
-    @Override
     public List<Questioning> findQuestioningByCampaignIdAndSurveyUnitId(String campaignId, String surveyUnitId) {
         return List.of();
     }
@@ -55,16 +50,6 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
         return null;
-    }
-
-    @Override
-    public Page<Long> findQuestioningIds(Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public List<Questioning> findQuestioningsByIds(List<Long> ids) {
-        return List.of();
     }
 
     @Override

@@ -17,9 +17,10 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningSimpleDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -39,10 +40,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
@@ -74,6 +71,12 @@ class QuestioningServiceImplTest {
     private ContactService contactService;
 
     private QuestioningEventServiceStub questioningEventService;
+
+    @Mock
+    private SearchQuestioningSimpleDao searchQuestioningSimpleDao;
+
+    @Mock
+    private SearchQuestioningDao searchQuestioningDao;
 
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
@@ -123,7 +126,7 @@ class QuestioningServiceImplTest {
         questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
-                interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
+                interrogationEventComparator, questioningRepository, searchQuestioningDao, searchQuestioningSimpleDao, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
@@ -390,63 +393,6 @@ class QuestioningServiceImplTest {
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
-    }
-
-    @Test
-    @DisplayName("searchQuestioning with param should query repository findQuestioningByParam and map results")
-    void testSearchQuestioningWithParam() {
-        // Given
-        String param = "abc";
-        Questioning q1 = buildQuestioning(1L, "SU1");
-        Questioning q2 = buildQuestioning(2L, "SU2");
-        Campaign c = new Campaign();
-        c.setId("CAMP01");
-        partitioning.setCampaign(c);
-        when(partitioningService.findById(any())).thenReturn(partitioning);
-        when(questioningRepository.findQuestioningByParam("ABC")).thenReturn(List.of(q1, q2));
-        Pageable pageable = PageRequest.of(0, 10);
-
-
-        // When
-        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
-
-        // Then
-        assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
-        verify(questioningRepository).findQuestioningByParam("ABC");
-        verify(questioningRepository, never()).findQuestioningIds(any());
-        verify(questioningRepository, never()).findQuestioningsByIds(any());
-    }
-
-    @Test
-    @DisplayName("searchQuestioning without param should retrieve ids page then full questionings")
-    void testSearchQuestioningWithoutParam() {
-        // Given
-        String param = "";
-        Questioning q1 = buildQuestioning(1L, "SU1");
-        Questioning q2 = buildQuestioning(2L, "SU2");
-        Campaign c = new Campaign();
-        c.setId("CAMP01");
-        partitioning.setCampaign(c);
-        when(partitioningService.findById(any())).thenReturn(partitioning);
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Long> idsPage = new PageImpl<>(List.of(1L, 2L), pageable, 2);
-        when(questioningRepository.findQuestioningIds(pageable)).thenReturn(idsPage);
-        when(questioningRepository.findQuestioningsByIds(List.of(1L, 2L))).thenReturn(List.of(q1, q2));
-
-        // When
-        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
-
-        // Then
-        assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(1L, 2L);
-        verify(questioningRepository).findQuestioningIds(pageable);
-
-        ArgumentCaptor<List<Long>> captor = ArgumentCaptor.forClass(List.class);
-        verify(questioningRepository).findQuestioningsByIds(captor.capture());
-        assertThat(captor.getValue()).containsExactlyInAnyOrder(1L, 2L);
-
-        verify(questioningRepository, never()).findQuestioningByParam(any());
     }
 
     @Test
