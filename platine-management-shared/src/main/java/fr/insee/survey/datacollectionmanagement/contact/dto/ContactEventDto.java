@@ -16,6 +16,4 @@ public class ContactEventDto {
     @ContactEventTypeValid
     private String type;
     private JsonNode payload;
-    private ContactDto contactDto;
-
 }

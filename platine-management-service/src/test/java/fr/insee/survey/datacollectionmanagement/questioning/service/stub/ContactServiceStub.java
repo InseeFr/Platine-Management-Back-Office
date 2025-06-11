@@ -134,7 +134,7 @@ public class ContactServiceStub implements ContactService {
     }
 
     @Override
-    public void saveContactCreationEvent(ContactDto contactDto) {
+    public void saveContactCreationEvent(String contactId) {
         // not used
     }
 

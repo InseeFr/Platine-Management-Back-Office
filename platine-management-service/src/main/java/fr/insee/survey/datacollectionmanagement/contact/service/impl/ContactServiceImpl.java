@@ -251,7 +251,7 @@ public class ContactServiceImpl implements ContactService {
     public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
         QuestioningDto questioningDto = getQuestioningDtoById(questioningId);
         ContactDto ldapAddedContactDto = createAndSaveContact(contact);
-        saveContactCreationEvent(ldapAddedContactDto);
+        saveContactCreationEvent(ldapAddedContactDto.getIdentifier());
         assignMainContactToQuestioning(ldapAddedContactDto.getIdentifier(), questioningDto.getId());
         return ldapAddedContactDto;
     }
@@ -275,13 +275,13 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public void saveContactCreationEvent(ContactDto contactDto) {
+    public void saveContactCreationEvent(String contactId) {
         ContactEventDto contactEventDto = new ContactEventDto();
         contactEventDto.setEventDate(new Date());
         contactEventDto.setType(ContactEventTypeEnum.create.toString());
         contactEventDto.setPayload(ServiceJsonUtil.createPayload("platine-pilotage"));
-        contactEventDto.setContactDto(contactDto);
-        contactEventService.saveContactEvent(modelMapper.map(contactEventDto, ContactEvent.class));
+        contactEventDto.setIdentifier(contactId);
+        contactEventService.addContactEvent(contactEventDto);
     }
 
     @Override
