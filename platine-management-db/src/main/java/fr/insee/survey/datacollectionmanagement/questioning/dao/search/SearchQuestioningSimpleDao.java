@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class SearchQuestioningDao {
+public class SearchQuestioningSimpleDao {
     private final EntityManager entityManager;
 
     public Slice<SearchQuestioningDto> search(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
@@ -36,30 +36,9 @@ public class SearchQuestioningDao {
                 SELECT
                     q.id AS questioning_id,
                     p.campaign_id,
-                    (
-                        SELECT qc.type
-                        FROM questioning_communication qc
-                        WHERE qc.questioning_id = q.id
-                        ORDER BY qc.date DESC
-                        LIMIT 1
-                    ) AS last_communication_type,
-                    (
-                        SELECT qe.type
-                        FROM questioning_event qe
-                        JOIN interrogation_event_order ie
-                        ON ie.status = qe.type
-                        WHERE qe.questioning_id = q.id
-                        ORDER BY ie.event_order DESC, qe.date DESC
-                        LIMIT 1
-                    ) AS highest_event_type,
-                    (
-                        SELECT qe2.date
-                        FROM questioning_event qe2
-                        WHERE qe2.questioning_id = q.id
-                        AND qe2.type IN ('VALINT','VALPAP')
-                        ORDER BY qe2.date DESC
-                        LIMIT 1
-                    ) AS validation_date,
+                    q.last_communication_type,
+                    q.highest_event_type,
+                    q.validation_date,
                     su.id_su AS survey_unit_id,
                     su.identification_code AS identification_code""");
         sql.append(" ");
@@ -203,7 +182,7 @@ public class SearchQuestioningDao {
         for (int i = 0; i < campaignIds.size(); i++) {
             String paramName = "campaign" + i;
             paramNames.add(paramName);
-            parameters.put(paramName, campaignIds.get(i).toUpperCase());
+            parameters.put(paramName, campaignIds.get(i));
         }
 
         String placeholders = paramNames.stream()
@@ -214,6 +193,8 @@ public class SearchQuestioningDao {
 
         return new SearchFilter(filter, parameters);
     }
+
+
 
     private SearchFilter buildTypesFilter(List<TypeQuestioningEvent> typeQuestioningEvents,
                                                     List<TypeCommunicationEvent> typeCommunicationEvents) {
@@ -264,15 +245,7 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = """
-        (
-          SELECT qc.type
-          FROM questioning_communication qc
-          WHERE qc.questioning_id = q.id
-            AND qc.type IN (""" + placeholders + ")" + """
-          ORDER BY qc.date DESC
-          LIMIT 1
-        ) IN (""" + placeholders + ")";
+        String filter = "q.latest_communication_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }
@@ -294,16 +267,7 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = """
-                (
-                    SELECT qe.type
-                    FROM questioning_event qe
-                    JOIN interrogation_event_order ie
-                      ON ie.status = qe.type
-                    WHERE qe.questioning_id = q.id
-                    ORDER BY ie.event_order DESC, qe.date DESC
-                    LIMIT 1
-                ) IN (""" + placeholders + ")";
+        String filter = "q.highest_event_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }

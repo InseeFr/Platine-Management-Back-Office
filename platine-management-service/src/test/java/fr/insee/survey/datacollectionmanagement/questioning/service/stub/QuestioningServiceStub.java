@@ -7,10 +7,12 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import java.util.Optional;
 import java.util.Set;
@@ -71,7 +73,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
         return null;
     }
 
@@ -83,5 +85,10 @@ public class QuestioningServiceStub implements QuestioningService {
     @Override
     public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
         return questionnaireStatus;
+    }
+
+    @Override
+    public Slice<SearchQuestioningDto> searchQuestioningsSimple(SearchQuestioningParams searchParams, Pageable pageable) {
+        return null;
     }
 }

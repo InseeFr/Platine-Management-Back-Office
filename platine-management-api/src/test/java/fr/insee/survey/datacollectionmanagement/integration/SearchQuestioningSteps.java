@@ -1,13 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,20 +20,24 @@ public class SearchQuestioningSteps {
     @Autowired
     QuestioningServiceImpl questioningService;
 
-    private Page<SearchQuestioningDto> resultPage;
+    private Slice<SearchQuestioningDto> resultPage;
 
 
     @When("I search for Questioning with {string} and page {int} with size {int}")
     public void iSearchForQuestioningWithSurveyUnitId(String surveyUnitId, int page, int size) {
-        resultPage = questioningService.searchQuestioning(
-                surveyUnitId, PageRequest.of(page, size)
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null);
+
+        resultPage = questioningService.searchQuestionings(
+                searchQuestioningParams, PageRequest.of(page, size)
         );
     }
 
     @When("I search for all Questioning with page {int} and size {int}")
     public void iSearchForAllQuestioningWithPageAndSize(int page, int size) {
-        resultPage = questioningService.searchQuestioning(
-                "", PageRequest.of(page, size)
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null);
+
+        resultPage = questioningService.searchQuestionings(
+                searchQuestioningParams, PageRequest.of(page, size)
         );
     }
 
@@ -48,7 +53,7 @@ public class SearchQuestioningSteps {
                 .map(SearchQuestioningDto::getSurveyUnitId)
                 .toList();
         List<List<String>> actualContactsIds = resultPage.getContent().stream()
-                .map(SearchQuestioningDto::getListContactIdentifiers)
+                .map(SearchQuestioningDto::getContactIds)
                 .toList();
         assertThat(expectedIds).containsExactlyInAnyOrderElementsOf(actualIds);
         assertThat(expectedContacts).hasSameSizeAs(actualContactsIds);
@@ -63,12 +68,12 @@ public class SearchQuestioningSteps {
 
     @Then("the total number of results should be {int}")
     public void theTotalNumberOfResultsShouldBe(int totalResults) {
-        Assertions.assertEquals(totalResults, resultPage.getTotalElements());
+        Assertions.assertEquals(totalResults, resultPage.getNumberOfElements());
     }
 
 
     @Then("the result size is {int}")
     public void theResultSizeIs(int size) {
-        Assertions.assertEquals(size, resultPage.getTotalElements());
+        Assertions.assertEquals(size, resultPage.getNumberOfElements());
     }
 }

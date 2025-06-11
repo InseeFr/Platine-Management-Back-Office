@@ -47,4 +47,6 @@ public interface QuestioningService {
     QuestioningDetailsDto getQuestioningDetails(Long id);
 
     QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part);
+
+    Slice<SearchQuestioningDto> searchQuestioningsSimple(SearchQuestioningParams searchParams, Pageable pageable);
 }

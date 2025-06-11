@@ -13,6 +13,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningSimpleDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -42,6 +43,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final InterrogationEventComparator interrogationEventComparator;
     private final QuestioningRepository questioningRepository;
     private final SearchQuestioningDao searchQuestioningDao;
+    private final SearchQuestioningSimpleDao searchQuestioningSimpleDao;
     private final QuestioningUrlComponent questioningUrlComponent;
     private final SurveyUnitService surveyUnitService;
     private final PartitioningService partitioningService;
@@ -134,6 +136,11 @@ public class QuestioningServiceImpl implements QuestioningService {
     @Override
     public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
         return searchQuestioningDao.search(searchQuestioningParams, pageable);
+    }
+
+    @Override
+    public Slice<SearchQuestioningDto> searchQuestioningsSimple(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+        return searchQuestioningSimpleDao.search(searchQuestioningParams, pageable);
     }
 
     @Override
