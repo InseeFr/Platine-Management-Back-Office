@@ -38,7 +38,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainFalse(Long questioningId) {
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(Long questioningId, String idContact) {
         return Optional.empty();
     }
 

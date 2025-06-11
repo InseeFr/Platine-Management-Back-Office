@@ -20,7 +20,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
+import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -279,7 +279,7 @@ public class ContactServiceImpl implements ContactService {
         ContactEventDto contactEventDto = new ContactEventDto();
         contactEventDto.setEventDate(new Date());
         contactEventDto.setType(ContactEventTypeEnum.create.toString());
-        contactEventDto.setPayload(JsonUtil.createPayload("platine-pilotage"));
+        contactEventDto.setPayload(ServiceJsonUtil.createPayload("platine-pilotage"));
         contactEventDto.setContactDto(contactDto);
         contactEventService.saveContactEvent(modelMapper.map(contactEventDto, ContactEvent.class));
     }

@@ -15,7 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
+import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -72,14 +72,25 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                                                Date date,
                                                Campaign campaign)
     {
-        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
-        questioningAccreditation.setQuestioning(questioning);
-        questioningAccreditation.setMain(isMain);
-        questioningAccreditation.setIdContact(contact.getIdentifier());
-        questioningAccreditation.setCreationDate(date);
-        // questioningAccreditation.setCreationAuthor("platine-pilotage"); ?
-        questioningAccreditationRepository.save(questioningAccreditation);
+        QuestioningAccreditation questioningAccreditation;
+        Optional<QuestioningAccreditation> questioningAccreditationAsSecondary = questioningAccreditationRepository
+                .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier());
 
+        if(questioningAccreditationAsSecondary.isPresent())
+        {
+            questioningAccreditation = questioningAccreditationAsSecondary.get();
+        }
+        else
+        {
+            questioningAccreditation = new QuestioningAccreditation();
+            questioningAccreditation.setIdContact(contact.getIdentifier());
+            questioningAccreditation.setCreationDate(date);
+            questioningAccreditation.setQuestioning(questioning);
+            // questioningAccreditation.setCreationAuthor("platine-pilotage"); ?
+        }
+
+        questioningAccreditation.setMain(isMain);
+        questioningAccreditationRepository.save(questioningAccreditation);
         logContactAccreditationGainUpdate(contact, questioning, payload, campaign);
     }
 
@@ -102,16 +113,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         Date date = Date.from(Instant.now());
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
-
-        Optional<QuestioningAccreditation> questioningAccreditationAsSecondary = questioningAccreditationRepository
-                .findAccreditationsByQuestioningIdAndIsMainFalse(questioningId);
-
-        if(questioningAccreditationAsSecondary.isPresent())
-        {
-            setQuestioningAccreditationAsMain(questioningAccreditationAsSecondary.get(), contact, payload);
-            return;
-        }
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
@@ -128,6 +130,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                                                             JsonNode payload,
                                                             Campaign campaign)  {
 
+        // TODO : there is only accreditation per questioning id ? so instead of searching by isMain as true
+        //  we could only search by QuestioningId and just update accreditation ?
         if(existingAccreditation.getIdContact().equals(newContact.getIdentifier()))
         {
             return;

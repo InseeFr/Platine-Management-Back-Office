@@ -14,7 +14,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
-import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
+import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +69,7 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("contact-id");
         Questioning questioning = createAndRegisterQuestioning();
         Campaign campaign = getCampaignFromPartition();
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         service.logContactAccreditationGainUpdate(contact, questioning, payload, campaign);
 
@@ -83,7 +83,7 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("contact-id");
         Questioning questioning = createAndRegisterQuestioning();
         Campaign campaign = getCampaignFromPartition();
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         setupViewAndSource(contact, campaign, questioning);
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier())).hasSize(1);
@@ -101,7 +101,7 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("contact-id");
         Questioning questioning = createAndRegisterQuestioning();
         Campaign campaign = getCampaignFromPartition();
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         setupSource(contact, campaign, questioning);
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier())).isEmpty();
@@ -126,7 +126,7 @@ class QuestioningAccreditationServiceImplTest {
 
         setupViewAndSource(oldContact, campaign, questioning);
 
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         service.updateExistingMainAccreditationToNewContact(qa, newContact, questioning, payload, campaign);
 
@@ -220,7 +220,7 @@ class QuestioningAccreditationServiceImplTest {
         Questioning questioning = createAndRegisterQuestioning();
         Date now = new Date();
         Contact contact = createAndSaveContact("contact-id");
-        JsonNode payload = JsonUtil.createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
         Campaign campaign = getCampaignFromPartition();
 
         service.createQuestioningAccreditation(questioning, true, contact, payload , now, campaign);
