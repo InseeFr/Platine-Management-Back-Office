@@ -1,11 +1,9 @@
-package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
-import fr.insee.survey.datacollectionmanagement.query.service.impl.MySurveysServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
@@ -44,8 +42,6 @@ class MySurveyServiceImplTest {
         questionnaireApiUrlSensitive = "apiSensitive";
         questioningAccreditationRepositoryStub = new QuestioningAccreditationRepositoryStub();
         PartitioningServiceStub partitioningService = new PartitioningServiceStub();
-        QuestioningEventServiceStub questioningEventServiceStub = new QuestioningEventServiceStub();
-        QuestioningAccreditationServiceStub questioningAccreditationService = new QuestioningAccreditationServiceStub();
         Date date = new Date();
         instant = date.toInstant();
         questioningService = new QuestioningServiceStub();
@@ -63,9 +59,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
 
         mySurveysService = new MySurveysServiceImpl(
-                questioningAccreditationService,
                 partitioningService,
-                questioningEventServiceStub,
                 questioningService,
                 questioningUrlComponent,
                 questioningAccreditationRepositoryStub,
@@ -201,6 +195,7 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnairesTest7() {
         when(questioningUrlComponent.getAccessUrlWithContactId(any(),any(),any(), any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertThat(result).isNotEmpty().hasSize(1);
@@ -403,5 +398,21 @@ class MySurveyServiceImplTest {
         assertThat(mySurveysService.buildDepositProofUrl(dto, DataCollectionEnum.XFORM1))
                 .isNull();
     }
+
+/*    @Test
+    @DisplayName("Should return questionnaire ofats file upload")
+    void getListMyQuestionnairesFileUpload() {
+        *//*questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);*//*
+        myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD.name());
+
+        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
+
+        assertThat(result).isNotEmpty().hasSize(1);
+
+        MyQuestionnaireDto dto = result.getFirst();
+        assertThat(dto.getQuestioningAccessUrl()).isNull();
+        assertThat(dto.getDepositProofUrl()).isNull();
+        assertThat(dto.getPartitioningReturnDate()).isEqualTo(instant);
+    }*/
 
 }
