@@ -248,24 +248,23 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
         Date today = new Date();
-        Date openingDate = part.getOpeningDate();
 
         if (today.before(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
+        List<QuestioningEventDto> events = questioningEventService.getQuestioningEventsByQuestioningId(questioningId);
 
-        Set<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents();
-        Date closingDate = part.getClosingDate();
-        boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
+        boolean refused = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if (questioningEvents.isEmpty() || refused || !closingDate.after(today))
+        if (events.isEmpty() || refused || !closingDate.after(today)) {
             return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
+        }
 
-        boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        boolean opened = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
-        boolean started = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS);
+        boolean validated = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.VALIDATED_EVENTS);
+        boolean opened = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.OPENED_EVENTS);
+        boolean started = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.STARTED_EVENTS);
 
 
         if (validated) {

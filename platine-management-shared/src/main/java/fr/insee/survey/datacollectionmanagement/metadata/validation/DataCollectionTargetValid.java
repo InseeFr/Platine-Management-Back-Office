@@ -16,7 +16,7 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = DataCollectionTargetValidator.class)
 public @interface DataCollectionTargetValid {
     //error message
-    String message() default "DataCollectionTarget missing or not recognized. Only LUNATIC_NORMAL, LUNATIC_SENSITIVE, XFORM1, XFORM2 are valid";
+    String message() default "DataCollectionTarget missing or not recognized. Only LUNATIC_NORMAL, LUNATIC_SENSITIVE, XFORM1, XFORM2, FILE_UPlOAD are valid";
 
     //represents group of constraints
     Class<?>[] groups() default {};

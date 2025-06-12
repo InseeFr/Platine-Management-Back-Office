@@ -3,8 +3,11 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.component;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -20,11 +23,15 @@ public class QuestioningUrlComponent {
 
     private final String lunaticSensitiveUrl;
 
+    private final String questionnaireApiUrl;
+
+    private final String questionnaireApiSensitiveUrl;
+
     private final String xform1Url;
 
     private final String xform2Url;
 
-    private static final String PATH_LOGOUT = "pathLogout";
+
     private static final String PATH_ASSISTANCE = "pathAssistance";
 
     /**
@@ -35,36 +42,49 @@ public class QuestioningUrlComponent {
      * @param part        Part of questioning
      * @return The generated access URL.
      */
+    @Deprecated(since = "3.20.0")
     public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
-        return getAccessUrlWithContactId(role, questioning, part, "");
+        if (questioning == null || part == null) {
+            return "";
+        }
+        Campaign campaign = part.getCampaign();
+        Survey survey = campaign.getSurvey();
+        Source source = survey.getSource();
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                questioning.getModelName(),
+                questioning.getSurveyUnit().getIdSu(),
+                questioning.getId(),
+                String.format("%s-%s-%s",source.getId().toLowerCase(),survey.getYear(),campaign.getPeriod()),
+                campaign.getDataCollectionTarget(),
+                source.getId().toLowerCase(),
+                survey.getYear(),
+                campaign.getPeriod().getValue(),
+                campaign.getOperationUploadReference(),
+                ""
+        );
+        return buildAccessUrl(role, ctx);
     }
 
     /**
      * Generates an access URL based on the provided parameters.
      *
      * @param role        The user role (REVIEWER or INTERVIEWER).
-     * @param questioning The questioning object.
-     * @param part        Part of questioning
-     * @param contactId   Contact id
+     * @param context Data to build urls
      * @return The generated access URL.
      */
-    public String getAccessUrlWithContactId(String role, Questioning questioning, Partitioning part, String contactId) {
-        String modelName = questioning.getModelName();
-        String surveyUnitId = questioning.getSurveyUnit().getIdSu();
-        Long questioningId = questioning.getId();
-        Campaign campaign = part.getCampaign();
-        DataCollectionEnum target = campaign.getDataCollectionTarget();
-        String sourceId = campaign.getSurvey().getSource().getId().toLowerCase();
-        String campaignId = sourceId + "-" + campaign.getSurvey().getYear() + "-" + campaign.getPeriod();
+    public String buildAccessUrl(String role, QuestioningUrlContext context) {
+        if (context.dataCollection() == null) { //default
+            return buildLunaticUrl(role, lunaticNormalUrl, context);
+        }
 
-
-        return switch (target != null ? target : DataCollectionEnum.LUNATIC_NORMAL) {
+        return switch (context.dataCollection()) {
+            case FILE_UPLOAD -> "";
             case LUNATIC_NORMAL ->
-                    buildLunaticUrl(role, lunaticNormalUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
+                    buildLunaticUrl(role, lunaticNormalUrl, context);
             case LUNATIC_SENSITIVE ->
-                    buildLunaticUrl(role, lunaticSensitiveUrl, modelName, surveyUnitId, sourceId, questioningId, contactId);
-            case XFORM1 -> buildXformUrl(xform1Url, role, campaignId, surveyUnitId);
-            case XFORM2 -> buildXformUrl(xform2Url, role, campaignId, surveyUnitId);
+                    buildLunaticUrl(role, lunaticSensitiveUrl, context);
+            case XFORM1 -> buildXformUrl(xform1Url, role, context.campaignId(), context.surveyUnitId());
+            case XFORM2 -> buildXformUrl(xform2Url, role, context.campaignId(), context.surveyUnitId());
         };
     }
 
@@ -91,26 +111,57 @@ public class QuestioningUrlComponent {
     /**
      * Builds a V3 access URL based on the provided parameters
      *
-     * @param baseUrl      The base URL for the access.
-     * @param role         The user role (REVIEWER or INTERVIEWER).
-     * @param modelName    The model ID.
-     * @param surveyUnitId The survey unit ID.
+     * @param role     The user role (REVIEWER or INTERVIEWER).
+     * @param baseUrl  The base URL for the access.
+     * @param context  Data to build urls
      * @return The generated V3 access URL.
      */
-    protected String buildLunaticUrl(String role, String baseUrl, String modelName, String surveyUnitId, String sourceId, Long questioningId, String contactId) {
+    protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
+                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
                     .toUriString();
         }
         if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
             String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
-                    sourceId, questioningId, surveyUnitId, contactId);
-            return UriComponentsBuilder.fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, modelName, surveyUnitId))
-                    .queryParam(PATH_LOGOUT, URLEncoder.encode("/deconnexion", StandardCharsets.UTF_8))
+                    context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
+            return  UriComponentsBuilder
+                    .fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
                     .build().toUriString();
         }
         return "";
+    }
+
+    /**
+     * Builds deposit proof based on the provided parameters
+     * @param surveyUnitId
+     * @param dataCollection
+     * @return
+     */
+    public String buildDepositProofUrl(String surveyUnitId, DataCollectionEnum dataCollection) {
+        String path = String.format("/api/survey-unit/%s/deposit-proof", surveyUnitId);
+
+        if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollection)) {
+            return questionnaireApiUrl + path;
+        }
+
+        if (DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollection)) {
+            return questionnaireApiSensitiveUrl + path;
+        }
+
+        return null;
+    }
+
+    /**
+     * Build downloadUrl for file_upload campaign
+     * @param context
+     * @return
+     */
+    public String buildDownloadUrl(QuestioningUrlContext context) {
+        return switch (context.operationUpload()) {
+            case "ofats" -> String.format("insee-%s-%s-%s.xlsx", context.surveyUnitId(), context.operationUpload(), context.surveyYear());
+            default -> String.format("%s-%s-%s-%d-%s.xlsx", context.operationUpload(), context.surveyUnitId(), context.sourceId(), context.surveyYear(), context.period());
+        };
     }
 }
