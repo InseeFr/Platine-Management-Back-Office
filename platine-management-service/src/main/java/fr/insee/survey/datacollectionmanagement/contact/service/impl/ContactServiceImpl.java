@@ -265,10 +265,6 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDto createAndSaveContact(ContactDto contactDto) {
-        // Optional: Check if contact already exists
-        // contactRepository.find(contact.getEmail()).ifPresent(c -> {
-        //     throw new EntityExistsException(String.format("Contact %s already exists", contact.getIdentifier()));
-        // });
         ContactDto ldapContact = ldapService.createUser(contactDto);
         contactRepository.save(modelMapper.map(ldapContact, Contact.class));
         return ldapContact;

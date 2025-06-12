@@ -130,8 +130,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                                                             JsonNode payload,
                                                             Campaign campaign)  {
 
-        // TODO : there is only accreditation per questioning id ? so instead of searching by isMain as true
-        //  we could only search by QuestioningId and just update accreditation ?
         if(existingAccreditation.getIdContact().equals(newContact.getIdentifier()))
         {
             return;
