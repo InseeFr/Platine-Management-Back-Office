@@ -65,7 +65,6 @@ class QuestioningUrlComponentTest {
 
 
         Campaign campaign = mock(Campaign.class);
-        //when(campaign.getId()).thenReturn(campaignId);
         when(campaign.getSurvey()).thenReturn(survey);
         when(campaign.getPeriod()).thenReturn(PeriodEnum.T04);
 
@@ -147,19 +146,19 @@ class QuestioningUrlComponentTest {
     void testFileUploadAccessUrlEmpty() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.FILE_UPLOAD, null);
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
-        assertThat(url).isEqualTo("");
+        assertThat(url).isEmpty();
     }
 
     @Test
     void testNullData_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), null);
-        assertThat(url).isEqualTo("");
+        assertThat(url).isEmpty();
     }
 
     @Test
     void testNullData2_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, null, mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
-        assertThat(url).isEqualTo("");
+        assertThat(url).isEmpty();
     }
 
     @Test

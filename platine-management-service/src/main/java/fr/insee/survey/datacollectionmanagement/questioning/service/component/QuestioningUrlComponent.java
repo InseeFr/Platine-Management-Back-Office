@@ -36,13 +36,11 @@ public class QuestioningUrlComponent {
 
     /**
      * Generates an access URL based on the provided parameters.
-     *
      * @param role        The user role (REVIEWER or INTERVIEWER).
      * @param questioning The questioning object.
      * @param part        Part of questioning
      * @return The generated access URL.
      */
-    @Deprecated(since = "3.20.0")
     public String getAccessUrl(String role, Questioning questioning, Partitioning part) {
         if (questioning == null || part == null) {
             return "";
