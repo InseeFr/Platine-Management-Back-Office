@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +28,6 @@ class MyQuestioningsControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
-    @Test
-    void myQuestioningsContactNotExist() throws Exception {
-        String identifier = "CONT500";
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(identifier, AuthorityRoleEnum.RESPONDENT));
-
-        MvcResult result = this.mockMvc.perform(get(UrlConstants.API_MY_QUESTIONINGS_ID, identifier)).andDo(print())
-                .andExpect(status().isOk()).andReturn();
-        String json = result.getResponse().getContentAsString();
-        MyQuestioningDto[] myQuestionings = new ObjectMapper().readValue(json, MyQuestioningDto[].class);
-        System.out.println(json);
-        assertEquals(0, myQuestionings.length);
-
-    }
 
     @Test
     void myQuestionnairesNotExist() throws Exception {

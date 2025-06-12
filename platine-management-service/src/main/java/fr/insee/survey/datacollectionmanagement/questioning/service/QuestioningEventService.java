@@ -29,10 +29,12 @@ public interface QuestioningEventService {
      */
     Optional<QuestioningEvent> getLastQuestioningEvent(Questioning questioning, List<TypeQuestioningEvent> events);
 
-    boolean containsQuestioningEvents(Questioning questioning, List<TypeQuestioningEvent> events);
+    boolean containsTypeQuestioningEvents(List<QuestioningEventDto> events, List<TypeQuestioningEvent> typeEvents);
 
     Long countIdUploadInEvents(Long idupload);
-    
+
+    List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId);
+
     QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) ;
 
     QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto);

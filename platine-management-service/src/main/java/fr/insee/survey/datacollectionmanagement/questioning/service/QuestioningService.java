@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 
@@ -44,5 +45,5 @@ public interface QuestioningService {
 
     QuestioningDetailsDto getQuestioningDetails(Long id);
 
-    QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part);
+    QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate);
 }

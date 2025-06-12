@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetails
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,14 +14,20 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
 
     @Query(value = "SELECT " +
             "so.id AS sourceId, " +
+            "s.year_value AS surveyYear, " +
+            "c.period_value AS period, " +
             "q.id AS questioningId, " +
             "p.label AS partitioningLabel, " +
             "p.id AS partitioningId, " +
+            "p.opening_date AS partitioningOpeningDate, " +
+            "p.closing_date AS partitioningClosingDate, " +
             "p.return_date AS partitioningReturnDate, " +
             "su.identification_code AS surveyUnitIdentificationCode, " +
             "su.identification_name AS surveyUnitIdentificationName, " +
             "su.id_su AS surveyUnitId," +
-            "c.datacollection_target AS dataCollectionTarget " +
+            "c.datacollection_target AS dataCollectionTarget, " +
+            "c.operation_upload_reference AS operationUploadReference, " +
+            "q.model_name AS modelName " +
             "FROM questioning_accreditation qa " +
             "JOIN questioning q ON qa.questioning_id = q.id " +
             "JOIN partitioning p ON q.id_partitioning = p.id " +

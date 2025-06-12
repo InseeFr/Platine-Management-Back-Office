@@ -56,16 +56,23 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public boolean containsQuestioningEvents(Questioning questioning,  List<TypeQuestioningEvent> events) {
-       return questioning.getQuestioningEvents()
-               .stream()
-               .map(QuestioningEvent::getType)
-               .anyMatch(events::contains);
+    public boolean containsTypeQuestioningEvents(List<QuestioningEventDto> events, List<TypeQuestioningEvent> typeEvents) {
+        return events
+                .stream()
+                .map(QuestioningEventDto::getType)
+                .map(TypeQuestioningEvent::valueOf)
+                .anyMatch(typeEvents::contains);
     }
 
     @Override
     public Long countIdUploadInEvents(Long idupload) {
         return questioningEventRepository.countByUploadId(idupload);
+    }
+
+    @Override
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningId(questioningId);
+        return events.stream().map(qe -> modelMapper.map(qe, QuestioningEventDto.class)).toList();
     }
 
 

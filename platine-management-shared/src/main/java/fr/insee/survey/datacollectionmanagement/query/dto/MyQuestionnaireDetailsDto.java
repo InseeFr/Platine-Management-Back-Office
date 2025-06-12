@@ -13,12 +13,18 @@ import java.util.Date;
 @NoArgsConstructor
 public class MyQuestionnaireDetailsDto {
     private String sourceId;
+    private Integer surveyYear;
+    private String period;
     private Long questioningId;
     private String partitioningLabel;
     private String partitioningId;
+    private Date partitioningOpeningDate;
+    private Date partitioningClosingDate;
     private Date partitioningReturnDate;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
     private String surveyUnitId;
     private String dataCollectionTarget;
+    private String operationUploadReference;
+    private String modelName;
 }
