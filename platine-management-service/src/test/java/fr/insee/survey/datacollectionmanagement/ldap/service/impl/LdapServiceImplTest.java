@@ -1,33 +1,29 @@
 package fr.insee.survey.datacollectionmanagement.ldap.service.impl;
 
-
-import fr.insee.survey.datacollectionmanagement.ldap.LdapRepository;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.LdapContactOutputDto;
+import fr.insee.survey.datacollectionmanagement.ldap.service.stub.LdapRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestTemplate;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@ActiveProfiles("default")
 class LdapServiceImplTest {
 
     LdapServiceImpl ldapService;
-    LdapRepository ldapRepository;
-    MockRestServiceServer server;
+    LdapRepositoryStub ldapRepository;
 
     @BeforeEach
     void initServiceWithStubs() {
-
-        RestTemplate restTemplate = new RestTemplate();
-        server = MockRestServiceServer.bindTo(restTemplate).build();
-
-
-        ldapRepository = new LdapRepository(restTemplate);
+        ldapRepository = new LdapRepositoryStub();
         ldapService = new LdapServiceImpl(ldapRepository);
     }
 
-//    @Test
-//    void test()
-//    {
-//        ldapService.createUser(new ContactDto());
-//    }
+    @Test@DisplayName("Should create a contact and get its username from ldap")
+    void createUserInLdap()
+    {
+        LdapContactOutputDto ldapContactOutputDto = ldapRepository.createTestLdapContactOutputDto();
+        ContactDto contactDto = ldapService.createUser(new ContactDto());
+        assertThat(contactDto.getIdentifier()).isEqualTo(ldapContactOutputDto.getUsername());
+    }
 }
