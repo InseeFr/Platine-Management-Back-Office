@@ -14,7 +14,7 @@ class LdapConfigurationTest {
     private LdapConfiguration ldapConfiguration;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ldapConfiguration = new LdapConfiguration();
         ldapConfiguration.apiUrl = "https://example.com/ldap";
         ldapConfiguration.serviceContactLogin = "testUser";
@@ -30,11 +30,11 @@ class LdapConfigurationTest {
 
         List<?> interceptors = restTemplate.getInterceptors();
         assertThat(interceptors)
-                .anyMatch(interceptor -> interceptor instanceof BasicAuthenticationInterceptor);
+                .anyMatch(BasicAuthenticationInterceptor.class::isInstance);
 
         BasicAuthenticationInterceptor authInterceptor = (BasicAuthenticationInterceptor) interceptors
                 .stream()
-                .filter(i -> i instanceof BasicAuthenticationInterceptor)
+                .filter(BasicAuthenticationInterceptor.class::isInstance)
                 .findFirst()
                 .orElse(null);
 

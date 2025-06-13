@@ -233,13 +233,11 @@ class ContactServiceImplTest {
     @Test
     @DisplayName("Should throw NotFoundException when questioning is missing")
     void shouldThrowWhenQuestioningNotFound() {
-        // Given
         Long invalidQuestioningId = 999L;
         ContactDto inputContact = new ContactDto();
         inputContact.setIdentifier("jane.doe");
         inputContact.setEmail("jane.doe@example.com");
 
-        // When / Then
         assertThatThrownBy(() ->
                 contactService.createContactAndAssignToAccreditationAsMain(invalidQuestioningId, inputContact))
                 .isInstanceOf(NotFoundException.class)
