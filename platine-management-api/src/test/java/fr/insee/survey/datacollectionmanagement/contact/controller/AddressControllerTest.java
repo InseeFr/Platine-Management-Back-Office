@@ -7,7 +7,6 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
-import fr.insee.survey.datacollectionmanagement.ldap.service.LdapConfiguration;
 import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,9 +43,6 @@ class AddressControllerTest {
 
     @Autowired
     AddressService addressService;
-
-    @Autowired
-    LdapConfiguration ldapConfiguration;
 
     @Autowired
     LdapService ldapService;

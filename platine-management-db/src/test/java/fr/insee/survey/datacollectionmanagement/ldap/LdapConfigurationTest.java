@@ -1,12 +1,13 @@
-package fr.insee.survey.datacollectionmanagement.ldap.service.impl;
+package fr.insee.survey.datacollectionmanagement.ldap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import fr.insee.survey.datacollectionmanagement.ldap.service.LdapConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LdapConfigurationTest {
 
