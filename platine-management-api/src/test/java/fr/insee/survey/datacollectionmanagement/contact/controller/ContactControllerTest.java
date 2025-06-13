@@ -10,7 +10,6 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactSource;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
@@ -22,7 +21,6 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceSer
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -85,7 +82,7 @@ class ContactControllerTest {
 
     @RegisterExtension
     static WireMockExtension wmLdap = WireMockExtension.newInstance()
-            .options(wireMockConfig().port(1010))
+            .options(wireMockConfig().port(4444))
             .build();
 
 
@@ -257,7 +254,6 @@ class ContactControllerTest {
     @Test
     @DisplayName("Create contact and assign main accredition")
     void putContactInterrogationInLdapAndAssignToInterrogationAsMainLdapApiDown() throws Exception {
-        Long interrogationId = 1L;
         String email = "contact@insee.fr";
         String username = "TESTID";
 
