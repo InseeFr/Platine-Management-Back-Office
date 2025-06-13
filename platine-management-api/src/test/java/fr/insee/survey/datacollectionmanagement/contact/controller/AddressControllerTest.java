@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,10 @@ class AddressControllerTest {
 
     @Autowired
     AddressService addressService;
+
+    @Autowired
+    LdapService ldapService;
+
 
     @BeforeEach
     void init() {

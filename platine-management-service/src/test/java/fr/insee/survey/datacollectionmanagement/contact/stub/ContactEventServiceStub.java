@@ -7,14 +7,20 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
+@RequiredArgsConstructor
 public class ContactEventServiceStub implements ContactEventService {
 
-    ArrayList<ContactEvent> contactEvents = new ArrayList<ContactEvent>();
+    ArrayList<ContactEvent> contactEvents = new ArrayList<>();
+
+    private final ModelMapper modelMapper;
+
 
     @Override
     public Page<ContactEvent> findAll(Pageable pageable) {
@@ -42,7 +48,7 @@ public class ContactEventServiceStub implements ContactEventService {
     public Set<ContactEvent> findContactEventsByContact(Contact contact) {
          List<ContactEvent> contactEventList = contactEvents.stream().filter(contactEvent -> contactEvent.getContact()
                  .getIdentifier().equals(contact.getIdentifier())).toList();
-         return new HashSet<ContactEvent>(contactEventList);
+         return new HashSet<>(contactEventList);
     }
 
     @Override
@@ -58,11 +64,13 @@ public class ContactEventServiceStub implements ContactEventService {
 
     @Override
     public ContactEventDto addContactEvent(ContactEventDto contactEventDto) {
-        return null;
+         contactEvents.add(modelMapper.map(contactEventDto, ContactEvent.class));
+         return  contactEventDto;
     }
 
     @Override
     public List<ContactEventDto> findContactEventsByContactId(String contactId) {
-        return List.of();
+        return contactEvents.stream().filter(contactEvent -> contactEvent.getContact().getIdentifier().equals(contactId))
+                .map(contactEvent ->  modelMapper.map(contactEvent, ContactEventDto.class)).toList();
     }
 }

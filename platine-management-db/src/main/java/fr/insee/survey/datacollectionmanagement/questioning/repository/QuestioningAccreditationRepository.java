@@ -34,5 +34,5 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
 
     Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId);
 
-
+    Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(Long questioningId, String idContact);
 }

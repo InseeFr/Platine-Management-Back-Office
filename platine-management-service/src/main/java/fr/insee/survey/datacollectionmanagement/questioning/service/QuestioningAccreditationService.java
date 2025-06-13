@@ -30,6 +30,8 @@ public interface QuestioningAccreditationService {
                                         Date date,
                                         Campaign campaign);
 
+    void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
+
     void setMainQuestioningAccreditationToContact(String contactId, Long questioningId);
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
@@ -47,6 +49,4 @@ public interface QuestioningAccreditationService {
                                            Questioning questioning,
                                            JsonNode payload,
                                            Campaign campaign);
-
-    JsonNode createPayload(String sourceLabel);
 }

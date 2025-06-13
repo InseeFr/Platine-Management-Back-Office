@@ -10,17 +10,18 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Setter
 public class QuestioningAccreditationServiceStub implements QuestioningAccreditationService {
 
-    private List<QuestioningAccreditation> questioningAccreditationList;
+    private ArrayList<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
 
     @Override
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
-        return questioningAccreditationList;
+        return List.of();
     }
 
     @Override
@@ -55,8 +56,19 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+    public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload) {
         // not used
+    }
+
+    @Override
+    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        QuestioningAccreditation qa = new QuestioningAccreditation();
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        qa.setQuestioning(questioning);
+        qa.setIdContact(contactId);
+        qa.setMain(true);
+        questioningAccreditationList.add(qa);
     }
 
     @Override
@@ -72,10 +84,5 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     @Override
     public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
         // not used
-    }
-
-    @Override
-    public JsonNode createPayload(String sourceLabel) {
-        return null;
     }
 }
