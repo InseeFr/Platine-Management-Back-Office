@@ -1,12 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
@@ -20,11 +21,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningEventServiceImplTest {
@@ -119,15 +124,10 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should return false when no questioning event types match")
     void containsQuestioningEventsTest() {
-        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEventDto dto = new QuestioningEventDto();
+        dto.setType("VALINT");
 
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT);
-
-        events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
-
-        boolean result = questioningEventService.containsQuestioningEvents(questioning, List.of());
+        boolean result = questioningEventService.containsTypeQuestioningEvents(List.of(dto), List.of());
 
         assertThat(result).isFalse();
     }
@@ -135,15 +135,10 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should return true when questioning event matches given types")
     void containsQuestioningEventsTest2() {
-        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEventDto dto = new QuestioningEventDto();
+        dto.setType("VALINT");
 
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT);
-
-        events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
-
-        boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
+        boolean result = questioningEventService.containsTypeQuestioningEvents(List.of(dto), TypeQuestioningEvent.VALIDATED_EVENTS);
 
         assertThat(result).isTrue();
     }
@@ -151,19 +146,22 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should return false when questioning events do not match given types")
     void containsQuestioningEventsTest3() {
-        Set<QuestioningEvent> events = new HashSet<>();
+        QuestioningEventDto dto = new QuestioningEventDto();
+        dto.setType("VALINT");
 
-        QuestioningEvent questioningEventValid = new QuestioningEvent();
-        questioningEventValid.setType(TypeQuestioningEvent.VALINT);
+        QuestioningEventDto dto2 = new QuestioningEventDto();
+        dto2.setType("REFUSAL");
 
-        QuestioningEvent questioningEventRefused = new QuestioningEvent();
-        questioningEventRefused.setType(TypeQuestioningEvent.REFUSAL);
+        boolean result = questioningEventService.containsTypeQuestioningEvents(List.of(dto,dto2), TypeQuestioningEvent.OPENED_EVENTS);
 
-        events.add(questioningEventValid);
-        events.add(questioningEventRefused);
-        questioning.setQuestioningEvents(events);
+        assertThat(result).isFalse();
+    }
 
-        boolean result = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
+    @Test
+    @DisplayName("Should return false when no questioning events")
+    void containsQuestioningEventsTest4() {
+
+        boolean result = questioningEventService.containsTypeQuestioningEvents(List.of(), TypeQuestioningEvent.OPENED_EVENTS);
 
         assertThat(result).isFalse();
     }
