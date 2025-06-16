@@ -98,8 +98,6 @@ class QuestioningServiceImplTest {
 
     private Partitioning partitioning;
 
-    private Source source;
-
     private static final int O_INITLA     = 1;
     private static final int O_PARTIEL_VAL = 2;
     private static final int O_REF_WAST   = 3;
@@ -206,7 +204,6 @@ class QuestioningServiceImplTest {
     void testGetQuestioningDetails(SourceTypeEnum sourceType, boolean expectedIsHousehold) {
         // Given
         Long questioningId = 1L;
-        Questioning questioning = new Questioning();
         questioning.setId(questioningId);
 
         SurveyUnit su = new SurveyUnit();
@@ -216,7 +213,6 @@ class QuestioningServiceImplTest {
         su.setLabel("label");
         questioning.setSurveyUnit(su);
 
-        Partitioning partitioning = new Partitioning();
         partitioning.setId("1");
 
         Campaign campaign = new Campaign();
