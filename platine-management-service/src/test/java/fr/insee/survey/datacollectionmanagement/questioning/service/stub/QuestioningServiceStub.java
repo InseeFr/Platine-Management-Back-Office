@@ -93,9 +93,4 @@ public class QuestioningServiceStub implements QuestioningService {
     public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
         return questionnaireStatus;
     }
-
-    @Override
-    public Slice<SearchQuestioningDto> searchQuestioningsSimple(SearchQuestioningParams searchParams, Pageable pageable) {
-        return null;
-    }
 }
