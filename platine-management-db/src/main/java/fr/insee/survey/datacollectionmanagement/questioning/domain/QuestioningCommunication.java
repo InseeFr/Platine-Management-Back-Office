@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunic
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Table(indexes = {
         @Index(name = "idQuestioningComm_index", columnList = "questioning_id")
 })
+@NoArgsConstructor
 public class QuestioningCommunication {
 
     @Id
@@ -30,4 +32,10 @@ public class QuestioningCommunication {
     @Enumerated(EnumType.STRING)
     private StatusCommunication status;
 
+    public QuestioningCommunication(Date date, TypeCommunicationEvent type, Questioning questioning, StatusCommunication status) {
+        this.date = date;
+        this.type = type;
+        this.questioning = questioning;
+        this.status = status;
+    }
 }
