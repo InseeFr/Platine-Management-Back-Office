@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
 public class QuestioningEventServiceStub implements QuestioningEventService {
 
     private boolean containsQuestioningEvents;
+
+    private List<QuestioningEventDto> questioningEvents = new ArrayList<>();
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -37,13 +40,22 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public boolean containsQuestioningEvents(Questioning questioning, List<TypeQuestioningEvent> events) {
-        return containsQuestioningEvents;
+    public boolean containsTypeQuestioningEvents(List<QuestioningEventDto> events, List<TypeQuestioningEvent> typeEvents) {
+        return events
+                .stream()
+                .map(QuestioningEventDto::getType)
+                .map(TypeQuestioningEvent::valueOf)
+                .anyMatch(typeEvents::contains);
     }
 
     @Override
     public Long countIdUploadInEvents(Long idupload) {
         return 0L;
+    }
+
+    @Override
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+        return questioningEvents;
     }
 
     @Override

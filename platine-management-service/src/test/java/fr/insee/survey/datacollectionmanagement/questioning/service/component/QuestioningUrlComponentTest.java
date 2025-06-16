@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnu
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,19 +23,36 @@ class QuestioningUrlComponentTest {
 
     private final String lunaticNormalUrl = "https://lunatic-normal";
     private final String lunaticSensitiveUrl = "https://lunatic-sensitive";
+    private final String questionnaireApiUrl = "https://questionnaire-api";
+    private final String questionnaireApiSensitiveUrl = "https://questionnaire-api-sensitive";
     private final String xform1Url = "https://xform1";
     private final String xform2Url = "https://xform2";
 
     private final String modelName = "MODEL";
-    private final String campaignId = "CAMPAIGNID";
+    private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
     private final Long questioningId = 1L;
     private final String sourceId = "SOURCEID";
     private final String contactId = "TOTO";
+    private final Integer surveyYear = 2024;
 
     @BeforeEach
     void setUp() {
-        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, xform1Url, xform2Url);
+        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url);
+    }
+
+    private QuestioningUrlContext createQuestioningUrlContext(DataCollectionEnum dataCollection, String operation) {
+        return new QuestioningUrlContext(
+                modelName,
+                surveyUnitId,
+                questioningId,
+                String.format("%s-%s-%s",sourceId.toLowerCase(),surveyYear,period),
+                dataCollection,
+                sourceId.toLowerCase(),
+                surveyYear,
+                period.name(),
+                operation,
+                contactId);
     }
 
     private Partitioning mockPartitioning(DataCollectionEnum target) {
@@ -43,11 +61,10 @@ class QuestioningUrlComponentTest {
 
         Survey survey = mock(Survey.class);
         when(survey.getSource()).thenReturn(source);
-        when(survey.getYear()).thenReturn(2024);
+        when(survey.getYear()).thenReturn(surveyYear);
 
 
         Campaign campaign = mock(Campaign.class);
-        when(campaign.getId()).thenReturn(campaignId);
         when(campaign.getSurvey()).thenReturn(survey);
         when(campaign.getPeriod()).thenReturn(PeriodEnum.T04);
 
@@ -73,53 +90,75 @@ class QuestioningUrlComponentTest {
 
     @Test
     void testLunaticNormalInterviewer() {
-        String url = component.getAccessUrlWithContactId(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL), contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testLunaticSensitiveInterviewer() {
-        String url = component.getAccessUrlWithContactId(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE), contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_SENSITIVE, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testLunaticNormalReviewer() {
-        String url = component.getAccessUrlWithContactId(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL), contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
+        String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
         String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform1Interviewer() {
-        String url = component.getAccessUrlWithContactId(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1), contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.XFORM1, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
         String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer() {
-        String url = component.getAccessUrlWithContactId(UserRoles.REVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2), contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.XFORM2, null);
+        String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
         String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testFallbackToLunaticNormalWhenTargetIsNull() {
-        Partitioning part = mockPartitioning(null);
-        String url = component.getAccessUrlWithContactId(UserRoles.REVIEWER, mockQuestioning(), part, contactId);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(null, null);
+        String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
         String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/SURVEYID";
         assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testFileUploadAccessUrlEmpty() {
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.FILE_UPLOAD, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
+        assertThat(url).isEmpty();
+    }
+
+    @Test
+    void testNullData_defaultAccessUrl() {
+        String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), null);
+        assertThat(url).isEmpty();
+    }
+
+    @Test
+    void testNullData2_defaultAccessUrl() {
+        String url = component.getAccessUrl(UserRoles.INTERVIEWER, null, mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
+        assertThat(url).isEmpty();
     }
 
     @Test
@@ -127,8 +166,7 @@ class QuestioningUrlComponentTest {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
 
         String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -138,8 +176,7 @@ class QuestioningUrlComponentTest {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, mockQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE));
 
         String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathLogout=%2Fdeconnexion" +
-                "&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -183,4 +220,59 @@ class QuestioningUrlComponentTest {
         String url = component.getAccessUrl(null, mockQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1));
         assertThat(url).isEmpty();
     }
+
+    @Test
+    void testDepositProofUrl_lunaticNormal() {
+        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.LUNATIC_NORMAL);
+
+        String expected = questionnaireApiUrl
+                + "/api/survey-unit/" + surveyUnitId + "/deposit-proof";
+
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testDepositProofUrl_lunaticSensitive() {
+        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.LUNATIC_SENSITIVE);
+
+        String expected = questionnaireApiSensitiveUrl
+                + "/api/survey-unit/" + surveyUnitId + "/deposit-proof";
+
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testDepositProofUrl_otherDataCollection_returnsNull() {
+        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.XFORM1);
+
+        assertThat(url).isNull();
+    }
+
+    @Test
+    void testDownloadUrl_ofats() {
+        QuestioningUrlContext ctx =
+                createQuestioningUrlContext(DataCollectionEnum.FILE_UPLOAD, "ofats");
+
+        // when
+        String url = component.buildDownloadUrl(ctx);
+
+        // then
+        assertThat(url).isEqualTo("insee-SURVEYID-ofats-2024.xlsx");
+    }
+
+    @Test
+    void testDownloadUrl_default() {
+        QuestioningUrlContext ctx =
+                createQuestioningUrlContext(DataCollectionEnum.FILE_UPLOAD, "test");
+
+        // when
+        String url = component.buildDownloadUrl(ctx);
+
+        // then
+        assertThat(url).isEqualTo("test-SURVEYID-sourceid-2024-T04.xlsx");
+    }
+
+
+
+
 }

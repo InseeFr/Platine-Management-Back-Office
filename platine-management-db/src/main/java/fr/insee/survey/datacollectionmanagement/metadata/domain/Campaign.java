@@ -3,7 +3,10 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.Set;
 
@@ -50,5 +53,8 @@ public class Campaign {
     @ManyToOne
     @JoinColumn(name = "survey_id")
     private Survey survey;
+
+    @Column(name = "operation_upload_reference")
+    private String operationUploadReference;
 
 }

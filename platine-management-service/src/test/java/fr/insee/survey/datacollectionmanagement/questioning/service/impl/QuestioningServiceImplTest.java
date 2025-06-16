@@ -21,13 +21,14 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.InterrogationEventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,8 +73,7 @@ class QuestioningServiceImplTest {
     @Mock
     private ContactService contactService;
 
-    @Mock
-    private QuestioningEventService questioningEventService;
+    private QuestioningEventServiceStub questioningEventService;
 
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
@@ -121,6 +121,8 @@ class QuestioningServiceImplTest {
         ));
 
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(eventOrderRepository);
+
+        questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
@@ -191,7 +193,7 @@ class QuestioningServiceImplTest {
     @Test
     void getQuestioningStatusTest() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
     }
 
@@ -283,8 +285,8 @@ class QuestioningServiceImplTest {
     @Test
     void getQuestioningStatusTest2() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
-        questioning.setQuestioningEvents(new HashSet<>());
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
@@ -293,14 +295,13 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest3() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.REFUSAL);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.REFUSAL.name());
         events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
+        questioningEventService.setQuestioningEvents(events);
 
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(true);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
@@ -309,16 +310,13 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest4() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
         events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
+        questioningEventService.setQuestioningEvents(events);
 
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(true);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
     }
 
@@ -327,16 +325,13 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest5() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.INITLA);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.INITLA.name());
         events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
+        questioningEventService.setQuestioningEvents(events);
 
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(false);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED);
     }
 
@@ -345,9 +340,8 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest6() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
-        Set<QuestioningEvent> events = new HashSet<>();
-        questioning.setQuestioningEvents(events);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
@@ -356,14 +350,13 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest7() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEvent = new QuestioningEvent();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
         events.add(questioningEvent);
-        questioning.setQuestioningEvents(events);
+        questioningEventService.setQuestioningEvents(events);
 
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
@@ -372,18 +365,16 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest8() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 96400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEventValid = new QuestioningEvent();
-        questioningEventValid.setType(TypeQuestioningEvent.VALINT);
-        QuestioningEvent questioningEventRefused = new QuestioningEvent();
-        questioningEventRefused.setType(TypeQuestioningEvent.HC);
-        events.add(questioningEventValid);
-        events.add(questioningEventRefused);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
+        events.add(questioningEvent);
+        QuestioningEventDto questioningEvent2 = new QuestioningEventDto();
+        questioningEvent2.setType(TypeQuestioningEvent.HC.name());
+        events.add(questioningEvent2);
+        questioningEventService.setQuestioningEvents(events);
 
-        questioning.setQuestioningEvents(events);
-
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
@@ -392,21 +383,16 @@ class QuestioningServiceImplTest {
     void getQuestioningStatusTest9() {
         partitioning.setOpeningDate(new Date(System.currentTimeMillis() - 86400000)); // Yesterday
         partitioning.setClosingDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
-        Set<QuestioningEvent> events = new HashSet<>();
-        QuestioningEvent questioningEventOpen = new QuestioningEvent();
-        questioningEventOpen.setType(TypeQuestioningEvent.INITLA);
-        QuestioningEvent questioningEventStarted = new QuestioningEvent();
-        questioningEventStarted.setType(TypeQuestioningEvent.PARTIELINT);
-        events.add(questioningEventOpen);
-        events.add(questioningEventStarted);
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(TypeQuestioningEvent.INITLA.name());
+        events.add(questioningEvent);
+        QuestioningEventDto questioningEvent2 = new QuestioningEventDto();
+        questioningEvent2.setType(TypeQuestioningEvent.PARTIELINT.name());
+        events.add(questioningEvent2);
+        questioningEventService.setQuestioningEvents(events);
 
-        questioning.setQuestioningEvents(events);
-
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS)).thenReturn(false);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS)).thenReturn(false);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS)).thenReturn(true);
-        when(questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS)).thenReturn(true);
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning, partitioning);
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
     }
 
