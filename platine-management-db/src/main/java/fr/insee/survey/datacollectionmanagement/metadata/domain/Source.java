@@ -24,6 +24,8 @@ public class Source {
     private String storageTime;
     private String personalData;
     @NonNull
+    private String type;
+    @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodicityEnum periodicity;
     @NonNull

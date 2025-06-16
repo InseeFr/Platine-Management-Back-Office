@@ -9,7 +9,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
@@ -74,6 +76,9 @@ class QuestioningServiceImplTest {
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
 
+    @Mock
+    private SourceRepository sourceRepository;
+
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Mock
@@ -90,6 +95,8 @@ class QuestioningServiceImplTest {
     private QuestioningUrlComponent questioningUrlComponent;
 
     private Partitioning partitioning;
+
+    private Source source;
 
     private static final int O_INITLA     = 1;
     private static final int O_PARTIEL_VAL = 2;
@@ -116,7 +123,7 @@ class QuestioningServiceImplTest {
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
-                modelMapper, partitioningRepository, parametersService);
+                modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
     private static InterrogationEventOrder order(String status, int valeur) {
         return new InterrogationEventOrder(null, status, valeur);
@@ -204,8 +211,9 @@ class QuestioningServiceImplTest {
         campaign.setId("CAMP123");
         Survey survey = new Survey();
         survey.setId("SURVEY123");
-        Source source = new Source();
-        source.setId("SOURCEID");
+        source = new Source();
+        source.setId("CAMP123");
+        source.setType(SourceTypeEnum.HOUSEHOLD.name());
         survey.setSource(source);
         campaign.setSurvey(survey);
         partitioning.setCampaign(campaign);
@@ -222,7 +230,7 @@ class QuestioningServiceImplTest {
 
         when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
         when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
-
+        when(sourceRepository.findById(any())).thenReturn(Optional.of(source));
         when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John", true)));
 
         // when
@@ -230,6 +238,7 @@ class QuestioningServiceImplTest {
 
         // then
         assertThat(result).isNotNull();
+        assertThat(result.getIsHousehold()).isTrue();
         assertThat(result.getQuestioningId()).isEqualTo(questioningId);
         assertThat(result.getCampaignId()).isEqualTo("CAMP123");
         assertThat(result.getSurveyUnitId()).isEqualTo("1");

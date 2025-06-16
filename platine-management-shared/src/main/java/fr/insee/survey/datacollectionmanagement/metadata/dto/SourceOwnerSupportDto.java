@@ -11,6 +11,7 @@ public class SourceOwnerSupportDto {
     private String id;
     private String longWording;
     private String shortWording;
+    private String type;
     private PeriodicityEnum periodicity;
     private boolean mandatoryMySurveys;
     private String logo;

@@ -143,6 +143,7 @@ class SourceControllerTest {
         sourceMock.setLongWording("Long wording about " + identifier);
         sourceMock.setShortWording("Short wording about " + identifier);
         sourceMock.setPeriodicity(PeriodicityEnum.T);
+        sourceMock.setType("Household");
         sourceMock.setMandatoryMySurveys(true);
         return sourceMock;
     }
@@ -152,6 +153,7 @@ class SourceControllerTest {
         jo.put("id", source.getId());
         jo.put("longWording", source.getLongWording());
         jo.put("shortWording", source.getShortWording());
+        jo.put("type", source.getType());
         jo.put("periodicity", source.getPeriodicity());
         return jo.toString();
     }
