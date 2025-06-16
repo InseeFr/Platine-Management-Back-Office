@@ -100,6 +100,7 @@ class SourceControllerTest {
         assertDoesNotThrow(() -> sourceService.findById(identifier));
 
         Source sourceFound = sourceService.findById(identifier);
+        assertEquals(source.getType(), sourceFound.getType());
         assertEquals(source.getLongWording(), sourceFound.getLongWording());
         assertEquals(source.getShortWording(), sourceFound.getShortWording());
         assertEquals(source.getPeriodicity(), sourceFound.getPeriodicity());
