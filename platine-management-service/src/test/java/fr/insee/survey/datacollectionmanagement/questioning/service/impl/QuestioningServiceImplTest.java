@@ -213,7 +213,7 @@ class QuestioningServiceImplTest {
         survey.setId("SURVEY123");
         source = new Source();
         source.setId("CAMP123");
-        source.setType(SourceTypeEnum.HOUSEHOLD.name());
+        source.setType(SourceTypeEnum.HOUSEHOLD);
         survey.setSource(source);
         campaign.setSurvey(survey);
         partitioning.setCampaign(campaign);

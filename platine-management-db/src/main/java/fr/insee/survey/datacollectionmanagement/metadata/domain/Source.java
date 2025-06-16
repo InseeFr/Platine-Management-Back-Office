@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +25,8 @@ public class Source {
     private String storageTime;
     private String personalData;
     @NonNull
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private SourceTypeEnum type;
     @NonNull
     @Enumerated(EnumType.STRING)
     private PeriodicityEnum periodicity;

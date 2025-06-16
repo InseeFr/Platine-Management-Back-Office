@@ -201,7 +201,7 @@ public class WebclientControllerTest {
                   "mandatoryMySurveys":false,
                   "longWording":"longWording",
                   "shortWording":"shortWording",
-                  "type":"Household",
+                  "type":"HOUSEHOLD",
                   "periodicity":"A"
                },
                "owner":{

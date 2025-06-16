@@ -175,11 +175,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         Source source = sourceRepository.findById(partitioning.getCampaign().getSurvey().getSource().getId())
                 .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", partitioning.getCampaign().getSurvey().getSource().getId())));
 
-        Boolean isHousehold = Boolean.FALSE;
-
-        if(source.getType().equals(SourceTypeEnum.HOUSEHOLD.name())) {
-            isHousehold = Boolean.TRUE;
-        }
+        Boolean isHousehold = SourceTypeEnum.HOUSEHOLD.equals(source.getType());
 
         SurveyUnit su = questioning.getSurveyUnit();
         QuestioningSurveyUnitDto questioningSurveyUnitDto = new QuestioningSurveyUnitDto(su.getIdSu(), su.getIdentificationCode(), su.getIdentificationName(), su.getLabel());

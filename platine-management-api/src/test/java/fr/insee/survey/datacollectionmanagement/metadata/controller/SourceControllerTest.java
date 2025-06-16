@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
@@ -143,7 +144,7 @@ class SourceControllerTest {
         sourceMock.setLongWording("Long wording about " + identifier);
         sourceMock.setShortWording("Short wording about " + identifier);
         sourceMock.setPeriodicity(PeriodicityEnum.T);
-        sourceMock.setType("Household");
+        sourceMock.setType(SourceTypeEnum.HOUSEHOLD);
         sourceMock.setMandatoryMySurveys(true);
         return sourceMock;
     }
