@@ -269,7 +269,6 @@ public class SearchQuestioningDao {
           SELECT qc.type
           FROM questioning_communication qc
           WHERE qc.questioning_id = q.id
-            AND qc.type IN (""" + placeholders + ")" + """
           ORDER BY qc.date DESC
           LIMIT 1
         ) IN (""" + placeholders + ")";

@@ -245,7 +245,7 @@ public class SearchQuestioningSimpleDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = "q.latest_communication_type IN (" + placeholders + ")";
+        String filter = "q.last_communication_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }
