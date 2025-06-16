@@ -172,8 +172,8 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
         Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())
                 .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
-        Source source = sourceRepository.findById(partitioning.getCampaign().getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", partitioning.getCampaign().getId())));
+        Source source = sourceRepository.findById(partitioning.getCampaign().getSurvey().getSource().getId())
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", partitioning.getCampaign().getSurvey().getSource().getId())));
 
         Boolean isHousehold = Boolean.FALSE;
 
