@@ -212,7 +212,7 @@ class SourceControllerSecurityTest {
     private String createJsonSource() throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("id", "SOURCE1");
-        jo.put("type", "Household ");
+        jo.put("type", "Household");
         jo.put("periodicity", PeriodicityEnum.X);
         return jo.toString();
     }
