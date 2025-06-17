@@ -205,7 +205,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
         Date today = new Date();
 
         if (today.before(openingDate)) {

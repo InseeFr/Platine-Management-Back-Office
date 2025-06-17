@@ -95,8 +95,8 @@ class QuestioningUrlComponentTest {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
-        String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+        String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -106,8 +106,8 @@ class QuestioningUrlComponentTest {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_SENSITIVE, null);
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
-        String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+        String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -116,7 +116,7 @@ class QuestioningUrlComponentTest {
     void testLunaticNormalReviewer() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
-        String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/SURVEYID";
+        String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/" + questioningId ;
         assertThat(url).isEqualTo(expected);
     }
 
@@ -140,7 +140,7 @@ class QuestioningUrlComponentTest {
     void testFallbackToLunaticNormalWhenTargetIsNull() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(null, null);
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
-        String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/SURVEYID";
+        String expected = "https://lunatic-normal/v3/review/questionnaire/MODEL/unite-enquetee/" + questioningId ;
         assertThat(url).isEqualTo(expected);
     }
 
@@ -167,8 +167,8 @@ class QuestioningUrlComponentTest {
     void testLunaticNormalInterviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
 
-        String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+        String expected = "https://lunatic-normal/v3/questionnaire/MODEL/unite-enquetee/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -177,8 +177,8 @@ class QuestioningUrlComponentTest {
     void testLunaticSensitiveInterviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE));
 
-        String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/SURVEYID" +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D1%26surveyUnitId%3DSURVEYID%26contactId%3D";
+        String expected = "https://lunatic-sensitive/v3/questionnaire/MODEL/unite-enquetee/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FquestioningId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -193,14 +193,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1));
-        String expected = "https://xform1/repondre/sourceid-2024-T04/" + questioningId;
+        String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.REVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2));
-        String expected = "https://xform2/visualiser/sourceid-2024-T04/" + questioningId;
+        String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
         assertThat(url).isEqualTo(expected);
     }
 

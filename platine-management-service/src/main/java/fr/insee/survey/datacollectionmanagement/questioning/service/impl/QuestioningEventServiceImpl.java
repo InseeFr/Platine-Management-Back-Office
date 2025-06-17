@@ -71,7 +71,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId) {
         List<QuestioningEvent> events = questioningEventRepository.findByQuestioningId(questioningId);
         return events.stream().map(qe -> modelMapper.map(qe, QuestioningEventDto.class)).toList();
     }

@@ -14,10 +14,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class MyQuestionnaireDetailsDto {
     private String sourceId;
-    private UUID questioningId;
     private Integer surveyYear;
     private String period;
-    private Long questioningId;
+    private UUID questioningId;
     private String partitioningLabel;
     private String partitioningId;
     private Date partitioningOpeningDate;

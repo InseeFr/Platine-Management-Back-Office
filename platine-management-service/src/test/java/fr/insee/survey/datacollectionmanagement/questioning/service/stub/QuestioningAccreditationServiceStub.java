@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 public class QuestioningAccreditationServiceStub implements QuestioningAccreditationService {
@@ -56,7 +57,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
         QuestioningAccreditation qa = new QuestioningAccreditation();
         Questioning questioning = new Questioning();
         questioning.setId(questioningId);

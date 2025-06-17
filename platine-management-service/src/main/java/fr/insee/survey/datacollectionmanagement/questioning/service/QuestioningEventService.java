@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public interface QuestioningEventService {
@@ -33,7 +34,7 @@ public interface QuestioningEventService {
 
     Long countIdUploadInEvents(Long idupload);
 
-    List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId);
+    List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId);
 
     QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) ;
 

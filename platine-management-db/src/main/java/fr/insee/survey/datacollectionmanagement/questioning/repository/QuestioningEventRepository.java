@@ -13,5 +13,5 @@ public interface QuestioningEventRepository extends JpaRepository<QuestioningEve
 
     Long countByUploadId(Long idupload);
 
-    List<QuestioningEvent> findByQuestioningId(Long questioningId);
+    List<QuestioningEvent> findByQuestioningId(UUID questioningId);
 }

@@ -48,5 +48,5 @@ public interface QuestioningService {
 
     QuestioningDetailsDto getQuestioningDetails(UUID id);
 
-    QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate);
+    QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
 }

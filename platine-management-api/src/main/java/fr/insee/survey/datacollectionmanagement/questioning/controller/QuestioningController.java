@@ -106,7 +106,7 @@ public class QuestioningController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updateInterrogationToMainContactAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("interrogationId") UUID interrogationId,
             @PathVariable("contactId") String contactId)  {
 
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);
