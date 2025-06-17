@@ -5,8 +5,11 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
@@ -62,6 +65,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final PartitioningRepository partitioningRepository;
 
     private final ParametersService parametersService;
+    private final SourceRepository sourceRepository;
 
 
     @Override
@@ -168,6 +172,10 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
         Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())
                 .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
+        Source source = sourceRepository.findById(partitioning.getCampaign().getSurvey().getSource().getId())
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", partitioning.getCampaign().getSurvey().getSource().getId())));
+
+        Boolean isHousehold = SourceTypeEnum.HOUSEHOLD.equals(source.getType());
 
         SurveyUnit su = questioning.getSurveyUnit();
         QuestioningSurveyUnitDto questioningSurveyUnitDto = new QuestioningSurveyUnitDto(su.getIdSu(), su.getIdentificationCode(), su.getIdentificationName(), su.getLabel());
@@ -218,6 +226,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
+                .isHousehold(isHousehold)
                 .build();
     }
 

@@ -28,4 +28,5 @@ public class QuestioningDetailsDto {
     private List<QuestioningCommentOutputDto> listComments;
     private Date validationDate;
     private String readOnlyUrl;
+    private Boolean isHousehold;
 }

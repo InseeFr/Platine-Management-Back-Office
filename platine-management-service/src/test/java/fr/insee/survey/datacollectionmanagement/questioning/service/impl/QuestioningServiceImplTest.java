@@ -9,7 +9,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
@@ -31,6 +33,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -73,6 +77,9 @@ class QuestioningServiceImplTest {
 
     @Mock
     private QuestioningAccreditationService questioningAccreditationService;
+
+    @Mock
+    private SourceRepository sourceRepository;
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -118,7 +125,7 @@ class QuestioningServiceImplTest {
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
-                modelMapper, partitioningRepository, parametersService);
+                modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
     private static InterrogationEventOrder order(String status, int valeur) {
         return new InterrogationEventOrder(null, status, valeur);
@@ -187,51 +194,65 @@ class QuestioningServiceImplTest {
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
     }
-    @Test
-    @DisplayName("Should return QuestioningDetailsDto when questioning exists")
-    void testGetQuestioningDetails() {
+
+    @ParameterizedTest
+    @CsvSource({
+        "HOUSEHOLD, true",
+        "BUSINESS, false"
+    })
+    @DisplayName("Should return correct QuestioningDetailsDto based on SourceTypeEnum")
+    void testGetQuestioningDetails(SourceTypeEnum sourceType, boolean expectedIsHousehold) {
         // Given
         Long questioningId = 1L;
-        questioning = new Questioning();
         questioning.setId(questioningId);
+
         SurveyUnit su = new SurveyUnit();
         su.setIdSu("1");
         su.setIdentificationName("identificationName");
         su.setIdentificationCode("identificationCode");
         su.setLabel("label");
         questioning.setSurveyUnit(su);
-        partitioning = new Partitioning();
+
         partitioning.setId("1");
+
         Campaign campaign = new Campaign();
         campaign.setId("CAMP123");
+
         Survey survey = new Survey();
         survey.setId("SURVEY123");
+
         Source source = new Source();
-        source.setId("SOURCEID");
+        source.setId("CAMP123");
+        source.setType(sourceType);
+
         survey.setSource(source);
         campaign.setSurvey(survey);
         partitioning.setCampaign(campaign);
         QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
         questioningAccreditation.setIdContact("contactId");
         questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
+
         QuestioningEvent event = new QuestioningEvent(
-                new Date(),
-                TypeQuestioningEvent.INITLA,
-                questioning);
+            new Date(),
+            TypeQuestioningEvent.INITLA,
+            questioning);
         questioning.setQuestioningEvents(Set.of(event));
         questioning.setQuestioningComments(Set.of());
         questioning.setQuestioningCommunications(Set.of());
 
         when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
         when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
+        when(sourceRepository.findById(any())).thenReturn(Optional.of(source));
+        when(contactService.findByIdentifiers(any())).thenReturn(
+            List.of(new QuestioningContactDto("contact1", "Doe", "John", true))
+        );
 
-        when(contactService.findByIdentifiers(any())).thenReturn(List.of(new QuestioningContactDto("contact1", "Doe", "John", true)));
-
-        // when
+        // When
         QuestioningDetailsDto result = questioningService.getQuestioningDetails(questioningId);
 
-        // then
+        // Then
         assertThat(result).isNotNull();
+        assertThat(result.getIsHousehold()).isEqualTo(expectedIsHousehold);
         assertThat(result.getQuestioningId()).isEqualTo(questioningId);
         assertThat(result.getCampaignId()).isEqualTo("CAMP123");
         assertThat(result.getSurveyUnitId()).isEqualTo("1");
@@ -241,6 +262,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
     }
+
 
     @Test
     @DisplayName("Should throw NotFoundException when questioning does not exist")
