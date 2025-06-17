@@ -95,4 +95,12 @@ public interface ContactService {
     Contact convertToEntityNewContact(ContactDto contactDto);
 
     ContactDetailsDto getContactDetails(String idContact);
+
+    ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact);
+
+    ContactDto createAndSaveContact(ContactDto contactDto);
+
+    void saveContactCreationEvent(String contactId) ;
+
+    void assignMainContactToQuestioning(String contactIdentifier, Long questioningId);
 }

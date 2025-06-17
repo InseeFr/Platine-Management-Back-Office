@@ -165,7 +165,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
 
     @Override
     public boolean existsById(Long aLong) {
-        return false;
+        return findById(aLong).isPresent();
     }
 
     @Override

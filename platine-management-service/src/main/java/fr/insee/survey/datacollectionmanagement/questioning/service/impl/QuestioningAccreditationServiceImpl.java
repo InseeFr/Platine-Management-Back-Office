@@ -1,13 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
+import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
-import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
@@ -17,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +34,11 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     private final QuestioningAccreditationRepository questioningAccreditationRepository;
     private final ContactEventService contactEventService;
-    private final ContactService contactService;
     private final ContactSourceService contactSourceService;
     private final PartitioningService partitioningService;
     private final ViewService viewService;
     private final QuestioningRepository questioningRepository;
+    private final ContactRepository contactRepository;
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
@@ -73,15 +72,28 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                                                Date date,
                                                Campaign campaign)
     {
-        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
-        questioningAccreditation.setQuestioning(questioning);
-        questioningAccreditation.setMain(isMain);
-        questioningAccreditation.setIdContact(contact.getIdentifier());
-        questioningAccreditation.setCreationDate(date);
-        // questioningAccreditation.setCreationAuthor("platine-pilotage"); ?
-        questioningAccreditationRepository.save(questioningAccreditation);
+        QuestioningAccreditation qa = questioningAccreditationRepository
+                .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier())
+                .orElseGet(() -> {
+                    QuestioningAccreditation created = new QuestioningAccreditation();
+                    created.setIdContact(contact.getIdentifier());
+                    created.setCreationDate(date);
+                    created.setQuestioning(questioning);
+                    return created;
+                });
 
+        qa.setMain(isMain);
+        questioningAccreditationRepository.save(qa);
         logContactAccreditationGainUpdate(contact, questioning, payload, campaign);
+    }
+
+    @Override
+    public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload)
+    {
+        qa.setMain(true);
+        questioningAccreditationRepository.save(qa);
+        ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, eventPayload);
+        contactEventService.saveContactEvent(contactEvent);
     }
 
     @Override
@@ -89,11 +101,12 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 
-        Contact contact = contactService.findByIdentifier(contactId);
+        Contact contact = contactRepository.findById(contactId)
+                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
         Date date = Date.from(Instant.now());
         Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
-        JsonNode payload = createPayload("platine-pilotage");
+        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
         Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
@@ -115,7 +128,8 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
             return;
         }
 
-        Contact previousContact = contactService.findByIdentifier(existingAccreditation.getIdContact());
+        Contact previousContact = contactRepository.findById(existingAccreditation.getIdContact())
+                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
         existingAccreditation.setIdContact(newContact.getIdentifier());
         saveQuestioningAccreditation(existingAccreditation);
         logContactAccreditationLossUpdate(previousContact, questioning, payload, campaign);
@@ -170,14 +184,10 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                 questioning.getSurveyUnit().getIdSu(),
                 true);
 
-        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(contact.getIdentifier(), questioning.getSurveyUnit().getIdSu(), campaign.getId());
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
+                contact.getIdentifier(),
+                questioning.getSurveyUnit().getIdSu(),
+                campaign.getId());
     }
 
-    @Override
-    public JsonNode createPayload(String sourceLabel) {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode node = mapper.createObjectNode();
-        node.put("source", sourceLabel);
-        return node;
-    }
 }

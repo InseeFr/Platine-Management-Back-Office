@@ -1,24 +1,33 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
-import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
+import fr.insee.survey.datacollectionmanagement.contact.stub.AdressServiceStub;
+import fr.insee.survey.datacollectionmanagement.contact.stub.ContactEventServiceStub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.ldap.service.stub.LdapServiceStub;
+import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
 import java.util.Collections;
@@ -26,10 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 class ContactServiceImplTest {
 
@@ -37,19 +44,34 @@ class ContactServiceImplTest {
     private ContactService contactService;
     private AddressService addressService;
     private ContactEventService contactEventService;
+    private LdapService ldapService;
     private ViewServiceStub viewService;
     private CampaignServiceStub campaignService;
+    private QuestioningAccreditationService questioningAccreditationService;
+    private QuestioningRepository questioningRepository;
     private ModelMapper modelMapper = new ModelMapper();
 
     @BeforeEach
     void init() {
         contactRepository = new ContactRepositoryStub();
-        addressService = Mockito.mock(AddressService.class);
-        contactEventService = Mockito.mock(ContactEventService.class);
+        addressService = new AdressServiceStub(modelMapper);
+        contactEventService = new ContactEventServiceStub(modelMapper);
         viewService = new ViewServiceStub();
         campaignService = new CampaignServiceStub();
-        contactService = new ContactServiceImpl(contactRepository, addressService,
-                contactEventService, viewService, modelMapper, campaignService);
+        ldapService = new LdapServiceStub();
+        questioningAccreditationService = new QuestioningAccreditationServiceStub();
+        questioningRepository = new QuestioningRepositoryStub();
+
+        contactService = new ContactServiceImpl(
+                contactRepository,
+                addressService,
+                contactEventService,
+                viewService,
+                modelMapper,
+                campaignService,
+                ldapService,
+                questioningAccreditationService,
+                questioningRepository);
     }
 
     @Test
@@ -172,10 +194,6 @@ class ContactServiceImplTest {
         addressDto.setStreetName("rue des Lilas");
         contactDto.setAddress(addressDto);
 
-        when(addressService.updateOrCreateAddress(any(AddressDto.class))).thenReturn(addressDto);
-        when(contactEventService.createContactEvent(any(), eq(ContactEventTypeEnum.update), any()))
-                .thenReturn(new ContactEvent());
-
         // WHEN
         ContactDto result = contactService.update(contactDto, null);
 
@@ -183,6 +201,47 @@ class ContactServiceImplTest {
         assertEquals("John", result.getFirstName());
         assertEquals("Doe", result.getLastName());
         assertEquals("john.doe@example.com", result.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should create contact and assign accreditation")
+    void shouldCreateContactAndAssignAccreditation() {
+        Long questioningId = 1L;
+        ContactDto inputContact = new ContactDto();
+        inputContact.setEmail("john.doe@example.com");
+
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioningRepository.save(questioning);
+
+        ContactDto result = contactService.createContactAndAssignToAccreditationAsMain(questioningId, inputContact);
+
+        assertThat(result).isNotNull();
+
+        // LdapService stub will create a contact with "Id" as identifier
+        assertThat(result.getIdentifier()).isEqualTo("Id");
+        Contact storedContact = contactRepository.findById("Id").orElse(null);
+        assertThat(storedContact).isNotNull();
+        assertThat(storedContact.getIdentifier()).isEqualTo("Id");
+        assertThat(storedContact.getEmail()).isEqualTo("john.doe@example.com");
+
+        List<ContactEventDto> contactEvents = contactEventService.findContactEventsByContactId("Id");
+        assertThat(contactEvents).hasSize(1);
+        assertThat(contactEvents.getFirst().getType()).isEqualTo(ContactEventTypeEnum.create.toString());
+    }
+
+    @Test
+    @DisplayName("Should throw NotFoundException when questioning is missing")
+    void shouldThrowWhenQuestioningNotFound() {
+        Long invalidQuestioningId = 999L;
+        ContactDto inputContact = new ContactDto();
+        inputContact.setIdentifier("jane.doe");
+        inputContact.setEmail("jane.doe@example.com");
+
+        assertThatThrownBy(() ->
+                contactService.createContactAndAssignToAccreditationAsMain(invalidQuestioningId, inputContact))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Missing Questioning with id 999");
     }
 }
 

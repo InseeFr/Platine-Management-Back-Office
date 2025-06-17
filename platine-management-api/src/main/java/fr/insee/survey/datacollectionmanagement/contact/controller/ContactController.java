@@ -127,7 +127,6 @@ public class ContactController {
         Contact contact = contactService.updateOrCreateContact(id, contactDto, payload);
 
         return ResponseEntity.status(httpStatus).headers(responseHeaders).body(contactService.convertToDto(contact));
-
     }
 
     /**
@@ -148,6 +147,16 @@ public class ContactController {
         Contact contact = contactService.findByIdentifier(id);
         contactService.deleteContactAddressEvent(contact);
 
+    }
+
+    @Operation(summary = "Give questioning main accreditation to a created target contact")
+    @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
+            @PathVariable("interrogationId") Long interrogationId,
+            @RequestBody ContactDto contactDto)  {
+
+        contactService.createContactAndAssignToAccreditationAsMain(interrogationId, contactDto);
     }
 
     @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = "application/json")
@@ -178,7 +187,6 @@ public class ContactController {
         return new PageImpl<>(Collections.emptyList());
 
     }
-    
 
     static class ContactPage extends PageImpl<ContactDto> {
 
