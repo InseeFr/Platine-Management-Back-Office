@@ -68,11 +68,11 @@ public class ViewRepositoryStub implements ViewRepository {
     }
 
     @Override
-    public Optional<View> findByIdentifierAndIdSuAndCampaignId(String identifier, String idSu, String campaignId) {
+    public List<View> findByIdentifierAndIdSuAndCampaignId(String identifier, String idSu, String campaignId) {
         return views.stream().filter(view ->
                 view.getIdentifier().equals(identifier)
                 && view.getIdSu().equals(idSu)
-                && view.getCampaignId().equals(campaignId)).findFirst();
+                && view.getCampaignId().equals(campaignId)).toList();
     }
 
     @Override

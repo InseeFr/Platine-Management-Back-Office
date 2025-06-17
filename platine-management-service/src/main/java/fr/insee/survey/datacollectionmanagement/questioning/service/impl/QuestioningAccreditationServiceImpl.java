@@ -144,12 +144,12 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                                                   Campaign campaign) {
 
 
-            Optional<View> viewToDelete = viewService.findByIdentifierAndIdSuAndCampaignId(
+            List<View> viewsToDelete = viewService.findByIdentifierAndIdSuAndCampaignId(
                     contact.getIdentifier(),
                     questioning.getSurveyUnit().getIdSu(),
                     campaign.getId());
 
-            viewToDelete.ifPresent(viewService::deleteView);
+            viewsToDelete.forEach(viewService::deleteView);
 
             List<View> views = viewService.findViewByIdentifier(contact.getIdentifier());
 
