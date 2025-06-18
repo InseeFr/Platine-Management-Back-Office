@@ -4,9 +4,9 @@ package fr.insee.survey.datacollectionmanagement.ldap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 public class LdapConfiguration {
@@ -19,10 +19,11 @@ public class LdapConfiguration {
     public String serviceContactLogin;
 
     @Bean
-    public WebClient ldapWebClient() {
-        return WebClient.builder()
+    public RestClient ldapWebClient() {
+        ClientHttpRequestInterceptor clientHttpRequestInterceptor = new BasicAuthenticationInterceptor(serviceContactLogin, serviceContactPassword);
+        return RestClient.builder()
                 .baseUrl(apiUrl)
-                .filter(basicAuthentication(serviceContactLogin, serviceContactPassword))
+                .requestInterceptor(clientHttpRequestInterceptor)
                 .build();
     }
 }

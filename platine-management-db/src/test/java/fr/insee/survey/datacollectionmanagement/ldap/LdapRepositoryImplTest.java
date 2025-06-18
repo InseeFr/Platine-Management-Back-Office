@@ -11,8 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +23,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 class LdapServiceImplTest {
 
@@ -46,12 +47,12 @@ class LdapServiceImplTest {
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .build();
 
-
-    public WebClient createTestWebCLient() {
+    public RestClient createTestWebClient() {
         WireMockRuntimeInfo wmRuntimeInfo = wm.getRuntimeInfo();
-        return WebClient.builder()
+        ClientHttpRequestInterceptor clientHttpRequestInterceptor = new BasicAuthenticationInterceptor(LOGIN, PASSWORD);
+        return RestClient.builder()
                 .baseUrl(wmRuntimeInfo.getHttpBaseUrl())
-                .filter(basicAuthentication(LOGIN, PASSWORD))
+                .requestInterceptor(clientHttpRequestInterceptor)
                 .build();
     }
 
@@ -67,7 +68,7 @@ class LdapServiceImplTest {
 
     @BeforeEach
     void initServiceWithStubs() {
-        ldapRepository = new LdapRepositoryImpl(createTestWebCLient());
+        ldapRepository = new LdapRepositoryImpl(createTestWebClient());
         createLdapTestProperties();
     }
 
