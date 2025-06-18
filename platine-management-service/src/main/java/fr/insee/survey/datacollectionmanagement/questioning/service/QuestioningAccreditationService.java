@@ -36,17 +36,17 @@ public interface QuestioningAccreditationService {
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
                                                      Contact newContact,
-                                                     Questioning questioning,
+                                                     String surveyUnitId,
                                                      JsonNode payload,
                                                      Campaign campaign);
 
     void logContactAccreditationLossUpdate(Contact contact,
-                                           Questioning questioning,
+                                           String surveyUnitId,
                                            JsonNode payload,
                                            Campaign campaign);
 
     void logContactAccreditationGainUpdate(Contact contact,
-                                           Questioning questioning,
+                                           String surveyUnitId,
                                            JsonNode payload,
                                            Campaign campaign);
 }

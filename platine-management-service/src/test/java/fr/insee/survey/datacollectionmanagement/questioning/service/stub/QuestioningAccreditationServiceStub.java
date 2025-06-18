@@ -45,15 +45,10 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void createQuestioningAccreditation (Questioning questioning,
-                                                boolean isMain,
-                                                Contact contact,
-                                                JsonNode payload,
-                                                Date date,
-                                                Campaign campaign)
-    {
+    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign) {
         // not used
     }
+
 
     @Override
     public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload) {
@@ -72,17 +67,17 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationLossUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationGainUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
     }
 }

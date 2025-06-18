@@ -84,7 +84,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         qa.setMain(isMain);
         questioningAccreditationRepository.save(qa);
-        logContactAccreditationGainUpdate(contact, questioning, payload, campaign);
+        logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
     }
 
     @Override
@@ -112,14 +112,14 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
         questioningAccreditation.ifPresentOrElse(
-                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning, payload, campaign),
+                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign),
                 () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
     }
 
     @Override
     public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
                                                             Contact newContact,
-                                                            Questioning questioning,
+                                                            String surveyUnitId,
                                                             JsonNode payload,
                                                             Campaign campaign)  {
 
@@ -132,21 +132,22 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
                 .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
         existingAccreditation.setIdContact(newContact.getIdentifier());
         saveQuestioningAccreditation(existingAccreditation);
-        logContactAccreditationLossUpdate(previousContact, questioning, payload, campaign);
-        logContactAccreditationGainUpdate(newContact, questioning, payload, campaign);
+        logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign);
+        logContactAccreditationGainUpdate(newContact, surveyUnitId, payload, campaign);
 
     }
 
     @Override
     public void logContactAccreditationLossUpdate(Contact contact,
-                                                  Questioning questioning,
+                                                  String surveyUnitId,
                                                   JsonNode payload,
-                                                  Campaign campaign) {
+                                                  Campaign campaign
+    ) {
 
 
             List<View> viewsToDelete = viewService.findByIdentifierAndIdSuAndCampaignId(
                     contact.getIdentifier(),
-                    questioning.getSurveyUnit().getIdSu(),
+                    surveyUnitId,
                     campaign.getId());
 
             viewsToDelete.forEach(viewService::deleteView);
@@ -166,14 +167,15 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         contactSourceService.deleteContactSource(
                 contact.getIdentifier(),
                 campaign.getSurvey().getSource().getId(),
-                questioning.getSurveyUnit().getIdSu());
+                surveyUnitId);
     }
 
     @Override
     public void logContactAccreditationGainUpdate(Contact contact,
-                                                  Questioning questioning,
+                                                  String surveyUnitId,
                                                   JsonNode payload,
-                                                  Campaign campaign) {
+                                                  Campaign campaign
+    ) {
 
         ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
         contactEventService.saveContactEvent(contactEvent);
@@ -181,12 +183,12 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         contactSourceService.saveContactSource(
                 contact.getIdentifier(),
                 campaign.getSurvey().getSource().getId(),
-                questioning.getSurveyUnit().getIdSu(),
+                surveyUnitId,
                 true);
 
         viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
                 contact.getIdentifier(),
-                questioning.getSurveyUnit().getIdSu(),
+                surveyUnitId,
                 campaign.getId());
     }
 
