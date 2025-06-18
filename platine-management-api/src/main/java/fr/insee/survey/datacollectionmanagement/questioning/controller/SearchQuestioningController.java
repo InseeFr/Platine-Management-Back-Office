@@ -40,6 +40,21 @@ public class SearchQuestioningController {
 
     }
 
+    @Operation(summary = "Multi-criteria search questionings")
+    @PostMapping(value = "/api/questionings/search-simple", produces = "application/json")
+    public Slice<SearchQuestioningDto> searchQuestioningsSimple(
+            @RequestBody(required = false) SearchQuestioningParams searchParams,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer pageSize) {
+        log.info(
+                "Search questionings with param {} page = {} pageSize = {}", searchParams, page, pageSize);
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        return questioningService.searchQuestioningsSimple(searchParams, pageable);
+
+    }
+
     @Operation(summary = "Get questioning details")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = "application/json")
     public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {

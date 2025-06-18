@@ -20,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningSimpleDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -72,6 +73,9 @@ class QuestioningServiceImplTest {
     private QuestioningEventServiceStub questioningEventService;
 
     @Mock
+    private SearchQuestioningSimpleDao searchQuestioningSimpleDao;
+
+    @Mock
     private SearchQuestioningDao searchQuestioningDao;
 
     @Mock
@@ -122,7 +126,7 @@ class QuestioningServiceImplTest {
         questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
-                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent, surveyUnitService,
+                interrogationEventComparator, questioningRepository, searchQuestioningDao, searchQuestioningSimpleDao, questioningUrlComponent, surveyUnitService,
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
