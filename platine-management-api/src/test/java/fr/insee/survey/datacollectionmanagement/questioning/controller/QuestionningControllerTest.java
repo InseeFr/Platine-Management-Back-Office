@@ -32,6 +32,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -163,15 +164,16 @@ class QuestionningControllerTest {
         assertThat(contactSource.getId().getSourceId()).isEqualTo(source.getId());
         assertThat(contactSource.getId().getSurveyUnitId()).isEqualTo(questioning.getSurveyUnit().getIdSu());
 
-        Optional<View> view = viewService.findByIdentifierAndIdSuAndCampaignId(contactId, su.getIdSu(), campaign.getId());
+        List<View> views = viewService.findByIdentifierAndIdSuAndCampaignId(contactId, su.getIdSu(), campaign.getId());
+        assertThat(views).hasSize(1);
+        View view = views.getFirst();
 
-        assertThat(view).isPresent();
-        assertThat(view.get().getIdSu()).isEqualTo(su.getIdSu());
-        assertThat(view.get().getCampaignId()).isEqualTo(campaign.getId());
-        assertThat(view.get().getIdentifier()).isEqualTo(contactId);
+        assertThat(view.getIdSu()).isEqualTo(su.getIdSu());
+        assertThat(view.getCampaignId()).isEqualTo(campaign.getId());
+        assertThat(view.getIdentifier()).isEqualTo(contactId);
 
-        Optional<View> viewReplacedContact = viewService.findByIdentifierAndIdSuAndCampaignId(replacedContactId, su.getIdSu(), campaign.getId());
-        assertThat(viewReplacedContact).isNotPresent();
+        List<View> viewsReplacedContact = viewService.findByIdentifierAndIdSuAndCampaignId(replacedContactId, su.getIdSu(), campaign.getId());
+        assertThat(viewsReplacedContact).isEmpty();
     }
 
     @Test

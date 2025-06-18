@@ -30,23 +30,23 @@ public interface QuestioningAccreditationService {
                                         Date date,
                                         Campaign campaign);
 
+    void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
+
     void setMainQuestioningAccreditationToContact(String contactId, Long questioningId);
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
                                                      Contact newContact,
-                                                     Questioning questioning,
+                                                     String surveyUnitId,
                                                      JsonNode payload,
                                                      Campaign campaign);
 
     void logContactAccreditationLossUpdate(Contact contact,
-                                           Questioning questioning,
+                                           String surveyUnitId,
                                            JsonNode payload,
                                            Campaign campaign);
 
     void logContactAccreditationGainUpdate(Contact contact,
-                                           Questioning questioning,
+                                           String surveyUnitId,
                                            JsonNode payload,
                                            Campaign campaign);
-
-    JsonNode createPayload(String sourceLabel);
 }

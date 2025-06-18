@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,14 +42,13 @@ class ViewServiceImplTest {
         viewToFind.setIdSu(idSu);
         viewRepository.save(viewToFind);
 
-        Optional<View> foundView = viewService.findByIdentifierAndIdSuAndCampaignId(identifier, idSu, campaignId);
-
-        assertThat(foundView).isPresent();
-
-        assertThat(foundView.get().getId()).isEqualTo(viewToFind.getId());
-        assertThat(foundView.get().getIdentifier()).isEqualTo(viewToFind.getIdentifier());
-        assertThat(foundView.get().getCampaignId()).isEqualTo(viewToFind.getCampaignId());
-        assertThat(foundView.get().getIdSu()).isEqualTo(viewToFind.getIdSu());
+        List<View> foundViews = viewService.findByIdentifierAndIdSuAndCampaignId(identifier, idSu, campaignId);
+        assertThat(foundViews).hasSize(1);
+        View foundView = foundViews.getFirst();
+        assertThat(foundView.getId()).isEqualTo(viewToFind.getId());
+        assertThat(foundView.getIdentifier()).isEqualTo(viewToFind.getIdentifier());
+        assertThat(foundView.getCampaignId()).isEqualTo(viewToFind.getCampaignId());
+        assertThat(foundView.getIdSu()).isEqualTo(viewToFind.getIdSu());
     }
 
     @Test
@@ -66,7 +65,7 @@ class ViewServiceImplTest {
         viewToFind.setIdSu("id-su2");
         viewRepository.save(viewToFind);
 
-        Optional<View> foundView = viewService.findByIdentifierAndIdSuAndCampaignId(identifier, idSu, campaignId);
-        assertThat(foundView).isNotPresent();
+        List<View> foundViews = viewService.findByIdentifierAndIdSuAndCampaignId(identifier, idSu, campaignId);
+        assertThat(foundViews).isEmpty();
     }
 }

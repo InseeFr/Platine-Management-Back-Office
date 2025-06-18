@@ -6,9 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ViewRepository extends PagingAndSortingRepository<View, Long>, JpaRepository<View, Long> {
@@ -58,7 +56,7 @@ public interface ViewRepository extends PagingAndSortingRepository<View, Long>, 
 
     List<View> findByIdentifierIn(@Param("identifiers") List<String> identifiers);
 
-    Optional<View> findByIdentifierAndIdSuAndCampaignId(String identifier, String idSu,  String campaignId);
+    List<View> findByIdentifierAndIdSuAndCampaignId(String identifier, String idSu,  String campaignId);
 
     List<View> findByIdSuAndCampaignId(String idSu,  String campaignId);
 }

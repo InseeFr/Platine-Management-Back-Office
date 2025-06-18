@@ -138,9 +138,9 @@ public class ViewServiceStub implements ViewService {
     }
 
     @Override
-    public Optional<View>  findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
+    public List<View>  findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
         return views.stream().filter(v -> v.getCampaignId().equals(campaignId)
                 && v.getIdentifier().equals(contactId)
-                && v.getIdSu().equals(idSu)).findFirst();
+                && v.getIdSu().equals(idSu)).toList();
     }
 }

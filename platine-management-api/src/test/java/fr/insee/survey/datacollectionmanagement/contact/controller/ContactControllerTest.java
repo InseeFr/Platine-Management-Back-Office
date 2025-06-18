@@ -1,22 +1,31 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +38,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -55,11 +69,21 @@ class ContactControllerTest {
     @Autowired
     ContactRepository contactRepository;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+
+    @Autowired
+    QuestioningAccreditationService questioningAccreditationService;
+
+    @RegisterExtension
+    static WireMockExtension wmLdap = WireMockExtension.newInstance()
+            .options(wireMockConfig().port(4444))
+            .build();
+
     @BeforeEach
     void init() {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
-
 
     @Test
     void getContactOk() throws Exception {
@@ -176,6 +200,100 @@ class ContactControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and contact identifier don't match"), false));
 
+    }
+
+    @Test
+    @DisplayName("Create contact and assign main accredition")
+    void putContactInterrogationInLdapAndAssignToInterrogationAsMain() throws Exception {
+
+        Long interrogationId = 1L;
+        String email = "contact@insee.fr";
+        String username = "TESTID";
+
+        AddressDto address = new AddressDto();
+        ContactDto contactDto = new ContactDto();
+
+        contactDto.setEmail(email);
+        contactDto.setAddress(address);
+
+        String contactJson = new ObjectMapper().writeValueAsString(contactDto);
+        String path = String.format("/v2/realms/%s/storages/%s/users",
+                applicationConfig.getLdapApiRealm(),
+                applicationConfig.getLdapApiStorage());
+
+        wmLdap.stubFor(post(path)
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(createResponseBody(username))));
+
+        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, interrogationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contactJson))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Optional<Contact> createdContact = contactRepository.findById(username);
+        assertThat(createdContact).isPresent();
+        assertThat(createdContact.get().getEmail()).isEqualTo(email);
+        assertThat(createdContact.get().getIdentifier()).isEqualTo(username);
+        QuestioningAccreditation questioningAccreditation = questioningAccreditationService.findById(interrogationId);
+        assertThat(questioningAccreditation.isMain()).isTrue();
+        assertThat(questioningAccreditation.getIdContact()).isEqualTo(username);
+        assertThat(questioningAccreditation.getQuestioning().getId()).isEqualTo(interrogationId);
+    }
+
+    @Test
+    @DisplayName("Should not Create contact and assign main accredition when Ldap API down")
+    void putContactInterrogationInLdapAndAssignToInterrogationAsMainLdapApiDown() throws Exception {
+        String email = "contact@insee.fr";
+        String username = "TESTID";
+
+        AddressDto address = new AddressDto();
+        ContactDto contactDto = new ContactDto();
+
+        contactDto.setEmail(email);
+        contactDto.setAddress(address);
+
+        String contactJson = new ObjectMapper().writeValueAsString(contactDto);
+        String path = String.format("/v2/realms/%s/storages/%s/users",
+                applicationConfig.getLdapApiRealm(),
+                applicationConfig.getLdapApiStorage());
+
+        wmLdap.stubFor(post(path)
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
+
+        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(contactJson))
+                .andDo(print())
+                .andExpect(status().isInternalServerError());
+
+        Optional<Contact> createdContact = contactRepository.findById(username);
+        assertThat(createdContact).isNotPresent();
+        List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findByContactIdentifier(username);
+        assertThat(questioningAccreditations).isEmpty();
+    }
+
+    String createResponseBody(String username)
+    {
+        return String.format("""
+        {
+            "username": "%s",
+            "habilitations": [
+                {
+                    "id": "%s",
+                    "application": "%s",
+                    "role": "%s",
+                    "property": "%s"
+                }
+            ]
+        }
+        """,
+                username,
+                applicationConfig.getLdapApiId(), applicationConfig.getLdapApiApplication(), applicationConfig.getLdapApiRole(), applicationConfig.getLdapApiProperty()
+        );
     }
 
     private Contact initContact(String identifier) {

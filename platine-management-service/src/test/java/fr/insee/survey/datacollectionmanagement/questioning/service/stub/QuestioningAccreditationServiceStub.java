@@ -10,17 +10,18 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Setter
 public class QuestioningAccreditationServiceStub implements QuestioningAccreditationService {
 
-    private List<QuestioningAccreditation> questioningAccreditationList;
+    private ArrayList<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
 
     @Override
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
-        return questioningAccreditationList;
+        return List.of();
     }
 
     @Override
@@ -44,38 +45,39 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void createQuestioningAccreditation (Questioning questioning,
-                                                boolean isMain,
-                                                Contact contact,
-                                                JsonNode payload,
-                                                Date date,
-                                                Campaign campaign)
-    {
+    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign) {
+        // not used
+    }
+
+
+    @Override
+    public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload) {
         // not used
     }
 
     @Override
     public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+        QuestioningAccreditation qa = new QuestioningAccreditation();
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        qa.setQuestioning(questioning);
+        qa.setIdContact(contactId);
+        qa.setMain(true);
+        questioningAccreditationList.add(qa);
+    }
+
+    @Override
+    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationLossUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationLossUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationGainUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
         // not used
-    }
-
-    @Override
-    public void logContactAccreditationGainUpdate(Contact contact, Questioning questioning, JsonNode payload, Campaign campaign) {
-        // not used
-    }
-
-    @Override
-    public JsonNode createPayload(String sourceLabel) {
-        return null;
     }
 }

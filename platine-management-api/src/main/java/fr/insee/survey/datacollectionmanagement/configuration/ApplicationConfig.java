@@ -69,4 +69,25 @@ public class ApplicationConfig {
 
     @Value("#{'${fr.insee.datacollectionmanagement.public.urls}'}")
     String[] publicUrls;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.url}")
+    private String ldapApiUrl;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.property}")
+    private String ldapApiProperty;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.role}")
+    private String ldapApiRole;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.id}")
+    private String ldapApiId;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.application}")
+    private String ldapApiApplication;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.realm}")
+    private String ldapApiRealm;
+
+    @Value("${fr.insee.datacollectionmanagement.ldap.api.storage}")
+    private String ldapApiStorage;
 }

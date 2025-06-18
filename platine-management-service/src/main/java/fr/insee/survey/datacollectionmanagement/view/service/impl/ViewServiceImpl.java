@@ -116,7 +116,7 @@ public class ViewServiceImpl implements ViewService {
     }
 
     @Override
-    public Optional<View> findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
+    public List<View> findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId) {
         return viewRepository.findByIdentifierAndIdSuAndCampaignId(contactId, idSu, campaignId);
     }
 }
