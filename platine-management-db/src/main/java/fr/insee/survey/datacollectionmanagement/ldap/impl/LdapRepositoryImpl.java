@@ -10,7 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LdapRepositoryImpl implements LdapRepository {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     public static final String PATH_SLASH = "/";
     public static final String REALMS_PATH = PATH_SLASH + "v2" + PATH_SLASH + "realms";
@@ -63,12 +63,11 @@ public class LdapRepositoryImpl implements LdapRepository {
 
         String path = REALMS_PATH + PATH_SLASH + realm + STORAGES_PATH + PATH_SLASH + storage + CONTACT_PATH;
 
-        return webClient.post()
+        return restClient.post()
                 .uri(path)
                 .headers(httpHeaders -> httpHeaders.addAll(headers))
-                .bodyValue(ldapContact)
+                .body(ldapContact)
                 .retrieve()
-                .toEntity(LdapContactOutputDto.class)
-                .block();
+                .toEntity(LdapContactOutputDto.class);
     }
 }
