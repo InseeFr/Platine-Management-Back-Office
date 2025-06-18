@@ -80,6 +80,9 @@ public class DataloaderTest {
     private EventOrderRepository orderRepository;
 
     @Autowired
+    private InterrogationEventOrderRepository interrogationOrderRepository;
+
+    @Autowired
     private QuestioningEventRepository questioningEventRepository;
 
     @Autowired
@@ -98,6 +101,7 @@ public class DataloaderTest {
         Faker faker = new Faker();
 
         initOrder();
+        initInterrogationOrder();
         initContact();
         initMetadata();
         initQuestioning(faker);
@@ -121,7 +125,7 @@ public class DataloaderTest {
             // Creating table order
             log.info("loading eventorder data");
             orderRepository.saveAndFlush(
-                    new EventOrder(Long.parseLong("8"), TypeQuestioningEvent.REFUSAL.toString().toString(), 8));
+                    new EventOrder(Long.parseLong("8"), TypeQuestioningEvent.REFUSAL.toString(), 8));
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("7"), TypeQuestioningEvent.VALINT.toString(), 7));
             orderRepository
@@ -133,6 +137,30 @@ public class DataloaderTest {
             orderRepository.saveAndFlush(new EventOrder(Long.parseLong("2"), TypeQuestioningEvent.PND.toString(), 2));
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA.toString(), 1));
+        }
+    }
+
+    private void initInterrogationOrder() {
+
+        Long nbExistingOrders = interrogationOrderRepository.count();
+
+        if (nbExistingOrders == 0) {
+            // Creating table order
+            log.info("loading interrogation event order data");
+            interrogationOrderRepository.saveAndFlush(
+                    new InterrogationEventOrder(Long.parseLong("7"), TypeQuestioningEvent.HC.toString(), 4));
+            interrogationOrderRepository.saveAndFlush(
+                    new InterrogationEventOrder(Long.parseLong("6"), TypeQuestioningEvent.WASTE.toString(), 3));
+            interrogationOrderRepository.saveAndFlush(
+                    new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL.toString(), 3));
+            interrogationOrderRepository
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP.toString(), 2));
+            interrogationOrderRepository.saveAndFlush(
+                    new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT.toString(), 2));
+            interrogationOrderRepository.saveAndFlush(
+                    new InterrogationEventOrder(Long.parseLong("2"), TypeQuestioningEvent.PARTIELINT.toString(), 2));
+            interrogationOrderRepository
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA.toString(), 1));
         }
     }
 
@@ -309,7 +337,6 @@ public class DataloaderTest {
         int year = 2023;
 
         Questioning qu;
-        QuestioningEvent qe;
         Set<Questioning> setQuestioning;
         QuestioningAccreditation accreditation;
         Set<QuestioningAccreditation> questioningAccreditations;

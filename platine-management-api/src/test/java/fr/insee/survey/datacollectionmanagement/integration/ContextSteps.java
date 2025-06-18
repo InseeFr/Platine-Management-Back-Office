@@ -13,9 +13,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepo
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;

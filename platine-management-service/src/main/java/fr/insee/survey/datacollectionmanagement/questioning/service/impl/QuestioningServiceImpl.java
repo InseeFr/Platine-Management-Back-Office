@@ -15,11 +15,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningSer
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
@@ -29,11 +27,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,28 +39,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestioningServiceImpl implements QuestioningService {
 
     private final InterrogationEventComparator interrogationEventComparator;
-
     private final QuestioningRepository questioningRepository;
-
+    private final SearchQuestioningDao searchQuestioningDao;
     private final QuestioningUrlComponent questioningUrlComponent;
-
     private final SurveyUnitService surveyUnitService;
-
     private final PartitioningService partitioningService;
-
     private final ContactService contactService;
-
     private final QuestioningEventService questioningEventService;
-
     private final QuestioningAccreditationService questioningAccreditationService;
-
     private final ModelMapper modelMapper;
-
     private final PartitioningRepository partitioningRepository;
-
     private final ParametersService parametersService;
     private final SourceRepository sourceRepository;
 
@@ -147,23 +136,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
-        if (!StringUtils.isEmpty(param)) {
-            List<Questioning> listQuestionings = questioningRepository.findQuestioningByParam(param.toUpperCase());
-            List<SearchQuestioningDto> searchDtos = listQuestionings
-                    .stream().distinct()
-                    .map(this::convertToSearchDto).toList();
-
-            return new PageImpl<>(searchDtos, pageable, searchDtos.size());
-        } else {
-            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
-            List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
-            List<SearchQuestioningDto> searchDtos = questionings
-                    .stream()
-                    .map(this::convertToSearchDto).toList();
-
-            return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
-        }
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+        return searchQuestioningDao.search(searchQuestioningParams, pageable);
     }
 
     @Override
@@ -228,32 +202,6 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
                 .build();
-    }
-
-    private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
-        SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
-        searchQuestioningDto.setQuestioningId(questioning.getId());
-        searchQuestioningDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
-        searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
-        searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
-        searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
-        List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
-                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
-                .sorted(interrogationEventComparator.reversed())
-                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
-                .toList();
-
-        Optional<QuestioningEventDto> highestPriorityEventDto = questioningEventsDto.stream().findFirst();
-        highestPriorityEventDto.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType()));
-        Optional<QuestioningEventDto> validatedEventDto = questioningEventsDto.stream()
-                .filter(qe ->
-                        TypeQuestioningEvent.VALIDATED_EVENTS.contains(
-                                TypeQuestioningEvent.valueOf(qe.getType())))
-                .findFirst();
-        validatedEventDto.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getEventDate()));
-        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
-        questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
-        return searchQuestioningDto;
     }
 
     @Override
