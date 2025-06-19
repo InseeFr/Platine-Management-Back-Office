@@ -23,7 +23,6 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder questioningId(Long id) {
     public QuestioningDetailsDtoBuilder questioningId(UUID id) {
         instance.setQuestioningId(id);
         return this;

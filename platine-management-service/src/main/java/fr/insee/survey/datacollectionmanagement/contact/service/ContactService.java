@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public interface ContactService {
@@ -96,11 +97,11 @@ public interface ContactService {
 
     ContactDetailsDto getContactDetails(String idContact);
 
-    ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact);
+    ContactDto createContactAndAssignToAccreditationAsMain(UUID questioningId, ContactDto contact);
 
     ContactDto createAndSaveContact(ContactDto contactDto);
 
     void saveContactCreationEvent(String contactId) ;
 
-    void assignMainContactToQuestioning(String contactIdentifier, Long questioningId);
+    void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId);
 }

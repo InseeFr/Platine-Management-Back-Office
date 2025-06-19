@@ -80,17 +80,17 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public Questioning getOne(UUID aLong) {
+    public Questioning getOne(UUID uuid) {
         return null;
     }
 
     @Override
-    public Questioning getById(UUID aLong) {
+    public Questioning getById(UUID uuid) {
         return null;
     }
 
     @Override
-    public Questioning getReferenceById(UUID aLong) {
+    public Questioning getReferenceById(UUID uuid) {
         return null;
     }
 
@@ -141,13 +141,13 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public Optional<Questioning> findById(UUID aLong) {
-        return questionings.stream().filter(questioning -> questioning.getId().equals(aLong)).findFirst();
+    public Optional<Questioning> findById(UUID uuid) {
+        return questionings.stream().filter(questioning -> questioning.getId().equals(uuid)).findFirst();
     }
 
     @Override
-    public boolean existsById(UUID aLong) {
-        return findById(aLong).isPresent();
+    public boolean existsById(UUID uuid) {
+        return findById(uuid).isPresent();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public void deleteById(UUID aLong) {
+    public void deleteById(UUID uuid) {
         // not used
     }
 

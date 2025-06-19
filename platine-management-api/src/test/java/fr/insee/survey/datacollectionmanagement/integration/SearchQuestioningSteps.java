@@ -71,7 +71,7 @@ public class SearchQuestioningSteps {
     @Given("the questioning event for questioning {int} with type {string} and date {string}")
     public void createQuestioningEvent(int questioningId, String type, String isoDate) throws ParseException {
         Date date = sdf.parse(isoDate);
-        Long realId = questioningContext.getRealId(questioningId);
+        UUID realId = questioningContext.getRealId(questioningId);
         Questioning questioning = questioningRepository.getReferenceById(realId);
         QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
         questioning.getQuestioningEvents().add(qe);
@@ -83,7 +83,7 @@ public class SearchQuestioningSteps {
     @Given("the questioning communication for questioning {int} with type {string} and date {string}")
     public void createQuestioningCommunication(int questioningId, String type, String isoDate) throws ParseException {
         Date date = sdf.parse(isoDate);
-        Long realId = questioningContext.getRealId(questioningId);
+        UUID realId = questioningContext.getRealId(questioningId);
         Questioning questioning = questioningRepository.getReferenceById(realId);
         QuestioningCommunication qc = new QuestioningCommunication(date, TypeCommunicationEvent.valueOf(type), questioning, StatusCommunication.MANUAL);
         questioning.getQuestioningCommunications().add(qc);

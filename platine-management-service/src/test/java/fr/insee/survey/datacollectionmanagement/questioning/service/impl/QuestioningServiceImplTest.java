@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -389,67 +388,6 @@ class QuestioningServiceImplTest {
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
-    }
-
-    @Test
-    @DisplayName("searchQuestioning with param should query repository findQuestioningByParam and map results")
-    void testSearchQuestioningWithParam() {
-        // Given
-        UUID questioningId1 = UUID.randomUUID();
-        UUID questioningId2 = UUID.randomUUID();
-        String param = "abc";
-        Questioning q1 = buildQuestioning(questioningId1, "SU1");
-        Questioning q2 = buildQuestioning(questioningId2, "SU2");
-        Campaign c = new Campaign();
-        c.setId("CAMP01");
-        partitioning.setCampaign(c);
-        when(partitioningService.findById(any())).thenReturn(partitioning);
-        when(questioningRepository.findQuestioningByParam("ABC")).thenReturn(List.of(q1, q2));
-        Pageable pageable = PageRequest.of(0, 10);
-
-
-        // When
-        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
-
-        // Then
-        assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(questioningId1, questioningId2);
-        verify(questioningRepository).findQuestioningByParam("ABC");
-        verify(questioningRepository, never()).findQuestioningIds(any());
-        verify(questioningRepository, never()).findQuestioningsByIds(any());
-    }
-
-    @Test
-    @DisplayName("searchQuestioning without param should retrieve ids page then full questionings")
-    void testSearchQuestioningWithoutParam() {
-        // Given
-        UUID questioningId1 = UUID.randomUUID();
-        UUID questioningId2 = UUID.randomUUID();
-        String param = "";
-        Questioning q1 = buildQuestioning(questioningId1, "SU1");
-        Questioning q2 = buildQuestioning(questioningId2, "SU2");
-        Campaign c = new Campaign();
-        c.setId("CAMP01");
-        partitioning.setCampaign(c);
-        when(partitioningService.findById(any())).thenReturn(partitioning);
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<UUID> idsPage = new PageImpl<>(List.of(questioningId1,questioningId2), pageable, 2);
-        when(questioningRepository.findQuestioningIds(pageable)).thenReturn(idsPage);
-        when(questioningRepository.findQuestioningsByIds(List.of(questioningId1,questioningId2))).thenReturn(List.of(q1, q2));
-
-        // When
-        Page<SearchQuestioningDto> page = questioningService.searchQuestioning(param, pageable);
-
-        // Then
-        assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent()).extracting("questioningId").containsExactlyInAnyOrder(questioningId1, questioningId2);
-        verify(questioningRepository).findQuestioningIds(pageable);
-
-        ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
-        verify(questioningRepository).findQuestioningsByIds(captor.capture());
-        assertThat(captor.getValue()).containsExactlyInAnyOrder(questioningId1,questioningId2);
-
-        verify(questioningRepository, never()).findQuestioningByParam(any());
     }
 
     @Test

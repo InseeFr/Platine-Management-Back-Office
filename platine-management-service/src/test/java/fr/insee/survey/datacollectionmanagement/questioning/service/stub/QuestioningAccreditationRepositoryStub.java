@@ -39,7 +39,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(Long questioningId, String idContact) {
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(UUID questioningId, String idContact) {
         return questioningAccreditations.stream().filter(e ->
                 e.getQuestioning().getId().equals(questioningId)
                 && e.getIdContact().equals(idContact)).findFirst();

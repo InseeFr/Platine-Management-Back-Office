@@ -41,6 +41,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -153,7 +154,7 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("interrogationId") UUID interrogationId,
             @RequestBody ContactDto contactDto)  {
 
         contactService.createContactAndAssignToAccreditationAsMain(interrogationId, contactDto);
