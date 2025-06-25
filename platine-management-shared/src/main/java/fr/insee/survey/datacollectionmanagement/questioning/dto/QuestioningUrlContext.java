@@ -4,8 +4,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnu
 
 import java.util.UUID;
 
-public record QuestioningUrlContext(String modelName,
-                                    String surveyUnitId,
+public record QuestioningUrlContext(String surveyUnitId,
                                     UUID questioningId,
                                     String campaignId,
                                     DataCollectionEnum dataCollection,

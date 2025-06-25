@@ -41,7 +41,6 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getPartitioningClosingDate());
 
             QuestioningUrlContext ctx = new QuestioningUrlContext(
-                    details.getModelName(),
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
                     String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriod()),
