@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.query.domain;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class QuestioningInformations {
@@ -31,7 +33,7 @@ public class QuestioningInformations {
     private String identificationName;
     private String returnDate;
     private String logo;
-    private String questioningId;
+    private UUID questioningId;
     private String sourceId;
 
 }
