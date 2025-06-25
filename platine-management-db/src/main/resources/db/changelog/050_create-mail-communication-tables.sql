@@ -3,7 +3,7 @@ create table properties_resolver(id bigint GENERATED ALWAYS AS IDENTITY primary 
 create table mail
         (
             id bigint GENERATED ALWAYS AS IDENTITY primary key,
-            questioning_id bigint not null references questioning(id),
+            questioning_id UUID not null references questioning(id),
             template varchar not null,
             mail_subject varchar,
             properties_resolvers_id bigint references properties_resolver(id),
