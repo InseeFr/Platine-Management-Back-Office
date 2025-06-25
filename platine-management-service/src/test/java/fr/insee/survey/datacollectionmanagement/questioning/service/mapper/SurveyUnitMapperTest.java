@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SurveyUnitMapperTest {
@@ -33,7 +35,7 @@ class SurveyUnitMapperTest {
         su.setLabel("entreprise");
 
         Questioning questioning = new Questioning();
-        questioning.setId(1L);
+        questioning.setId(UUID.randomUUID());
         questioning.setSurveyUnit(su);
         questioningRepositoryStub.save(questioning);
 

@@ -24,6 +24,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -132,7 +133,7 @@ class QuestioningAccreditationServiceImplTest {
     @DisplayName("Should throw not found exception when questioning does not exist")
     void shouldNotFindQuestioning()
     {
-        Long questioningId = 1L;
+        UUID questioningId = UUID.randomUUID();
         assertThatThrownBy(() -> service.setMainQuestioningAccreditationToContact(
                 "contact-id", questioningId))
                 .isInstanceOf(NotFoundException.class).hasMessage(String.format("Missing Questioning with id %s", questioningId));
@@ -284,7 +285,7 @@ class QuestioningAccreditationServiceImplTest {
         su.setIdSu("su-id");
 
         Questioning questioning = new Questioning();
-        questioning.setId(1L);
+        questioning.setId(UUID.randomUUID());
         questioning.setSurveyUnit(su);
         questioning.setIdPartitioning(partitioning.getId());
         questioningRepository.save(questioning);

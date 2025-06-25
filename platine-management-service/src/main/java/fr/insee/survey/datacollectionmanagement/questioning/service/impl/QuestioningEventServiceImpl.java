@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +71,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId) {
         List<QuestioningEvent> events = questioningEventRepository.findByQuestioningId(questioningId);
         return events.stream().map(qe -> modelMapper.map(qe, QuestioningEventDto.class)).toList();
     }
@@ -87,7 +88,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
 
-        Long questioningId = questioningEventInputDto.getQuestioningId();
+        UUID questioningId = questioningEventInputDto.getQuestioningId();
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 

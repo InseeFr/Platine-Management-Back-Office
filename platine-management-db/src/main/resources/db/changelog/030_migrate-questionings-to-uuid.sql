@@ -1,15 +1,16 @@
 --liquibase formatted sql
 
---changeset davdarras:030-01 context:migrate-questioning-id
-
-ALTER TABLE questioning RENAME COLUMN id TO old_id;
-ALTER TABLE questioning RENAME COLUMN interrogation_id TO id;
+--changeset davdarras:030-01
 
 ALTER TABLE questioning_accreditation DROP CONSTRAINT fk3yk8aoj5sep1mhgmln7vwu52j;
 ALTER TABLE questioning_comment DROP CONSTRAINT fk18p09b6mi3mc8stpht63qqgta;
 ALTER TABLE questioning_communication DROP CONSTRAINT fkrs4r6iv2ckjlqy5xwt5026jqb;
 ALTER TABLE questioning_event DROP CONSTRAINT fkocftpxs551mngv07kghby4laa;
 ALTER TABLE questioning DROP CONSTRAINT questioning_pkey;
+
+ALTER TABLE questioning RENAME COLUMN id TO old_id;
+ALTER TABLE public.questioning ALTER COLUMN old_id DROP NOT NULL;
+ALTER TABLE questioning RENAME COLUMN interrogation_id TO id;
 
 ALTER TABLE questioning_comment RENAME COLUMN questioning_id TO questioning_old_id;
 ALTER TABLE questioning_comment ADD COLUMN questioning_id UUID;

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
@@ -33,7 +34,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Questioning findById(Long id) {
+    public Questioning findById(UUID id) {
         Optional<Questioning> questioning = questionings.stream().filter(q -> q.getId().equals(id)).findFirst();
         return questioning.orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
@@ -45,7 +46,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public void deleteQuestioning(Long id) {
+    public void deleteQuestioning(UUID id) {
         questionings.remove(findById(id));
     }
 
@@ -65,7 +66,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+    public AssistanceDto getMailAssistanceDto(UUID questioningId) {
         return null;
     }
 
@@ -85,12 +86,12 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(Long id) {
+    public QuestioningDetailsDto getQuestioningDetails(UUID id) {
         return null;
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
         return questionnaireStatus;
     }
 }

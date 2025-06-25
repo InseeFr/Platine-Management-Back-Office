@@ -16,6 +16,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
@@ -42,11 +44,7 @@ public class SearchQuestioningController {
 
     @Operation(summary = "Get questioning details")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = "application/json")
-    public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {
-
+    public QuestioningDetailsDto getQuestioning (@PathVariable("id") UUID id) {
         return questioningService.getQuestioningDetails(id);
-
     }
-
-
 }

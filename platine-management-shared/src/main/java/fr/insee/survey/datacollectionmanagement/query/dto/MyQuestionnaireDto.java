@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record MyQuestionnaireDto(
         String sourceId,
@@ -9,7 +10,7 @@ public record MyQuestionnaireDto(
         String questioningStatus,
         String questioningAccessUrl,
         String depositProofUrl,
-        Long questioningId,
+        UUID questioningId,
         String partitioningLabel,
         String partitioningId,
         Instant partitioningReturnDate,

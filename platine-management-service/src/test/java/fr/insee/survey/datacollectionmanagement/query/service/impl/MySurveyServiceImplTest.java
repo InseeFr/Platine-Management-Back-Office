@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,7 +47,7 @@ class MySurveyServiceImplTest {
         Date date = new Date();
         instant = date.toInstant();
         questioningService = new QuestioningServiceStub();
-
+        UUID questioningId = UUID.randomUUID();
         myQuestionnaireDetailsDto = new MyQuestionnaireDetailsDto();
         questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(myQuestionnaireDetailsDto));
 
@@ -55,7 +56,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setSurveyUnitIdentificationName("Name123");
         myQuestionnaireDetailsDto.setSourceId("source1");
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
-        myQuestionnaireDetailsDto.setQuestioningId(1L);
+        myQuestionnaireDetailsDto.setQuestioningId(questioningId);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
         myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
 
@@ -65,7 +66,7 @@ class MySurveyServiceImplTest {
                 questioningAccreditationRepositoryStub);
 
         Questioning mockQuestioning = new Questioning();
-        mockQuestioning.setId(1L);
+        mockQuestioning.setId(questioningId);
         mockQuestioning.setIdPartitioning("partition1");
         questioningService.saveQuestioning(mockQuestioning);
 
@@ -220,7 +221,7 @@ class MySurveyServiceImplTest {
         Campaign campaign = createCampaign("OFATSRD2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "ofats");
         Partitioning partitioning = createPartitioning("partitioningOfats", campaign);
         SurveyUnit surveyUnit = createSurveyUnit("OFATSRD2025A000001");
-        Questioning questioning = createQuestioning(1234L);
+        Questioning questioning = createQuestioning(UUID.randomUUID());
         MyQuestionnaireDetailsDto questionnaireDetailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
         List<MyQuestionnaireDetailsDto> questionnaireDetailsDtoList = List.of(questionnaireDetailsDto);
         questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(questionnaireDetailsDtoList);
@@ -236,7 +237,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.questioningDownloadFileName()).isNotBlank();
     }
 
-    private Questioning createQuestioning(Long id) {
+    private Questioning createQuestioning(UUID id) {
         Questioning questioning = new Questioning();
         questioning.setId(id);
         questioning.setModelName("modelName");

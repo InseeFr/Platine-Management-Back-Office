@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -90,7 +91,7 @@ public class QuestioningController {
     @Operation(summary = "Get questioning assistance mail")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
-    public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
+    public AssistanceDto getAssistanceQuestioning(@PathVariable("id") UUID questioningId) {
         return questioningService.getMailAssistanceDto(questioningId);
     }
 
@@ -105,7 +106,7 @@ public class QuestioningController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updateInterrogationToMainContactAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("interrogationId") UUID interrogationId,
             @PathVariable("contactId") String contactId)  {
 
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);

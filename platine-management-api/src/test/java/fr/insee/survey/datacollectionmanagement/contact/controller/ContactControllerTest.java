@@ -18,6 +18,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventServ
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
@@ -39,6 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -74,6 +76,9 @@ class ContactControllerTest {
 
     @Autowired
     QuestioningAccreditationService questioningAccreditationService;
+
+    @Autowired
+    QuestioningAccreditationRepository questioningAccreditationRepository;
 
     @RegisterExtension
     static WireMockExtension wmLdap = WireMockExtension.newInstance()
@@ -203,10 +208,10 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("Create contact and assign main accredition")
+    @DisplayName("Create contact and assign main accreditation")
     void putContactInterrogationInLdapAndAssignToInterrogationAsMain() throws Exception {
 
-        Long interrogationId = 1L;
+        UUID interrogationId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
         String email = "contact@insee.fr";
         String username = "TESTID";
 
@@ -237,7 +242,9 @@ class ContactControllerTest {
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
         assertThat(createdContact.get().getIdentifier()).isEqualTo(username);
-        QuestioningAccreditation questioningAccreditation = questioningAccreditationService.findById(interrogationId);
+        Optional<QuestioningAccreditation> optQuestioningAccreditation = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(interrogationId);
+        assertThat(optQuestioningAccreditation.isPresent()).isTrue();
+        QuestioningAccreditation questioningAccreditation = optQuestioningAccreditation.get();
         assertThat(questioningAccreditation.isMain()).isTrue();
         assertThat(questioningAccreditation.getIdContact()).isEqualTo(username);
         assertThat(questioningAccreditation.getQuestioning().getId()).isEqualTo(interrogationId);

@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -97,7 +98,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 

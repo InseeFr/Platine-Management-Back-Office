@@ -33,6 +33,7 @@ import org.modelmapper.ModelMapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -206,7 +207,7 @@ class ContactServiceImplTest {
     @Test
     @DisplayName("Should create contact and assign accreditation")
     void shouldCreateContactAndAssignAccreditation() {
-        Long questioningId = 1L;
+        UUID questioningId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
         ContactDto inputContact = new ContactDto();
         inputContact.setEmail("john.doe@example.com");
 
@@ -233,7 +234,7 @@ class ContactServiceImplTest {
     @Test
     @DisplayName("Should throw NotFoundException when questioning is missing")
     void shouldThrowWhenQuestioningNotFound() {
-        Long invalidQuestioningId = 999L;
+        UUID invalidQuestioningId = UUID.randomUUID();
         ContactDto inputContact = new ContactDto();
         inputContact.setIdentifier("jane.doe");
         inputContact.setEmail("jane.doe@example.com");
@@ -241,7 +242,7 @@ class ContactServiceImplTest {
         assertThatThrownBy(() ->
                 contactService.createContactAndAssignToAccreditationAsMain(invalidQuestioningId, inputContact))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Missing Questioning with id 999");
+                .hasMessage("Missing Questioning with id " + invalidQuestioningId);
     }
 }
 
