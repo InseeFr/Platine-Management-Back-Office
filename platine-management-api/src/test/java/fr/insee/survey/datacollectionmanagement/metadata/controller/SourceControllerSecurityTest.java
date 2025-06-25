@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SensitivityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -212,6 +213,7 @@ class SourceControllerSecurityTest {
     private String createJsonSource() throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("id", "SOURCE1");
+        jo.put("type", SourceTypeEnum.HOUSEHOLD);
         jo.put("periodicity", PeriodicityEnum.X);
         return jo.toString();
     }

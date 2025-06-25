@@ -205,7 +205,7 @@ public class WebclientController {
             questioning.setQuestioningAccreditations(setExistingAccreditations);
 
             // create view
-            viewService.createView(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
+            viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(contactAccreditationDto.getIdentifier(), questioning.getSurveyUnit().getIdSu(),
                     part.getCampaign().getId());
 
         } else {

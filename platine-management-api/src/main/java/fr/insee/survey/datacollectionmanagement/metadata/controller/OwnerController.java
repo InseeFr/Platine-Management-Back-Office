@@ -59,6 +59,7 @@ public class OwnerController {
 
     @Operation(summary = "Update or create a owner")
     @PutMapping(value = UrlConstants.API_OWNERS_ID, produces = "application/json", consumes = "application/json")
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<OwnerDto> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
         if (!ownerDto.getId().equals(id)) {
             throw new NotMatchException("id and owner id don't match");

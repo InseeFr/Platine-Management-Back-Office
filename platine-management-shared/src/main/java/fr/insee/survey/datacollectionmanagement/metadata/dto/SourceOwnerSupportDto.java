@@ -1,23 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
-import jakarta.validation.constraints.NotBlank;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SourceOnlineStatusDto {
+public class SourceOwnerSupportDto {
 
-    @NotBlank
     private String id;
     private String longWording;
     private String shortWording;
+    private SourceTypeEnum type;
     private PeriodicityEnum periodicity;
-    private boolean mandatoryMySurveys = false;
-    private boolean forceClose = false;
-    private String messageInfoSurveyOffline = "";
-    private String messageSurveyOffline = "";
+    private boolean mandatoryMySurveys;
+    private String logo;
+    private String storageTime;
+    private String personalData;
     private String ownerId;
     private String supportId;
 

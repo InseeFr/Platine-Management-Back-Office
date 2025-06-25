@@ -55,5 +55,15 @@ public enum TypeQuestioningEvent {
 
     public static final List<TypeQuestioningEvent> STARTED_EVENTS = List.of(
             PARTIELINT);
+
+    public static final List<TypeQuestioningEvent> INTERROGATION_EVENTS = List.of(
+            INITLA,
+            PARTIELINT,
+            VALINT,
+            VALPAP,
+            REFUSAL,
+            WASTE,
+            HC
+    );
 }
 

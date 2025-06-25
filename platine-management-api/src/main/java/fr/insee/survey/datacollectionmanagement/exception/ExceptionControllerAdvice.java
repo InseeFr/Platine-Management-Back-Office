@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -145,16 +145,6 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.NOT_FOUND, request);
     }
 
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiError> entityNotFoundException(EntityNotFoundException e, WebRequest request) {
-        log.error(e.getMessage(), e);
-        return processException(e, HttpStatus.NOT_FOUND, request);
-    }
-
-
     @ExceptionHandler(NotMatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> notMatchException(NotMatchException e, WebRequest request) {
@@ -198,6 +188,14 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ApiError> forbiddenAccessException(Exception e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ResponseEntity<ApiError> entityExistsException(EntityExistsException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.CONFLICT, request);
     }
 
 }

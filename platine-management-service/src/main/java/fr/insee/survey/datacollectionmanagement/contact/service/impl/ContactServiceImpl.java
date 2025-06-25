@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
-import fr.insee.survey.datacollectionmanagement.contact.dto.AddressDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDetailsDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.ContactDto;
-import fr.insee.survey.datacollectionmanagement.contact.dto.SearchContactDto;
+import fr.insee.survey.datacollectionmanagement.contact.dto.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
@@ -15,11 +12,14 @@ import fr.insee.survey.datacollectionmanagement.contact.service.AddressService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.ldap.service.LdapService;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -27,7 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -45,6 +47,13 @@ public class ContactServiceImpl implements ContactService {
     private final ModelMapper modelMapper;
 
     private final CampaignService campaignService;
+
+    private final LdapService ldapService;
+
+    private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final QuestioningRepository questioningRepository;
+
 
     @Override
     public Page<Contact> findAll(Pageable pageable) {
@@ -64,7 +73,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto update(ContactDto contactDto, JsonNode payload) {
         Contact existingContact = contactRepository.findById(contactDto.getIdentifier())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
+                .orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", contactDto.getIdentifier())));
 
         existingContact.setExternalId(contactDto.getExternalId());
         existingContact.setFirstName(contactDto.getFirstName());
@@ -101,10 +110,10 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<QuestioningContactDto> findByIdentifiers(List<String> identifier) {
-        List<Contact> contacts = contactRepository.findAllById(identifier);
+    public List<QuestioningContactDto> findByIdentifiers(Map<String, Boolean> mapContactsIdMain) {
+        List<Contact> contacts = contactRepository.findAllById(mapContactsIdMain.keySet());
         return contacts.stream()
-                .map(contact -> new QuestioningContactDto(contact.getIdentifier(), contact.getLastName(), contact.getFirstName()))
+                .map(contact -> new QuestioningContactDto(contact.getIdentifier(), contact.getLastName(), contact.getFirstName(), mapContactsIdMain.get(contact.getIdentifier())))
                 .toList();
     }
 
@@ -139,7 +148,7 @@ public class ContactServiceImpl implements ContactService {
 
         Contact createdContact = createAddressAndEvent(newContact, payload);
 
-        viewService.createView(id, null, null);
+        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(id, null, null);
 
         return createdContact;
 
@@ -236,5 +245,38 @@ public class ContactServiceImpl implements ContactService {
         return contactDetailsDto;
     }
 
+    @Override
+    public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
+        if(!questioningRepository.existsById(questioningId))
+        {
+            throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
+        }
 
+        ContactDto ldapAddedContactDto = createAndSaveContact(contact);
+        saveContactCreationEvent(ldapAddedContactDto.getIdentifier());
+        assignMainContactToQuestioning(ldapAddedContactDto.getIdentifier(), questioningId);
+        return ldapAddedContactDto;
+    }
+
+    @Override
+    public ContactDto createAndSaveContact(ContactDto contactDto) {
+        ContactDto ldapContact = ldapService.createUser(contactDto);
+        contactRepository.save(modelMapper.map(ldapContact, Contact.class));
+        return ldapContact;
+    }
+
+    @Override
+    public void saveContactCreationEvent(String contactId) {
+        ContactEventDto contactEventDto = new ContactEventDto();
+        contactEventDto.setEventDate(new Date());
+        contactEventDto.setType(ContactEventTypeEnum.create.toString());
+        contactEventDto.setPayload(ServiceJsonUtil.createPayload("platine-pilotage"));
+        contactEventDto.setIdentifier(contactId);
+        contactEventService.addContactEvent(contactEventDto);
+    }
+
+    @Override
+    public void assignMainContactToQuestioning(String contactIdentifier, Long questioningId) {
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactIdentifier, questioningId);
+    }
 }

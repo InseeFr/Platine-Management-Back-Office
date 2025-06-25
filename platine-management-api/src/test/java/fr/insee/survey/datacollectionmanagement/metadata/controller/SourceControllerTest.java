@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
@@ -99,6 +100,7 @@ class SourceControllerTest {
         assertDoesNotThrow(() -> sourceService.findById(identifier));
 
         Source sourceFound = sourceService.findById(identifier);
+        assertEquals(source.getType(), sourceFound.getType());
         assertEquals(source.getLongWording(), sourceFound.getLongWording());
         assertEquals(source.getShortWording(), sourceFound.getShortWording());
         assertEquals(source.getPeriodicity(), sourceFound.getPeriodicity());
@@ -143,6 +145,7 @@ class SourceControllerTest {
         sourceMock.setLongWording("Long wording about " + identifier);
         sourceMock.setShortWording("Short wording about " + identifier);
         sourceMock.setPeriodicity(PeriodicityEnum.T);
+        sourceMock.setType(SourceTypeEnum.HOUSEHOLD);
         sourceMock.setMandatoryMySurveys(true);
         return sourceMock;
     }
@@ -152,6 +155,7 @@ class SourceControllerTest {
         jo.put("id", source.getId());
         jo.put("longWording", source.getLongWording());
         jo.put("shortWording", source.getShortWording());
+        jo.put("type", source.getType());
         jo.put("periodicity", source.getPeriodicity());
         return jo.toString();
     }

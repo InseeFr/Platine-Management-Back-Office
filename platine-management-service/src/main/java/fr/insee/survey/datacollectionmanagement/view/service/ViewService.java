@@ -29,7 +29,7 @@ public interface ViewService {
 
     List<View> findViewByIdSuContaining(String field);
 
-    View createView(String identifier, String idSu, String campaignId);
+    View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId);
 
     void deleteView(View view);
 
@@ -40,4 +40,6 @@ public interface ViewService {
     List<String> findIdentifiersByIdSu(String id);
 
     Map<String, Set<String>> findDistinctCampaignByIdentifiers(List<String> identifiers);
+
+    List<View> findByIdentifierAndIdSuAndCampaignId(String contactId, String idSu, String campaignId);
 }

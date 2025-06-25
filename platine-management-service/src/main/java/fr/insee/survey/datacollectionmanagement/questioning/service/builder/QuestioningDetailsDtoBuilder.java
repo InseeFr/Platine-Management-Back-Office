@@ -17,6 +17,11 @@ public class QuestioningDetailsDtoBuilder {
         instance = new QuestioningDetailsDto();
     }
 
+    public QuestioningDetailsDtoBuilder isHousehold(Boolean isHousehold) {
+        instance.setIsHousehold(isHousehold);
+        return this;
+    }
+
     public QuestioningDetailsDtoBuilder questioningId(Long id) {
         instance.setQuestioningId(id);
         return this;

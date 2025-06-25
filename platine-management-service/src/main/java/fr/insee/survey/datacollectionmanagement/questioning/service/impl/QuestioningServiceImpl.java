@@ -5,15 +5,19 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
+import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
@@ -23,37 +27,35 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestioningServiceImpl implements QuestioningService {
 
+    private final InterrogationEventComparator interrogationEventComparator;
     private final QuestioningRepository questioningRepository;
-
+    private final SearchQuestioningDao searchQuestioningDao;
     private final QuestioningUrlComponent questioningUrlComponent;
-
     private final SurveyUnitService surveyUnitService;
-
     private final PartitioningService partitioningService;
-
     private final ContactService contactService;
-
     private final QuestioningEventService questioningEventService;
-
     private final QuestioningAccreditationService questioningAccreditationService;
-
     private final ModelMapper modelMapper;
-
     private final PartitioningRepository partitioningRepository;
+    private final ParametersService parametersService;
+    private final SourceRepository sourceRepository;
+
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -101,6 +103,18 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
+    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+        Questioning questioning = findById(questioningId);
+        String mail = questioning.getAssistanceMail();
+        if (StringUtils.isBlank(mail)) {
+            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
+        }
+        return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
+    }
+
+
+    @Override
     public int deleteQuestioningsOfOnePartitioning(Partitioning partitioning) {
         int nbQuestioningDeleted = 0;
         Set<Questioning> setQuestionings = findByIdPartitioning(partitioning.getId());
@@ -122,23 +136,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Page<SearchQuestioningDto> searchQuestioning(String param, Pageable pageable) {
-        if (!StringUtils.isEmpty(param)) {
-            List<Questioning> listQuestionings = questioningRepository.findQuestioningByParam(param.toUpperCase());
-            List<SearchQuestioningDto> searchDtos = listQuestionings
-                    .stream().distinct()
-                    .map(this::convertToSearchDto).toList();
-
-            return new PageImpl<>(searchDtos, pageable, searchDtos.size());
-        } else {
-            Page<Long> idsPage = questioningRepository.findQuestioningIds(pageable);
-            List<Questioning> questionings = questioningRepository.findQuestioningsByIds(idsPage.getContent());
-            List<SearchQuestioningDto> searchDtos = questionings
-                    .stream()
-                    .map(this::convertToSearchDto).toList();
-
-            return new PageImpl<>(searchDtos, pageable, idsPage.getTotalElements());
-        }
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+        return searchQuestioningDao.search(searchQuestioningParams, pageable);
     }
 
     @Override
@@ -147,6 +146,10 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
         Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())
                 .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
+        Source source = sourceRepository.findById(partitioning.getCampaign().getSurvey().getSource().getId())
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", partitioning.getCampaign().getSurvey().getSource().getId())));
+
+        Boolean isHousehold = SourceTypeEnum.HOUSEHOLD.equals(source.getType());
 
         SurveyUnit su = questioning.getSurveyUnit();
         QuestioningSurveyUnitDto questioningSurveyUnitDto = new QuestioningSurveyUnitDto(su.getIdSu(), su.getIdentificationCode(), su.getIdentificationName(), su.getLabel());
@@ -154,22 +157,30 @@ public class QuestioningServiceImpl implements QuestioningService {
         String campaignId = partitioning.getCampaign().getId();
         String readOnlyUrl = questioningUrlComponent.getAccessUrl(UserRoles.REVIEWER, questioning, partitioning);
 
-        List<String> contactsId = questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList();
-        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsId);
+        Map<String, Boolean> contactsIdMain = questioning.getQuestioningAccreditations().stream()
+                .collect(Collectors.toMap(
+                        QuestioningAccreditation::getIdContact,
+                        QuestioningAccreditation::isMain
+                ));
+        List<QuestioningContactDto> questioningContactDtoList = contactService.findByIdentifiers(contactsIdMain);
 
         List<QuestioningEventDto> questioningEventsDto = questioning.getQuestioningEvents().stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .sorted(interrogationEventComparator.reversed())
                 .map(event -> modelMapper.map(event, QuestioningEventDto.class))
                 .toList();
 
-        Optional<QuestioningEvent> lastEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        QuestioningEventDto lastEventDto = lastEvent
-                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
-                .orElse(new QuestioningEventDto());
+        QuestioningEventDto highestPriorityEventDto = questioningEventsDto
+                .stream()
+                .findFirst()
+                .orElse(null);
 
-        Optional<QuestioningEvent> validatedEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        QuestioningEventDto validatedEventDto = validatedEvent
-                .map(event -> modelMapper.map(event, QuestioningEventDto.class))
-                .orElse(new QuestioningEventDto());
+        QuestioningEventDto validatedEventDto = questioningEventsDto.stream()
+                .filter(qe ->
+                        TypeQuestioningEvent.VALIDATED_EVENTS.contains(
+                                TypeQuestioningEvent.valueOf(qe.getType())))
+                .findFirst()
+                .orElse(null);
 
         List<QuestioningCommunicationDto> questioningCommunicationsDto = questioning.getQuestioningCommunications().stream()
                 .map(comm -> modelMapper.map(comm, QuestioningCommunicationDto.class))
@@ -185,61 +196,46 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .campaignId(campaignId)
                 .surveyUnit(questioningSurveyUnitDto)
                 .contacts(questioningContactDtoList)
-                .events(questioningEventsDto, lastEventDto, validatedEventDto)
+                .events(questioningEventsDto, highestPriorityEventDto, validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
+                .isHousehold(isHousehold)
                 .build();
     }
 
-    private SearchQuestioningDto convertToSearchDto(Questioning questioning) {
-        SearchQuestioningDtoImpl searchQuestioningDto = new SearchQuestioningDtoImpl();
-        searchQuestioningDto.setQuestioningId(questioning.getId());
-        searchQuestioningDto.setSurveyUnitId(questioning.getSurveyUnit().getIdSu());
-        searchQuestioningDto.setSurveyUnitIdentificationCode(questioning.getSurveyUnit().getIdentificationCode());
-        searchQuestioningDto.setCampaignId(partitioningService.findById(questioning.getIdPartitioning()).getCampaign().getId());
-        searchQuestioningDto.setListContactIdentifiers(questioning.getQuestioningAccreditations().stream().map(QuestioningAccreditation::getIdContact).toList());
-        Optional<QuestioningEvent> lastQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
-        lastQuestioningEvent.ifPresent(event -> searchQuestioningDto.setLastEvent(event.getType().name()));
-        Optional<QuestioningCommunication> questioningCommunication = questioning.getQuestioningCommunications().stream().min(Comparator.comparing(QuestioningCommunication::getDate));
-        questioningCommunication.ifPresent(comm -> searchQuestioningDto.setLastCommunication(comm.getType().name()));
-        Optional<QuestioningEvent> validatedQuestioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        validatedQuestioningEvent.ifPresent(event -> searchQuestioningDto.setValidationDate(event.getDate()));
-        return searchQuestioningDto;
-    }
-
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Questioning questioning, Partitioning part)
-    {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
         Date today = new Date();
-        Date openingDate  = part.getOpeningDate();
 
-        if(today.before(openingDate)) {
+        if (today.before(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
+        List<QuestioningEventDto> events = questioningEventService.getQuestioningEventsByQuestioningId(questioningId);
 
-        Set<QuestioningEvent> questioningEvents = questioning.getQuestioningEvents();
-        Date closingDate = part.getClosingDate();
-        boolean refused = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.REFUSED_EVENTS);
+        boolean refused = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if(questioningEvents.isEmpty() || refused || !closingDate.after(today))
+        if (events.isEmpty() || refused || !closingDate.after(today)) {
             return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
+        }
 
-        boolean validated = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.VALIDATED_EVENTS);
-        boolean opened = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.OPENED_EVENTS);
-        boolean started = questioningEventService.containsQuestioningEvents(questioning, TypeQuestioningEvent.STARTED_EVENTS);
+        boolean validated = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.VALIDATED_EVENTS);
+        boolean opened = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.OPENED_EVENTS);
+        boolean started = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.STARTED_EVENTS);
 
 
-        if(validated) {
+        if (validated) {
             return QuestionnaireStatusTypeEnum.RECEIVED;
         }
-        if(started) {
+        if (started) {
             return QuestionnaireStatusTypeEnum.IN_PROGRESS;
         }
-        if(opened) {
+        if (opened) {
             return QuestionnaireStatusTypeEnum.NOT_STARTED;
         }
 
         return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
     }
+
+
 }

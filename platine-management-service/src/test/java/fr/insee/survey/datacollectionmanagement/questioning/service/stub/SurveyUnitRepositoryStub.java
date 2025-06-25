@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	private SurveyUnit surveyUnit;
 	private List<SearchSurveyUnitDto> echoes;
 	private List<SurveyUnit> surveyUnits;
+	private List<ContactAccreditedToSurveyUnitDto> listContactAccreditedToSurveyUnitDto;
 
 
 	@Override
@@ -50,6 +52,11 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	@Override
 	public Page<SearchSurveyUnitDto> findByParam(String param, Pageable pageable) {
 		return null;
+	}
+
+	@Override
+	public List<ContactAccreditedToSurveyUnitDto> findContactsAccreditedToSurveyUnit(String surveyUnitId) {
+		return listContactAccreditedToSurveyUnitDto;
 	}
 
 	@Override

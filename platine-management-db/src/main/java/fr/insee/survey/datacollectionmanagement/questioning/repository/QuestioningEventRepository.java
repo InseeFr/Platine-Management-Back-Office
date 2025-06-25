@@ -11,4 +11,6 @@ public interface QuestioningEventRepository extends JpaRepository<QuestioningEve
     List<QuestioningEvent> findByQuestioningIdAndType(Long questioningId, TypeQuestioningEvent type);
 
     Long countByUploadId(Long idupload);
+
+    List<QuestioningEvent> findByQuestioningId(Long questioningId);
 }

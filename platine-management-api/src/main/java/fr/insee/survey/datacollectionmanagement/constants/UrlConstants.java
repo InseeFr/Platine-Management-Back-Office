@@ -16,7 +16,9 @@ public class UrlConstants {
     public static final String API_CONTACTEVENTS_ID = "/api/contacts/contact-events/{id}";
     public static final String API_CONTACT = "/api/contact/";
     public static final String API_CONTACT_CONTACTEVENTS = "/api/contact/contact-events";
-    public static final String API_CONTACT_CONTACTEVENTS_PLATINEACCOUNT = "/api/contact/contact-events/portal-privilege";
+    public static final String API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE = "/api/contact/contact-events/portal-privilege";
+    public static final String API_MAIN_CONTACT_INTERROGATIONS_ASSIGN = "/api/interrogations/{interrogationId}/main-contact/{contactId}";
+    public static final String API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN = "/api/contact/{interrogationId}/new-main-contact-with-interrogation";
 
     // API USER DOMAIN
 

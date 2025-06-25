@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.EventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.EventOrderRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.EventOrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
