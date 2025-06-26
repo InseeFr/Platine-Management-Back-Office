@@ -308,7 +308,7 @@ public class SearchQuestioningDao {
     }
 
     private static SearchQuestioningDto mapRowToDto(Object[] row) {
-        UUID questioningId = UUID.fromString((String) row[0]);
+        UUID questioningId =  (UUID) row[0];
         String campaignId = (String) row[1];
         String lastCommunicationType = (String) row[2];
         Date validationDate = (Date) row[3];
