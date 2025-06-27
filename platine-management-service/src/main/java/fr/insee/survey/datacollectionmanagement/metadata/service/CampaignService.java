@@ -36,6 +36,8 @@ public interface CampaignService {
 
     List<CampaignOngoingDto> getCampaignOngoingDtos();
 
+    List<CampaignCommonsOngoingDto> getCampaignCommonsOngoingDtos();
+
     List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto);
 
     Page<CampaignSummaryDto> searchCampaigns(String searchParam, PageRequest of);
