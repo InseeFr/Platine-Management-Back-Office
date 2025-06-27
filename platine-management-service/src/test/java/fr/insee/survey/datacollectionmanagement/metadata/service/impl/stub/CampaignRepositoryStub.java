@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,11 @@ public class CampaignRepositoryStub implements CampaignRepository {
         List<Campaign> pagedList = filtered.subList(start, end);
 
         return new PageImpl<>(pagedList, pageable, filtered.size());
+    }
+
+    @Override
+    public List<Campaign> findByDataCollectionTargetIsNot(DataCollectionEnum dataCollectionTarget) {
+        return campaigns.stream().filter(c -> c.getDataCollectionTarget() != dataCollectionTarget).toList();
     }
 
     @Override

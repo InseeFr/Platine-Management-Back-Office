@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.repository;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,4 +46,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, String>,Pagi
         WHERE (:source IS NULL OR UPPER(s2.id) = UPPER(CAST(:source AS TEXT)))
         """, nativeQuery = true)
     Page<Campaign> findBySource(String source, Pageable pageable);
+
+    List<Campaign> findByDataCollectionTargetIsNot(DataCollectionEnum dataCollectionTarget);
 }
