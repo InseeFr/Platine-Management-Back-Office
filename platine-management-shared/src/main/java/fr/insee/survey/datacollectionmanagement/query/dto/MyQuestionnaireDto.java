@@ -7,14 +7,14 @@ public record MyQuestionnaireDto(
         String sourceId,
         String surveyUnitIdentificationCode,
         String surveyUnitIdentificationName,
-        String questioningStatus,
-        String questioningAccessUrl,
+        String interrogationStatus,
+        String interrogationAccessUrl,
         String depositProofUrl,
-        UUID questioningId,
+        UUID interrogationId,
         String partitioningLabel,
         String partitioningId,
         Instant partitioningReturnDate,
         String surveyUnitId,
-        String questioningDownloadFileName,
+        String interrogationDownloadFileName,
         String operationUploadReference
 ) { }
