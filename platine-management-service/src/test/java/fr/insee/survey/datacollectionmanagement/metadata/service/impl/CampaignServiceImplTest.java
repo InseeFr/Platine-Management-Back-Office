@@ -4,11 +4,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignHeaderDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignMoogDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignStatusDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.CampaignRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ParametersServiceStub;
@@ -421,5 +419,68 @@ class CampaignServiceImplTest {
     void findCampaignStatusByCampaignIdIn_shouldHandleNullCampaignId() {
         List<CampaignStatusDto> status = campaignServiceImpl.findCampaignStatusByCampaignIdIn(Collections.singletonList(null));
         assertThat(status).isEmpty();
+    }
+
+    @Test
+    void getCampaignCommonsOngoingDtos_should_return_only_running_campaigns() {
+        Campaign camp1 = openedCampaign("CAMP1");
+        Campaign camp2 = fileUploadCampaign("CAMP2");
+        Campaign camp3 = futureCampaign("CAMP3");
+
+        campaignRepositoryStub.setCampaigns(List.of(camp1, camp2, camp3));
+
+
+        List<CampaignCommonsOngoingDto> result = campaignServiceImpl.getCampaignCommonsOngoingDtos();
+
+
+        assertThat(result).isNotNull()
+                .hasSize(1);
+        assertThat(result.getFirst()).isNotNull();
+        assertThat(result.getFirst().getDataCollectionTarget()).isEqualTo("LUNATIC_NORMAL");
+        assertThat(result.getFirst().getId()).isEqualTo("CAMP1");
+        assertThat(result.getFirst().getCollectMode()).isEqualTo("WEB");
+        assertThat(result.getFirst().isSensitivity()).isFalse();
+
+
+    }
+
+    private Campaign openedCampaign(String id) {
+        Campaign c = new Campaign();
+        c.setId(id);
+        c.setPartitionings(Set.of(partitioning(true)));
+        c.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
+        c.setSensitivity(false);
+        return c;
+    }
+
+    private Campaign fileUploadCampaign(String id) {
+        Campaign c = new Campaign();
+        c.setId(id);
+        c.setPartitionings(Set.of(partitioning(true)));
+        c.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD);
+        c.setSensitivity(false);
+        return c;
+    }
+
+    private Campaign futureCampaign(String id) {
+        Campaign c = new Campaign();
+        c.setId(id);
+        c.setPartitionings(Set.of(partitioning(false)));
+        c.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
+        c.setSensitivity(true);
+        return c;
+    }
+
+    private Partitioning partitioning(boolean opened) {
+        Partitioning p = new Partitioning();
+        p.setId(UUID.randomUUID().toString());
+        if (opened) {
+            p.setOpeningDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
+            p.setClosingDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        } else {
+            p.setOpeningDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            p.setClosingDate(Date.from(Instant.now().plus(2, ChronoUnit.DAYS)));
+        }
+        return p;
     }
 }

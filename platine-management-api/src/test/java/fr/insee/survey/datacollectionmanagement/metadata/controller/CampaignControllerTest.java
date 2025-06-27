@@ -301,4 +301,29 @@ class CampaignControllerTest {
                 .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))
                 .andExpect(jsonPath("$.year").value(campaign.getYear()));
     }
+
+    @Test
+    void should_return_ongoing_campaigns() throws Exception {
+        // Given
+        Campaign campaign1 = initOpenedCampaign("CAMP1");
+        initCampaignAndPartitionings("CAMP1", campaign1);
+        Campaign campaign2 = initOpenedCampaign("CAMP2");
+        initCampaignAndPartitionings("CAMP2", campaign2);
+        Campaign campaign3 = initFutureCampaign("CAMP3");
+        initCampaignAndPartitionings("CAMP3", campaign3);
+
+        // when / then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("CAMP1"))
+                .andExpect(jsonPath("$[0].dataCollectionTarget").value("LUNATIC_NORMAL"))
+                .andExpect(jsonPath("$[0].sensitivity").value(false))
+                .andExpect(jsonPath("$[0].collectMode").value("WEB"))
+                .andExpect(jsonPath("$[1].id").value("CAMP2"))
+                .andExpect(jsonPath("$[1].dataCollectionTarget").value("LUNATIC_NORMAL"))
+                .andExpect(jsonPath("$[1].sensitivity").value(false))
+                .andExpect(jsonPath("$[1].collectMode").value("WEB"));
+    }
 }

@@ -209,6 +209,12 @@ public class CampaignController {
         return campaignService.getCampaignOngoingDtos();
     }
 
+    @Operation(summary = "Get commons ongoing campaigns")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING, produces = "application/json")
+    public List<CampaignCommonsOngoingDto> getCommonsOngoingCampaigns() {
+        return campaignService.getCampaignCommonsOngoingDtos();
+    }
+
 
     @Operation(summary = "Search campaigns")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_SEARCH, produces = "application/json")
