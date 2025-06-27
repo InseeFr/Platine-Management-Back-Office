@@ -89,10 +89,10 @@ class MySurveyServiceImplTest {
         assertThat(dto.partitioningLabel()).isEqualTo("Partition Label");
         assertThat(dto.surveyUnitIdentificationCode()).isEqualTo("Code123");
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -112,8 +112,8 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -135,9 +135,9 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.depositProofUrl()).isEqualTo("http://depositProof-url");
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
 
@@ -153,7 +153,7 @@ class MySurveyServiceImplTest {
         assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.depositProofUrl()).isNull();
     }
 
@@ -174,9 +174,9 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.depositProofUrl()).isEqualTo("http://depositProof-url");
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
 
@@ -203,10 +203,10 @@ class MySurveyServiceImplTest {
         assertThat(dto.partitioningLabel()).isEqualTo("Partition Label");
         assertThat(dto.surveyUnitIdentificationCode()).isEqualTo("Code123");
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -232,9 +232,9 @@ class MySurveyServiceImplTest {
         assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
-        assertThat(dto.questioningDownloadFileName()).isNotBlank();
+        assertThat(dto.interrogationDownloadFileName()).isNotBlank();
     }
 
     private Questioning createQuestioning(UUID id) {
