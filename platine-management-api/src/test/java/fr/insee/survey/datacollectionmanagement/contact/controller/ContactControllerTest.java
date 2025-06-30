@@ -243,7 +243,7 @@ class ContactControllerTest {
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
         assertThat(createdContact.get().getIdentifier()).isEqualTo(username);
         Optional<QuestioningAccreditation> optQuestioningAccreditation = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(interrogationId);
-        assertThat(optQuestioningAccreditation.isPresent()).isTrue();
+        assertThat(optQuestioningAccreditation).isPresent();
         QuestioningAccreditation questioningAccreditation = optQuestioningAccreditation.get();
         assertThat(questioningAccreditation.isMain()).isTrue();
         assertThat(questioningAccreditation.getIdContact()).isEqualTo(username);

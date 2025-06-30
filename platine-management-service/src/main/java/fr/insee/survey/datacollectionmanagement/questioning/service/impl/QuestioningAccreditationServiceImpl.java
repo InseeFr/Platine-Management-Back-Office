@@ -46,6 +46,13 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
+    public boolean hasAccreditation(UUID questioningId, String contactId) {
+        Optional<QuestioningAccreditation> accreditation = questioningAccreditationRepository
+                .findByQuestioning_IdAndIdContact(questioningId, contactId);
+        return accreditation.isPresent();
+    }
+
+    @Override
     public Page<QuestioningAccreditation> findAll(Pageable pageable) {
         return questioningAccreditationRepository.findAll(pageable);
     }
