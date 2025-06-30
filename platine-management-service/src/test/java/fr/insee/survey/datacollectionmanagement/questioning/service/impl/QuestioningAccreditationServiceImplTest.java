@@ -1,19 +1,30 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.contact.domain.*;
+import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactSource;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
-import fr.insee.survey.datacollectionmanagement.contact.service.*;
-import fr.insee.survey.datacollectionmanagement.contact.stub.*;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
+import fr.insee.survey.datacollectionmanagement.contact.stub.ContactEventServiceStub;
+import fr.insee.survey.datacollectionmanagement.contact.stub.ContactSourceServiceStub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ContactRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.PartitioningServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
@@ -23,15 +34,17 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class QuestioningAccreditationServiceImplTest {
 
     private QuestioningAccreditationServiceImpl service;
-    private QuestioningAccreditationRepository accreditationRepo;
+    private QuestioningAccreditationRepositoryStub accreditationRepo;
     private ContactEventService contactEventService;
     private ContactRepository contactRepository;
     private ContactSourceService contactSourceService;
@@ -137,6 +150,31 @@ class QuestioningAccreditationServiceImplTest {
         assertThatThrownBy(() -> service.setMainQuestioningAccreditationToContact(
                 "contact-id", questioningId))
                 .isInstanceOf(NotFoundException.class).hasMessage(String.format("Missing Questioning with id %s", questioningId));
+    }
+
+    @Test
+    void hasAccreditationReturnsTrueWhenAccreditationIsPresent() {
+        UUID questioningId = UUID.randomUUID();
+        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
+        questioningAccreditation.setIdContact("CONT1");
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioningAccreditation.setQuestioning(questioning);
+        accreditationRepo.setQuestioningAccreditations(List.of(questioningAccreditation));
+
+
+        boolean result = service.hasAccreditation(questioningId, "CONT1");
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void hasAccreditationReturnsFalseWhenAccreditationIsAbsent() {
+        UUID questioningId = UUID.randomUUID();
+
+        boolean result = service.hasAccreditation(questioningId, "CONT1");
+
+        assertThat(result).isFalse();
     }
 
     private Contact createAndSaveContact(String id) {
