@@ -429,17 +429,15 @@ class CampaignServiceImplTest {
 
         campaignRepositoryStub.setCampaigns(List.of(camp1, camp2, camp3));
 
-
         List<CampaignCommonsOngoingDto> result = campaignServiceImpl.getCampaignCommonsOngoingDtos();
-
 
         assertThat(result).isNotNull()
                 .hasSize(1);
         assertThat(result.getFirst()).isNotNull();
-        assertThat(result.getFirst().getDataCollectionTarget()).isEqualTo("LUNATIC_NORMAL");
-        assertThat(result.getFirst().getId()).isEqualTo("CAMP1");
-        assertThat(result.getFirst().getCollectMode()).isEqualTo("WEB");
-        assertThat(result.getFirst().isSensitivity()).isFalse();
+        assertThat(result.getFirst().dataCollectionTarget()).isEqualTo("LUNATIC_NORMAL");
+        assertThat(result.getFirst().id()).isEqualTo("CAMP1");
+        assertThat(result.getFirst().collectMode()).isEqualTo("WEB");
+        assertThat(result.getFirst().sensitivity()).isFalse();
 
 
     }
