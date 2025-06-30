@@ -15,4 +15,5 @@
     <include file="changelog/040_create_source_type.sql" relativeToChangelogFile="true"/>
     <include file="changelog/050_create-mail-communication-tables.sql" relativeToChangelogFile="true"/>
     <include file="changelog/060_migrate-questionings-to-uuid.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/061_add-constraints-campagne.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
