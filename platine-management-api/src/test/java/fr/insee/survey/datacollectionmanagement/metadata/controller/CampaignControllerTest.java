@@ -339,7 +339,6 @@ class CampaignControllerTest {
         mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, campaignId))
                 .andDo(print())
                 .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("id").value("CAMP1"))
                 .andExpect(jsonPath("dataCollectionTarget").value("LUNATIC_NORMAL"))
                 .andExpect(jsonPath("sensitivity").value(false))
