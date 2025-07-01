@@ -344,4 +344,18 @@ class CampaignControllerTest {
                 .andExpect(jsonPath("sensitivity").value(false))
                 .andExpect(jsonPath("collectMode").value("WEB"));
     }
+
+    @Test
+    void should_return_ongoing_campaigns_by_id_is_null() throws Exception {
+        // Given
+        Campaign campaign3 = initFutureCampaign("CAMP3");
+        initCampaignAndPartitionings("CAMP3", campaign3);
+
+        String campaignId = "CAMP3";
+
+        // when / then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, campaignId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 }
