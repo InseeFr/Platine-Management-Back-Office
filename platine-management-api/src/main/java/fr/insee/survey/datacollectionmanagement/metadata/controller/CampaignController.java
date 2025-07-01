@@ -215,6 +215,16 @@ public class CampaignController {
         return campaignService.getCampaignCommonsOngoingDtos();
     }
 
+    @Operation(summary = "Get commons ongoing campaign")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, produces = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignCommonsOngoingDto.class))),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public CampaignCommonsOngoingDto getCommonsOngoingCampaignsById(@PathVariable("id") String id) {
+        return campaignService.findCampaignOngoingDtoById(id);
+    }
+
 
     @Operation(summary = "Search campaigns")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_SEARCH, produces = "application/json")

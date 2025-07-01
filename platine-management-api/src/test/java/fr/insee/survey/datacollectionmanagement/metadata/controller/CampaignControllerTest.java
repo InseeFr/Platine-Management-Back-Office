@@ -326,4 +326,23 @@ class CampaignControllerTest {
                 .andExpect(jsonPath("$[1].sensitivity").value(false))
                 .andExpect(jsonPath("$[1].collectMode").value("WEB"));
     }
+
+    @Test
+    void should_return_ongoing_campaigns_by_id() throws Exception {
+        // Given
+        Campaign campaign1 = initOpenedCampaign("CAMP1");
+        initCampaignAndPartitionings("CAMP1", campaign1);
+
+        String campaignId = "CAMP1";
+
+        // when / then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, campaignId))
+                .andDo(print())
+                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("id").value("CAMP1"))
+                .andExpect(jsonPath("dataCollectionTarget").value("LUNATIC_NORMAL"))
+                .andExpect(jsonPath("sensitivity").value(false))
+                .andExpect(jsonPath("collectMode").value("WEB"));
+    }
 }

@@ -236,4 +236,10 @@ public class CampaignServiceImpl implements CampaignService {
                 .orElse(CollectionStatus.UNDEFINED);
     }
 
+    @Override
+    public CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId) {
+        Campaign campaign = findById(campaignId);
+        return convertToCampaignCommonsOngoingDto(campaign);
+    }
+
 }

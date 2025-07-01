@@ -99,4 +99,10 @@ public class CampaignServiceStub implements CampaignService {
                 .filter(Objects::nonNull)
                 .toList();
     }
+
+    @Override
+    public CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId) {
+        return new CampaignCommonsOngoingDto("CAMP1","LUNATIC_NORMAL",false,"WB");
+    }
+
 }
