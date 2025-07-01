@@ -43,4 +43,6 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
     Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(UUID questioningId);
 
     Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(UUID questioningId, String idContact);
+
+    Optional<QuestioningAccreditation> findByQuestioning_IdAndIdContact(UUID questioningId, String idContact);
 }

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,11 @@ public class CheckHabilitationServiceImplNoAuth implements CheckHabilitationServ
 
     @Override
     public boolean checkHabilitation(String role, String idSu, String campaignId, List<String> userRoles, String userId) {
+        return true;
+    }
+
+    @Override
+    public boolean checkHabilitation(String role, UUID questioningId, List<String> userRoles, String userId) {
         return true;
     }
 

@@ -10,19 +10,24 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Setter
 public class QuestioningAccreditationServiceStub implements QuestioningAccreditationService {
 
-    private ArrayList<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
+    private List<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
 
     @Override
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return List.of();
+    }
+
+    @Override
+    public boolean hasAccreditation(UUID questioningId, String contactId) {
+        Optional<QuestioningAccreditation> accreditation = questioningAccreditationList.stream().filter(
+                q -> q.getQuestioning().getId().equals(questioningId)
+                        && q.getIdContact().equals(contactId)).findFirst();
+        return accreditation.isPresent();
     }
 
     @Override

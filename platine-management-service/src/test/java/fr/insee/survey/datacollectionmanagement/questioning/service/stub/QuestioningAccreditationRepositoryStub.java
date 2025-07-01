@@ -45,6 +45,12 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
                 && e.getIdContact().equals(idContact)).findFirst();
     }
 
+    @Override
+    public Optional<QuestioningAccreditation> findByQuestioning_IdAndIdContact(UUID questioningId, String idContact) {
+        return questioningAccreditations.stream().filter(q -> q.getQuestioning().getId().equals(questioningId)
+                && q.getIdContact().equals(idContact)).findFirst();
+    }
+
 
     @Override
     public void flush() {

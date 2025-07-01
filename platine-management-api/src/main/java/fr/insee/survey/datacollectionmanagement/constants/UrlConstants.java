@@ -98,6 +98,7 @@ public class UrlConstants {
 
     // API CROSS DOMAIN
     public static final String API_CHECK_HABILITATION = "/api/check-habilitation";
+    public static final String API_CHECK_HABILITATION_V1 = "/api/v1/check-habilitation";
     public static final String MOOG_API_CAMPAIGNS = "/api/moog/campaigns";
     public static final String MOOG_API_CAMPAIGNS_ID = "/api/moog/campaigns/{id}";
     public static final String API_MOOG_SEARCH = "/api/moog/campaigns/survey-units";

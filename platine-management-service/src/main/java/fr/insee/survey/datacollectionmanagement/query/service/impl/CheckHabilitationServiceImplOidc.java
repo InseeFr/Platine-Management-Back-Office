@@ -4,17 +4,20 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,8 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
     private final UserService userService;
 
+    private final QuestioningAccreditationService questioningAccreditationService;
+
     @Override
     public boolean checkHabilitation(String role,
                                      String idSu,
@@ -34,14 +39,14 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
                                      String userId) {
 
         //admin
-        if (isUserInRole(userRoles, AuthorityRoleEnum.ADMIN.securityRole())) {
+        if (isAdmin(userRoles)) {
             log.info("Check habilitation of admin {} for accessing survey-unit {} of campaign {} resulted in true", userId, idSu, campaignId);
             return true;
         }
 
         //respondents
-        if (role == null || role.isBlank() || role.equals(UserRoles.INTERVIEWER)) {
-            if (isUserInRole(userRoles, AuthorityRoleEnum.RESPONDENT.securityRole())) {
+        if (StringUtils.isBlank(role) || role.equals(UserRoles.INTERVIEWER)){
+            if (isRespondent(userRoles)) {
                 boolean habilitated = viewService.countViewByIdentifierIdSuCampaignId(userId.toUpperCase(), idSu, campaignId) != 0;
                 log.info("Check habilitation of interviewer {} for accessing survey-unit {} of campaign {} resulted in {}", userId, idSu, campaignId, habilitated);
                 return habilitated;
@@ -50,9 +55,34 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             return false;
         }
 
+        return checkInternal(role, userRoles, userId);
+    }
 
+    @Override
+    public boolean checkHabilitation(String role, UUID questioningId, List<String> userRoles, String userId) {
+        //admin
+        if (isAdmin(userRoles)) {
+            log.info("Check habilitation of admin {} for accessing questioning {} resulted in true", userId, questioningId);
+            return true;
+        }
+
+        // check habilitation for respondent
+        if (StringUtils.isBlank(role) || role.equals(UserRoles.INTERVIEWER)){
+            if (isRespondent(userRoles)) {
+                boolean habilitated = questioningAccreditationService.hasAccreditation(questioningId, userId);
+                log.info("Check habilitation of interviewer {} for accessing questioning {} resulted in {}", userId, questioningId, habilitated);
+                return habilitated;
+            }
+            log.warn("Check habilitation of interviewer {} for accessing questioning {} - no respondent habilitation found in token - check habilitation: false", userId, questioningId);
+            return false;
+        }
+
+        return checkInternal(role, userRoles, userId);
+    }
+
+    private boolean checkInternal(String role, List<String> userRoles, String userId) {
         // internal users
-        if (!role.equals(UserRoles.REVIEWER)) {
+        if (!UserRoles.REVIEWER.equals(role)) {
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }
@@ -63,9 +93,9 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             return false;
         }
 
-        if (isUserInRole(userRoles, AuthorityRoleEnum.INTERNAL_USER.securityRole())) {
-            String userRole = optionalUser.get().getRole().toString();
-            if (userRole.equals(UserRoleTypeEnum.ASSISTANCE.toString())) {
+        if (isInternalUser(userRoles)) {
+            UserRoleTypeEnum userRole = optionalUser.get().getRole();
+            if (userRole == UserRoleTypeEnum.ASSISTANCE) {
                 log.warn("User '{}' has assistance profile - check habilitation: false", userId);
                 return false;
             }
@@ -76,7 +106,15 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
         return false;
     }
 
-    private boolean isUserInRole(List<String> userRoles, String targetRole) {
-        return userRoles.stream().anyMatch(userRole -> userRole.equals(targetRole));
+    private boolean isAdmin(List<String> roles) {
+        return roles.contains(AuthorityRoleEnum.ADMIN.securityRole());
+    }
+
+    private boolean isRespondent(List<String> roles) {
+        return roles.contains(AuthorityRoleEnum.RESPONDENT.securityRole());
+    }
+
+    private boolean isInternalUser(List<String> roles) {
+        return roles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole());
     }
 }

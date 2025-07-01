@@ -16,6 +16,8 @@ public interface QuestioningAccreditationService {
 
     List<QuestioningAccreditation> findByContactIdentifier(String id);
 
+    boolean hasAccreditation(UUID questioningId, String contactId);
+
     Page<QuestioningAccreditation> findAll(Pageable pageable);
 
     QuestioningAccreditation findById(Long id);
