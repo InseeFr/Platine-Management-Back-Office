@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -41,7 +42,7 @@ public class AddressController {
      * @deprecated
      */
     @Operation(summary = "Search for a contact address by the contact id")
-    @GetMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     @Deprecated(since="2.6.0", forRemoval=true)
     public ResponseEntity<AddressDto> getContactAddress(@PathVariable("id") String id) {
@@ -56,7 +57,7 @@ public class AddressController {
     }
 
     @Operation(summary = "Update or create an address by the contact id")
-    @PutMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
                                                  @RequestBody AddressDto addressDto,

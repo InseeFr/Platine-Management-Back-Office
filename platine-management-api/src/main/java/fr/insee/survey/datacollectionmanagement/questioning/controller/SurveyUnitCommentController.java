@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class SurveyUnitCommentController {
     private final SurveyUnitService surveyUnitService;
 
     @Operation(summary = "Create a survey unit comment")
-    @PostMapping(value = UrlConstants.API_SURVEY_UNITS_ID_COMMENT, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_SURVEY_UNITS_ID_COMMENT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitCommentInputDto.class))),

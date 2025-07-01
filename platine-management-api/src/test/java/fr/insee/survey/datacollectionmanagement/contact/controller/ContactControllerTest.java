@@ -229,7 +229,7 @@ class ContactControllerTest {
         wmLdap.stubFor(post(path)
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(createResponseBody(username))));
 
         this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, interrogationId)
@@ -367,7 +367,7 @@ class ContactControllerTest {
         this.mockMvc.perform(get(UrlConstants.API_CONTACT)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -394,11 +394,11 @@ class ContactControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -417,7 +417,7 @@ class ContactControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isBadRequest());

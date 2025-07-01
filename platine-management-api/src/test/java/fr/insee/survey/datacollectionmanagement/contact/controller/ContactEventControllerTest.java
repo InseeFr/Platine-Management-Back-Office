@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -80,7 +81,7 @@ class ContactEventControllerTest {
         this.mockMvc.perform(get(UrlConstants.API_CONTACT_CONTACTEVENTS)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -96,10 +97,10 @@ class ContactEventControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -116,7 +117,7 @@ class ContactEventControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andExpect(status().isBadRequest());
     }
@@ -134,7 +135,7 @@ class ContactEventControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isNotFound());

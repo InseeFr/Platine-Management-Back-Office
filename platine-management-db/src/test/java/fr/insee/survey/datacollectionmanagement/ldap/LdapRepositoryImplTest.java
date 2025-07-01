@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
@@ -101,7 +102,7 @@ class LdapServiceImplTest {
         wm.stubFor(post(path)
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(createResponseBody(username))));
 
 

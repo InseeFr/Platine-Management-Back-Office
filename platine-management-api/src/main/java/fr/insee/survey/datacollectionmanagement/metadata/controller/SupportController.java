@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +39,7 @@ public class SupportController {
     private final SupportService supportService;
 
     @Operation(summary = "Search for supports, paginated")
-    @GetMapping(value = UrlConstants.API_SUPPORTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SUPPORTS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SupportPage> getSupports(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -50,7 +51,7 @@ public class SupportController {
     }
 
     @Operation(summary = "Search for a support by its id")
-    @GetMapping(value = UrlConstants.API_SUPPORTS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SUPPORTS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SupportDto> getSupport(@PathVariable("id") String id) {
         Support support = supportService.findById(id);
         return ResponseEntity.ok().body(convertToDto(support));
@@ -58,7 +59,7 @@ public class SupportController {
     }
 
     @Operation(summary = "Update or create a support")
-    @PutMapping(value = UrlConstants.API_SUPPORTS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SUPPORTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<SupportDto> putSupport(@PathVariable("id") String id, @RequestBody @Valid SupportDto supportDto) {
         if (!supportDto.getId().equals(id)) {

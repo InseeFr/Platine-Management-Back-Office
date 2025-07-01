@@ -236,4 +236,11 @@ public class CampaignServiceImpl implements CampaignService {
                 .orElse(CollectionStatus.UNDEFINED);
     }
 
+    @Override
+    public CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId) {
+        return campaignRepository.findById(campaignId)
+                .filter(c -> isCampaignOngoing(c.getId()))
+                .map(this::convertToCampaignCommonsOngoingDto)
+                .orElseThrow(() ->  new NotFoundException(String.format("Campaign %s not found", campaignId)));
+    }
 }

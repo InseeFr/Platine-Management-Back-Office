@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,7 @@ public class CheckHabilitationController {
     private final CheckHabilitationService checkHabilitationService;
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
-    @GetMapping(path = UrlConstants.API_CHECK_HABILITATION_V1, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CHECK_HABILITATION_V1, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HabilitationDto> checkHabilitationV1(
             @Valid @ValidUserRole @RequestParam(required = false) String role,
             @RequestParam String id,
@@ -43,7 +44,7 @@ public class CheckHabilitationController {
     }
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
-    @GetMapping(path = UrlConstants.API_CHECK_HABILITATION, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CHECK_HABILITATION, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HabilitationDto> checkHabilitation(
             @Valid @ValidUserRole @RequestParam(required = false) String role,
             @RequestParam UUID questioningId,

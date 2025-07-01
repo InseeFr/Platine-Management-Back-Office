@@ -34,6 +34,14 @@ public interface CampaignService {
      */
     boolean isCampaignOngoing(String campaignId);
 
+    /**
+     * retrieve information from a campaign passed as a parameter
+     *
+     * @param campaignId of the campaign
+     * @return CampaignCommonsOngoingDto
+     */
+    CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId);
+
     List<CampaignOngoingDto> getCampaignOngoingDtos();
 
     List<CampaignCommonsOngoingDto> getCampaignCommonsOngoingDtos();

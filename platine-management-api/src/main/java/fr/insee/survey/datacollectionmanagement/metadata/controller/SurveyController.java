@@ -23,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,7 @@ public class SurveyController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Search for surveys, paginated")
-    @GetMapping(value = UrlConstants.API_SURVEYS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SurveyController.SurveyPage> getSurveys(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -62,7 +63,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for surveys, paginated")
-    @GetMapping(value = UrlConstants.API_SURVEYS_SEARCH, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SurveyController.SurveyPage> getSurveys(
             @RequestParam(required = false) String idSource,
             @RequestParam(required = false) Integer year,
@@ -77,7 +78,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for surveys by the source id")
-    @GetMapping(value = UrlConstants.API_SOURCES_ID_SURVEYS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_SURVEYS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SurveyDto>> getSurveysBySource(@PathVariable("id") String id) {
         Source source = sourceService.findById(id);
         return ResponseEntity.ok()
@@ -87,7 +88,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Search for a survey by its id")
-    @GetMapping(value = UrlConstants.API_SURVEYS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SurveyDto> getSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(survey));
@@ -96,7 +97,7 @@ public class SurveyController {
     }
 
     @Operation(summary = "Update or create a survey")
-    @PutMapping(value = UrlConstants.API_SURVEYS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SURVEYS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SurveyDto> putSurvey(@PathVariable("id") String id, @RequestBody @Valid SurveyDto surveyDto) {
         if (!surveyDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSurvey don't match");
