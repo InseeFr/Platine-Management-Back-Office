@@ -26,6 +26,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class UserController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for users, paginated")
-    @GetMapping(value = UrlConstants.API_USERS_ALL, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserController.UserPage.class)))
     })
@@ -69,7 +70,7 @@ public class UserController {
     }
 
     @Operation(summary = "Search for users, without pagination")
-    @GetMapping(value = UrlConstants.API_USERS_ALL_NO_PAGINATION, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ALL_NO_PAGINATION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class ))))
     })
@@ -80,7 +81,7 @@ public class UserController {
     }
 
     @Operation(summary = "Search for a user by its id")
-    @GetMapping(value = UrlConstants.API_USERS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDto> getUser(@PathVariable("id") String id) {
         User user = userService.findByIdentifier(id);
         return ResponseEntity.ok().body(convertToDto(user));
@@ -89,7 +90,7 @@ public class UserController {
     }
 
     @Operation(summary = "Update or create user")
-    @PutMapping(value = UrlConstants.API_USERS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_USERS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserDto.class))),

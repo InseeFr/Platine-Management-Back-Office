@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.query.service.MonitoringService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,19 +28,19 @@ public class MonitoringController {
 
     private final CampaignService campaignService;
 
-    @GetMapping(value = "/api/moog/campaigns/{idCampaign}/monitoring/progress", produces = "application/json")
+    @GetMapping(value = "/api/moog/campaigns/{idCampaign}/monitoring/progress", produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgress(@PathVariable String idCampaign) {
         log.info("Request GET for monitoring moog progress table for campaign : {}", idCampaign);
         return monitoringService.getProgress(idCampaign);
     }
 
-    @GetMapping(value = "/api/moog/campaigns/{idCampaign}/monitoring/follow-up", produces = "application/json")
+    @GetMapping(value = "/api/moog/campaigns/{idCampaign}/monitoring/follow-up", produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogFollowUpDto> getDataToFollowUp(@PathVariable String idCampaign) {
         log.info("Request GET for following table for campaign : {}", idCampaign);
         return monitoringService.getFollowUp(idCampaign);
     }
 
-    @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/progress", produces = "application/json")
+    @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/progress", produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgressTemp(@PathVariable String idCampaign) {
         log.info("Request GET for monitoring moog progress table for campaign : {}", idCampaign);
         Campaign campaign = campaignService.findById(idCampaign);
@@ -50,7 +51,7 @@ public class MonitoringController {
         return null;
     }
 
-    @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/follow-up", produces = "application/json")
+    @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/follow-up", produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogFollowUpDto> getDataToFollowUpTemp(@PathVariable String idCampaign) {
         log.info("Request GET for following table for campaign : {}", idCampaign);
         return monitoringService.getFollowUp(idCampaign);

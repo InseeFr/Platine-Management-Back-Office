@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +39,7 @@ public class OwnerController {
     private final OwnerService ownerService;
 
     @Operation(summary = "Search for owners, paginated")
-    @GetMapping(value = UrlConstants.API_OWNERS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OwnerPage> getOwners(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -50,7 +51,7 @@ public class OwnerController {
     }
 
     @Operation(summary = "Search for a owner by its id")
-    @GetMapping(value = UrlConstants.API_OWNERS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OwnerDto> getOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
         return ResponseEntity.ok().body(convertToDto(owner));
@@ -58,7 +59,7 @@ public class OwnerController {
     }
 
     @Operation(summary = "Update or create a owner")
-    @PutMapping(value = UrlConstants.API_OWNERS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_OWNERS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<OwnerDto> putOwner(@PathVariable("id") String id, @RequestBody @Valid OwnerDto ownerDto) {
         if (!ownerDto.getId().equals(id)) {

@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +54,7 @@ public class SourceAccreditationController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Search for source accreditations by source id")
-    @GetMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SourceAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -72,7 +73,7 @@ public class SourceAccreditationController {
     }
 
     @Operation(summary = "Create or update a source accreditation for a source")
-    @PostMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_SOURCE_ID_SOURCE_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
 

@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,7 @@ import java.util.List;
 public class PeriodPeriodicityController {
 
     @Operation(summary = "Search for periodicities")
-    @GetMapping(value = UrlConstants.API_PERIODICITIES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODICITIES, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PeriodicityDto>> getPeriodicities()  {
         List<PeriodicityDto> periodicities = new ArrayList<>();
         for (PeriodicityEnum periodicity : PeriodicityEnum.values()) {
@@ -36,7 +37,7 @@ public class PeriodPeriodicityController {
     }
 
     @Operation(summary = "Search for periods")
-    @GetMapping(value = UrlConstants.API_PERIODS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PeriodDto>> getPeriods()  {
         List<PeriodDto> periods = new ArrayList<>();
         for (PeriodEnum period : PeriodEnum.values()) {
@@ -46,7 +47,7 @@ public class PeriodPeriodicityController {
     }
 
     @Operation(summary = "Search for periods of a periodicity")
-    @GetMapping(value = UrlConstants.API_PERIODICITIES_ID_PERIODS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_PERIODICITIES_ID_PERIODS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PeriodDto>> getPeriodsOfPeriodicity(@PathVariable("periodicity") String periodicity) {
         try {
             PeriodicityEnum.valueOf(periodicity);

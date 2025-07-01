@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,21 +58,21 @@ public class SourceController {
     private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
-    @GetMapping(value = UrlConstants.API_SOURCES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<SourceDto> getSources() {
         return sourceService.findAll().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Get all sources ongoing")
-    @GetMapping(value = UrlConstants.API_SOURCES_ONGOING, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public List<SourceDto> getOngoingSources() {
         return sourceService.getOngoingSources();
     }
 
     @Operation(summary = "Search for a source by its id")
-    @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public SourceOwnerSupportDto getSource(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
@@ -80,7 +81,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Update or create a source")
-    @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOwnerSupportDto sourceDto) {
         if (!sourceDto.getId().equalsIgnoreCase(id)) {
@@ -138,7 +139,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Check if a source is opened")
-    @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public OpenDto isSourceOpened(@PathVariable("id") String id) {
 
@@ -157,7 +158,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Search for surveys by the owner id")
-    @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<SourceDto> getSourcesByOwner(@PathVariable("id") String id) {
         Owner owner = ownerService.findById(id);
@@ -167,7 +168,7 @@ public class SourceController {
     }
 
     @Operation(summary = "Get source parameters")
-    @GetMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
@@ -176,7 +177,7 @@ public class SourceController {
 
 
     @Operation(summary = "Create a parameter for a source")
-    @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = "application/json")
+    @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Source source = sourceService.findById(StringUtils.upperCase(id));

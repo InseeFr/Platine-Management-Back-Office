@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class QuestioningAccreditationController {
      * @deprecated
      */
     @Operation(summary = "Search for questioning accreditations by questioning id")
-    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -82,7 +83,7 @@ public class QuestioningAccreditationController {
      * @deprecated
      */
     @Operation(summary = "Create or update a questioning accreditation for a questioning")
-    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
                     content = @Content(schema = @Schema(implementation = QuestioningAccreditationDto.class))),
