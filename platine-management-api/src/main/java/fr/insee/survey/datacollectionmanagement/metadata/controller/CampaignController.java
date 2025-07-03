@@ -211,18 +211,18 @@ public class CampaignController {
 
     @Operation(summary = "Get commons ongoing campaigns")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<CampaignCommonsOngoingDto> getCommonsOngoingCampaigns() {
+    public List<CampaignCommonsDto> getCommonsOngoingCampaigns() {
         return campaignService.getCampaignCommonsOngoingDtos();
     }
 
-    @Operation(summary = "Get commons ongoing campaign")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get commons campaign")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_COMMONS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignCommonsOngoingDto.class))),
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignCommonsDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public CampaignCommonsOngoingDto getCommonsOngoingCampaignsById(@PathVariable("id") String id) {
-        return campaignService.findCampaignOngoingDtoById(id);
+    public CampaignCommonsDto getCommonsCampaignsById(@PathVariable("id") String id) {
+        return campaignService.findCampaignDtoById(id);
     }
 
 

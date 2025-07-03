@@ -40,11 +40,11 @@ public interface CampaignService {
      * @param campaignId of the campaign
      * @return CampaignCommonsOngoingDto
      */
-    CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId);
+    CampaignCommonsDto findCampaignDtoById(String campaignId);
 
     List<CampaignOngoingDto> getCampaignOngoingDtos();
 
-    List<CampaignCommonsOngoingDto> getCampaignCommonsOngoingDtos();
+    List<CampaignCommonsDto> getCampaignCommonsOngoingDtos();
 
     List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto);
 
