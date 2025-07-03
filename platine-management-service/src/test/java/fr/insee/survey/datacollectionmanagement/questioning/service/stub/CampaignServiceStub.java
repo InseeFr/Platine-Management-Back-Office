@@ -73,7 +73,7 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public List<CampaignCommonsOngoingDto> getCampaignCommonsOngoingDtos() {
+    public List<CampaignCommonsDto> getCampaignCommonsOngoingDtos() {
         return List.of();
     }
 
@@ -101,8 +101,8 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId) {
-        return new CampaignCommonsOngoingDto("CAMP1","LUNATIC_NORMAL",false,"WB");
+    public CampaignCommonsDto findCampaignDtoById(String campaignId) {
+        return null;
     }
 
 }

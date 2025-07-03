@@ -336,7 +336,7 @@ class CampaignControllerTest {
         String campaignId = "CAMP1";
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value("CAMP1"))
@@ -354,7 +354,7 @@ class CampaignControllerTest {
         String campaignId = "CAMP3";
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID_COMMONS_ONGOING, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

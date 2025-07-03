@@ -117,10 +117,10 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<CampaignCommonsOngoingDto> getCampaignCommonsOngoingDtos() {
+    public List<CampaignCommonsDto> getCampaignCommonsOngoingDtos() {
         return campaignRepository.findByDataCollectionTargetIsNot(DataCollectionEnum.FILE_UPLOAD).stream()
                 .filter(campaign -> isCampaignOngoing(campaign.getId()))
-                .map(this::convertToCampaignCommonsOngoingDto).toList();
+                .map(this::convertToCampaignCommonsDto).toList();
     }
 
     @Override
@@ -139,8 +139,8 @@ public class CampaignServiceImpl implements CampaignService {
         return result;
     }
 
-    private CampaignCommonsOngoingDto convertToCampaignCommonsOngoingDto(Campaign campaign) {
-        return new CampaignCommonsOngoingDto(
+    private CampaignCommonsDto convertToCampaignCommonsDto(Campaign campaign) {
+        return new CampaignCommonsDto(
                 campaign.getId(),
                 campaign.getDataCollectionTarget().name(),
                 campaign.isSensitivity(),
@@ -237,10 +237,9 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public CampaignCommonsOngoingDto findCampaignOngoingDtoById(String campaignId) {
+    public CampaignCommonsDto findCampaignDtoById(String campaignId) {
         return campaignRepository.findById(campaignId)
-                .filter(c -> isCampaignOngoing(c.getId()))
-                .map(this::convertToCampaignCommonsOngoingDto)
+                .map(this::convertToCampaignCommonsDto)
                 .orElseThrow(() ->  new NotFoundException(String.format("Campaign %s not found", campaignId)));
     }
 }

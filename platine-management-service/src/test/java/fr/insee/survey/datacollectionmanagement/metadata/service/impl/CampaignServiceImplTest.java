@@ -429,7 +429,7 @@ class CampaignServiceImplTest {
 
         campaignRepositoryStub.setCampaigns(List.of(camp1, camp2, camp3));
 
-        List<CampaignCommonsOngoingDto> result = campaignServiceImpl.getCampaignCommonsOngoingDtos();
+        List<CampaignCommonsDto> result = campaignServiceImpl.getCampaignCommonsOngoingDtos();
 
         assertThat(result).isNotNull()
                 .hasSize(1);
