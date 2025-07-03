@@ -367,9 +367,6 @@ class CampaignControllerTest {
     @Test
     void should_return_campaigns_by_id_is_null() throws Exception {
         // Given
-        Campaign campaign3 = initFutureCampaign("CAMP3");
-        initCampaignAndPartitionings("CAMP3", campaign3);
-
         String campaignId = "NOT_FOUND";
 
         // when / then
