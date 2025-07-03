@@ -351,7 +351,7 @@ class CampaignControllerTest {
         Campaign campaign3 = initFutureCampaign("CAMP3");
         initCampaignAndPartitionings("CAMP3", campaign3);
 
-        String campaignId = "CAMP3";
+        String campaignId = "NOT_FOUND";
 
         // when / then
         mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
