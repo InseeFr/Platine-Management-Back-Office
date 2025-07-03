@@ -346,7 +346,26 @@ class CampaignControllerTest {
     }
 
     @Test
-    void should_return_ongoing_campaigns_by_id_is_null() throws Exception {
+    void should_return_campaigns_by_id() throws Exception {
+        // Given
+        Campaign campaign3 = initFutureCampaign("CAMP3");
+        initCampaignAndPartitionings("CAMP3", campaign3);
+
+
+        String campaignId = "CAMP3";
+
+        // when / then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value("CAMP3"))
+                .andExpect(jsonPath("dataCollectionTarget").value("LUNATIC_NORMAL"))
+                .andExpect(jsonPath("sensitivity").value(false))
+                .andExpect(jsonPath("collectMode").value("WEB"));
+    }
+
+    @Test
+    void should_return_campaigns_by_id_is_null() throws Exception {
         // Given
         Campaign campaign3 = initFutureCampaign("CAMP3");
         initCampaignAndPartitionings("CAMP3", campaign3);

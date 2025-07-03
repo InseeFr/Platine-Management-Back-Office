@@ -238,8 +238,6 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public CampaignCommonsDto findCampaignDtoById(String campaignId) {
-        return campaignRepository.findById(campaignId)
-                .map(this::convertToCampaignCommonsDto)
-                .orElseThrow(() ->  new NotFoundException(String.format("Campaign %s not found", campaignId)));
+        return convertToCampaignCommonsDto(this.findById(campaignId));
     }
 }
