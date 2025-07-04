@@ -18,6 +18,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventServ
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
@@ -74,6 +75,9 @@ class ContactControllerTest {
 
     @Autowired
     QuestioningAccreditationService questioningAccreditationService;
+
+    @Autowired
+    QuestioningAccreditationRepository questioningAccreditationRepository;
 
     @RegisterExtension
     static WireMockExtension wmLdap = WireMockExtension.newInstance()
@@ -237,10 +241,11 @@ class ContactControllerTest {
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
         assertThat(createdContact.get().getIdentifier()).isEqualTo(username);
-        QuestioningAccreditation questioningAccreditation = questioningAccreditationService.findById(interrogationId);
-        assertThat(questioningAccreditation.isMain()).isTrue();
-        assertThat(questioningAccreditation.getIdContact()).isEqualTo(username);
-        assertThat(questioningAccreditation.getQuestioning().getId()).isEqualTo(interrogationId);
+        Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(interrogationId);
+        assertThat(questioningAccreditation).isPresent();
+        assertThat(questioningAccreditation.get().isMain()).isTrue();
+        assertThat(questioningAccreditation.get().getIdContact()).isEqualTo(username);
+        assertThat(questioningAccreditation.get().getQuestioning().getId()).isEqualTo(interrogationId);
     }
 
     @Test
