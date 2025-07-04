@@ -1,15 +1,24 @@
 --liquibase formatted sql
 
---changeset davdarras:030-01 context:migrate-questioning-id
+--changeset davdarras:060-01
 
-ALTER TABLE questioning RENAME COLUMN id TO old_id;
-ALTER TABLE questioning RENAME COLUMN interrogation_id TO id;
+DROP INDEX IF EXISTS idquestioning_index;
+DROP INDEX IF EXISTS idquestioningcomm_index;
+DROP INDEX IF EXISTS idquestioningcomment_index;
+DROP INDEX IF EXISTS questioning_index;
+DROP INDEX IF EXISTS mail_questid_index;
 
 ALTER TABLE questioning_accreditation DROP CONSTRAINT fk3yk8aoj5sep1mhgmln7vwu52j;
 ALTER TABLE questioning_comment DROP CONSTRAINT fk18p09b6mi3mc8stpht63qqgta;
 ALTER TABLE questioning_communication DROP CONSTRAINT fkrs4r6iv2ckjlqy5xwt5026jqb;
 ALTER TABLE questioning_event DROP CONSTRAINT fkocftpxs551mngv07kghby4laa;
+ALTER TABLE mail DROP CONSTRAINT mail_questioning_id_fkey;
+ALTER TABLE mail DROP CONSTRAINT unik_questid_template;
 ALTER TABLE questioning DROP CONSTRAINT questioning_pkey;
+
+ALTER TABLE questioning RENAME COLUMN id TO old_id;
+ALTER TABLE public.questioning ALTER COLUMN old_id DROP NOT NULL;
+ALTER TABLE questioning RENAME COLUMN interrogation_id TO id;
 
 ALTER TABLE questioning_comment RENAME COLUMN questioning_id TO questioning_old_id;
 ALTER TABLE questioning_comment ADD COLUMN questioning_id UUID;
@@ -29,6 +38,10 @@ update questioning_event set questioning_id = q.id from questioning q where q.ol
 ALTER TABLE questioning_accreditation RENAME COLUMN questioning_id TO questioning_old_id;
 ALTER TABLE questioning_accreditation ADD COLUMN questioning_id UUID;
 update questioning_accreditation set questioning_id = q.id from questioning q where q.old_id = questioning_old_id;
+
+ALTER TABLE mail RENAME COLUMN questioning_id TO questioning_old_id;
+ALTER TABLE mail ADD COLUMN questioning_id UUID;
+update mail set questioning_id = q.id from questioning q where q.old_id = questioning_old_id;
 
 ALTER TABLE questioning ADD CONSTRAINT questioning_pkey PRIMARY KEY (id);
 
@@ -56,7 +69,28 @@ ALTER TABLE questioning_communication
   REFERENCES questioning(id)
   ON DELETE CASCADE;
 
+ALTER TABLE mail
+  ADD CONSTRAINT mail_questioning_id_fkey
+  FOREIGN KEY (questioning_id)
+  REFERENCES questioning(id);
+
+ALTER TABLE mail
+  ADD CONSTRAINT unik_questid_template
+  UNIQUE(questioning_id, template, to_send_at) ;
+
 ALTER TABLE questioning_accreditation DROP COLUMN questioning_old_id;
 ALTER TABLE questioning_comment DROP COLUMN questioning_old_id;
 ALTER TABLE questioning_event DROP COLUMN questioning_old_id;
 ALTER TABLE questioning_communication DROP COLUMN questioning_old_id;
+ALTER TABLE mail DROP COLUMN questioning_old_id;
+
+CREATE INDEX idx_questioning_event_questioning_id
+  ON public.questioning_event USING btree (questioning_id);
+CREATE INDEX idx_questioning_communication_questioning_id
+  ON public.questioning_communication USING btree (questioning_id);
+CREATE INDEX idx_questioning_accreditation_questioning_id
+  ON public.questioning_accreditation USING btree (questioning_id);
+CREATE INDEX idx_questioning_comment_questioning_id
+  ON public.questioning_comment USING btree (questioning_id);
+CREATE INDEX idx_mail_questioning_id
+  ON public.mail USING btree (questioning_id);

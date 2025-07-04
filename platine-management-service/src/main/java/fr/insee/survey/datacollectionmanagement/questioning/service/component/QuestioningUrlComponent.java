@@ -49,7 +49,6 @@ public class QuestioningUrlComponent {
         Survey survey = campaign.getSurvey();
         Source source = survey.getSource();
         QuestioningUrlContext ctx = new QuestioningUrlContext(
-                questioning.getModelName(),
                 questioning.getSurveyUnit().getIdSu(),
                 questioning.getId(),
                 String.format("%s-%s-%s",source.getId().toLowerCase(),survey.getYear(),campaign.getPeriod()),
@@ -117,14 +116,14 @@ public class QuestioningUrlComponent {
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
+                    .fromUriString(String.format("%s/v3/review/interrogations/%s", baseUrl, context.questioningId()))
                     .toUriString();
         }
         if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
             String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
                     context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
             return  UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
+                    .fromUriString(String.format("%s/v3/interrogations/%s", baseUrl, context.questioningId()))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
                     .build().toUriString();
         }

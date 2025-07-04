@@ -1,0 +1,106 @@
+{
+    "realm": "platine",
+    "enabled": true,
+    "users": [
+        {
+            "username": "user",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Uzul",
+            "lastName": "User",
+            "email": "user@insee.fr",
+            "credentials": [
+                {
+                "type": "password",
+                "value": "user",
+                "temporary": false
+                }
+            ],
+            "realmRoles": ["user"]
+        },
+        {
+            "username": "respondent",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Regine",
+            "lastName": "Respondent",
+            "email": "respondent@insee.fr",
+            "credentials": [
+                {
+                "type": "password",
+                "value": "respondent",
+                "temporary": false
+                }
+            ],
+            "realmRoles": ["respondent"]
+        },
+      {
+        "username": "admin",
+        "enabled": true,
+        "emailVerified": true,
+        "firstName": "Adele",
+        "lastName": "Admin",
+        "email": "adele@insee.fr",
+        "credentials": [
+          {
+            "type": "password",
+            "value": "admin",
+            "temporary": false
+          }
+        ],
+        "realmRoles": ["admin"]
+      },
+      {
+        "username": "webclient",
+        "enabled": true,
+        "emailVerified": true,
+        "firstName": "Wally",
+        "lastName": "Webclient",
+        "email": "webclient@insee.fr",
+        "credentials": [
+          {
+            "type": "password",
+            "value": "webclient",
+            "temporary": false
+          }
+        ],
+        "realmRoles": ["webclient"]
+      }
+    ],
+    "clients": [
+      {
+        "clientId": "myclient",
+        "enabled": true,
+        "serviceAccountsEnabled": false,
+        "authorizationServicesEnabled": false,
+        "publicClient": true,
+        "directAccessGrantsEnabled": true,
+        "redirectUris": [
+          "http://localhost:8080/*"
+        ],
+        "protocol": "openid-connect",
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false
+      }
+    ],
+    "roles": {
+      "realm": [
+        {
+            "name": "user",
+            "description": "user role"
+        },
+        {
+            "name": "admin",
+            "description": "Admin role"
+        },
+        {
+          "name": "respondent",
+          "description": "Respondent role"
+        },
+        {
+          "name": "webclient",
+          "description": "webclient role"
+        }
+      ]
+    }
+  }

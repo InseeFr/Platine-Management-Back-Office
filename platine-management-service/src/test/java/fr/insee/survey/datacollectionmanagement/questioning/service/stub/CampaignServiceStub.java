@@ -73,6 +73,11 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
+    public List<CampaignCommonsDto> getCampaignCommonsOngoingDtos() {
+        return List.of();
+    }
+
+    @Override
     public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
         return null;
     }
@@ -94,4 +99,10 @@ public class CampaignServiceStub implements CampaignService {
                 .filter(Objects::nonNull)
                 .toList();
     }
+
+    @Override
+    public CampaignCommonsDto findCampaignDtoById(String campaignId) {
+        return null;
+    }
+
 }

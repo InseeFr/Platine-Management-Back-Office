@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Setter
 public class QuestioningEventServiceStub implements QuestioningEventService {
@@ -54,7 +55,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId) {
         return questioningEvents;
     }
 

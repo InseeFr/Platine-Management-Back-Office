@@ -17,9 +17,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -33,14 +36,14 @@ public class QuestioningCommentController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Create a questioning comment")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_COMMENT, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_COMMENT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningCommentInputDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable Long id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
+    public QuestioningCommentOutputDto postQuestioningComment(@PathVariable UUID id, @Valid @RequestBody QuestioningCommentInputDto questioningCommentInputDto) {
         Questioning questioning = questioningService.findById(id);
         return questioningCommentService.saveQuestioningComment(questioning, questioningCommentInputDto);
 

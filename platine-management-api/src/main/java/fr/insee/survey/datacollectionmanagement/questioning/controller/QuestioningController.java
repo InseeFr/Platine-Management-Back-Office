@@ -24,12 +24,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -51,7 +53,7 @@ public class QuestioningController {
      * @deprecated
      */
     @Operation(summary = "Create or update questioning")
-    @PostMapping(value = UrlConstants.API_QUESTIONINGS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningDto.class))),
             @ApiResponse(responseCode = "404", description = "NotFound")
@@ -74,7 +76,7 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Search for questionings by survey unit id")
-    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -88,14 +90,14 @@ public class QuestioningController {
     }
 
     @Operation(summary = "Get questioning assistance mail")
-    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_ASSISTANCE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
-    public AssistanceDto getAssistanceQuestioning(@PathVariable("id") Long questioningId) {
+    public AssistanceDto getAssistanceQuestioning(@PathVariable("id") UUID questioningId) {
         return questioningService.getMailAssistanceDto(questioningId);
     }
 
     @Operation(summary = "Get questioning id for a campaignId and and a surveyUnitId")
-    @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGSID, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public QuestioningIdDto getQuestioningId(@RequestParam("campaignId") String campaignId, @RequestParam("surveyUnitId") String surveyUnitId) {
         return questioningService.findByCampaignIdAndSurveyUnitIdSu(campaignId, surveyUnitId);
@@ -105,7 +107,7 @@ public class QuestioningController {
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updateInterrogationToMainContactAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("interrogationId") UUID interrogationId,
             @PathVariable("contactId") String contactId)  {
 
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);

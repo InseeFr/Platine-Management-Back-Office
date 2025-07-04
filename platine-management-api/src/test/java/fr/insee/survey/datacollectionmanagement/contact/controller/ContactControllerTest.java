@@ -40,6 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
@@ -207,10 +208,10 @@ class ContactControllerTest {
     }
 
     @Test
-    @DisplayName("Create contact and assign main accredition")
+    @DisplayName("Create contact and assign main accreditation")
     void putContactInterrogationInLdapAndAssignToInterrogationAsMain() throws Exception {
 
-        Long interrogationId = 1L;
+        UUID interrogationId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
         String email = "contact@insee.fr";
         String username = "TESTID";
 
@@ -228,7 +229,7 @@ class ContactControllerTest {
         wmLdap.stubFor(post(path)
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
-                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(createResponseBody(username))));
 
         this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, interrogationId)
@@ -241,11 +242,12 @@ class ContactControllerTest {
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
         assertThat(createdContact.get().getIdentifier()).isEqualTo(username);
-        Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(interrogationId);
-        assertThat(questioningAccreditation).isPresent();
-        assertThat(questioningAccreditation.get().isMain()).isTrue();
-        assertThat(questioningAccreditation.get().getIdContact()).isEqualTo(username);
-        assertThat(questioningAccreditation.get().getQuestioning().getId()).isEqualTo(interrogationId);
+        Optional<QuestioningAccreditation> optQuestioningAccreditation = questioningAccreditationRepository.findAccreditationsByQuestioningIdAndIsMainTrue(interrogationId);
+        assertThat(optQuestioningAccreditation).isPresent();
+        QuestioningAccreditation questioningAccreditation = optQuestioningAccreditation.get();
+        assertThat(questioningAccreditation.isMain()).isTrue();
+        assertThat(questioningAccreditation.getIdContact()).isEqualTo(username);
+        assertThat(questioningAccreditation.getQuestioning().getId()).isEqualTo(interrogationId);
     }
 
     @Test
@@ -365,7 +367,7 @@ class ContactControllerTest {
         this.mockMvc.perform(get(UrlConstants.API_CONTACT)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT))))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -392,11 +394,11 @@ class ContactControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -415,7 +417,7 @@ class ContactControllerTest {
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
                                 .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType("application/json")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
                 .andExpect(status().isBadRequest());

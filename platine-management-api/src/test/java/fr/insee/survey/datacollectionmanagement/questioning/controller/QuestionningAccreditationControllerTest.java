@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,15 +54,14 @@ class QuestionningAccreditationControllerTest {
     @Test
     void getQuestioningAccreditationOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
-        Long identifier = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJsonQuestioningAcreditation();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, questioning.getId())).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getQuestioningAccreditationNotFound() throws Exception {
-        String identifier = "300";
+        UUID identifier = UUID.randomUUID();
         this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
@@ -69,7 +69,7 @@ class QuestionningAccreditationControllerTest {
 
     @Test
     void postAccreditationQuestioningNotFound() throws Exception {
-        int idQuestioning = 10000;
+        UUID idQuestioning = UUID.randomUUID();
         String idContact = "CONT1";
 
         // create contact - status created
@@ -84,7 +84,7 @@ class QuestionningAccreditationControllerTest {
     @Test
     void postAccreditationContactNotFound() throws Exception {
         Questioning q = questioningService.findByIdPartitioning("SOURCE12023T1000").stream().findFirst().get();
-        Long idQuestioning = q.getId();
+        UUID idQuestioning = q.getId();
         String idContact = "CONT7500";
 
         // create contact - status created
@@ -99,7 +99,7 @@ class QuestionningAccreditationControllerTest {
     @Test
     void postAccreditationCreateUpdate() throws Exception {
         Questioning q = questioningService.findByIdPartitioning("SOURCE12023T1000").stream().findFirst().get();
-        Long idQuestioning = q.getId();
+        UUID idQuestioning = q.getId();
         String idContact = "CONT5";
 
         // create accreditation - status created

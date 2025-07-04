@@ -7,10 +7,11 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class SearchQuestioningDto {
-    private final Long questioningId;
+    private final UUID questioningId;
     private final String campaignId;
     private final TypeCommunicationEvent lastCommunicationType;
     private final Date validationDate;
@@ -19,7 +20,7 @@ public class SearchQuestioningDto {
     private final String identificationCode;
     private final List<String> contactIds;
 
-    public SearchQuestioningDto(Long questioningId,
+    public SearchQuestioningDto(UUID questioningId,
                                    String campaignId,
                                    TypeCommunicationEvent lastCommunicationType,
                                    Date validationDate,

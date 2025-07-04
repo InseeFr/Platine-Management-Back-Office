@@ -15,16 +15,17 @@ import org.springframework.data.domain.Slice;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public interface QuestioningService {
 
     Page<Questioning> findAll(Pageable pageable);
 
-    Questioning findById(Long id);
+    Questioning findById(UUID id);
 
     Questioning saveQuestioning(Questioning questioning);
 
-    void deleteQuestioning(Long id);
+    void deleteQuestioning(UUID id);
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
 
@@ -32,7 +33,7 @@ public interface QuestioningService {
 
     QuestioningIdDto findByCampaignIdAndSurveyUnitIdSu(String campaignId, String surveyUnitIdSu);
 
-    AssistanceDto getMailAssistanceDto(Long questioningId) ;
+    AssistanceDto getMailAssistanceDto(UUID questioningId) ;
     /**
      * Delete questionings attached to one partitioning
      *
@@ -45,7 +46,7 @@ public interface QuestioningService {
 
     Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable);
 
-    QuestioningDetailsDto getQuestioningDetails(Long id);
+    QuestioningDetailsDto getQuestioningDetails(UUID id);
 
-    QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate);
+    QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
 }

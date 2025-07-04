@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -45,7 +46,7 @@ public class UserEventController {
     private final UserEventService userEventService;
 
     @Operation(summary = "Search for userEvents by user's id")
-    @GetMapping(value = UrlConstants.API_USERS_ID_USEREVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_USERS_ID_USEREVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserEventDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -65,7 +66,7 @@ public class UserEventController {
     }
 
     @Operation(summary = "Create a userEvent")
-    @PostMapping(value = UrlConstants.API_USEREVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_USEREVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = UserEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -90,7 +91,7 @@ public class UserEventController {
     }
 
     @Operation(summary = "Delete a contact event")
-    @DeleteMapping(value = UrlConstants.API_USEREVENTS_ID, produces = "application/json")
+    @DeleteMapping(value = UrlConstants.API_USEREVENTS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),

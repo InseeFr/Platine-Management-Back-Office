@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -56,14 +58,14 @@ public class QuestioningAccreditationController {
      * @deprecated
      */
     @Operation(summary = "Search for questioning accreditations by questioning id")
-    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningAccreditationDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     @Deprecated(since = "2.6.0")
-    public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") Long id) {
+    public List<QuestioningAccreditationDto> getQuestioningAccreditation(@PathVariable("id") UUID id) {
         log.warn("DEPRECATED");
 
         Questioning optQuestioning = questioningService.findById(id);
@@ -81,7 +83,7 @@ public class QuestioningAccreditationController {
      * @deprecated
      */
     @Operation(summary = "Create or update a questioning accreditation for a questioning")
-    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created",
                     content = @Content(schema = @Schema(implementation = QuestioningAccreditationDto.class))),
@@ -89,7 +91,7 @@ public class QuestioningAccreditationController {
     })
     @Transactional
     @Deprecated(since = "2.6.0")
-    public ResponseEntity<QuestioningAccreditationDto> postQuestioningAccreditation(@PathVariable("id") Long id,
+    public ResponseEntity<QuestioningAccreditationDto> postQuestioningAccreditation(@PathVariable("id") UUID id,
                                                                                     @RequestBody QuestioningAccreditationDto questioningAccreditationDto) {
 
         log.warn("DEPRECATED");
@@ -154,7 +156,13 @@ public class QuestioningAccreditationController {
     }
 
     private QuestioningAccreditation convertToEntity(QuestioningAccreditationDto questioningAccreditationDto) {
-        return modelMapper.map(questioningAccreditationDto, QuestioningAccreditation.class);
+        QuestioningAccreditation questioningAccreditation = new QuestioningAccreditation();
+        questioningAccreditation.setId(questioningAccreditationDto.getId());
+        questioningAccreditation.setIdContact(questioningAccreditationDto.getIdContact());
+        questioningAccreditation.setMain(questioningAccreditationDto.isMain());
+        questioningAccreditation.setCreationAuthor(questioningAccreditationDto.getCreationAuthor());
+        questioningAccreditation.setCreationDate(questioningAccreditationDto.getCreationDate());
+        return questioningAccreditation;
     }
 
     private QuestioningAccreditationDto convertToDto(QuestioningAccreditation questioningAccreditation) {

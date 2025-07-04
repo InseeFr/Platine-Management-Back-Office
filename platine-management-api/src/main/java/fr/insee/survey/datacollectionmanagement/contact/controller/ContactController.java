@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -41,6 +42,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -58,7 +60,7 @@ public class ContactController {
      * @deprecated
      */
     @Operation(summary = "Search for contacts, paginated")
-    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public ContactPage getContacts(
             @RequestParam(defaultValue = "0") Integer page,
@@ -87,7 +89,7 @@ public class ContactController {
     }
 
     @Operation(summary = "Put contact info")
-    @PutMapping(value = UrlConstants.API_CONTACT, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
                                                      @CurrentSecurityContext(expression = "authentication.name") String contactId) {
@@ -104,7 +106,7 @@ public class ContactController {
     }
 
     @Operation(summary = "Update or create a contact")
-    @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                  @RequestBody @Valid ContactDto contactDto,
@@ -153,13 +155,13 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
-            @PathVariable("interrogationId") Long interrogationId,
+            @PathVariable("interrogationId") UUID interrogationId,
             @RequestBody ContactDto contactDto)  {
 
         contactService.createContactAndAssignToAccreditationAsMain(interrogationId, contactDto);
     }
 
-    @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Multi-criteria search contacts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),

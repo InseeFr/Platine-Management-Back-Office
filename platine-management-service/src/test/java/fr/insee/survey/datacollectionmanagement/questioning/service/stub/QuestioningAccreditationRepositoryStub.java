@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.FluentQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Setter
@@ -33,15 +34,21 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
     }
 
     @Override
-    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId) {
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(UUID questioningId) {
         return questioningAccreditations.stream().filter(e -> e.getQuestioning().getId().equals(questioningId)).findFirst();
     }
 
     @Override
-    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(Long questioningId, String idContact) {
+    public Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(UUID questioningId, String idContact) {
         return questioningAccreditations.stream().filter(e ->
                 e.getQuestioning().getId().equals(questioningId)
                 && e.getIdContact().equals(idContact)).findFirst();
+    }
+
+    @Override
+    public Optional<QuestioningAccreditation> findByQuestioning_IdAndIdContact(UUID questioningId, String idContact) {
+        return questioningAccreditations.stream().filter(q -> q.getQuestioning().getId().equals(questioningId)
+                && q.getIdContact().equals(idContact)).findFirst();
     }
 
 

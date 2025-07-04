@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -53,13 +54,13 @@ public class UploadController {
 
     }
 
-    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<Upload> displayAllUploads(@PathVariable String idCampaign) {
         log.info("Request GET for uploads");
         return new JSONCollectionWrapper<Upload>(moogUploadService.findAllByIdCampaign(idCampaign));
     }
 
-    @PostMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = "application/json")
+    @PostMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultUpload addQuestioningEventViaUpload(@PathVariable String idCampaign,
                                                              @RequestBody UploadDto request) throws RessourceNotValidatedException {
         log.info("Request POST to add an upload");

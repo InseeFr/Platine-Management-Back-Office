@@ -38,7 +38,7 @@ class MoogControllerTest {
         String surveyUnitId = "100000000";
         this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
 
-                .andExpect(content().string("http://localhost:8090/lunatic/normal/v3/review/questionnaire/m0/unite-enquetee/100000000"));
+                .andExpect(content().string("http://localhost:8090/lunatic/normal/v3/review/interrogations/bbbbbbbb-bbbb-bbbb-bbbb-000000000000"));
     }
 
 

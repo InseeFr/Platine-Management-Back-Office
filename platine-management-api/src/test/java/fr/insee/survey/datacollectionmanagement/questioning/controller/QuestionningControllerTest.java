@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -100,7 +101,7 @@ class QuestionningControllerTest {
     @Test
     @DisplayName("Assign an interrogation to a main contact that is already assigned to this interrogation")
     void updateInterrogation_ToMainContactAsMain_ok_AlreadyAssigned() throws Exception {
-        Long questioningId = 1L;
+        UUID questioningId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
         String contactId = "CONT1";
 
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
@@ -126,7 +127,7 @@ class QuestionningControllerTest {
     @Test
     @DisplayName("Assign an interrogation to a main contact")
     void updateInterrogation_ToMainContactAsMain_ok() throws Exception {
-        Long questioningId = 1L;
+        UUID questioningId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
         String contactId = "CONT2";
         String replacedContactId = "CONT1";
 
@@ -178,7 +179,7 @@ class QuestionningControllerTest {
 
     @Test
     void updateInterrogation_ToMainContactAsMain_notFound() throws Exception {
-        Long questioningId = 999L;
+        UUID questioningId = UUID.randomUUID();
         String contactId = "UNKNOWN";
 
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
@@ -188,7 +189,7 @@ class QuestionningControllerTest {
 
     @Test
     void updateInterrogation_ToMainContactAsInterrogation_notFound() throws Exception {
-        Long questioningId = 999L;
+        UUID questioningId = UUID.randomUUID();
         String contactId = "CONT1";
 
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)

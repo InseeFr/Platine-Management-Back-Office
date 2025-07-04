@@ -21,6 +21,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,15 +48,14 @@ class QuestionningEventControllerTest {
     @Transactional
     void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
-        Long id = questioning.getQuestioningAccreditations().stream().findFirst().get().getId();
         String json = createJsonQuestioningEvent();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, id)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId())).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getQuestioningEventNotFound() throws Exception {
-        String identifier = "300";
+        UUID identifier = UUID.randomUUID();
         this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, identifier)).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
@@ -63,9 +64,9 @@ class QuestionningEventControllerTest {
     @Test
     void createNotValidQuestioningEvent() throws Exception {
         String notValidEvent = "notValidEvent";
-
+        UUID randomUUID = UUID.randomUUID();
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent)
-                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(1L)))
+                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(randomUUID)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
@@ -101,7 +102,7 @@ class QuestionningEventControllerTest {
         return ja.toString();
     }
 
-    private String createJsonQuestioningEventInputDto(Long id) throws JSONException {
+    private String createJsonQuestioningEventInputDto(UUID id) throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("questioningId", id);
 

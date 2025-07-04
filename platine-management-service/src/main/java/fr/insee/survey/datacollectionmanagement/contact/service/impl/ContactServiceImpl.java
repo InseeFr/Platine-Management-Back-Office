@@ -27,10 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -246,7 +243,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactDto createContactAndAssignToAccreditationAsMain(Long questioningId, ContactDto contact) {
+    public ContactDto createContactAndAssignToAccreditationAsMain(UUID questioningId, ContactDto contact) {
         if(!questioningRepository.existsById(questioningId))
         {
             throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
@@ -276,7 +273,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public void assignMainContactToQuestioning(String contactIdentifier, Long questioningId) {
+    public void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId) {
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contactIdentifier, questioningId);
     }
 }

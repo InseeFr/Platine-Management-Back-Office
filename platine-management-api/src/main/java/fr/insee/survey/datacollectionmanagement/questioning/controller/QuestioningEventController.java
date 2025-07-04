@@ -22,12 +22,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -44,13 +46,13 @@ public class QuestioningEventController {
     private final UploadService uploadService;
 
     @Operation(summary = "Search for a questioning event by questioning id")
-    @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = QuestioningEventDto.class)))),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") Long id) {
+    public List<QuestioningEventDto> findQuestioningEventsByQuestioning(@PathVariable("id") UUID id) {
         Questioning questioning = questioningService.findById(id);
         Set<QuestioningEvent> setQe = questioning.getQuestioningEvents();
         return setQe.stream().map(questioningEventService::convertToDto).toList();
@@ -58,13 +60,13 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Create a questioning event")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @ResponseStatus(HttpStatus.CREATED)
-    public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") Long id,
+    public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") UUID id,
                                                     @RequestBody QuestioningEventDto questioningEventDto) {
         questioningService.findById(id);
         QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
@@ -73,7 +75,7 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Create a questioning event")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
@@ -88,16 +90,16 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Delete a questioning event")
-    @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = "application/json")
+    @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<?> deleteQuestioningEvent(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteQuestioningEvent(@PathVariable("id") Long id) {
         QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
 
-        Upload upload = (questioningEvent.getUpload() != null ? questioningEvent.getUpload() : null);
+        Upload upload = questioningEvent.getUpload();
         Questioning quesitoning = questioningEvent.getQuestioning();
         quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
                 .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
