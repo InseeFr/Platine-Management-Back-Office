@@ -138,11 +138,11 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
         Contact previousContact = contactRepository.findById(existingAccreditation.getIdContact())
                 .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
-        existingAccreditation.setIdContact(newContact.getIdentifier());
-        saveQuestioningAccreditation(existingAccreditation);
-        logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign);
-        logContactAccreditationGainUpdate(newContact, surveyUnitId, payload, campaign);
 
+        questioningAccreditationRepository.deleteById(existingAccreditation.getId());
+        logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign);
+
+        createQuestioningAccreditation(existingAccreditation.getQuestioning(), true, newContact, payload, new Date(), campaign);
     }
 
     @Override

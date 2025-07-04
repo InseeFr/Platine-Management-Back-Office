@@ -172,7 +172,7 @@ public class QuestioningAccreditationRepositoryStub implements QuestioningAccred
 
     @Override
     public void deleteById(Long aLong) {
-        // not used
+        questioningAccreditations.removeIf(e -> e.getId().equals(aLong));
     }
 
     @Override
