@@ -93,4 +93,9 @@ public class QuestioningServiceStub implements QuestioningService {
     public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
         return questionnaireStatus;
     }
+
+    @Override
+    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
+        return questionnaireStatus;
+    }
 }
