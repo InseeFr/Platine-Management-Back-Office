@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,11 +36,6 @@ public class MySurveysServiceImpl implements MySurveysService {
         List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDtos = questioningAccreditationRepository.findQuestionnaireDetailsByIdec(contactId);
 
         for (MyQuestionnaireDetailsDto details : myQuestionnaireDetailsDtos) {
-            QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(
-                    details.getQuestioningId(),
-                    details.getPartitioningOpeningDate(),
-                    details.getPartitioningClosingDate());
-
             QuestioningUrlContext ctx = new QuestioningUrlContext(
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
@@ -51,6 +47,13 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getOperationUploadReference(),
                     contactId
             );
+
+            Date openingDate = details.getPartitioningOpeningDate();
+            Date closingDate = details.getPartitioningClosingDate();
+
+            QuestionnaireStatusTypeEnum status = isFileUpload(ctx.dataCollection())
+                    ? questioningService.getQuestioningStatusFileUpload(openingDate, closingDate)
+                    : questioningService.getQuestioningStatus(details.getQuestioningId(), openingDate, closingDate);
 
             QuestioningUrls urls = buildQuestioningUrls(status, ctx);
 
@@ -103,6 +106,4 @@ public class MySurveysServiceImpl implements MySurveysService {
     private boolean isOpen(QuestionnaireStatusTypeEnum questioningStatus) {
         return QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus);
     }
-
-
 }

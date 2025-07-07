@@ -237,5 +237,18 @@ public class QuestioningServiceImpl implements QuestioningService {
         return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
     }
 
+    @Override
+    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
+        Date today = new Date();
 
+        if (today.before(openingDate)) {
+            return QuestionnaireStatusTypeEnum.INCOMING;
+        }
+
+        if (today.after(closingDate)) {
+            return QuestionnaireStatusTypeEnum.RECEIVED;
+        }
+
+        return QuestionnaireStatusTypeEnum.IN_PROGRESS;
+    }
 }
