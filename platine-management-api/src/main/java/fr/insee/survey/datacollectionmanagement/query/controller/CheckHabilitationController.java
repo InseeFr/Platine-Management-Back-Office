@@ -47,7 +47,7 @@ public class CheckHabilitationController {
     @GetMapping(path = UrlConstants.API_CHECK_HABILITATION, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HabilitationDto> checkHabilitation(
             @Valid @ValidUserRole @RequestParam(required = false) String role,
-            @RequestParam UUID questioningId,
+            @RequestParam(name = "id") UUID questioningId,
             @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
         List<String> userRoles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
