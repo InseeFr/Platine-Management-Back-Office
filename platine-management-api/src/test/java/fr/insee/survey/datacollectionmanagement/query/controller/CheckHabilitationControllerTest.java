@@ -39,7 +39,7 @@ class CheckHabilitationControllerTest {
     void shouldAllowAccessForAdmin() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN));
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("questioningId", String.valueOf(questioningId))
+                        .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -51,7 +51,7 @@ class CheckHabilitationControllerTest {
     void shouldAllowAccessForRespondent() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT));
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("questioningId", String.valueOf(questioningId))
+                        .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -63,7 +63,7 @@ class CheckHabilitationControllerTest {
     void shouldNotAllowAccessForRespondent() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("questioningId", String.valueOf(questioningId))
+                        .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
