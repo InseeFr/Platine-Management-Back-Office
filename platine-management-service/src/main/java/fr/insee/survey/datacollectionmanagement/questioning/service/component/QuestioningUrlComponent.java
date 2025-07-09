@@ -120,7 +120,7 @@ public class QuestioningUrlComponent {
                     .toUriString();
         }
         if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
+            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
                     context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
             return  UriComponentsBuilder
                     .fromUriString(String.format("%s/v3/interrogations/%s", baseUrl, context.questioningId()))
