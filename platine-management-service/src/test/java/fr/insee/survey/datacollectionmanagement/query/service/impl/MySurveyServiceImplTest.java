@@ -47,7 +47,7 @@ class MySurveyServiceImplTest {
         Date date = new Date();
         instant = date.toInstant();
         questioningService = new QuestioningServiceStub();
-        UUID questioningId = UUID.randomUUID();
+
         myQuestionnaireDetailsDto = new MyQuestionnaireDetailsDto();
         questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(myQuestionnaireDetailsDto));
 
@@ -235,6 +235,29 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.interrogationDownloadFileName()).isNotBlank();
+    }
+
+    @Test
+    @DisplayName("Should return questionnaire with status based on File Upload logic")
+    void getListMyQuestionnaires_FileUploadStatus() {
+        Source source = createSource("SOURCE");
+        Survey survey = createSurvey(source, "SURVEY2025", 2025);
+        Campaign campaign = createCampaign("SURVEY2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
+        Partitioning partitioning = createPartitioning("partitioning1", campaign);
+        SurveyUnit surveyUnit = createSurveyUnit("SU001");
+        Questioning questioning = createQuestioning(555L);
+        MyQuestionnaireDetailsDto detailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
+
+        detailsDto.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD.name());
+        questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(detailsDto));
+        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
+
+        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("SU001");
+        assertThat(result).hasSize(1);
+        MyQuestionnaireDto dto = result.getFirst();
+        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.depositProofUrl()).isNull();
     }
 
     private Questioning createQuestioning(UUID id) {

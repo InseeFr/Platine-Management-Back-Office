@@ -12,6 +12,8 @@ services:
     volumes:
       - ./container/keycloak/realms:/opt/keycloak/data/import
   platine-db:
+    profiles:
+      - all
     image: postgres:15.1
     environment:
       - POSTGRES_USER=${PLATINE_DB_USER}
@@ -25,3 +27,19 @@ services:
       retries: 10
     ports:
       - ${PLATINE_DB_PORT}:5432
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    profiles:
+      - keycloak
+      - all
+    environment:
+      KEYCLOAK_ADMIN: administrator
+      KEYCLOAK_ADMIN_PASSWORD: administrator
+      KC_HEALTH_ENABLED: 'true'
+      KC_LOG_LEVEL: info
+    command: ['start-dev', '--import-realm']
+    ports:
+      - '${KEYCLOAK_PORT}:8080'
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import
