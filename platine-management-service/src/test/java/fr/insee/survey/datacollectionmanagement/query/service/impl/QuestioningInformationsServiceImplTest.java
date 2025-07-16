@@ -167,6 +167,7 @@ class QuestioningInformationsServiceImplTest {
         infos.setIdentificationName("Name123");
         infos.setStreetName("Main St");
         infos.setStreetNumber("123");
+        infos.setSpecialDistribution("Special");
 
 
         // When
@@ -188,6 +189,7 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("Doe Inc.", result.getContactInformationsDto().getUsualCompanyName());
         assertEquals("Main St", result.getContactInformationsDto().getAddressInformationsDto().getStreetName());
         assertEquals("123", result.getContactInformationsDto().getAddressInformationsDto().getStreetNumber());
+        assertEquals("Special", result.getContactInformationsDto().getAddressInformationsDto().getSpecialDistribution());
 
 
         assertNotNull(result.getSurveyUnitInformationsDto());
