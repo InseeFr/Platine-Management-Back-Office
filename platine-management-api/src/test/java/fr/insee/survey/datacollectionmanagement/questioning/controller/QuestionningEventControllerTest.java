@@ -48,7 +48,6 @@ class QuestionningEventControllerTest {
     @Transactional
     void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
-        UUID id = questioning.getId();
         String json = createJsonQuestioningEvent();
         this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId())).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
