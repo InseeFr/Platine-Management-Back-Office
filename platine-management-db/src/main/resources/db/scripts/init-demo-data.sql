@@ -21,11 +21,10 @@ INSERT INTO public.campaign(id, campaign_wording, survey_id, period_value, year_
   ('AQV2024X00', 'AQV2024X00', 'AQV2024', 'X00', 2024, 'LUNATIC_NORMAL', false),
   ('AQV2023X00', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
 
-
-INSERT INTO public.partitioning(id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
-  ('AQV2024X0000', '2026-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
-  ('AQV2023X0000', '2027-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
-  ('AQV2022X0000', '2028-06-01 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
+INSERT INTO public.partitioning (id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
+  ('AQV2024X0000', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
+  ('AQV2023X0000', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2099-12-26 07:28:27.086', 'AQV2023X00', NULL),
+  ('AQV2022X0000', '2024-06-01 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
 
 INSERT INTO public.address(id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type) VALUES
   (207, 'France', 'rue des oies', '1', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),
@@ -33,7 +32,6 @@ INSERT INTO public.address(id,  country_name, street_name, street_number, zip_co
   (214, 'France', 'rue des oies', '3', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),
   (217, 'France', 'rue des oies', '4', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),
   (1209, 'Italie', NULL, '', '', 'ComplementAdresse0', '', 'LibelleCedex0', 'LibelleCommune0', NULL, 'IndiceRepetition0', 'MentionSpeciale0', 'TypeVoie0');
-
 
 INSERT INTO public.contact(identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2) VALUES
   ('RESPON1', NULL, 'caille1@insee.fr', 'Éléonore ', 'Directrice', 'Female', 'Iléosud', '0600000000', 207, 'ID1', false, NULL, NULL),
@@ -216,7 +214,6 @@ INSERT INTO public.questioning_event (id, "date", "type", questioning_id, payloa
   (1217, '2023-03-08 12:25:33.960','INITLA',    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21','{"source":"platine-batch"}'::jsonb, NULL),
   (1221, '2023-03-08 15:49:52.310','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL),
   (2822, '2023-06-01 13:53:50.683','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL);
-
 
 INSERT INTO public.questioning_comment(id, author, "comment", "date", questioning_id) VALUES
   (252, 'Robert', 'Commentaire 1 PROTO001', '2025-01-24 14:06:44.706', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21'),

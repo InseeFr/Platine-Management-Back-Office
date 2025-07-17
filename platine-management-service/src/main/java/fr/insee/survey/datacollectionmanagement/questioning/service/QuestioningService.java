@@ -51,4 +51,5 @@ public interface QuestioningService {
     QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate);
   
     QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
+
 }

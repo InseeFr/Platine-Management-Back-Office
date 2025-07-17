@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -476,7 +477,7 @@ class QuestioningServiceImplTest {
         return cal.getTime();
     }
 
-    private Questioning buildQuestioning(UUID id, String suId) {
+    private Questioning buildQuestioning(Long id, String suId) {
         Questioning q = new Questioning();
         q.setId(id);
         q.setIdPartitioning("PART001");
