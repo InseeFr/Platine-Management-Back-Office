@@ -1,6 +1,9 @@
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
+    profiles:
+      - keycloak
+      - all
     environment:
       KEYCLOAK_ADMIN: administrator
       KEYCLOAK_ADMIN_PASSWORD: administrator
@@ -27,19 +30,3 @@ services:
       retries: 10
     ports:
       - ${PLATINE_DB_PORT}:5432
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0
-    profiles:
-      - keycloak
-      - all
-    environment:
-      KEYCLOAK_ADMIN: administrator
-      KEYCLOAK_ADMIN_PASSWORD: administrator
-      KC_HEALTH_ENABLED: 'true'
-      KC_LOG_LEVEL: info
-    command: ['start-dev', '--import-realm']
-    ports:
-      - '${KEYCLOAK_PORT}:8080'
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
