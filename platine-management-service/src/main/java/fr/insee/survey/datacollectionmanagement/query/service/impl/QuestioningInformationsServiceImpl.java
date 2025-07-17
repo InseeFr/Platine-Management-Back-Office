@@ -113,6 +113,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         addressDto.setStreetName(infos.getStreetName());
         addressDto.setStreetType(infos.getStreetType());
         addressDto.setAddressSupplement(infos.getAddressSupplement());
+        addressDto.setSpecialDistribution(infos.getSpecialDistribution());
         addressDto.setStreetNumber(infos.getStreetNumber());
         addressDto.setRepetitionIndex(infos.getRepetitionIndex());
         addressDto.setZipCode(infos.getZipCode());

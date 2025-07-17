@@ -21,6 +21,7 @@ public class QuestioningInformations {
     private String zipCode;
     private String cityName;
     private String addressSupplement;
+    private String specialDistribution;
     private String cedexCode;
     private String cedexName;
     private String repetitionIndex;
