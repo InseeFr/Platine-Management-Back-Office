@@ -5,6 +5,7 @@ public enum TypeCommunicationEvent {
     MAIL_OUVERTURE,
     COURRIER_RELANCE,
     MAIL_RELANCE,
+    MAIL_DIVERS,
     COURRIER_MED,
     COURRIER_MEDAR,
     COURRIER_CNR,
