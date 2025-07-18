@@ -22,9 +22,9 @@ INSERT INTO public.campaign(id, campaign_wording, survey_id, period_value, year_
   ('AQV2023X00', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
 
 INSERT INTO public.partitioning (id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
-  ('AQV2024X0000', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
-  ('AQV2023X0000', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2099-12-26 07:28:27.086', 'AQV2023X00', NULL),
-  ('AQV2022X0000', '2024-06-01 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
+  ('AQV2024X0000', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
+  ('AQV2023X0000', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
+  ('AQV2022X0000', '2099-10-30 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
 
 INSERT INTO public.address(id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type) VALUES
   (207, 'France', 'rue des oies', '1', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),
