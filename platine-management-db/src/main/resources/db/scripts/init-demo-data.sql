@@ -16,7 +16,30 @@ VALUES('platine', 'Support platine', 'Paris', 'France', 'support3@cocorico.fr', 
 
 INSERT INTO public."source"
 (id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
-VALUES('AQV', 'Source trest AQV', false, 'X', 'AQV stromae V2', 'platine', 'platine');
+VALUES('AQV', 'Source test AQV', false, 'X', 'AQV stromae V2', 'platine', 'platine');
+
+
+                                -- E2E tests sources --
+
+INSERT INTO public."source"
+(id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
+VALUES('SOURCE_1', 'Source 1 containing a campaign with one interrogation for a contact', false, 'X', 'One interrogation', 'platine', 'platine');
+
+INSERT INTO public."source"
+(id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
+VALUES('SOURCE_2', 'Source 2 containing a campaign with multiple interrogations and one UE for a contact', false, 'X', 'Multi-interrogations, one SU', 'platine', 'platine');
+
+INSERT INTO public."source"
+(id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
+VALUES('SOURCE_3', 'Source 3 containing a campaign with multiple sources and UEs for a contact', false, 'X', 'Multi-interrogations, one SU', 'platine', 'platine');
+
+INSERT INTO public."source"
+(id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
+VALUES('SOURCE_4', 'Source 4 containing a campaign with multiple sources and UEs for a contact', false, 'X', 'Multi-SU', 'platine', 'platine');
+
+INSERT INTO public."source"
+(id, long_wording, mandatory_my_surveys, periodicity, short_wording, owner_id, support_id)
+VALUES('SOURCE_EEC', 'Source EEC', false, 'X', 'EEC', 'platine', 'platine');
 
 INSERT INTO public.survey
 (id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
@@ -30,6 +53,40 @@ INSERT INTO public.survey
 (id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
 VALUES('AQV2024', 'http://cnis/AQV2024', '', 'http://diffusion/AQV2024', 'Cette enquête permet de connaître précisément...', 'AQV stromae V2', 'http://notice/AQV2023', 0, 'Cette enquête permet de connaître précisément ...', 'Test pour AQV', 'http://specimenUrl/AQV2022', '2024xxxxxx', 2024, 'AQV');
 
+                                 -- E2E tests survey --
+
+INSERT INTO public.survey
+(id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
+VALUES('E2E_SURVEY_1', 'http://cnis/E2E_SURVEY_1', '', 'http://diffusion/E2E_SURVEY_1', 'This survey is used for E2E testing, it is inherited from SOURCE_1. It has a campaign with only one interrogation for a contact', 'E2E Testing one interrogation survey', 'http://notice/AQV2023', 0, 'This survey is used for E2E testing', 'Data for E2E testing', 'http://specimenUrl/AQV2022', '2025xxxxxx', 2025, 'SOURCE_1');
+
+INSERT INTO public.survey
+(id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
+VALUES('E2E_SURVEY_2', 'http://cnis/E2E_SURVEY_2', '', 'http://diffusion/E2E_SURVEY_2',
+       'This survey is used for E2E testing, it is inherited from SOURCE_2. It has a campaign with multiple interrogations and one SU for a contact', 'E2E Survey 2', 'http://notice/E2E_SURVEY_2', 0,
+       'Short objectives for E2E_SURVEY_2', 'Short wording E2E_SURVEY_2', 'http://specimen/E2E_SURVEY_2',
+       '2025xxxxx', 2025, 'SOURCE_2');
+
+INSERT INTO public.survey
+(id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
+VALUES('E2E_SURVEY_3', 'http://cnis/E2E_SURVEY_3', '', 'http://diffusion/E2E_SURVEY_3',
+       'This survey is used for E2E testing, it is inherited from SOURCE_3. It has a campaign with multiple interrogations and SUs', 'E2E Survey 3', 'http://notice/E2E_SURVEY_3', 0,
+       'Short objectives for E2E_SURVEY_3', 'Short wording E2E_SURVEY_3', 'http://specimen/E2E_SURVEY_3',
+       '2025xxxxx', 2025, 'SOURCE_3');
+
+INSERT INTO public.survey
+(id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
+VALUES('E2E_SURVEY_4', 'http://cnis/E2E_SURVEY_4', '', 'http://diffusion/E2E_SURVEY_4',
+       'This survey is used for E2E testing, it is inherited from SOURCE_4. It has a campaign with multiple interrogations and SUs', 'E2E Survey 4', 'http://notice/E2E_SURVEY_4', 0,
+       'Short objectives for E2E_SURVEY_4', 'Short wording E2E_SURVEY_4', 'http://specimen/E2E_SURVEY_4',
+       '2025xxxxx', 2025, 'SOURCE_4');
+
+INSERT INTO public.survey
+(id, cnis_url, communication, diffusion_url, long_objectives, long_wording, notice_url, sample_size, short_objectives, short_wording, specimen_url, visa_number, year_value, source_id)
+VALUES('eec', 'http://cnis/E2E_SURVEY_EEC', '', 'http://diffusion/E2E_SURVEY_EEC',
+       'This survey is used for E2E testing, it is inherited from SOURCE_EEC', 'E2E Survey EEC', 'http://notice/E2E_SURVEY_EEC', 0,
+       'Short objectives for E2E_SURVEY_EEC', 'Short wording E2E_SURVEY_EEC', 'http://specimen/E2E_SURVEY_EEC',
+       '2025xxxxx', 2025, 'SOURCE_EEC');
+
 
 INSERT INTO public.campaign
 (id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
@@ -41,6 +98,27 @@ INSERT INTO public.campaign
 (id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
 VALUES('AQV2023X00', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
 
+                                 -- E2E tests campaigns --
+
+INSERT INTO public.campaign
+(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
+VALUES('E2E_CAMPAIGN_1', 'E2E Testing Campaign for a contact with only one interrogation existing in its partition', 'E2E_SURVEY_1', 'X00', 2025, 'LUNATIC_NORMAL', false);
+
+INSERT INTO public.campaign
+(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
+VALUES('E2E_CAMPAIGN_2', 'E2E Testing Campaign for a contact with multiple interrogations and one SU', 'E2E_SURVEY_2', 'X00', 2025, 'LUNATIC_NORMAL', false);
+
+INSERT INTO public.campaign
+(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
+VALUES('E2E_CAMPAIGN_3', 'E2E Testing Campaign for a contact with multiple interrogations SUs', 'E2E_SURVEY_3', 'X00', 2025, 'LUNATIC_NORMAL', false);
+
+INSERT INTO public.campaign
+(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
+VALUES('E2E_CAMPAIGN_4', 'E2E Testing Campaign for a contact with multiple interrogations SUs', 'E2E_SURVEY_4', 'X00', 2025, 'LUNATIC_NORMAL', false);
+
+INSERT INTO public.campaign
+(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity)
+VALUES('E2E_CAMPAIGN_EEC', 'E2E Testing Campaign EEC', 'eec', 'X00', 2025, 'LUNATIC_NORMAL', false);
 
 INSERT INTO public.partitioning
 (id, closing_date, opening_date, return_date, campaign_id, "label")
@@ -52,19 +130,27 @@ INSERT INTO public.partitioning
 (id, closing_date, opening_date, return_date, campaign_id, "label")
 VALUES('AQV2022X0000', '2024-06-01 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
 
+                                 -- E2E tests partitioning --
 
+INSERT INTO public.partitioning
+(id, closing_date, opening_date, return_date, campaign_id, "label")
+VALUES('PART1', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_1', 'E2E Partition 1 Label');
 
+INSERT INTO public.partitioning
+(id, closing_date, opening_date, return_date, campaign_id, "label")
+VALUES('PART2', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_2', 'E2E Partition 2 Label');
 
+INSERT INTO public.partitioning
+(id, closing_date, opening_date, return_date, campaign_id, "label")
+VALUES('PART3', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_3', 'E2E Partition 3 Label');
 
+INSERT INTO public.partitioning
+(id, closing_date, opening_date, return_date, campaign_id, "label")
+VALUES('PART4', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_4', 'E2E Partition 4 Label');
 
-
-
-
-
-
-
-
-
+INSERT INTO public.partitioning
+(id, closing_date, opening_date, return_date, campaign_id, "label")
+VALUES('PARTEEC', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_EEC', 'E2E Partition EEC Label');
 
 INSERT INTO public.address
 (id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type)
@@ -82,6 +168,11 @@ INSERT INTO public.address
 (id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type)
 VALUES(1209, 'Italie', NULL, '', '', 'ComplementAdresse0', '', 'LibelleCedex0', 'LibelleCommune0', NULL, 'IndiceRepetition0', 'MentionSpeciale0', 'TypeVoie0');
 
+                                 -- E2E tests adress --
+
+INSERT INTO public.address
+(id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type)
+VALUES(1, 'France', 'rue des oies', '1', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL);
 
 
 INSERT INTO public.contact
@@ -99,6 +190,24 @@ VALUES('RESPON4', NULL, 'caille4@insee.fr', 'Jean  ', 'Directeur', 'Male', 'Ném
 INSERT INTO public.contact
 (identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2)
 VALUES('RESPON5', 'Commentaire0', 'caille5@insee.fr', '', 'Comptable', 'Undefined', '', '', 1209, NULL, false,  NULL, NULL);
+
+                                 -- E2E tests contacts --
+
+INSERT INTO public.contact
+(identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2)
+VALUES('E2E_RESPON_1', 'No comment', 'e2erespon1@insee.fr', 'Keith', '', 'Male', 'Cozart', '0600000000', 1, NULL, false,  NULL, NULL);
+
+INSERT INTO public.contact
+(identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2)
+VALUES('E2E_RESPON_2', 'No comment', 'e2erespon2@insee.fr', 'Jaylah', 'CEO', 'Female', 'Hickmon', '0600000000', 1, NULL, false,  'Def Jam Records', NULL);
+
+INSERT INTO public.contact
+(identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2)
+VALUES('E2E_RESPON_3', 'No comment', 'e2erespon3@insee.fr', 'Patrick Earl', 'CEO', 'Male', 'Houston', '0600000000', 1, NULL, false,  'Ghetty Green Inc.', NULL);
+
+INSERT INTO public.contact
+(identifier, "comment", email, first_name, "function", gender, last_name, phone, address_id, external_id, email_verify,  usual_company_name, phone2)
+VALUES('E2E_RESPON_EEC', 'No comment', 'e2erespon4@insee.fr', 'Nayvadius', '', 'Male', 'Cash', '0600000000', 1, NULL, false,  '', NULL);
 
 INSERT INTO public.internal_users (identifier, role) VALUES('GESTIO1', 2);
 INSERT INTO public.internal_users (identifier, role) VALUES('GESTIO2', 2);
@@ -216,7 +325,23 @@ INSERT INTO public.contact_event
 VALUES(1409, '2023-03-21 16:19:45.648', 1, 'RESPON2', NULL);
 
 
+                                 -- E2E tests contacts events --
 
+INSERT INTO public.contact_event
+(id, event_date, "type", contact_identifier, payload)
+VALUES(1, '2023-03-21 16:19:45.648', 1, 'E2E_RESPON_1', NULL);
+
+INSERT INTO public.contact_event
+(id, event_date, "type", contact_identifier, payload)
+VALUES(2, '2023-03-21 16:19:45.648', 2, 'E2E_RESPON_2', NULL);
+
+INSERT INTO public.contact_event
+(id, event_date, "type", contact_identifier, payload)
+VALUES(3, '2023-03-21 16:19:45.648', 3, 'E2E_RESPON_3', NULL);
+
+INSERT INTO public.contact_event
+(id, event_date, "type", contact_identifier, payload)
+VALUES(4, '2023-03-21 16:19:45.648', 3, 'E2E_RESPON_EEC', NULL);
 
 INSERT INTO public.survey_unit_address
 (id, country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type)
@@ -269,8 +394,6 @@ VALUES(250,  'France', 'allée perdue', '19', '75000', NULL, NULL, NULL, 'Paris'
 INSERT INTO public.survey_unit_address
 (id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type)
 VALUES(251,  'France', 'allée perdue', '20', '84562', NULL, NULL, NULL, 'Very-long-name-for-a-city', NULL, NULL, NULL, NULL);
-
-
 
 INSERT INTO public.survey_unit
 (id_su, identification_name, identification_code,  "label")
@@ -339,9 +462,39 @@ INSERT INTO public.survey_unit
 (id_su, identification_name, identification_code, survey_unit_address_id, "label")
 VALUES('PROTO99', 'raison sociale 001', 'SIREN001', NULL, NULL);
 
+                                 -- E2E tests survey unit --
 
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_1', '', '', NULL, NULL);
 
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_2', 'Def Jam Records', '1', NULL, NULL);
 
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_3', 'Ghetty Green Inc.', '2', NULL, NULL);
+
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_4', 'G59', '3', NULL, NULL);
+
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_5', 'Don Dada Records', '4', NULL, NULL);
+
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_6', 'Death Row Records', '5', NULL, NULL);
+
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_7', 'Aftermath Entertainment', '6', NULL, NULL);
+
+INSERT INTO public.survey_unit
+(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+VALUES('E2E_SU_EEC', '', '', NULL, NULL);
 
 INSERT INTO public.questioning
 (id, id_partitioning, model_name, survey_unit_id_su)
@@ -413,9 +566,47 @@ INSERT INTO public.questioning
 (id, id_partitioning, model_name, survey_unit_id_su)
 VALUES(1219, 'AQV2024X0000', 'aqv2024x00', 'PROTO21');
 
+                                 -- E2E tests questioning --
 
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(1, 'PART1', 'Interrogation 1', 'E2E_SU_1');
 
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(2, 'PART2', 'Interrogation 2', 'E2E_SU_2');
 
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(3, 'PART2', 'Interrogation 3', 'E2E_SU_2');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(4, 'PART3', 'Interrogation 4', 'E2E_SU_2');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(5, 'PART3', 'Interrogation 5', 'E2E_SU_3');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(6, 'PART3', 'Interrogation 6', 'E2E_SU_4');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(7, 'PART4', 'Interrogation 7', 'E2E_SU_5');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(8, 'PART4', 'Interrogation 8', 'E2E_SU_6');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(9, 'PART4', 'Interrogation 9', 'E2E_SU_7');
+
+INSERT INTO public.questioning
+(id, id_partitioning, model_name, survey_unit_id_su)
+VALUES(10, 'PARTEEC', 'Interrogation EEC', 'E2E_SU_EEC');
 
 INSERT INTO public.questioning_accreditation
 (id, creation_author, creation_date, id_contact, is_main, questioning_id)
@@ -496,6 +687,47 @@ INSERT INTO public.questioning_accreditation
 (id, creation_author, creation_date, id_contact, is_main, questioning_id)
 VALUES(1220, 'platine-batch', '2023-03-08 15:49:51.670', 'RESPON5', true, 1219);
 
+-- E2E tests questioning accreditation --
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(1, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_1', true, 1);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(2, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_2', true, 2);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(3, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_2', true, 3);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(4, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 4);
+ --
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(5, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 5);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(6, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 6);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(7, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 7);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(8, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 8);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(9, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_3', true, 9);
+
+INSERT INTO public.questioning_accreditation
+(id, creation_author, creation_date, id_contact, is_main, questioning_id)
+VALUES(10, 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_EEC', true, 10);
 
 INSERT INTO public.questioning_event
 (id, "date", "type", questioning_id, payload, id_upload)
@@ -600,6 +832,47 @@ INSERT INTO public.questioning_event
 (id, "date", "type", questioning_id, payload, id_upload)
 VALUES(2822, '2023-06-01 13:53:50.683', 'PARTIELINT', 1219, '{"source": "platine-batch"}'::jsonb, NULL);
 
+            -- E2E tests questioning event --
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(1, '2025-01-11 11:05:07.380', 'PARTIELINT', 1, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(2, '2025-01-11 11:05:07.380', 'INITLA', 2, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(3, '2025-01-11 11:05:07.380', 'PARTIELINT', 3, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(4, '2025-01-11 11:05:07.380', 'VALINT', 4, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(5, '2025-01-11 11:05:07.380', 'INITLA', 5, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(6, '2025-01-11 11:05:07.380', 'PARTIELINT', 6, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(7, '2025-01-11 11:05:07.380', 'INITLA', 7, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(8, '2025-01-11 11:05:07.380', 'PARTIELINT', 8, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(9, '2025-01-11 11:05:07.380', 'REFUSAL', 9, '{}'::jsonb, NULL);
+
+INSERT INTO public.questioning_event
+(id, "date", "type", questioning_id, payload, id_upload)
+VALUES(10, '2025-01-11 11:05:07.380', 'PARTIELINT', 10, '{}'::jsonb, NULL);
 
 INSERT INTO public."view"
 (id, campaign_id, id_su, identifier)
