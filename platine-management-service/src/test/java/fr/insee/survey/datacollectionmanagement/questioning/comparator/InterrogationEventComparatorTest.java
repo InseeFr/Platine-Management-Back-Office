@@ -25,6 +25,7 @@ class InterrogationEventComparatorTest {
 
     private static final int O_INITLA     = 1;
     private static final int O_PARTIEL_VAL = 2;
+    private static final int O_EXPERT = 2;
     private static final int O_REF_WAST   = 3;
     private static final int O_HC         = 4;
 
@@ -42,6 +43,10 @@ class InterrogationEventComparatorTest {
                 order("PARTIELINT", O_PARTIEL_VAL),
                 order("VALINT",     O_PARTIEL_VAL),
                 order("VALPAP",     O_PARTIEL_VAL),
+                order("EXPERT",     O_EXPERT),
+                order("ONGEXPERT",  O_EXPERT),
+                order("VALID",      O_EXPERT),
+                order("ENDEXPERT",  O_EXPERT),
                 order("REFUSAL",    O_REF_WAST),
                 order("WASTE",      O_REF_WAST),
                 order("HC",         O_HC)
@@ -243,7 +248,35 @@ class InterrogationEventComparatorTest {
                         List.of(event(TypeQuestioningEvent.PARTIELINT,0),
                                 event(TypeQuestioningEvent.VALPAP,-1),
                                 event(TypeQuestioningEvent.VALINT,-2)),
-                        TypeQuestioningEvent.PARTIELINT)
+                        TypeQuestioningEvent.PARTIELINT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.INITLA),
+                                event(TypeQuestioningEvent.EXPERT)),
+                        TypeQuestioningEvent.EXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ONGEXPERT,0),
+                                event(TypeQuestioningEvent.VALID,-1),
+                                event(TypeQuestioningEvent.EXPERT,-2)),
+                        TypeQuestioningEvent.ONGEXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.VALID,0),
+                                event(TypeQuestioningEvent.ONGEXPERT,-1),
+                                event(TypeQuestioningEvent.EXPERT,-2)),
+                        TypeQuestioningEvent.VALID),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ONGEXPERT,0),
+                                event(TypeQuestioningEvent.ENDEXPERT,-1)),
+                        TypeQuestioningEvent.ONGEXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ENDEXPERT,0),
+                                event(TypeQuestioningEvent.VALID,-1)),
+                        TypeQuestioningEvent.ENDEXPERT)
+
         );
     }
 

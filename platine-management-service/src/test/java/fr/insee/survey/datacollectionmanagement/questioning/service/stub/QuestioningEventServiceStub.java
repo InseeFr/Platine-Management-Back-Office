@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -72,5 +73,10 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     @Override
     public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
         return false;
+    }
+
+    @Override
+    public void postExpertEvent(UUID id, ExpertEventDto expertEventDto) {
+        //not used
     }
 }

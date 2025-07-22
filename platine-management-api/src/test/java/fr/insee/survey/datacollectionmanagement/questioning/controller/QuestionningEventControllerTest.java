@@ -4,12 +4,14 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -107,6 +110,31 @@ class QuestionningEventControllerTest {
         jo.put("questioningId", id);
 
         return jo.toString();
+    }
+
+    @Test
+    @DisplayName("Should record scores when record expertise event")
+    void recordExpertiseEvent() throws Exception {
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000008").stream().findFirst().get();
+        assertThat(questioning.getScore()).isZero();
+        assertThat(questioning.getScoreInit()).isZero();
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, ExpertEventDto.TypeExpertEvent.EXPERT);
+        String json = createJsonExpertEvent(expertEventDto);
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        questioning = questioningService.findBySurveyUnitIdSu("100000008").stream().findFirst().get();
+        assertThat(questioning.getScore()).isEqualTo(4);
+        assertThat(questioning.getScoreInit()).isEqualTo(4);
+    }
+
+    private String createJsonExpertEvent(ExpertEventDto event) throws JSONException {
+        JSONObject joEvent = new JSONObject();
+        joEvent.put("score", event.score());
+        joEvent.put("score-init", event.scoreInit());
+        joEvent.put("type", event.type());
+        return joEvent.toString();
     }
 
 }
