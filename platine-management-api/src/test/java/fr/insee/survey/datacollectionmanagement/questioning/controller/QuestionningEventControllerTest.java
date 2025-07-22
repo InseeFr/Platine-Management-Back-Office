@@ -115,7 +115,7 @@ class QuestionningEventControllerTest {
     @Test
     @DisplayName("Should record scores when record expertise event")
     void recordExpertiseEvent() throws Exception {
-        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000008").stream().findFirst().get();
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isZero();
         assertThat(questioning.getScoreInit()).isZero();
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, ExpertEventDto.TypeExpertEvent.EXPERT);
@@ -124,7 +124,7 @@ class QuestionningEventControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        questioning = questioningService.findBySurveyUnitIdSu("100000008").stream().findFirst().get();
+        questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isEqualTo(4);
         assertThat(questioning.getScoreInit()).isEqualTo(4);
     }
