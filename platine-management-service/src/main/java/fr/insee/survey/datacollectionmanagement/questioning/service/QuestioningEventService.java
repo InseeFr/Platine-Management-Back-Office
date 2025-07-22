@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -47,4 +48,11 @@ public interface QuestioningEventService {
      * @return true if event is created, false in other cases
      */
     boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto);
+
+    /**
+     * Create a questioningEvent for expertise event
+     * @param id
+     * @param expertEventDto
+     */
+    void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
 }

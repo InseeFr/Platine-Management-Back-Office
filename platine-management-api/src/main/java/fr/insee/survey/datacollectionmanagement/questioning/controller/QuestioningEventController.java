@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
@@ -109,8 +110,21 @@ public class QuestioningEventController {
             uploadService.delete(upload);
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
+    }
 
-
+    @Operation(summary = "Create a manuel expert event for a questioning")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Expert event Created"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Questioning not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Error")
+    })
+    public ResponseEntity<Void> createExpertEvent(@PathVariable UUID id, @RequestBody ExpertEventDto expertEventDto) {
+        questioningEventService.postExpertEvent(id, expertEventDto);
+        return ResponseEntity.ok().build();
     }
 
 }
