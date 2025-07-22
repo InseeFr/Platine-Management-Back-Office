@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -73,7 +72,7 @@ class QuestioningEventServiceImplTest {
 
     @Test
     @DisplayName("Should throw NotFoundException when questioning does not exist")
-    void postValintQuestioningEventTest() throws JsonProcessingException {
+    void postValintQuestioningEventTest() {
         QuestioningEventInputDto input = createValidedInputDto(UUID.randomUUID());
         assertThatThrownBy(() -> questioningEventService.postQuestioningEvent("eventType", input))
                 .isInstanceOf(NotFoundException.class)
