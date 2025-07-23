@@ -4,7 +4,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ExpertEventValidatorTest {
+class ExpertEventValidatorTest {
     @Test
     void other_isNotValid() {
         IsExpertEventValidator validator = new IsExpertEventValidator();
