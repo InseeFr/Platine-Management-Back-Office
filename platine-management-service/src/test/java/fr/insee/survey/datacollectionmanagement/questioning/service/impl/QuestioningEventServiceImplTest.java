@@ -226,9 +226,11 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
         QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        questioning.setQuestioningEvents(Set.of(existing));
+        QuestioningEvent existing2 = createQuestioningEvent(1L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        questioning.setQuestioningEvents(Set.of(existing, existing2));
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
+        questioningEventRepository.save(existing2);
 
         ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
 

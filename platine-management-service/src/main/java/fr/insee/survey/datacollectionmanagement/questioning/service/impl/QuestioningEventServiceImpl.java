@@ -137,7 +137,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         }
 
         if (lastEvent != null
-                && candidate.getType() != lastEvent.getType()) {
+                && candidate.getType() != lastEvent.getType()
+                && candidate.getType() != TypeQuestioningEvent.EXPERT) {
             questioningEventRepository.save(candidate);
         }
     }

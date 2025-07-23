@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,8 +53,10 @@ class QuestionningEventControllerTest {
     void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         String json = createJsonQuestioningEvent();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId())).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(json, JsonCompareMode.LENIENT));
     }
 
     @Test
