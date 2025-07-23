@@ -3,8 +3,8 @@
 --changeset j75xzr:070_add_rework_variables_and_events.sql
 
 ALTER TABLE questioning
-    ADD COLUMN score INT,
-    ADD COLUMN score_init INT;
+    ADD COLUMN score smallint,
+    ADD COLUMN score_init smallint;
 
 INSERT INTO public.interrogation_event_order (id, event_order, status) VALUES(8, 2, 'EXPERT');
 INSERT INTO public.interrogation_event_order (id, event_order, status) VALUES(9, 2, 'ONGEXPERT');

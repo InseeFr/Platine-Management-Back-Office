@@ -47,8 +47,8 @@ public class Questioning {
     @NonNull
     private SurveyUnit surveyUnit;
 
-    private int score;
+    private Integer score;
     @Column(name= "score_init")
-    private int scoreInit;
+    private Integer scoreInit;
 
 }

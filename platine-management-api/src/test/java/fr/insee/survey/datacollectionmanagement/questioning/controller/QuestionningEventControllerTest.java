@@ -116,8 +116,8 @@ class QuestionningEventControllerTest {
     @DisplayName("Should record scores when record expertise event")
     void recordExpertiseEvent() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        assertThat(questioning.getScore()).isZero();
-        assertThat(questioning.getScoreInit()).isZero();
+        assertThat(questioning.getScore()).isNull();
+        assertThat(questioning.getScoreInit()).isNull();
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, ExpertEventDto.TypeExpertEvent.EXPERT);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
