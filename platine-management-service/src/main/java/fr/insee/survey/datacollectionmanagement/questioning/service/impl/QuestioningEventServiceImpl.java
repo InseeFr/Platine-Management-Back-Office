@@ -127,7 +127,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
         QuestioningEvent candidate = new QuestioningEvent();
         candidate.setQuestioning(questioning);
-        candidate.setType(expertEventDto.type().toQuestioningEvent());
+        candidate.setType(expertEventDto.type());
         candidate.setDate(new Date());
 
         if (lastEvent == null &&

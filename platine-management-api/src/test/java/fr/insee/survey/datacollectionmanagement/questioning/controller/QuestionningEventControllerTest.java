@@ -118,7 +118,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isNull();
         assertThat(questioning.getScoreInit()).isNull();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, ExpertEventDto.TypeExpertEvent.EXPERT);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -127,6 +127,41 @@ class QuestionningEventControllerTest {
         questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isEqualTo(4);
         assertThat(questioning.getScoreInit()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("Should return bad request if type is null")
+    void badRequestExpertiseEvent() throws Exception {
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null);
+        String json = createJsonExpertEvent(expertEventDto);
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should return bad request if type is not expert_event")
+    void badRequestExpertiseEvent2() throws Exception {
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC);
+        String json = createJsonExpertEvent(expertEventDto);
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Should return not fount exception")
+    void notFoundQuestioning() throws Exception {
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
+        String json = createJsonExpertEvent(expertEventDto);
+        this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON).content(json))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     private String createJsonExpertEvent(ExpertEventDto event) throws JSONException {

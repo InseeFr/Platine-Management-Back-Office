@@ -187,7 +187,7 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
         UUID questioningId = questioning.getId();
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.EXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -207,7 +207,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         UUID questioningId = questioning.getId();
 
-        ExpertEventDto dto = new ExpertEventDto(9, 9, ExpertEventDto.TypeExpertEvent.VALID);
+        ExpertEventDto dto = new ExpertEventDto(9, 9, TypeQuestioningEvent.VALID);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -230,7 +230,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.EXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -248,7 +248,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.ONGEXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -269,7 +269,7 @@ class QuestioningEventServiceImplTest {
         questioningEventRepository.save(existing);
         questioningEventRepository.save(existing2);
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.ONGEXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -292,7 +292,7 @@ class QuestioningEventServiceImplTest {
         questioningEventRepository.save(existing2);
         questioningEventRepository.save(existing3);
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.ONGEXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 
@@ -307,7 +307,7 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
         questioningRepository.save(questioning);
-        ExpertEventDto dto = new ExpertEventDto(5, 5, ExpertEventDto.TypeExpertEvent.ONGEXPERT);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
 
         questioningEventService.postExpertEvent(questioningId, dto);
 

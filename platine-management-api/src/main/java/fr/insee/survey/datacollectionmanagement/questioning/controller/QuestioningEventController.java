@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -122,7 +123,7 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "404", description = "Questioning not found"),
             @ApiResponse(responseCode = "500", description = "Internal Error")
     })
-    public ResponseEntity<Void> createExpertEvent(@PathVariable UUID id, @RequestBody ExpertEventDto expertEventDto) {
+    public ResponseEntity<Void> createExpertEvent(@PathVariable UUID id, @RequestBody @Valid ExpertEventDto expertEventDto) {
         questioningEventService.postExpertEvent(id, expertEventDto);
         return ResponseEntity.ok().build();
     }
