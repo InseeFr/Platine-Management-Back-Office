@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -16,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -109,4 +108,40 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         questioningEventRepository.save(newQuestioningEvent);
         return true;
     }
+
+    @Override
+    public void postExpertEvent(UUID id, ExpertEventDto expertEventDto) {
+        Questioning questioning = questioningRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
+        questioning.setScore(expertEventDto.score());
+        questioning.setScoreInit(expertEventDto.scoreInit());
+        questioningRepository.save(questioning);
+
+        Set<QuestioningEvent> events = questioning.getQuestioningEvents();
+        QuestioningEvent lastEvent = Optional.ofNullable(events)
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(qe -> TypeQuestioningEvent.EXPERT_EVENTS.contains(qe.getType()))
+                .max(Comparator.comparing(QuestioningEvent::getDate))
+                .orElse(null);
+
+        QuestioningEvent candidate = new QuestioningEvent();
+        candidate.setQuestioning(questioning);
+        candidate.setType(expertEventDto.type());
+        candidate.setDate(new Date());
+
+        if (lastEvent == null &&
+                (candidate.getType() == TypeQuestioningEvent.EXPERT
+                        || candidate.getType() == TypeQuestioningEvent.VALID)) {
+            questioningEventRepository.save(candidate);
+        }
+
+        if (lastEvent != null
+                && candidate.getType() != lastEvent.getType()
+                && candidate.getType() != TypeQuestioningEvent.EXPERT) {
+            questioningEventRepository.save(candidate);
+        }
+    }
+
+
 }

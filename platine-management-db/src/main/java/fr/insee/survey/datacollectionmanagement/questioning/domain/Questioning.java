@@ -1,7 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.UUID;
@@ -43,5 +46,9 @@ public class Questioning {
     @JoinColumn(name = "survey_unit_id_su")
     @NonNull
     private SurveyUnit surveyUnit;
+
+    private Integer score;
+    @Column(name= "score_init")
+    private Integer scoreInit;
 
 }

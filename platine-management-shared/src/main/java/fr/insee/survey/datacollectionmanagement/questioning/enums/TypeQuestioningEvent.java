@@ -11,7 +11,11 @@ public enum TypeQuestioningEvent {
     HC,
     VALPAP,
     VALINT,
-    REFUSAL;
+    REFUSAL,
+    EXPERT,
+    ONGEXPERT,
+    VALID,
+    ENDEXPERT;
 
     public static final List<TypeQuestioningEvent> STATE_EVENTS = List.of(
             VALINT,
@@ -63,7 +67,17 @@ public enum TypeQuestioningEvent {
             VALPAP,
             REFUSAL,
             WASTE,
-            HC
+            HC,
+            EXPERT,
+            ONGEXPERT,
+            VALID,
+            ENDEXPERT
     );
+
+    public static final List<TypeQuestioningEvent> EXPERT_EVENTS = List.of(
+            EXPERT,
+            ONGEXPERT,
+            VALID,
+            ENDEXPERT);
 }
 

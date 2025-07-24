@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -109,8 +111,23 @@ public class QuestioningEventController {
             uploadService.delete(upload);
         }
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
+    }
 
-
+    @Operation(summary = "Create a expert event [EXPERT, ONGEXPERT, VALID, ENDEXPERT] for a questioning")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Expert event Created"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Questioning not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Error")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createExpertEvent(@PathVariable UUID id, @RequestBody @Valid ExpertEventDto expertEventDto) {
+        questioningEventService.postExpertEvent(id, expertEventDto);
     }
 
 }
