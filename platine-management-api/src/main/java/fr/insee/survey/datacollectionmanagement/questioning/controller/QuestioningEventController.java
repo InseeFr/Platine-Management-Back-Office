@@ -113,8 +113,10 @@ public class QuestioningEventController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
     }
 
-    @Operation(summary = "Create a manuel expert event for a questioning")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Create a expert event [EXPERT, ONGEXPERT, VALID, ENDEXPERT] for a questioning")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Expert event Created"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
@@ -123,9 +125,9 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "404", description = "Questioning not found"),
             @ApiResponse(responseCode = "500", description = "Internal Error")
     })
-    public ResponseEntity<Void> createExpertEvent(@PathVariable UUID id, @RequestBody @Valid ExpertEventDto expertEventDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createExpertEvent(@PathVariable UUID id, @RequestBody @Valid ExpertEventDto expertEventDto) {
         questioningEventService.postExpertEvent(id, expertEventDto);
-        return ResponseEntity.ok().build();
     }
 
 }
