@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -52,4 +53,7 @@ public interface QuestioningService {
   
     QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
 
+    boolean hasExpertiseStatut(UUID questioningId);
+
+    InterrogationStatusEventDto highestStatusCalculation(UUID questioningId);
 }
