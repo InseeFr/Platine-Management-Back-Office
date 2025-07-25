@@ -11,6 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -107,9 +108,10 @@ public class SearchQuestioningDao {
 
         List<SearchQuestioningDto> results = new ArrayList<>();
         for(Object[] row : rows) {
+            UUID questioningId = buildQuestioningId(row[0]);
             Optional<SearchQuestioningDto> optSearchQuestioningResult = results.stream()
                     // filter on questioning id
-                    .filter(result -> row[0].equals(result.getQuestioningId()))
+                    .filter(result -> questioningId.equals(result.getQuestioningId()))
                     .findFirst();
 
             if(optSearchQuestioningResult.isEmpty()) {
@@ -191,6 +193,19 @@ public class SearchQuestioningDao {
                   )
                 ),""";
         return new SearchFilter(sqlFilter, parameters);
+    }
+
+    private UUID buildQuestioningId(Object rawId) {
+        return switch (rawId) {
+            case UUID uuid -> uuid;
+            case byte[] bytes -> {
+                // if DB returns UUID in binary format
+                ByteBuffer bb = ByteBuffer.wrap(bytes);
+                yield new UUID(bb.getLong(), bb.getLong());
+            }
+            case String str -> UUID.fromString(str);
+            default -> throw new IllegalArgumentException("Unexpected type for id : " + rawId.getClass());
+        };
     }
 
     private SearchFilter buildCampaignFilter(List<String> campaignIds) {
@@ -307,8 +322,8 @@ public class SearchQuestioningDao {
         return Optional.of(new SearchFilter(filter, parameters));
     }
 
-    private static SearchQuestioningDto mapRowToDto(Object[] row) {
-        UUID questioningId =  (UUID) row[0];
+    private SearchQuestioningDto mapRowToDto(Object[] row) {
+        UUID questioningId = buildQuestioningId(row[0]);
         String campaignId = (String) row[1];
         String lastCommunicationType = (String) row[2];
         Date validationDate = (Date) row[3];

@@ -59,6 +59,7 @@ public class SearchQuestioningSteps {
         }
 
         Questioning questioning = new Questioning();
+        questioning.setId(UUID.randomUUID());
         questioning.setIdPartitioning(partId);
         questioning.setModelName(model);
         SurveyUnit su = surveyUnitRepository.findById(idSu).orElseThrow(() -> new IllegalArgumentException("Survey Unit not found"));
