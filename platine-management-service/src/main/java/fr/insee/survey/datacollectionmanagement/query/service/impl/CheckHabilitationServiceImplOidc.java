@@ -118,8 +118,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             log.warn("User '{}' has {} profile - check habilitation: true", userId, userRole);
             return true;
         }
-        log.warn("Only '{}' , '{}' and '{}' are accepted as a role in query argument",
-                UserRoles.REVIEWER, UserRoles.INTERVIEWER, UserRoles.EXPERT);
+        log.warn("Only '{}' and '{}' are accepted as a role in query argument", UserRoles.REVIEWER, UserRoles.INTERVIEWER);
         return false;
     }
 

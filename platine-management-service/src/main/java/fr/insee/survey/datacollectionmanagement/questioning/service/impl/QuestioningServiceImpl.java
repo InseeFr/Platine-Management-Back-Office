@@ -147,8 +147,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public QuestioningDetailsDto getQuestioningDetails(UUID id) {
-        Questioning questioning = questioningRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
+        Questioning questioning = findById(id);
         Partitioning partitioning = partitioningRepository.findById(questioning.getIdPartitioning())
                 .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
         Source source = sourceRepository.findById(partitioning.getCampaign().getSurvey().getSource().getId())
@@ -269,8 +268,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
-        Questioning questioning = questioningRepository.findById(questioningId)
-                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
+        Questioning questioning = findById(questioningId);
 
         return questioning.getQuestioningEvents().stream()
                 .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
