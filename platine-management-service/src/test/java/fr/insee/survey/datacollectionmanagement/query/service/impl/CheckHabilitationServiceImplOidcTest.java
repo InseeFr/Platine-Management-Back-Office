@@ -403,4 +403,73 @@ class CheckHabilitationServiceImplOidcTest {
         //then
         assertThat(result).isFalse();
     }
+
+    @Test
+    @DisplayName("Should return true if habilitation role is EXPERT and user has internal user role")
+    void should_return_true_if_habilitation_role_is_expert_and_user_has_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                UserRoles.EXPERT,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should return false if habilitation role is empty and user has internal user role")
+    void should_return_false_if_habilitation_role_is_empty_and_user_has_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                null,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return false if habilitation role is EXPERT and user has no internal user role")
+    void should_return_false_if_habilitation_role_is_EXPERT_and_user_has_no_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.RESPONDENT.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                UserRoles.EXPERT,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isFalse();
+    }
 }

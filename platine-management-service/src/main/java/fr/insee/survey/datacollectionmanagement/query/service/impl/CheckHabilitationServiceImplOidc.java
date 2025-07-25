@@ -82,7 +82,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
 
     private boolean checkInternal(String role, List<String> userRoles, String userId) {
         // internal users
-        if (!UserRoles.REVIEWER.equals(role)) {
+        if (!(UserRoles.REVIEWER.equals(role) || UserRoles.EXPERT.equals(role))) {
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }
@@ -102,7 +102,8 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             log.warn("User '{}' has {} profile - check habilitation: true", userId, userRole);
             return true;
         }
-        log.warn("Only '{}' and '{}' are accepted as a role in query argument", UserRoles.REVIEWER, UserRoles.INTERVIEWER);
+        log.warn("Only '{}' , '{}' and '{}' are accepted as a role in query argument",
+                UserRoles.REVIEWER, UserRoles.INTERVIEWER, UserRoles.EXPERT);
         return false;
     }
 
