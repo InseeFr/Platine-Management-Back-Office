@@ -87,7 +87,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             if (isXForm(ctx.dataCollection())) {
                 return QuestioningUrls.forAccess(questioningUrlComponent.buildAccessUrl(UserRoles.INTERVIEWER, ctx));
             }
-            return QuestioningUrls.forDepositProof(questioningUrlComponent.buildDepositProofUrl(ctx.surveyUnitId(), ctx.dataCollection()));
+            return QuestioningUrls.forDepositProof(questioningUrlComponent.buildDepositProofUrl(ctx.questioningId(), ctx.dataCollection()));
         }
         if (isOpen(status)) {
             return QuestioningUrls.forAccess(questioningUrlComponent.buildAccessUrl(UserRoles.INTERVIEWER, ctx));

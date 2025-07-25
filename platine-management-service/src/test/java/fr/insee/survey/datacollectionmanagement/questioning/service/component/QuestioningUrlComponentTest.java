@@ -93,7 +93,7 @@ class QuestioningUrlComponentTest {
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-normal/v3/interrogations/" + questioningId  +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
 
         assertThat(url).isEqualTo(expected);
     }
@@ -104,7 +104,7 @@ class QuestioningUrlComponentTest {
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-sensitive/v3/interrogations/" + questioningId  +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3DTOTO";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
 
         assertThat(url).isEqualTo(expected);
     }
@@ -121,7 +121,7 @@ class QuestioningUrlComponentTest {
     void testXform1Interviewer() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.XFORM1, null);
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
-        String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
+        String expected = "https://xform1/repondre/sourceid-2024-T04/" + surveyUnitId;
         assertThat(url).isEqualTo(expected);
     }
 
@@ -129,7 +129,7 @@ class QuestioningUrlComponentTest {
     void testXform2Reviewer() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.XFORM2, null);
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
-        String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
+        String expected = "https://xform2/visualiser/sourceid-2024-T04/" + surveyUnitId;
         assertThat(url).isEqualTo(expected);
     }
 
@@ -165,7 +165,7 @@ class QuestioningUrlComponentTest {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
 
         String expected = "https://lunatic-normal/v3/interrogations/" + questioningId  +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -175,7 +175,7 @@ class QuestioningUrlComponentTest {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE));
 
         String expected = "https://lunatic-sensitive/v3/interrogations/" + questioningId  +
-                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3DSURVEYID%26contactId%3D";
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D";
 
         assertThat(url).isEqualTo(expected);
     }
@@ -190,14 +190,14 @@ class QuestioningUrlComponentTest {
     @Test
     void testXform1Interviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.XFORM1));
-        String expected = "https://xform1/repondre/sourceid-2024-T04/SURVEYID";
+        String expected = "https://xform1/repondre/sourceid-2024-T04/" + surveyUnitId;
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testXform2Reviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.REVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.XFORM2));
-        String expected = "https://xform2/visualiser/sourceid-2024-T04/SURVEYID";
+        String expected = "https://xform2/visualiser/sourceid-2024-T04/" + surveyUnitId;
         assertThat(url).isEqualTo(expected);
     }
 
@@ -222,27 +222,27 @@ class QuestioningUrlComponentTest {
 
     @Test
     void testDepositProofUrl_lunaticNormal() {
-        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.LUNATIC_NORMAL);
+        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.LUNATIC_NORMAL);
 
         String expected = questionnaireApiUrl
-                + "/api/survey-unit/" + surveyUnitId + "/deposit-proof";
+                + "/api/interrogations/" + questioningId + "/deposit-proof";
 
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testDepositProofUrl_lunaticSensitive() {
-        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.LUNATIC_SENSITIVE);
+        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.LUNATIC_SENSITIVE);
 
         String expected = questionnaireApiSensitiveUrl
-                + "/api/survey-unit/" + surveyUnitId + "/deposit-proof";
+                + "/api/interrogations/" + questioningId + "/deposit-proof";
 
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testDepositProofUrl_otherDataCollection_returnsNull() {
-        String url = component.buildDepositProofUrl(surveyUnitId, DataCollectionEnum.XFORM1);
+        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.XFORM1);
 
         assertThat(url).isNull();
     }
@@ -256,7 +256,7 @@ class QuestioningUrlComponentTest {
         String url = component.buildDownloadUrl(ctx);
 
         // then
-        assertThat(url).isEqualTo("insee-SURVEYID-ofats-2024.xlsx");
+        assertThat(url).isEqualTo("insee-" + surveyUnitId + "-ofats-2024.xlsx");
     }
 
     @Test
@@ -268,7 +268,7 @@ class QuestioningUrlComponentTest {
         String url = component.buildDownloadUrl(ctx);
 
         // then
-        assertThat(url).isEqualTo("test-SURVEYID-sourceid-2024-T04.xlsx");
+        assertThat(url).isEqualTo("test-" + surveyUnitId + "-sourceid-2024-T04.xlsx");
     }
 
 
