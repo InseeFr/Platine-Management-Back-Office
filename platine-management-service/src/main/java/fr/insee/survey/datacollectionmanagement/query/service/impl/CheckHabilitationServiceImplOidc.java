@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
@@ -30,6 +31,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
     private final UserService userService;
 
     private final QuestioningAccreditationService questioningAccreditationService;
+    private final QuestioningService questioningService;
 
     @Override
     public boolean checkHabilitation(String role,
@@ -77,12 +79,26 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             return false;
         }
 
+        if (UserRoles.EXPERT.equals(role) && isInternalUser(userRoles)) {
+            return checkExpertise(userId, questioningId);
+        }
+
         return checkInternal(role, userRoles, userId);
+    }
+
+    private boolean checkExpertise(String userId, UUID questioningId) {
+        Optional<User> optionalUser = userService.findOptionalByIdentifier(userId);
+        if(optionalUser.isEmpty()) {
+            log.warn("User '{}' doesn't exists", userId);
+            return false;
+        }
+
+        return questioningService.hasExpertiseStatut(questioningId);
     }
 
     private boolean checkInternal(String role, List<String> userRoles, String userId) {
         // internal users
-        if (!(UserRoles.REVIEWER.equals(role) || UserRoles.EXPERT.equals(role))) {
+        if (!UserRoles.REVIEWER.equals(role)) {
             log.warn("User {} - internal user habilitation not found in token - Check habilitation:false", userId);
             return false;
         }

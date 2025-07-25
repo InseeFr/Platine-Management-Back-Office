@@ -16,7 +16,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -30,7 +33,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -250,5 +255,30 @@ public class QuestioningServiceImpl implements QuestioningService {
         }
 
         return QuestionnaireStatusTypeEnum.IN_PROGRESS;
+    }
+
+    @Override
+    public boolean hasExpertiseStatut(UUID questioningId) {
+        InterrogationStatusEventDto event = highestStatusCalculation(questioningId);
+        if (event == null) {
+            return false;
+        }
+
+        return TypeQuestioningEvent.EXPERT_EVENTS.contains(event.type());
+    }
+
+    @Override
+    public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
+
+        return questioning.getQuestioningEvents().stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .max(interrogationEventComparator)
+                .map(event ->
+                        new InterrogationStatusEventDto(
+                                event.getType(),
+                                event.getDate()))
+                .orElse(null);
     }
 }
