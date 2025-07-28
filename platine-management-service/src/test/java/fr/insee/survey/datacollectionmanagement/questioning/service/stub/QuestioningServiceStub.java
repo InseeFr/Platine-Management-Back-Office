@@ -3,12 +3,14 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
+import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,8 @@ public class QuestioningServiceStub implements QuestioningService {
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
     ArrayList<Questioning> questionings = new ArrayList<>();
+
+    private InterrogationStatusEventDto highestStatusEvent;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -89,6 +93,16 @@ public class QuestioningServiceStub implements QuestioningService {
     @Override
     public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
         return questionnaireStatus;
+    }
+
+    @Override
+    public boolean hasExpertiseStatut(UUID questioningId) {
+        return TypeQuestioningEvent.EXPERT_EVENTS.contains(highestStatusEvent.type());
+    }
+
+    @Override
+    public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
+        return highestStatusEvent;
     }
 
     @Override

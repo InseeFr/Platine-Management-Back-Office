@@ -2,11 +2,14 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.UserServiceStub;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningAccreditationServiceStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,16 +30,19 @@ class CheckHabilitationServiceImplOidcTest {
     private ViewServiceStub viewServiceStub;
     private UserServiceStub userServiceStub;
     private QuestioningAccreditationServiceStub questioningAccreditationServiceStub;
+    private QuestioningServiceStub questioningService;
 
     @BeforeEach
     void init() {
         viewServiceStub = new ViewServiceStub();
         userServiceStub = new UserServiceStub();
         questioningAccreditationServiceStub = new QuestioningAccreditationServiceStub();
+        questioningService = new QuestioningServiceStub();
         checkHabilitationServiceImplOidc = new CheckHabilitationServiceImplOidc(
                 viewServiceStub,
                 userServiceStub,
-                questioningAccreditationServiceStub);
+                questioningAccreditationServiceStub,
+                questioningService);
     }
 
     @Test
@@ -401,6 +408,92 @@ class CheckHabilitationServiceImplOidcTest {
                 "user-id");
 
         //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return true if habilitation role is EXPERT (interrogation with status Expertise) and user has internal user role")
+    void should_return_true_if_habilitation_role_is_expert_and_user_has_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+        InterrogationStatusEventDto highestStatus = new InterrogationStatusEventDto(TypeQuestioningEvent.EXPERT, new Date());
+        questioningService.setHighestStatusEvent(highestStatus);
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                UserRoles.EXPERT,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should return false if habilitation role is empty and user has internal user role")
+    void should_return_false_if_habilitation_role_is_empty_and_user_has_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                null,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should return false if habilitation role is EXPERT and user has no internal user role")
+    void should_return_false_if_habilitation_role_is_EXPERT_and_user_has_no_internal_user_role() {
+        //given
+        List<String> userRoles = List.of(AuthorityRoleEnum.RESPONDENT.securityRole());
+        String userId = "user-id";
+        User user = new User();
+        user.setIdentifier(userId);
+        user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
+        userServiceStub.setUsers(List.of(user));
+        UUID questioningId = UUID.randomUUID();
+        InterrogationStatusEventDto highestStatus = new InterrogationStatusEventDto(TypeQuestioningEvent.EXPERT, new Date());
+        questioningService.setHighestStatusEvent(highestStatus);
+
+        //when
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                UserRoles.EXPERT,
+                questioningId,
+                userRoles,
+                userId);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void shouldReturnFalseIfUserDoesNotExist() {
+        UUID questioningId = UUID.randomUUID();
+        String userId = "unknownUser";
+
+        boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
+                UserRoles.EXPERT,
+                questioningId,
+                List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()),
+                userId);
         assertThat(result).isFalse();
     }
 }
