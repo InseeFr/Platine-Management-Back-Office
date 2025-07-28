@@ -17,4 +17,5 @@
     <include file="changelog/060_migrate-questionings-to-uuid.sql" relativeToChangelogFile="true"/>
     <include file="changelog/061_add-constraints-campagne.sql" relativeToChangelogFile="true"/>
     <include file="changelog/070_add_rework_variables_and_events.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/071_fix_scores_questioning_smallint_to_int.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
