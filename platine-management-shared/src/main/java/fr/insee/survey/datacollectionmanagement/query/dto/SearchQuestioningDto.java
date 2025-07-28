@@ -19,6 +19,7 @@ public class SearchQuestioningDto {
     private final String surveyUnitId;
     private final String identificationCode;
     private final List<String> contactIds;
+    private final Integer score;
 
     public SearchQuestioningDto(UUID questioningId,
                                    String campaignId,
@@ -27,7 +28,8 @@ public class SearchQuestioningDto {
                                    TypeQuestioningEvent highestEventType,
                                    String surveyUnitId,
                                    String identificationCode,
-                                   String contactId) {
+                                   String contactId,
+                                   Integer score) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
         this.lastCommunicationType = lastCommunicationType;
@@ -37,6 +39,7 @@ public class SearchQuestioningDto {
         this.identificationCode = identificationCode;
         this.contactIds = new ArrayList<>();
         this.contactIds.add(contactId);
+        this.score = score;
     }
 
     public void addContactId(String contactId) {

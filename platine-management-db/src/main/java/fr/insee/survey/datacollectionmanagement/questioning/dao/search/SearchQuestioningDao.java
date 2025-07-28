@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.nio.ByteBuffer;
@@ -62,7 +63,8 @@ public class SearchQuestioningDao {
                         LIMIT 1
                     ) AS validation_date,
                     su.id_su AS survey_unit_id,
-                    su.identification_code AS identification_code""");
+                    su.identification_code AS identification_code,
+                    q.score AS score""");
         sql.append(" ");
         sql.append(joinQuestionings);
         sql.append(" ");
@@ -76,6 +78,15 @@ public class SearchQuestioningDao {
         sql.append(" ");
         sql.append(filterTypes.sqlFilter());
         sql.append(" ");
+        if (pageable.getSort().isSorted()) {
+            sql.append(" ORDER BY ");
+            List<String> orderClauses = new ArrayList<>();
+            for (Sort.Order order : pageable.getSort()) {
+                String direction = order.isAscending() ? "ASC" : "DESC";
+                orderClauses.add(order.getProperty() + " " + direction + " NULLS LAST");
+            }
+            sql.append(String.join(", ", orderClauses));
+        }
         sql.append("""
                 LIMIT :size OFFSET :offset
             )
@@ -87,7 +98,8 @@ public class SearchQuestioningDao {
                 qlimited.highest_event_type,
                 qlimited.survey_unit_id,
                 qlimited.identification_code,
-                qa_all.id_contact AS contact_id
+                qa_all.id_contact AS contact_id,
+                qlimited.score
             FROM qlimited
             LEFT JOIN questioning_accreditation qa_all
                 ON qa_all.questioning_id = qlimited.questioning_id;""");
@@ -331,6 +343,7 @@ public class SearchQuestioningDao {
         String surveyUnitId = (String) row[5];
         String identificationCode = (String) row[6];
         String contactId = (String) row[7];
+        Integer score = (Integer) row[8];
 
         TypeCommunicationEvent typeCommunicationEvent = lastCommunicationType != null ? TypeCommunicationEvent.valueOf(lastCommunicationType) : null;
         TypeQuestioningEvent typeQuestioningEvent = highestEventType != null ? TypeQuestioningEvent.valueOf(highestEventType) : null;
@@ -343,7 +356,8 @@ public class SearchQuestioningDao {
                 typeQuestioningEvent,
                 surveyUnitId,
                 identificationCode,
-                contactId
+                contactId,
+                score
         );
     }
 }
