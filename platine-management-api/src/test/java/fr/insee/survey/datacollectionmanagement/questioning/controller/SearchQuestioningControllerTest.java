@@ -39,13 +39,17 @@ class SearchQuestioningControllerTest {
     void testSearchWithoutParams() throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
+                        .param("page", "0")
+                        .param("pageSize", "20")
+                        .param("sortBy", "score")
+                        .param("sortDirection", "ASC")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(10)))
                 .andExpect(jsonPath("$.number", is(0)))
                 .andExpect(jsonPath("$.size", is(20)))
-                .andExpect(jsonPath("$.sort.sorted", is(false)));
+                .andExpect(jsonPath("$.sort.sorted", is(true)));
     }
 
     @Test
@@ -101,6 +105,21 @@ class SearchQuestioningControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sort.sorted", is(false)));
+    }
+
+    @Test
+    void testSearchWithResultBiggerThanPageSize() throws Exception {
+        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .content("{}")
+                        .param("page", "0")
+                        .param("pageSize", "5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(5)))
+                .andExpect(jsonPath("$.number", is(0)))
+                .andExpect(jsonPath("$.size", is(5)))
+                .andExpect(jsonPath("$.last", is(false)));
     }
 
 
