@@ -49,7 +49,7 @@ class SearchQuestioningControllerTest {
     }
 
     @Test
-    public void testSearchWithParams() throws Exception {
+    void testSearchWithParams() throws Exception {
         String json = """
                 {
                   "campaignIds": [
@@ -69,7 +69,7 @@ class SearchQuestioningControllerTest {
     }
 
     @Test
-    public void testPaginationAndSorting() throws Exception {
+    void testPaginationAndSorting() throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
                         .param("page", "1")
@@ -82,6 +82,25 @@ class SearchQuestioningControllerTest {
                 .andExpect(jsonPath("$.number", is(1)))
                 .andExpect(jsonPath("$.size", is(5)))
                 .andExpect(jsonPath("$.sort.sorted", is(true)));
+    }
+
+    @Test
+    void testSortParamsIncomplete() throws Exception {
+        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .content("{}")
+                        .param("sortBy", "score")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sort.sorted", is(false)));
+
+        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .content("{}")
+                        .param("sortDirection", "ASC")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sort.sorted", is(false)));
     }
 
 
