@@ -956,6 +956,20 @@ INSERT INTO public."view"
 (id, campaign_id, id_su, identifier)
 VALUES(2001, 'AQV2024X00', 'PROTO21', 'RESPON5');
 
+            -- E2E tests views --
+
+INSERT INTO public."view" (id, campaign_id, id_su, identifier)
+VALUES (1, 'E2E_CAMPAIGN_1', 'E2E_SU_1', 'E2E_RESPON_1');
+VALUES (2, 'E2E_CAMPAIGN_2', 'E2E_SU_2', 'E2E_RESPON_2');
+VALUES (3, 'E2E_CAMPAIGN_2', 'E2E_SU_2', 'E2E_RESPON_2');
+VALUES (4, 'E2E_CAMPAIGN_3', 'E2E_SU_2', 'E2E_RESPON_3');
+VALUES (5, 'E2E_CAMPAIGN_3', 'E2E_SU_3', 'E2E_RESPON_3');
+VALUES (6, 'E2E_CAMPAIGN_3', 'E2E_SU_4', 'E2E_RESPON_3');
+VALUES (7, 'E2E_CAMPAIGN_4', 'E2E_SU_5', 'E2E_RESPON_3');
+VALUES (8, 'E2E_CAMPAIGN_4', 'E2E_SU_6', 'E2E_RESPON_3');
+VALUES (9, 'E2E_CAMPAIGN_4', 'E2E_SU_7', 'E2E_RESPON_3');
+VALUES (10, 'E2E_CAMPAIGN_EEC', 'E2E_SU_EEC', 'E2E_RESPON_EEC');
+
 INSERT INTO public.questioning_comment
 (id, author, "comment", "date", questioning_id)
 VALUES(252, 'Robert', 'Commentaire 1 PROTO001', '2025-01-24 14:06:44.706', 1215);

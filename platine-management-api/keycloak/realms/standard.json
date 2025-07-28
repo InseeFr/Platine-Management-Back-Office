@@ -36,6 +36,23 @@
       "realmRoles": ["respondent"]
     },
     {
+      "username": "E2E_RESPON_1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Keith",
+      "lastName": "Cozart",
+      "email": "e2erespon1@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_1",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
       "username": "respon2",
       "enabled": true,
       "emailVerified": true,
