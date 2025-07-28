@@ -48,7 +48,6 @@ public class SearchQuestioningController {
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         return questioningService.searchQuestionings(searchParams, pageable);
-
     }
 
     @Operation(summary = "Get questioning details")
