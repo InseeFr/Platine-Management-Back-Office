@@ -1,11 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,5 +52,12 @@ public class Questioning {
     private Integer score;
     @Column(name= "score_init")
     private Integer scoreInit;
+
+    @Column(name= "highest_date_event")
+    private Date highestDateEvent;
+
+    @Column(name= "highest_type_event")
+    @Enumerated(EnumType.STRING)
+    private TypeQuestioningEvent highestTypeEvent;
 
 }
