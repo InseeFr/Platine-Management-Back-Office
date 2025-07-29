@@ -16,7 +16,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
     @Query(value = "SELECT " +
             "so.id AS sourceId, " +
             "s.year_value AS surveyYear, " +
-            "c.period_value AS period, " +
+            "c.period_collect_value AS periodCollect, " +
             "q.id AS questioningId, " +
             "p.label AS partitioningLabel, " +
             "p.id AS partitioningId, " +

@@ -242,7 +242,7 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnaires_FileUploadStatus() {
         Source source = createSource("SOURCE");
         Survey survey = createSurvey(source, "SURVEY2025", 2025);
-        Campaign campaign = createCampaign("SURVEY2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
+        Campaign campaign = createCampaign("SURVEY2025M01", PeriodEnum.M01, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
         Partitioning partitioning = createPartitioning("partitioning1", campaign);
         SurveyUnit surveyUnit = createSurveyUnit("SU001");
         Questioning questioning = createQuestioning(UUID.randomUUID());
@@ -279,7 +279,7 @@ class MySurveyServiceImplTest {
         MyQuestionnaireDetailsDto dto = new MyQuestionnaireDetailsDto();
         dto.setSourceId(source.getId());
         dto.setSurveyYear(survey.getYear());
-        dto.setPeriod(campaign.getPeriod().name());
+        dto.setPeriodCollect(campaign.getPeriodCollect().name());
         dto.setPartitioningLabel(partitioning.getLabel());
         dto.setPartitioningId(partitioning.getId());
         dto.setPartitioningOpeningDate(partitioning.getOpeningDate());
@@ -324,6 +324,7 @@ class MySurveyServiceImplTest {
         Campaign campaign = new Campaign();
         campaign.setId(id);
         campaign.setPeriod(period);
+        campaign.setPeriodCollect(period);
         campaign.setSurvey(survey);
         campaign.setDataCollectionTarget(dataCollection);
         campaign.setOperationUploadReference(operationUploadReference);

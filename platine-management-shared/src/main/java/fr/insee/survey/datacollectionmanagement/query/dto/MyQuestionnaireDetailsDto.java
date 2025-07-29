@@ -15,7 +15,7 @@ import java.util.UUID;
 public class MyQuestionnaireDetailsDto {
     private String sourceId;
     private Integer surveyYear;
-    private String period;
+    private String periodCollect;
     private UUID questioningId;
     private String partitioningLabel;
     private String partitioningId;

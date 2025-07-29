@@ -39,11 +39,11 @@ public class MySurveysServiceImpl implements MySurveysService {
             QuestioningUrlContext ctx = new QuestioningUrlContext(
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
-                    String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriod()),
+                    String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriodCollect()),
                     DataCollectionEnum.valueOf(details.getDataCollectionTarget()),
                     details.getSourceId().toLowerCase(),
                     details.getSurveyYear(),
-                    details.getPeriod(),
+                    details.getPeriodCollect(),
                     details.getOperationUploadReference(),
                     contactId
             );
