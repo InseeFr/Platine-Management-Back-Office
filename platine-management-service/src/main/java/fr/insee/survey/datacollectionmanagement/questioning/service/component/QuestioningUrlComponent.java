@@ -56,7 +56,7 @@ public class QuestioningUrlComponent {
                 campaign.getDataCollectionTarget(),
                 source.getId().toLowerCase(),
                 survey.getYear(),
-                campaign.getPeriod().getValue(),
+                campaign.getPeriodCollect() == null?"":campaign.getPeriodCollect().getValue(),
                 campaign.getOperationUploadReference(),
                 ""
         );

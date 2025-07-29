@@ -66,7 +66,9 @@ class QuestioningUrlComponentTest {
 
         Campaign campaign = mock(Campaign.class);
         when(campaign.getSurvey()).thenReturn(survey);
+        when(campaign.getPeriodCollect()).thenReturn(PeriodEnum.T04);
         when(campaign.getPeriod()).thenReturn(PeriodEnum.T04);
+
 
         when(campaign.getDataCollectionTarget()).thenReturn(target);
 
@@ -80,7 +82,6 @@ class QuestioningUrlComponentTest {
     private Questioning createQuestioning() {
         SurveyUnit unit = new SurveyUnit();
         unit.setIdSu(surveyUnitId);
-
         Questioning questioning = new Questioning();
         questioning.setSurveyUnit(unit);
         questioning.setId(questioningId);

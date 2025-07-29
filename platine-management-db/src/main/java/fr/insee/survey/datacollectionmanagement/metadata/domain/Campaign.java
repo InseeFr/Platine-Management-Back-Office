@@ -32,6 +32,11 @@ public class Campaign {
     @Enumerated(EnumType.STRING)
     private PeriodEnum period;
 
+    @Column(name = "PERIOD_COLLECT_VALUE")
+    @Enumerated(EnumType.STRING)
+    private PeriodEnum periodCollect;
+
+
     private String campaignWording;
 
     @Column(columnDefinition = "boolean default false")
