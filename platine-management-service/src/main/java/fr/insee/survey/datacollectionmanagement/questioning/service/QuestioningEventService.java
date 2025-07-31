@@ -19,6 +19,8 @@ public interface QuestioningEventService {
 
     QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent);
 
+    void deleteQuestioningEvent(Long id, boolean launchRefreshHighestEvent);
+
     void deleteQuestioningEvent(Long id);
 
     /**
