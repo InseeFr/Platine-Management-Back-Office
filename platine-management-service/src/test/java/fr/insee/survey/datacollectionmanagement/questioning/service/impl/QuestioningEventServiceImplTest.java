@@ -2,12 +2,15 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningEventComponent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +21,7 @@ import org.modelmapper.ModelMapper;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -38,12 +38,16 @@ class QuestioningEventServiceImplTest {
     void setUp() {
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
+        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
+        QuestioningEventComponent questioningEventComponent = new QuestioningEventComponent(questioningRepository, interrogationEventComparator);
         questioningEventService = new QuestioningEventServiceImpl(
                 null,
                 questioningEventRepository,
                 questioningRepository,
-                new ModelMapper());
+                new ModelMapper(),
+                questioningEventComponent);
     }
+
     private Questioning createQuestioning() {
         Questioning questioning = new Questioning();
         questioning.setId(UUID.randomUUID());
@@ -86,7 +90,10 @@ class QuestioningEventServiceImplTest {
         UUID questioningId = questioning.getId();
         QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning);
         QuestioningEvent event2 = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
-        questioning.setQuestioningEvents(Set.of(event, event2));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(event);
+        questioningEvents.add(event2);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningEventRepository.save(event);
         questioningEventRepository.save(event2);
         questioningRepository.save(questioning);
@@ -104,7 +111,9 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
         QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
-        questioning.setQuestioningEvents(Set.of(event));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(event);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningEventRepository.save(event);
         questioningRepository.save(questioning);
         QuestioningEventInputDto input = createValidedInputDto(questioningId);
@@ -227,7 +236,10 @@ class QuestioningEventServiceImplTest {
         UUID questioningId = questioning.getId();
         QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
         QuestioningEvent existing2 = createQuestioningEvent(1L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
-        questioning.setQuestioningEvents(Set.of(existing, existing2));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
         questioningEventRepository.save(existing2);
@@ -246,7 +258,9 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
         QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        questioning.setQuestioningEvents(Set.of(existing));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
 
@@ -266,7 +280,10 @@ class QuestioningEventServiceImplTest {
         UUID questioningId = questioning.getId();
         QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
         QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
-        questioning.setQuestioningEvents(Set.of(existing, existing2));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
         questioningEventRepository.save(existing2);
@@ -288,7 +305,11 @@ class QuestioningEventServiceImplTest {
         QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
         QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         QuestioningEvent existing3 = createQuestioningEvent(3L, TypeQuestioningEvent.VALID, questioning,Clock.offset(Clock.systemUTC(), Duration.ofHours(2)));
-        questioning.setQuestioningEvents(Set.of(existing, existing2, existing3));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioningEvents.add(existing3);
+        questioning.setQuestioningEvents(questioningEvents);
         questioningRepository.save(questioning);
         questioningEventRepository.save(existing);
         questioningEventRepository.save(existing2);
@@ -317,5 +338,57 @@ class QuestioningEventServiceImplTest {
                 .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
         assertThat(events).isEmpty();
     }
+
+    @Test
+    @DisplayName("findById should return exception if not exist")
+    void findById_not_exist() {
+        Long id = 1L;
+        assertThatThrownBy(() -> questioningEventService.findbyId(id))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage(String.format("QuestioningEvent %s not found", id));
+    }
+
+    @Test
+    @DisplayName("should save questioning event and refresh highest event")
+    void saveQuestioningEvent() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent saved = questioningEventService.saveQuestioningEvent(questioningEvent);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getQuestioning()).isNotNull();
+        assertThat(saved.getQuestioning().getHighestTypeEvent()).isNotNull()
+                .isEqualTo(TypeQuestioningEvent.INITLA);
+    }
+
+    @Test
+    @DisplayName("delete without refresh")
+    void deleteWithoutRefreshHighestEvent() {
+        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, createQuestioning());
+        questioningEventRepository.save(event);
+        List<QuestioningEvent> events = questioningEventRepository.findAll();
+        assertThat(events).hasSize(1);
+        questioningEventService.deleteQuestioningEvent(1L, false);
+        events = questioningEventRepository.findAll();
+        assertThat(events).isEmpty();
+    }
+
+    @Test
+    @DisplayName("delete with refresh")
+    void deleteWithRefreshHighestEvent() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning);
+        questioningEventRepository.save(event);
+
+        questioningEventService.deleteQuestioningEvent(2L, true);
+
+        Questioning updatedQuestioning = questioningRepository.findById(questioning.getId()).get();
+
+        assertThat(updatedQuestioning.getHighestTypeEvent()).isNotNull()
+                .isEqualTo(TypeQuestioningEvent.VALINT);
+    }
+
+
 
 }
