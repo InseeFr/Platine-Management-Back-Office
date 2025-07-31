@@ -7,7 +7,7 @@ VALUES
 ('SOURCE_2', 'Source 2 containing a campaign with multiple interrogations and one UE for a contact', false, 'X', 'Multi-interrogations, one SU', 'BUSINESS'),
 ('SOURCE_3', 'Source 3 containing a campaign with multiple sources and UEs for a contact', false, 'X', 'Multi-interrogations, one SU', 'BUSINESS'),
 ('SOURCE_R2D2', 'Source R2D2 containing a campaign with multiple sources and UEs for a contact', false, 'X', 'Multi-SU R2D2', 'BUSINESS'),
-('eee', 'Source EEC', false, 'X', 'EEC', 'HOUSEHOLD'),
+('eec', 'Source EEC', false, 'X', 'EEC', 'HOUSEHOLD'),
 ('SOURCE_CLOSED', 'Source closed containing a closed campaign', false, 'X', 'Closed', 'HOUSEHOLD');
 
                                  -- E2E tests survey --
@@ -29,9 +29,9 @@ VALUES
        'Short objectives for E2E_SURVEY_R2D2', 'Short wording E2E_SURVEY_R2D2', 'http://specimen/E2E_SURVEY_R2D2',
        '2025xxxxx', 2025, 'SOURCE_R2D2'),
 ('E2E_SURVEY_EEC', 'http://cnis/E2E_SURVEY_EEC', '', 'http://diffusion/E2E_SURVEY_EEC',
-       'This survey is used for E2E testing, it is inherited from eee', 'E2E Survey EEC', 'http://notice/E2E_SURVEY_EEC', 0,
+       'This survey is used for E2E testing, it is inherited from eec', 'E2E Survey EEC', 'http://notice/E2E_SURVEY_EEC', 0,
        'Short objectives for E2E_SURVEY_EEC', 'Short wording E2E_SURVEY_EEC', 'http://specimen/E2E_SURVEY_EEC',
-       '2025xxxxx', 2025, 'eee'),
+       '2025xxxxx', 2025, 'eec'),
 ('E2E_SURVEY_CLOSED', 'http://cnis/E2E_SURVEY_CLOSED', '', 'http://diffusion/E2E_SURVEY_CLOSED',
        'This survey is used for E2E testing, it is inherited from SOURCE_CLOSED', 'E2E Survey CLOSED', 'http://notice/E2E_SURVEY_CLOSED', 0,
        'Short objectives for E2E_SURVEY_CLOSED', 'Short wording E2E_SURVEY_CLOSED', 'http://specimen/E2E_SURVEY_CLOSED',
