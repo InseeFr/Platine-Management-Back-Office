@@ -1,6 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +18,8 @@ public class InterrogationEventOrder {
     @Id
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TypeQuestioningEvent status;
 
     private int eventOrder;
 }

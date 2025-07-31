@@ -13,6 +13,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningEventComponent;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final QuestioningRepository questioningRepository;
 
     private final ModelMapper modelMapper;
+    private final QuestioningEventComponent questioningEventComponent;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -38,12 +40,24 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent) {
-        return questioningEventRepository.save(questioningEvent);
+        QuestioningEvent saved = questioningEventRepository.save(questioningEvent);
+        questioningEventComponent.refreshHighestEvent(saved.getQuestioning().getId());
+        return saved;
+    }
+
+    @Override
+    public void deleteQuestioningEvent(Long id, boolean launchRefreshHighestEvent) {
+        QuestioningEvent questioningEvent = findbyId(id);
+        UUID questioningId = questioningEvent.getQuestioning().getId();
+        questioningEventRepository.deleteById(id);
+        if (launchRefreshHighestEvent) {
+            questioningEventComponent.refreshHighestEvent(questioningId);
+        }
     }
 
     @Override
     public void deleteQuestioningEvent(Long id) {
-        questioningEventRepository.deleteById(id);
+        deleteQuestioningEvent(id, false);
     }
 
     @Override
@@ -106,6 +120,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setDate(questioningEventInputDto.getDate());
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         questioningEventRepository.save(newQuestioningEvent);
+
+        questioningEventComponent.refreshHighestEvent(questioningId);
         return true;
     }
 
@@ -141,6 +157,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 && candidate.getType() != TypeQuestioningEvent.EXPERT) {
             questioningEventRepository.save(candidate);
         }
+
+        questioningEventComponent.refreshHighestEvent(questioning.getId());
     }
 
 

@@ -127,7 +127,7 @@ public class QuestioningServiceImpl implements QuestioningService {
             SurveyUnit su = q.getSurveyUnit();
             su.getQuestionings().remove(q);
             surveyUnitService.saveSurveyUnit(su);
-            q.getQuestioningEvents().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId()));
+            q.getQuestioningEvents().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId(), false));
             q.getQuestioningAccreditations().forEach(questioningAccreditationService::deleteAccreditation);
             deleteQuestioning(q.getId());
             nbQuestioningDeleted++;
@@ -257,26 +257,9 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public boolean hasExpertiseStatut(UUID questioningId) {
-        InterrogationStatusEventDto event = highestStatusCalculation(questioningId);
-        if (event == null) {
-            return false;
-        }
-
-        return TypeQuestioningEvent.EXPERT_EVENTS.contains(event.type());
-    }
-
-    @Override
-    public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
+    public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
-
-        return questioning.getQuestioningEvents().stream()
-                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
-                .max(interrogationEventComparator)
-                .map(event ->
-                        new InterrogationStatusEventDto(
-                                event.getType(),
-                                event.getDate()))
-                .orElse(null);
+        TypeQuestioningEvent highestEvent = questioning.getHighestTypeEvent();
+        return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
 }
