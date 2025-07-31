@@ -148,19 +148,19 @@ public class DataloaderTest {
             // Creating table order
             log.info("loading interrogation event order data");
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("7"), TypeQuestioningEvent.HC.toString(), 4));
+                    new InterrogationEventOrder(Long.parseLong("7"), TypeQuestioningEvent.HC, 4));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("6"), TypeQuestioningEvent.WASTE.toString(), 3));
+                    new InterrogationEventOrder(Long.parseLong("6"), TypeQuestioningEvent.WASTE, 3));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL.toString(), 3));
+                    new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL, 3));
             interrogationOrderRepository
-                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP.toString(), 2));
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP, 2));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT.toString(), 2));
+                    new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT, 2));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("2"), TypeQuestioningEvent.PARTIELINT.toString(), 2));
+                    new InterrogationEventOrder(Long.parseLong("2"), TypeQuestioningEvent.PARTIELINT, 2));
             interrogationOrderRepository
-                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA.toString(), 1));
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA, 1));
         }
     }
 

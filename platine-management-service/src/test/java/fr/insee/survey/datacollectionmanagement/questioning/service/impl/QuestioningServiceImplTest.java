@@ -15,7 +15,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceReposi
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -24,11 +23,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQue
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.InterrogationEventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +41,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -58,9 +55,6 @@ class QuestioningServiceImplTest {
 
 
     private static final String SURVEY_UNIT_ID = "12345";
-
-    @Mock
-    private InterrogationEventOrderRepository eventOrderRepository;
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -102,32 +96,12 @@ class QuestioningServiceImplTest {
 
     private Partitioning partitioning;
 
-    private static final int O_INITLA      = 1;
-    private static final int O_PARTIEL_VAL = 2;
-    private static final int O_EXPERT      = 2;
-    private static final int O_REF_WAST    = 3;
-    private static final int O_HC          = 4;
-
     @BeforeEach
     void setUp() {
 
         partitioning = new Partitioning();
 
-        when(eventOrderRepository.findAll()).thenReturn(List.of(
-                order("INITLA",     O_INITLA),
-                order("PARTIELINT", O_PARTIEL_VAL),
-                order("VALINT",     O_PARTIEL_VAL),
-                order("VALPAP",     O_PARTIEL_VAL),
-                order("EXPERT",     O_EXPERT),
-                order("ONGEXPERT",  O_EXPERT),
-                order("VALID",      O_EXPERT),
-                order("ENDEXPERT",  O_EXPERT),
-                order("REFUSAL",    O_REF_WAST),
-                order("WASTE",      O_REF_WAST),
-                order("HC",         O_HC)
-        ));
-
-        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(eventOrderRepository);
+        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
 
         questioningEventService = new QuestioningEventServiceStub();
 
@@ -136,7 +110,7 @@ class QuestioningServiceImplTest {
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
-    private static InterrogationEventOrder order(String status, int valeur) {
+    private static InterrogationEventOrder order(TypeQuestioningEvent status, int valeur) {
         return new InterrogationEventOrder(null, status, valeur);
     }
 
@@ -512,88 +486,23 @@ class QuestioningServiceImplTest {
         return q;
     }
 
-    @Test
-    void shouldThrowNotFoundExceptionIfQuestioningNotFound() {
-        UUID id = UUID.randomUUID();
-        when(questioningRepository.findById(id)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> questioningService.highestStatusCalculation(id))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Questioning " + id + " not found");
-    }
-
-    @Test
-    void shouldReturnNullIfNoEvents() {
-        UUID id = UUID.randomUUID();
-        Questioning q = new Questioning();
-        q.setQuestioningEvents(Collections.emptySet());
-        when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
-        assertThat(questioningService.highestStatusCalculation(id)).isNull();
-    }
-
-    @Test
-    void shouldReturnNullIfNoRelevantEvents() {
-        UUID id = UUID.randomUUID();
-        QuestioningEvent e = new QuestioningEvent();
-        e.setType(TypeQuestioningEvent.PND);
-        e.setDate(new Date());
-        Questioning q = new Questioning();
-        q.setQuestioningEvents(Set.of(e));
-        when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
-        assertThat(questioningService.highestStatusCalculation(id)).isNull();
-    }
-
-    @Test
-    void shouldReturnEventWithHighestPriority() {
-        UUID id = UUID.randomUUID();
-        Questioning q = new Questioning();
-        q.setQuestioningEvents(Set.of(
-                event(TypeQuestioningEvent.INITLA, "2024-01-01T10:00"),
-                event(TypeQuestioningEvent.HC, "2024-01-02T12:00")
-        ));
-        when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
-        InterrogationStatusEventDto dto = questioningService.highestStatusCalculation(id);
-        assertThat(dto.type()).isEqualTo(TypeQuestioningEvent.HC);
-    }
-
-    @Test
-    void shouldReturnMostRecentIfSameOrder() {
-        UUID id = UUID.randomUUID();
-        Questioning q = new Questioning();
-        q.setQuestioningEvents(Set.of(
-                event(TypeQuestioningEvent.VALID, "2024-01-01T10:00"),
-                event(TypeQuestioningEvent.ONGEXPERT, "2024-02-01T10:00")
-        ));
-        when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
-        InterrogationStatusEventDto dto = questioningService.highestStatusCalculation(id);
-        assertThat(dto.type()).isEqualTo(TypeQuestioningEvent.ONGEXPERT);
-    }
-
-    private static QuestioningEvent event(TypeQuestioningEvent type, String dateTime) {
-        LocalDateTime ldt = LocalDateTime.parse(dateTime);
-        Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-        QuestioningEvent e = new QuestioningEvent();
-        e.setDate(date);
-        e.setType(type);
-        return e;
-    }
-
     @ParameterizedTest
     @MethodSource("hasExpertiseStatusScenarios")
-    void testHasExpertiseStatut(Set<QuestioningEvent> events, boolean expected) {
+    void testHasExpertiseStatus(TypeQuestioningEvent event, boolean expected) {
         UUID id = UUID.randomUUID();
         Questioning q = new Questioning();
-        q.setQuestioningEvents(events);
+        q.setHighestTypeEvent(event);
 
         when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
 
-        assertThat(questioningService.hasExpertiseStatut(id)).isEqualTo(expected);
+        assertThat(questioningService.hasExpertiseStatus(id)).isEqualTo(expected);
     }
 
     private static Stream<Arguments> hasExpertiseStatusScenarios() {
         return Stream.of(
-                Arguments.of(Collections.emptySet(), false), // aucun événement
-                Arguments.of(Set.of(event(TypeQuestioningEvent.REFUSAL, "2024-01-01T10:00")), false),
-                Arguments.of(Set.of(event(TypeQuestioningEvent.EXPERT, "2024-01-01T10:00")), true)
+                Arguments.of(null, false),
+                Arguments.of(TypeQuestioningEvent.REFUSAL, false),
+                Arguments.of(TypeQuestioningEvent.EXPERT, true)
         );
     }
 
