@@ -174,11 +174,6 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(event -> modelMapper.map(event, QuestioningEventDto.class))
                 .toList();
 
-        QuestioningEventDto highestPriorityEventDto = questioningEventsDto
-                .stream()
-                .findFirst()
-                .orElse(null);
-
         QuestioningEventDto validatedEventDto = questioningEventsDto.stream()
                 .filter(qe ->
                         TypeQuestioningEvent.VALIDATED_EVENTS.contains(
@@ -200,7 +195,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .campaignId(campaignId)
                 .surveyUnit(questioningSurveyUnitDto)
                 .contacts(questioningContactDtoList)
-                .events(questioningEventsDto, highestPriorityEventDto, validatedEventDto)
+                .events(questioningEventsDto, questioning.getHighestTypeEvent(), questioning.getHighestDateEvent(), validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
