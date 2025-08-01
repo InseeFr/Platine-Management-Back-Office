@@ -6,8 +6,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningSurveyUnitD
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,12 +50,13 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, QuestioningEventDto lastEvent, QuestioningEventDto validatedEvent) {
+    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestTypeEvent, Date highestDateEvent, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
-        if (lastEvent != null) {
-            instance.setLastEventId(lastEvent.getId());
-            instance.setLastEvent(lastEvent.getType());
-            instance.setDateLastEvent(lastEvent.getEventDate());
+        Long highestEventId = events.stream().filter( e -> e.getType().equals(highestTypeEvent.name()) && e.getEventDate().equals(highestDateEvent)).toList().getFirst().getId();
+        if (highestTypeEvent != null && highestDateEvent != null) {
+            instance.setLastEventId(highestEventId);
+            instance.setLastEvent(String.valueOf(highestTypeEvent));
+            instance.setDateLastEvent(highestDateEvent);
         }
         if (validatedEvent != null) {
             instance.setValidationDate(validatedEvent.getEventDate());
