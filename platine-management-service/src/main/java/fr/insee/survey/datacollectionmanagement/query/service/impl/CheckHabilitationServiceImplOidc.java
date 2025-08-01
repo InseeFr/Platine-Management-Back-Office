@@ -93,7 +93,7 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
             return false;
         }
 
-        return questioningService.hasExpertiseStatut(questioningId);
+        return questioningService.hasExpertiseStatus(questioningId);
     }
 
     private boolean checkInternal(String role, List<String> userRoles, String userId) {
