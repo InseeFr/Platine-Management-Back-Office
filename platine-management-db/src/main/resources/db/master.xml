@@ -19,5 +19,7 @@
     <include file="changelog/070_add_rework_variables_and_events.sql" relativeToChangelogFile="true"/>
     <include file="changelog/071_fix_scores_questioning_smallint_to_int.sql" relativeToChangelogFile="true"/>
     <include file="changelog/080_add-period-collect-value.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/081_fix_remove_datacollection_target_check.sql" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>
