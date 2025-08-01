@@ -20,7 +20,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -110,10 +113,6 @@ class QuestioningServiceImplTest {
                 partitioningService, contactService, questioningEventService, questioningAccreditationService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
-    private static InterrogationEventOrder order(TypeQuestioningEvent status, int valeur) {
-        return new InterrogationEventOrder(null, status, valeur);
-    }
-
 
     @Test
     @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")

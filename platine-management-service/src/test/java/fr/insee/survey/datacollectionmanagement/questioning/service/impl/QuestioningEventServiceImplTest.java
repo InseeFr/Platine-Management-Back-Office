@@ -368,7 +368,7 @@ class QuestioningEventServiceImplTest {
         questioningEventRepository.save(event);
         List<QuestioningEvent> events = questioningEventRepository.findAll();
         assertThat(events).hasSize(1);
-        questioningEventService.deleteQuestioningEvent(1L, false);
+        questioningEventService.deleteQuestioningEvent(1L);
         events = questioningEventRepository.findAll();
         assertThat(events).isEmpty();
     }
