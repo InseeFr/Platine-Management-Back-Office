@@ -135,6 +135,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
         CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
+        result.setYear(campaign.getSurvey().getYear());
         result.setSourceId(campaign.getSurvey().getSource().getId());
         return result;
     }
