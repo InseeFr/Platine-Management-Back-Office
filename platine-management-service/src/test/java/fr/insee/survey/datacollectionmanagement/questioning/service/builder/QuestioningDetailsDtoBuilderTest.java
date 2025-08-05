@@ -92,6 +92,7 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).hasSize(2);
+        assertThat(dto.getLastEventId()).isEqualTo(event2.getId());
         assertThat(dto.getLastEvent()).isEqualTo("EVENT_TYPE_2");
         assertThat(dto.getDateLastEvent()).isEqualTo(event2.getEventDate());
         assertThat(dto.getValidationDate()).isEqualTo(validatedEvent.getEventDate());
@@ -104,6 +105,7 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).isNull();
+        assertThat(dto.getLastEventId()).isNull();
         assertThat(dto.getLastEvent()).isNull();
         assertThat(dto.getDateLastEvent()).isNull();
         assertThat(dto.getValidationDate()).isNull();
@@ -116,6 +118,7 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).isEmpty();
+        assertThat(dto.getLastEventId()).isNull();
         assertThat(dto.getLastEvent()).isNull();
         assertThat(dto.getDateLastEvent()).isNull();
         assertThat(dto.getValidationDate()).isNull();
@@ -177,9 +180,9 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListComments()).hasSize(1);
-        assertThat(dto.getListComments().get(0).getComment()).isEqualTo("This is a comment.");
-        assertThat(dto.getListComments().get(0).getAuthor()).isEqualTo("John Doe");
-        assertThat(dto.getListComments().get(0).getCommentDate()).isEqualTo(comment.getCommentDate());
+        assertThat(dto.getListComments().getFirst().getComment()).isEqualTo("This is a comment.");
+        assertThat(dto.getListComments().getFirst().getAuthor()).isEqualTo("John Doe");
+        assertThat(dto.getListComments().getFirst().getCommentDate()).isEqualTo(comment.getCommentDate());
     }
 
     @Test
