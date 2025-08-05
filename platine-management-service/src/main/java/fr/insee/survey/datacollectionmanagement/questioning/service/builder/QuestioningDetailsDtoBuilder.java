@@ -51,6 +51,7 @@ public class QuestioningDetailsDtoBuilder {
     public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, QuestioningEventDto lastEvent, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
         if (lastEvent != null) {
+            instance.setLastEventId(lastEvent.getId());
             instance.setLastEvent(lastEvent.getType());
             instance.setDateLastEvent(lastEvent.getEventDate());
         }

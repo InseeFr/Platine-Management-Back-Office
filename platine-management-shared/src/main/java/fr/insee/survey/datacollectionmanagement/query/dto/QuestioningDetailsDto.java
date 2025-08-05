@@ -21,6 +21,7 @@ public class QuestioningDetailsDto {
     private String surveyUnitIdentificationName;
     private String surveyUnitLabel;
     private List<QuestioningEventDto> listEvents;
+    private Long lastEventId;
     private String lastEvent;
     private Date dateLastEvent;
     private List<QuestioningCommunicationDto> listCommunications;
