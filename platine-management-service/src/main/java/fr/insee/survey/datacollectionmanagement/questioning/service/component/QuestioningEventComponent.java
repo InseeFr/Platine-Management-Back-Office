@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,6 @@ public class QuestioningEventComponent {
     private final QuestioningRepository questioningRepository;
     private final InterrogationEventComparator interrogationEventComparator;
 
-    @Transactional
     public void refreshHighestEvent(UUID questioningId) {
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));

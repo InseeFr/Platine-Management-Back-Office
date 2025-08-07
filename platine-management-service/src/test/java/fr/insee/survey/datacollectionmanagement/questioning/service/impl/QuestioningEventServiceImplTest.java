@@ -51,6 +51,7 @@ class QuestioningEventServiceImplTest {
     private Questioning createQuestioning() {
         Questioning questioning = new Questioning();
         questioning.setId(UUID.randomUUID());
+        questioningRepository.save(questioning);
         return questioning;
     }
 
@@ -362,26 +363,14 @@ class QuestioningEventServiceImplTest {
     }
 
     @Test
-    @DisplayName("delete without refresh")
-    void deleteWithoutRefreshHighestEvent() {
-        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, createQuestioning());
-        questioningEventRepository.save(event);
-        List<QuestioningEvent> events = questioningEventRepository.findAll();
-        assertThat(events).hasSize(1);
-        questioningEventService.deleteQuestioningEvent(1L);
-        events = questioningEventRepository.findAll();
-        assertThat(events).isEmpty();
-    }
-
-    @Test
-    @DisplayName("delete with refresh")
+    @DisplayName("delete refresh")
     void deleteWithRefreshHighestEvent() {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
         QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning);
         questioningEventRepository.save(event);
 
-        questioningEventService.deleteQuestioningEvent(2L, true);
+        questioningEventService.deleteQuestioningEvent(2L);
 
         Questioning updatedQuestioning = questioningRepository.findById(questioning.getId()).get();
 

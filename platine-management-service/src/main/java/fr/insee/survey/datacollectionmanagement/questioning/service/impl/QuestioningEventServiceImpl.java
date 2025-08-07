@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningEventComponent;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
@@ -46,18 +48,12 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEvent(Long id, boolean launchRefreshHighestEvent) {
+    public void deleteQuestioningEvent(Long id) {
         QuestioningEvent questioningEvent = findbyId(id);
         UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
-        if (launchRefreshHighestEvent) {
-            questioningEventComponent.refreshHighestEvent(questioningId);
-        }
-    }
+        questioningEventComponent.refreshHighestEvent(questioningId);
 
-    @Override
-    public void deleteQuestioningEvent(Long id) {
-        deleteQuestioningEvent(id, false);
     }
 
     @Override

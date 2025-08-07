@@ -32,13 +32,8 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEvent(Long id, boolean launchRefreshHighestEvent) {
-        // not used
-    }
-
-    @Override
     public void deleteQuestioningEvent(Long id) {
-        deleteQuestioningEvent(id, false);
+        // not used
     }
 
     @Override

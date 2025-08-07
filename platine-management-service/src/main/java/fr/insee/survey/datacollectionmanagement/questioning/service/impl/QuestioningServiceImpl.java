@@ -124,11 +124,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         int nbQuestioningDeleted = 0;
         Set<Questioning> setQuestionings = findByIdPartitioning(partitioning.getId());
         for (Questioning q : setQuestionings) {
-            SurveyUnit su = q.getSurveyUnit();
-            su.getQuestionings().remove(q);
-            surveyUnitService.saveSurveyUnit(su);
-            q.getQuestioningEvents().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId(), false));
-            q.getQuestioningAccreditations().forEach(questioningAccreditationService::deleteAccreditation);
             deleteQuestioning(q.getId());
             nbQuestioningDeleted++;
         }
