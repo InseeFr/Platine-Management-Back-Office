@@ -37,9 +37,9 @@ public class UploadController {
         log.info("Request DELETE for upload n° {}", id);
 
         Upload up = moogUploadService.findById(id);
-        up.getQuestioningEvents().forEach(q -> {
-            questioningEventService.deleteQuestioningEvent(q.getId());
-        });
+        up.getQuestioningEvents().forEach(q ->
+            questioningEventService.deleteQuestioningEvent(q.getId())
+        );
         moogUploadService.delete(up);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -50,15 +50,14 @@ public class UploadController {
     @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<Upload> displayAllUploads(@PathVariable String idCampaign) {
         log.info("Request GET for uploads");
-        return new JSONCollectionWrapper<Upload>(moogUploadService.findAllByIdCampaign(idCampaign));
+        return new JSONCollectionWrapper<>(moogUploadService.findAllByIdCampaign(idCampaign));
     }
 
     @PostMapping(value = UrlConstants.MOOG_API_CAMPAIGN_UPLOADS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultUpload addQuestioningEventViaUpload(@PathVariable String idCampaign,
                                                              @RequestBody UploadDto request) throws RessourceNotValidatedException {
         log.info("Request POST to add an upload");
-        ResultUpload retourInfo = moogUploadService.save(idCampaign, request);
-        return retourInfo;
+        return moogUploadService.save(idCampaign, request);
     }
 
 }
