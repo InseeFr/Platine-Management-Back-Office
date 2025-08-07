@@ -46,14 +46,10 @@ public class SearchQuestioningDao {
                         LIMIT 1
                     ) AS last_communication_type,
                     q.highest_type_event AS highest_event_type,
-                    (
-                        SELECT qe2.date
-                        FROM questioning_event qe2
-                        WHERE qe2.questioning_id = q.id
-                        AND qe2.type IN ('VALINT','VALPAP')
-                        ORDER BY qe2.date DESC
-                        LIMIT 1
-                    ) AS validation_date,
+                    CASE
+                       WHEN q.highest_type_event IN ('VALINT', 'VALPAP') THEN q.highest_date_event
+                       ELSE NULL
+                    END AS validation_date,
                     su.id_su AS survey_unit_id,
                     su.identification_code AS identification_code,
                     q.score AS score""");
@@ -312,16 +308,7 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = """
-                (
-                    SELECT qe.type
-                    FROM questioning_event qe
-                    JOIN interrogation_event_order ie
-                      ON ie.status = qe.type
-                    WHERE qe.questioning_id = q.id
-                    ORDER BY ie.event_order DESC, qe.date DESC
-                    LIMIT 1
-                ) IN (""" + placeholders + ")";
+        String filter = " WHERE q.highest_type_event IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }
