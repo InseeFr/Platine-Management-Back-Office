@@ -45,15 +45,7 @@ public class SearchQuestioningDao {
                         ORDER BY qc.date DESC
                         LIMIT 1
                     ) AS last_communication_type,
-                    (
-                        SELECT qe.type
-                        FROM questioning_event qe
-                        JOIN interrogation_event_order ie
-                        ON ie.status = qe.type
-                        WHERE qe.questioning_id = q.id
-                        ORDER BY ie.event_order DESC, qe.date DESC
-                        LIMIT 1
-                    ) AS highest_event_type,
+                    q.highest_type_event AS highest_event_type,
                     (
                         SELECT qe2.date
                         FROM questioning_event qe2
