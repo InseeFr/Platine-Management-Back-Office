@@ -109,8 +109,8 @@ class QuestioningServiceImplTest {
         questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
-                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent, surveyUnitService,
-                partitioningService, contactService, questioningEventService, questioningAccreditationService,
+                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent,
+                partitioningService, contactService, questioningEventService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
 
