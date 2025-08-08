@@ -16,17 +16,12 @@ import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
@@ -51,11 +46,9 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final QuestioningRepository questioningRepository;
     private final SearchQuestioningDao searchQuestioningDao;
     private final QuestioningUrlComponent questioningUrlComponent;
-    private final SurveyUnitService surveyUnitService;
     private final PartitioningService partitioningService;
     private final ContactService contactService;
     private final QuestioningEventService questioningEventService;
-    private final QuestioningAccreditationService questioningAccreditationService;
     private final ModelMapper modelMapper;
     private final PartitioningRepository partitioningRepository;
     private final ParametersService parametersService;
@@ -121,13 +114,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public int deleteQuestioningsOfOnePartitioning(Partitioning partitioning) {
-        int nbQuestioningDeleted = 0;
-        Set<Questioning> setQuestionings = findByIdPartitioning(partitioning.getId());
-        for (Questioning q : setQuestionings) {
-            deleteQuestioning(q.getId());
-            nbQuestioningDeleted++;
-        }
-        return nbQuestioningDeleted;
+        return questioningRepository.deleteByidPartitioning(partitioning.getId());
     }
 
     @Override
@@ -252,4 +239,5 @@ public class QuestioningServiceImpl implements QuestioningService {
         TypeQuestioningEvent highestEvent = questioning.getHighestTypeEvent();
         return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
+
 }
