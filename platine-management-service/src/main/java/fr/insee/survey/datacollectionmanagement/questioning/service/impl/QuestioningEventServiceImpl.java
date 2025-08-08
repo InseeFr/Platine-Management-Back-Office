@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -13,7 +14,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningEventComponent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -33,7 +33,9 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final QuestioningRepository questioningRepository;
 
     private final ModelMapper modelMapper;
-    private final QuestioningEventComponent questioningEventComponent;
+
+    private final InterrogationEventComparator interrogationEventComparator;
+
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -43,7 +45,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent) {
         QuestioningEvent saved = questioningEventRepository.save(questioningEvent);
-        questioningEventComponent.refreshHighestEvent(saved.getQuestioning().getId());
+        refreshHighestEvent(saved.getQuestioning().getId());
         return saved;
     }
 
@@ -52,7 +54,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         QuestioningEvent questioningEvent = findbyId(id);
         UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
-        questioningEventComponent.refreshHighestEvent(questioningId);
+        refreshHighestEvent(questioningId);
 
     }
 
@@ -117,7 +119,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         questioningEventRepository.save(newQuestioningEvent);
 
-        questioningEventComponent.refreshHighestEvent(questioningId);
+        refreshHighestEvent(questioningId);
         return true;
     }
 
@@ -154,8 +156,23 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
             questioningEventRepository.save(candidate);
         }
 
-        questioningEventComponent.refreshHighestEvent(questioning.getId());
+        refreshHighestEvent(questioning.getId());
     }
 
+
+    public void refreshHighestEvent(UUID questioningId) {
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
+
+        Optional<QuestioningEvent> highestEvent = Optional.ofNullable(questioning.getQuestioningEvents())
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .max(interrogationEventComparator);
+
+        questioning.setHighestTypeEvent(highestEvent.map(QuestioningEvent::getType).orElse(null));
+        questioning.setHighestDateEvent(highestEvent.map(QuestioningEvent::getDate).orElse(null));
+        questioningRepository.save(questioning);
+    }
 
 }

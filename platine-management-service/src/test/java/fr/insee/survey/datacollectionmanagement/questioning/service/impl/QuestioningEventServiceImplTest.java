@@ -9,7 +9,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningEventComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
@@ -39,13 +38,12 @@ class QuestioningEventServiceImplTest {
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
-        QuestioningEventComponent questioningEventComponent = new QuestioningEventComponent(questioningRepository, interrogationEventComparator);
         questioningEventService = new QuestioningEventServiceImpl(
                 null,
                 questioningEventRepository,
                 questioningRepository,
                 new ModelMapper(),
-                questioningEventComponent);
+                interrogationEventComparator);
     }
 
     private Questioning createQuestioning() {
@@ -376,6 +374,65 @@ class QuestioningEventServiceImplTest {
 
         assertThat(updatedQuestioning.getHighestTypeEvent()).isNotNull()
                 .isEqualTo(TypeQuestioningEvent.VALINT);
+    }
+
+
+    void shouldSetNullWhenNoEvents() {
+        UUID id = UUID.randomUUID();
+        Questioning questioning = new Questioning();
+        questioning.setId(id);
+        questioning.setQuestioningEvents(null);
+        questioningRepository.save(questioning);
+
+        questioningEventService.refreshHighestEvent(id);
+
+        Questioning updated = questioningRepository.findById(id).orElseThrow();
+        assertThat(updated.getHighestTypeEvent()).as("HighestTypeEvent should be null when no events").isNull();
+        assertThat(updated.getHighestDateEvent()).as("HighestDateEvent should be null when no events").isNull();
+    }
+
+    @Test
+    void shouldPickLatestInterrogationEvent() {
+        UUID id = UUID.randomUUID();
+        Questioning questioning = new Questioning();
+        questioning.setId(id);
+
+        QuestioningEvent evtInit = new QuestioningEvent();
+        evtInit.setType(TypeQuestioningEvent.INITLA);
+        Date dateInit = new GregorianCalendar(2025, Calendar.JANUARY, 10).getTime();
+        evtInit.setDate(dateInit);
+
+        QuestioningEvent evtPart = new QuestioningEvent();
+        evtPart.setType(TypeQuestioningEvent.PARTIELINT);
+        Date datePart = new GregorianCalendar(2025, Calendar.FEBRUARY, 20).getTime();
+        evtPart.setDate(datePart);
+
+        QuestioningEvent evtVal = new QuestioningEvent();
+        evtVal.setType(TypeQuestioningEvent.VALINT);
+        Date dateVal = new GregorianCalendar(2025, Calendar.MARCH, 5).getTime();
+        evtVal.setDate(dateVal);
+
+        questioning.setQuestioningEvents(Set.of(evtInit, evtPart, evtVal));
+        questioningRepository.save(questioning);
+
+        questioningEventService.refreshHighestEvent(id);
+
+        Questioning updated = questioningRepository.findById(id).orElseThrow();
+        assertThat(updated.getHighestTypeEvent())
+                .as("Should pick the event with highest order by comparator")
+                .isEqualTo(TypeQuestioningEvent.VALINT);
+        assertThat(updated.getHighestDateEvent())
+                .as("Should pick the correct date of the highest event")
+                .isEqualTo(dateVal);
+    }
+
+    @Test
+    void shouldThrowWhenQuestioningNotFound() {
+        UUID unknownId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> questioningEventService.refreshHighestEvent(unknownId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining(unknownId.toString());
     }
 
 

@@ -110,7 +110,7 @@ class QuestioningServiceImplTest {
 
         questioningService = new QuestioningServiceImpl(
                 interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent,
-                partitioningService, contactService, questioningEventService,
+                contactService, questioningEventService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
 
@@ -381,6 +381,7 @@ class QuestioningServiceImplTest {
         Questioning q1 = buildQuestioning(questioningId1, "SU1");
 
         when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
+        when(partitioningRepository.findById(q1.getIdPartitioning())).thenReturn(Optional.ofNullable(partitioning));
 
         AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertNull(assistanceDto.getMailAssistance());
@@ -411,7 +412,7 @@ class QuestioningServiceImplTest {
         String assistancePart = "assistancePart@assistance.fr";
 
         when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
-        when(partitioningService.findById(q1.getIdPartitioning())).thenReturn(partitioning);
+        when(partitioningRepository.findById(q1.getIdPartitioning())).thenReturn(Optional.ofNullable(partitioning));
         when(parametersService.findSuitableParameterValue(partitioning, ParameterEnum.MAIL_ASSISTANCE)).thenReturn(assistancePart);
 
         AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);

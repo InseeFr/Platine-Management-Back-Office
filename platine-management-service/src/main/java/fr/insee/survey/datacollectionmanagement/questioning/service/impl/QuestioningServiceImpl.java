@@ -11,7 +11,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
@@ -46,7 +45,6 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final QuestioningRepository questioningRepository;
     private final SearchQuestioningDao searchQuestioningDao;
     private final QuestioningUrlComponent questioningUrlComponent;
-    private final PartitioningService partitioningService;
     private final ContactService contactService;
     private final QuestioningEventService questioningEventService;
     private final ModelMapper modelMapper;
@@ -105,7 +103,8 @@ public class QuestioningServiceImpl implements QuestioningService {
         Questioning questioning = findById(questioningId);
         String mail = questioning.getAssistanceMail();
         if (StringUtils.isBlank(mail)) {
-            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            Partitioning part = partitioningRepository.findById(questioning.getIdPartitioning())
+                    .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
             mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
         }
         return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
@@ -239,5 +238,6 @@ public class QuestioningServiceImpl implements QuestioningService {
         TypeQuestioningEvent highestEvent = questioning.getHighestTypeEvent();
         return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
+
 
 }
