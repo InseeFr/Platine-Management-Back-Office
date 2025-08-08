@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
-import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -25,8 +24,6 @@ public class QuestioningServiceStub implements QuestioningService {
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
     ArrayList<Questioning> questionings = new ArrayList<>();
-
-    private InterrogationStatusEventDto highestStatusEvent;
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -96,13 +93,9 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public boolean hasExpertiseStatut(UUID questioningId) {
-        return TypeQuestioningEvent.EXPERT_EVENTS.contains(highestStatusEvent.type());
-    }
-
-    @Override
-    public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
-        return highestStatusEvent;
+    public boolean hasExpertiseStatus(UUID questioningId) {
+        Questioning questioning = findById(questioningId);
+        return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestEventType());
     }
 
     @Override

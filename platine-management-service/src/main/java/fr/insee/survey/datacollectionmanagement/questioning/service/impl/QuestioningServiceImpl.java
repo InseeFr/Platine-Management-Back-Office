@@ -11,22 +11,16 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.builder.QuestioningDetailsDtoBuilder;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
@@ -51,11 +45,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     private final QuestioningRepository questioningRepository;
     private final SearchQuestioningDao searchQuestioningDao;
     private final QuestioningUrlComponent questioningUrlComponent;
-    private final SurveyUnitService surveyUnitService;
-    private final PartitioningService partitioningService;
     private final ContactService contactService;
     private final QuestioningEventService questioningEventService;
-    private final QuestioningAccreditationService questioningAccreditationService;
     private final ModelMapper modelMapper;
     private final PartitioningRepository partitioningRepository;
     private final ParametersService parametersService;
@@ -112,7 +103,8 @@ public class QuestioningServiceImpl implements QuestioningService {
         Questioning questioning = findById(questioningId);
         String mail = questioning.getAssistanceMail();
         if (StringUtils.isBlank(mail)) {
-            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            Partitioning part = partitioningRepository.findById(questioning.getIdPartitioning())
+                    .orElseThrow(() -> new NotFoundException(String.format("Partitioning %s not found", questioning.getIdPartitioning())));
             mail = parametersService.findSuitableParameterValue(part, ParameterEnum.MAIL_ASSISTANCE);
         }
         return new AssistanceDto(mail, questioning.getSurveyUnit().getIdSu());
@@ -121,18 +113,7 @@ public class QuestioningServiceImpl implements QuestioningService {
 
     @Override
     public int deleteQuestioningsOfOnePartitioning(Partitioning partitioning) {
-        int nbQuestioningDeleted = 0;
-        Set<Questioning> setQuestionings = findByIdPartitioning(partitioning.getId());
-        for (Questioning q : setQuestionings) {
-            SurveyUnit su = q.getSurveyUnit();
-            su.getQuestionings().remove(q);
-            surveyUnitService.saveSurveyUnit(su);
-            q.getQuestioningEvents().forEach(qe -> questioningEventService.deleteQuestioningEvent(qe.getId()));
-            q.getQuestioningAccreditations().forEach(questioningAccreditationService::deleteAccreditation);
-            deleteQuestioning(q.getId());
-            nbQuestioningDeleted++;
-        }
-        return nbQuestioningDeleted;
+        return questioningRepository.deleteByidPartitioning(partitioning.getId());
     }
 
     @Override
@@ -174,11 +155,6 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(event -> modelMapper.map(event, QuestioningEventDto.class))
                 .toList();
 
-        QuestioningEventDto highestPriorityEventDto = questioningEventsDto
-                .stream()
-                .findFirst()
-                .orElse(null);
-
         QuestioningEventDto validatedEventDto = questioningEventsDto.stream()
                 .filter(qe ->
                         TypeQuestioningEvent.VALIDATED_EVENTS.contains(
@@ -200,7 +176,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .campaignId(campaignId)
                 .surveyUnit(questioningSurveyUnitDto)
                 .contacts(questioningContactDtoList)
-                .events(questioningEventsDto, highestPriorityEventDto, validatedEventDto)
+                .events(questioningEventsDto, questioning.getHighestEventType(), questioning.getHighestEventDate(), validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
@@ -257,26 +233,11 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public boolean hasExpertiseStatut(UUID questioningId) {
-        InterrogationStatusEventDto event = highestStatusCalculation(questioningId);
-        if (event == null) {
-            return false;
-        }
-
-        return TypeQuestioningEvent.EXPERT_EVENTS.contains(event.type());
-    }
-
-    @Override
-    public InterrogationStatusEventDto highestStatusCalculation(UUID questioningId) {
+    public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
-
-        return questioning.getQuestioningEvents().stream()
-                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
-                .max(interrogationEventComparator)
-                .map(event ->
-                        new InterrogationStatusEventDto(
-                                event.getType(),
-                                event.getDate()))
-                .orElse(null);
+        TypeQuestioningEvent highestEvent = questioning.getHighestEventType();
+        return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
+
+
 }

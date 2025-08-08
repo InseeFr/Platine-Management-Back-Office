@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -13,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
@@ -31,6 +34,9 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final ModelMapper modelMapper;
 
+    private final InterrogationEventComparator interrogationEventComparator;
+
+
     @Override
     public QuestioningEvent findbyId(Long id) {
         return questioningEventRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", id)));
@@ -38,12 +44,18 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent) {
-        return questioningEventRepository.save(questioningEvent);
+        QuestioningEvent saved = questioningEventRepository.save(questioningEvent);
+        refreshHighestEvent(saved.getQuestioning().getId());
+        return saved;
     }
 
     @Override
     public void deleteQuestioningEvent(Long id) {
+        QuestioningEvent questioningEvent = findbyId(id);
+        UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
+        refreshHighestEvent(questioningId);
+
     }
 
     @Override
@@ -106,6 +118,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setDate(questioningEventInputDto.getDate());
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         questioningEventRepository.save(newQuestioningEvent);
+
+        refreshHighestEvent(questioningId);
         return true;
     }
 
@@ -141,7 +155,24 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 && candidate.getType() != TypeQuestioningEvent.EXPERT) {
             questioningEventRepository.save(candidate);
         }
+
+        refreshHighestEvent(questioning.getId());
     }
 
+
+    public void refreshHighestEvent(UUID questioningId) {
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
+
+        Optional<QuestioningEvent> highestEvent = Optional.ofNullable(questioning.getQuestioningEvents())
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .max(interrogationEventComparator);
+
+        questioning.setHighestEventType(highestEvent.map(QuestioningEvent::getType).orElse(null));
+        questioning.setHighestEventDate(highestEvent.map(QuestioningEvent::getDate).orElse(null));
+        questioningRepository.save(questioning);
+    }
 
 }

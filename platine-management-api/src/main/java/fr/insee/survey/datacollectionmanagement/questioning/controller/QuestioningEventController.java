@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -102,10 +101,6 @@ public class QuestioningEventController {
         QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
 
         Upload upload = questioningEvent.getUpload();
-        Questioning quesitoning = questioningEvent.getQuestioning();
-        quesitoning.setQuestioningEvents(quesitoning.getQuestioningEvents().stream()
-                .filter(qe -> !qe.equals(questioningEvent)).collect(Collectors.toSet()));
-        questioningService.saveQuestioning(quesitoning);
         questioningEventService.deleteQuestioningEvent(id);
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);

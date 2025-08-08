@@ -21,6 +21,11 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
+    public int deleteByidPartitioning(String idPartitioning) {
+        return 0;
+    }
+
+    @Override
     public Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu) {
         return Optional.empty();
     }

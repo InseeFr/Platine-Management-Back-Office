@@ -33,7 +33,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
 
     @Override
     public void deleteQuestioningEvent(Long id) {
-        //not used
+        // not used
     }
 
     @Override
