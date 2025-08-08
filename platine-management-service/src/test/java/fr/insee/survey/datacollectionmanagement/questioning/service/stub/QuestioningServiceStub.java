@@ -95,7 +95,7 @@ public class QuestioningServiceStub implements QuestioningService {
     @Override
     public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
-        return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestTypeEvent());
+        return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestEventType());
     }
 
     @Override

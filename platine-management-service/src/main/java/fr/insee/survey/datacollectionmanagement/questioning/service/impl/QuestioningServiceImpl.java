@@ -176,7 +176,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .campaignId(campaignId)
                 .surveyUnit(questioningSurveyUnitDto)
                 .contacts(questioningContactDtoList)
-                .events(questioningEventsDto, questioning.getHighestTypeEvent(), questioning.getHighestDateEvent(), validatedEventDto)
+                .events(questioningEventsDto, questioning.getHighestEventType(), questioning.getHighestEventDate(), validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
@@ -235,7 +235,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     @Override
     public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
-        TypeQuestioningEvent highestEvent = questioning.getHighestTypeEvent();
+        TypeQuestioningEvent highestEvent = questioning.getHighestEventType();
         return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
 

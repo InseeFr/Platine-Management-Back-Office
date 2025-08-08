@@ -50,13 +50,13 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestTypeEvent, Date highestDateEvent, QuestioningEventDto validatedEvent) {
+    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestEventType, Date highestEventDate, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
-        if (highestTypeEvent != null && highestDateEvent != null) {
-            Long highestEventId = events.stream().filter( e -> e.getType().equals(highestTypeEvent.name()) && e.getEventDate().equals(highestDateEvent)).toList().getFirst().getId();
+        if (highestEventType != null && highestEventDate != null) {
+            Long highestEventId = events.stream().filter( e -> e.getType().equals(highestEventType.name()) && e.getEventDate().equals(highestEventDate)).toList().getFirst().getId();
             instance.setLastEventId(highestEventId);
-            instance.setLastEvent(String.valueOf(highestTypeEvent));
-            instance.setDateLastEvent(highestDateEvent);
+            instance.setLastEvent(String.valueOf(highestEventType));
+            instance.setDateLastEvent(highestEventDate);
         }
         if (validatedEvent != null) {
             instance.setValidationDate(validatedEvent.getEventDate());

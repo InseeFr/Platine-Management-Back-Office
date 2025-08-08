@@ -356,7 +356,7 @@ class QuestioningEventServiceImplTest {
         QuestioningEvent saved = questioningEventService.saveQuestioningEvent(questioningEvent);
         assertThat(saved).isNotNull();
         assertThat(saved.getQuestioning()).isNotNull();
-        assertThat(saved.getQuestioning().getHighestTypeEvent()).isNotNull()
+        assertThat(saved.getQuestioning().getHighestEventType()).isNotNull()
                 .isEqualTo(TypeQuestioningEvent.INITLA);
     }
 
@@ -372,7 +372,7 @@ class QuestioningEventServiceImplTest {
 
         Questioning updatedQuestioning = questioningRepository.findById(questioning.getId()).get();
 
-        assertThat(updatedQuestioning.getHighestTypeEvent()).isNotNull()
+        assertThat(updatedQuestioning.getHighestEventType()).isNotNull()
                 .isEqualTo(TypeQuestioningEvent.VALINT);
     }
 
@@ -387,8 +387,8 @@ class QuestioningEventServiceImplTest {
         questioningEventService.refreshHighestEvent(id);
 
         Questioning updated = questioningRepository.findById(id).orElseThrow();
-        assertThat(updated.getHighestTypeEvent()).as("HighestTypeEvent should be null when no events").isNull();
-        assertThat(updated.getHighestDateEvent()).as("HighestDateEvent should be null when no events").isNull();
+        assertThat(updated.getHighestEventType()).as("HighestEventType should be null when no events").isNull();
+        assertThat(updated.getHighestEventDate()).as("HighestEventDate should be null when no events").isNull();
     }
 
     @Test
@@ -418,10 +418,10 @@ class QuestioningEventServiceImplTest {
         questioningEventService.refreshHighestEvent(id);
 
         Questioning updated = questioningRepository.findById(id).orElseThrow();
-        assertThat(updated.getHighestTypeEvent())
+        assertThat(updated.getHighestEventType())
                 .as("Should pick the event with highest order by comparator")
                 .isEqualTo(TypeQuestioningEvent.VALINT);
-        assertThat(updated.getHighestDateEvent())
+        assertThat(updated.getHighestEventDate())
                 .as("Should pick the correct date of the highest event")
                 .isEqualTo(dateVal);
     }

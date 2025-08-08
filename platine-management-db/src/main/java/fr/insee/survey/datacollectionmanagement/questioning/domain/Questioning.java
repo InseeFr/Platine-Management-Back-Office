@@ -52,11 +52,11 @@ public class Questioning {
     @Column(name= "score_init")
     private Integer scoreInit;
 
-    @Column(name= "highest_date_event")
-    private Date highestDateEvent;
+    @Column(name= "highest_event_date")
+    private Date highestEventDate;
 
-    @Column(name= "highest_type_event")
+    @Column(name= "highest_event_type")
     @Enumerated(EnumType.STRING)
-    private TypeQuestioningEvent highestTypeEvent;
+    private TypeQuestioningEvent highestEventType;
 
 }

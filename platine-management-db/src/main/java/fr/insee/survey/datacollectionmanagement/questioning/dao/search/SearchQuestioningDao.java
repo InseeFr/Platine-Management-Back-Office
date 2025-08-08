@@ -45,9 +45,9 @@ public class SearchQuestioningDao {
                         ORDER BY qc.date DESC
                         LIMIT 1
                     ) AS last_communication_type,
-                    q.highest_type_event AS highest_event_type,
+                    q.highest_event_type AS highest_event_type,
                     CASE
-                       WHEN q.highest_type_event IN ('VALINT', 'VALPAP') THEN q.highest_date_event
+                       WHEN q.highest_event_type IN ('VALINT', 'VALPAP') THEN q.highest_event_date
                        ELSE NULL
                     END AS validation_date,
                     su.id_su AS survey_unit_id,
@@ -308,7 +308,7 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = " WHERE q.highest_type_event IN (" + placeholders + ")";
+        String filter = " WHERE q.highest_event_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }

@@ -491,7 +491,7 @@ class QuestioningServiceImplTest {
     void testHasExpertiseStatus(TypeQuestioningEvent event, boolean expected) {
         UUID id = UUID.randomUUID();
         Questioning q = new Questioning();
-        q.setHighestTypeEvent(event);
+        q.setHighestEventType(event);
 
         when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
 

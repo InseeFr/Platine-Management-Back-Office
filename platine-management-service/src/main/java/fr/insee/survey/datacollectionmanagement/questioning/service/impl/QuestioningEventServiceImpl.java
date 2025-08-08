@@ -170,8 +170,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
                 .max(interrogationEventComparator);
 
-        questioning.setHighestTypeEvent(highestEvent.map(QuestioningEvent::getType).orElse(null));
-        questioning.setHighestDateEvent(highestEvent.map(QuestioningEvent::getDate).orElse(null));
+        questioning.setHighestEventType(highestEvent.map(QuestioningEvent::getType).orElse(null));
+        questioning.setHighestEventDate(highestEvent.map(QuestioningEvent::getDate).orElse(null));
         questioningRepository.save(questioning);
     }
 

@@ -422,7 +422,7 @@ class CheckHabilitationServiceImplOidcTest {
         UUID questioningId = UUID.randomUUID();
         Questioning questioning = new Questioning();
         questioning.setId(questioningId);
-        questioning.setHighestTypeEvent(TypeQuestioningEvent.EXPERT);
+        questioning.setHighestEventType(TypeQuestioningEvent.EXPERT);
         questioningService.saveQuestioning(questioning);
 
         //when
@@ -472,7 +472,7 @@ class CheckHabilitationServiceImplOidcTest {
         UUID questioningId = UUID.randomUUID();
         Questioning questioning = new Questioning();
         questioning.setId(questioningId);
-        questioning.setHighestTypeEvent(TypeQuestioningEvent.EXPERT);
+        questioning.setHighestEventType(TypeQuestioningEvent.EXPERT);
         questioningService.saveQuestioning(questioning);
 
         //when

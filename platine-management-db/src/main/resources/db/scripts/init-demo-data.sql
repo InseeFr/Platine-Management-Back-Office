@@ -388,8 +388,8 @@ SELECT setval(
 
 UPDATE questioning q
 SET
-    highest_type_event = sub.type,
-    highest_date_event = sub.date
+    highest_event_type = sub.type,
+    highest_event_date = sub.date
 FROM (
          SELECT DISTINCT ON (qe.questioning_id)
              qe.questioning_id,
