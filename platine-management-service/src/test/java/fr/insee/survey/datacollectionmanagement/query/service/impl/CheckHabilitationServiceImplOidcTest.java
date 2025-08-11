@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
-import fr.insee.survey.datacollectionmanagement.query.dto.InterrogationStatusEventDto;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.UserServiceStub;
 import fr.insee.survey.datacollectionmanagement.query.service.impl.stub.ViewServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -19,7 +18,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -422,8 +420,10 @@ class CheckHabilitationServiceImplOidcTest {
         user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
         userServiceStub.setUsers(List.of(user));
         UUID questioningId = UUID.randomUUID();
-        InterrogationStatusEventDto highestStatus = new InterrogationStatusEventDto(TypeQuestioningEvent.EXPERT, new Date());
-        questioningService.setHighestStatusEvent(highestStatus);
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioning.setHighestEventType(TypeQuestioningEvent.EXPERT);
+        questioningService.saveQuestioning(questioning);
 
         //when
         boolean result = checkHabilitationServiceImplOidc.checkHabilitation(
@@ -470,8 +470,10 @@ class CheckHabilitationServiceImplOidcTest {
         user.setRole(UserRoleTypeEnum.GESTIONNAIRE);
         userServiceStub.setUsers(List.of(user));
         UUID questioningId = UUID.randomUUID();
-        InterrogationStatusEventDto highestStatus = new InterrogationStatusEventDto(TypeQuestioningEvent.EXPERT, new Date());
-        questioningService.setHighestStatusEvent(highestStatus);
+        Questioning questioning = new Questioning();
+        questioning.setId(questioningId);
+        questioning.setHighestEventType(TypeQuestioningEvent.EXPERT);
+        questioningService.saveQuestioning(questioning);
 
         //when
         boolean result = checkHabilitationServiceImplOidc.checkHabilitation(

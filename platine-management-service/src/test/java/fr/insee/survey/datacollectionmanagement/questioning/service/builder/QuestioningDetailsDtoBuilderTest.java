@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningSurveyUnitD
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -76,24 +77,24 @@ class QuestioningDetailsDtoBuilderTest {
     @Test
     void shouldSetEvents() {
         QuestioningEventDto event1 = new QuestioningEventDto();
-        event1.setType("EVENT_TYPE_1");
+        event1.setType("INIT_LA");
         event1.setEventDate(new Date(1709022000000L));
 
         QuestioningEventDto event2 = new QuestioningEventDto();
-        event2.setType("EVENT_TYPE_2");
+        event2.setType("VALINT");
         event2.setEventDate(new Date(1709108400000L));
 
         QuestioningEventDto validatedEvent = new QuestioningEventDto();
-        validatedEvent.setType("VALIDATED");
+        validatedEvent.setType("VALID");
         validatedEvent.setEventDate(new Date(1709194800000L));
 
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .events(List.of(event1, event2), event2, validatedEvent)
+                .events(List.of(event1, event2), TypeQuestioningEvent.valueOf(event2.getType()), event2.getEventDate(), validatedEvent)
                 .build();
 
         assertThat(dto.getListEvents()).hasSize(2);
         assertThat(dto.getLastEventId()).isEqualTo(event2.getId());
-        assertThat(dto.getLastEvent()).isEqualTo("EVENT_TYPE_2");
+        assertThat(dto.getLastEvent()).isEqualTo("VALINT");
         assertThat(dto.getDateLastEvent()).isEqualTo(event2.getEventDate());
         assertThat(dto.getValidationDate()).isEqualTo(validatedEvent.getEventDate());
     }
@@ -101,7 +102,7 @@ class QuestioningDetailsDtoBuilderTest {
     @Test
     void shouldHandleNullEvents() {
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .events(null, null, null)
+                .events(null, null, null, null)
                 .build();
 
         assertThat(dto.getListEvents()).isNull();
@@ -114,7 +115,7 @@ class QuestioningDetailsDtoBuilderTest {
     @Test
     void shouldHandleEmptyEventsList() {
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .events(List.of(), null, null)
+                .events(List.of(), null, null, null)
                 .build();
 
         assertThat(dto.getListEvents()).isEmpty();
@@ -192,5 +193,43 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getReadOnlyUrl()).isEqualTo("https://example.com/readOnly");
+    }
+
+    @Test
+    void shouldSetIsHousehold() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .isHousehold(true)
+                .build();
+
+        assertThat(dto.getIsHousehold()).isTrue();
+
+        dto = new QuestioningDetailsDtoBuilder()
+                .isHousehold(false)
+                .build();
+
+        assertThat(dto.getIsHousehold()).isFalse();
+
+        dto = new QuestioningDetailsDtoBuilder()
+                .isHousehold(null)
+                .build();
+
+        assertThat(dto.getIsHousehold()).isNull();
+    }
+
+    @Test
+    void shouldNotSetHighestEventIfTypeOrDateIsNull() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .events(null, TypeQuestioningEvent.EXPERT, null, null)
+                .build();
+
+        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getValidationDate()).isNull();
+
+        dto = new QuestioningDetailsDtoBuilder()
+                .events(null, null, new Date(), null)
+                .build();
+
+        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getValidationDate()).isNull();
     }
 }

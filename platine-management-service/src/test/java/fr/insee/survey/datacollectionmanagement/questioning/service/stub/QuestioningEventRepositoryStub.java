@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
@@ -9,10 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public class QuestioningEventRepositoryStub implements QuestioningEventRepository {
@@ -120,6 +118,14 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
 
     @Override
     public <S extends QuestioningEvent> S save(S entity) {
+        Questioning questioning = entity.getQuestioning();
+        Set<QuestioningEvent> events = questioning.getQuestioningEvents();
+        if (events == null) {
+            events = new HashSet<>();
+        }
+        events.add(entity);
+        questioning.setQuestioningEvents(events);
+        entity.setQuestioning(questioning);
         questioningEvents.add(entity);
         return entity;
     }
@@ -131,7 +137,7 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
 
     @Override
     public Optional<QuestioningEvent> findById(Long aLong) {
-        return Optional.empty();
+        return questioningEvents.stream().filter(qe -> qe.getId().equals(aLong)).findFirst();
     }
 
     @Override
@@ -141,7 +147,7 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
 
     @Override
     public List<QuestioningEvent> findAll() {
-        return List.of();
+        return questioningEvents;
     }
 
     @Override
@@ -156,7 +162,7 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
 
     @Override
     public void deleteById(Long aLong) {
-        //not used
+        questioningEvents.removeIf(qe -> qe.getId().equals(aLong));
     }
 
     @Override

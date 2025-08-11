@@ -15,6 +15,8 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
 
+    int deleteByidPartitioning(String idPartitioning);
+
     Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning,
                                                                 String surveyUnitIdSu);
 

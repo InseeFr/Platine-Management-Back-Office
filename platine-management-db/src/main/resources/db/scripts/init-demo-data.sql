@@ -385,3 +385,22 @@ SELECT setval(
     COALESCE((SELECT MAX(id) FROM public.view), 0) + 1,
     false
 );
+
+UPDATE questioning q
+SET
+    highest_event_type = sub.type,
+    highest_event_date = sub.date
+FROM (
+         SELECT DISTINCT ON (qe.questioning_id)
+             qe.questioning_id,
+             qe.type,
+             qe.date
+         FROM questioning_event qe
+                  JOIN interrogation_event_order ieo
+                       ON ieo.status = qe.type
+         ORDER BY
+             qe.questioning_id,
+             ieo.event_order DESC,
+             qe.date DESC
+     ) AS sub
+WHERE q.id = sub.questioning_id;
