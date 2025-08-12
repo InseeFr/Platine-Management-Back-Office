@@ -308,7 +308,7 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = " WHERE q.highest_event_type IN (" + placeholders + ")";
+        String filter = " q.highest_event_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }
