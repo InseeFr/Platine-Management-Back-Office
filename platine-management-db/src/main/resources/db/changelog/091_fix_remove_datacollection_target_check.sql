@@ -3,4 +3,4 @@
 --changeset prwozny:091_fix_remove_datacollection_target_check.sql
 
 ALTER TABLE public.campaign
-DROP CONSTRAINT campaign_datacollection_target_check;
+DROP CONSTRAINT IF EXISTS campaign_datacollection_target_check;
