@@ -54,7 +54,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         QuestioningEvent questioningEvent = findbyId(id);
         UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
-        questioningEventRepository.flush();
         refreshHighestEvent(questioningId);
 
     }
@@ -119,7 +118,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setDate(questioningEventInputDto.getDate());
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         questioningEventRepository.save(newQuestioningEvent);
-
         refreshHighestEvent(questioningId);
         return true;
     }
@@ -156,12 +154,12 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 && candidate.getType() != TypeQuestioningEvent.EXPERT) {
             questioningEventRepository.save(candidate);
         }
-
         refreshHighestEvent(questioning.getId());
     }
 
 
     public void refreshHighestEvent(UUID questioningId) {
+        questioningEventRepository.flush();
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
 

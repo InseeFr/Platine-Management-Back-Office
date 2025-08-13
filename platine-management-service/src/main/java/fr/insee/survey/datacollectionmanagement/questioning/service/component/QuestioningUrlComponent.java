@@ -52,7 +52,7 @@ public class QuestioningUrlComponent {
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 questioning.getSurveyUnit().getIdSu(),
                 questioning.getId(),
-                String.format("%s-%s-%s",source.getId().toLowerCase(),survey.getYear(),campaign.getPeriod()),
+                String.format("%s-%s-%s",source.getId().toLowerCase(), survey.getYear(), campaign.getPeriodCollect()),
                 campaign.getDataCollectionTarget(),
                 source.getId().toLowerCase(),
                 survey.getYear(),
