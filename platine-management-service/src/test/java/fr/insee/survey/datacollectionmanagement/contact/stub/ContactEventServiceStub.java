@@ -40,11 +40,6 @@ public class ContactEventServiceStub implements ContactEventService {
     }
 
     @Override
-    public void deleteContactEvent(Long id) {
-        contactEvents.remove(findById(id));
-    }
-
-    @Override
     public Set<ContactEvent> findContactEventsByContact(Contact contact) {
          List<ContactEvent> contactEventList = contactEvents.stream().filter(contactEvent -> contactEvent.getContact()
                  .getIdentifier().equals(contact.getIdentifier())).toList();

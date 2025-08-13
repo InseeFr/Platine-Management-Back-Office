@@ -15,15 +15,13 @@ import java.util.Set;
 @Service
 public interface ContactEventService {
 
-    public Page<ContactEvent> findAll(Pageable pageable);
+    Page<ContactEvent> findAll(Pageable pageable);
 
-    public ContactEvent findById(Long id);
+    ContactEvent findById(Long id);
 
-    public ContactEvent saveContactEvent(ContactEvent contactEvent);
+    ContactEvent saveContactEvent(ContactEvent contactEvent);
 
-    public void deleteContactEvent(Long id);
-    
-    public Set<ContactEvent> findContactEventsByContact (Contact contact);
+    Set<ContactEvent> findContactEventsByContact (Contact contact);
 
     ContactEvent createContactEvent(Contact contact, ContactEventTypeEnum type, JsonNode payload);
 
