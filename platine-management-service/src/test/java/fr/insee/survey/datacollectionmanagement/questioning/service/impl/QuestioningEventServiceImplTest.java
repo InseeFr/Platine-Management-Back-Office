@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
@@ -22,8 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 class QuestioningEventServiceImplTest {
 
@@ -33,8 +34,11 @@ class QuestioningEventServiceImplTest {
 
     private QuestioningEventServiceImpl questioningEventService;
 
+    private ModelMapper modelMapper;
+
     @BeforeEach
     void setUp() {
+        modelMapper = new ModelMapper();
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
@@ -42,7 +46,7 @@ class QuestioningEventServiceImplTest {
                 null,
                 questioningEventRepository,
                 questioningRepository,
-                new ModelMapper(),
+                modelMapper,
                 interrogationEventComparator);
     }
 
@@ -436,5 +440,69 @@ class QuestioningEventServiceImplTest {
     }
 
 
+
+    @Test
+    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event type")
+    void canUserDeleteQuestioningEventTest1() {
+
+        Questioning questioning = createQuestioning();
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
+        {
+            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(1L)).isPresent();
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()),  modelMapper.map(questioningEvent, QuestioningEventDto.class)));
+            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+        }
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.REFUSED_EVENTS)
+        {
+            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(1L)).isPresent();
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()),  modelMapper.map(questioningEvent, QuestioningEventDto.class)));
+            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+        }
+    }
+
+    @Test
+    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event type")
+    void canUserDeleteQuestioningEventTest2() {
+
+        Questioning questioning = createQuestioning();
+        List<String> managementExcludedRoles = AuthorityRoleEnum.MANAGEMENT_EXCLUDED_SECURITY_ROLES;
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
+        {
+            long id = new Random().nextLong();
+            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            QuestioningEventDto questioningEventDto = modelMapper.map(questioningEvent, QuestioningEventDto.class);
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles, questioningEventDto))
+                    .isInstanceOf(ForbiddenAccessException.class)
+                    .hasMessage(String.format("User role %s does not allow deletion of questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+        }
+
+        List<TypeQuestioningEvent> typeQuestioningEventsWithoutRefused = Arrays.stream(TypeQuestioningEvent.values())
+                .filter(p -> !TypeQuestioningEvent.REFUSED_EVENTS.contains(p))
+                .toList();
+
+        for (TypeQuestioningEvent typeQuestioningEvent : typeQuestioningEventsWithoutRefused)
+        {
+            long id = new Random().nextLong();
+            List<String> userRoles =  List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            QuestioningEventDto questioningEventDto = modelMapper.map(questioningEvent, QuestioningEventDto.class);
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEventDto))
+                    .isInstanceOf(ForbiddenAccessException.class)
+                    .hasMessage(String.format("User role %s does not allow deletion of questioning event of type %s", userRoles, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+        }
+    }
 
 }

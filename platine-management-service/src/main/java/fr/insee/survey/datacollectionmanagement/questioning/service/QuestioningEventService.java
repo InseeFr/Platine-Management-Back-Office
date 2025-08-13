@@ -55,4 +55,6 @@ public interface QuestioningEventService {
      * @param expertEventDto
      */
     void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
+
+    void deleteQuestioningEventIfSpecificRole(List<String> userRoles, QuestioningEventDto questioningEvent);
 }

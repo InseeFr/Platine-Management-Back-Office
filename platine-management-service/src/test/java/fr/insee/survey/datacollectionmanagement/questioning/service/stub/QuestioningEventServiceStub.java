@@ -79,4 +79,9 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     public void postExpertEvent(UUID id, ExpertEventDto expertEventDto) {
         //not used
     }
+
+    @Override
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, QuestioningEventDto questioningEventDto) {
+        //not used
+    }
 }
