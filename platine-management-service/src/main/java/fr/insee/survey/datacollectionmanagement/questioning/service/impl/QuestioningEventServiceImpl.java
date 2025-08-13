@@ -57,8 +57,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
         refreshHighestEvent(questioningId);
-        questioningEvent.getQuestioning().getQuestioningEvents().remove(questioningEvent);
-
     }
 
     @Override
