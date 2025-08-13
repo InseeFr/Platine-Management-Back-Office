@@ -34,11 +34,8 @@ class QuestioningEventServiceImplTest {
 
     private QuestioningEventServiceImpl questioningEventService;
 
-    private ModelMapper modelMapper;
-
     @BeforeEach
     void setUp() {
-        modelMapper = new ModelMapper();
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
@@ -46,7 +43,7 @@ class QuestioningEventServiceImplTest {
                 null,
                 questioningEventRepository,
                 questioningRepository,
-                modelMapper,
+                new ModelMapper(),
                 interrogationEventComparator);
     }
 
@@ -452,7 +449,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()),  modelMapper.map(questioningEvent, QuestioningEventDto.class)));
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(1L)).isNotPresent();
         }
 
@@ -461,7 +458,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()),  modelMapper.map(questioningEvent, QuestioningEventDto.class)));
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(1L)).isNotPresent();
         }
     }
@@ -478,11 +475,10 @@ class QuestioningEventServiceImplTest {
             long id = new Random().nextLong();
             QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
-            QuestioningEventDto questioningEventDto = modelMapper.map(questioningEvent, QuestioningEventDto.class);
             assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles, questioningEventDto))
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles,  id, typeQuestioningEvent))
                     .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s does not allow deletion of questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
+                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(id)).isPresent();
         }
 
@@ -496,11 +492,10 @@ class QuestioningEventServiceImplTest {
             List<String> userRoles =  List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
             QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
-            QuestioningEventDto questioningEventDto = modelMapper.map(questioningEvent, QuestioningEventDto.class);
             assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEventDto))
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, id, typeQuestioningEvent))
                     .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s does not allow deletion of questioning event of type %s", userRoles, typeQuestioningEvent));
+                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(id)).isPresent();
         }
     }

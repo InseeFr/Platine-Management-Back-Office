@@ -81,7 +81,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, QuestioningEventDto questioningEventDto) {
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent) {
         //not used
     }
 }

@@ -159,23 +159,22 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, QuestioningEventDto questioningEventDto)
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent)
     {
 
-        TypeQuestioningEvent eventType = TypeQuestioningEvent.valueOf(questioningEventDto.getType());
         if(userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole()))
         {
-            deleteQuestioningEvent(questioningEventDto.getId());
+            deleteQuestioningEvent(questioningEventId);
             return;
         }
 
-        if(userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole()) && TypeQuestioningEvent.REFUSED_EVENTS.contains(eventType))
+        if(userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole()) && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent))
         {
-            deleteQuestioningEvent(questioningEventDto.getId());
+            deleteQuestioningEvent(questioningEventId);
             return;
         }
 
-        throw new ForbiddenAccessException(String.format("User role %s does not allow deletion of questioning event of type %s", userRoles, eventType));
+        throw new ForbiddenAccessException(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
     }
 
 
