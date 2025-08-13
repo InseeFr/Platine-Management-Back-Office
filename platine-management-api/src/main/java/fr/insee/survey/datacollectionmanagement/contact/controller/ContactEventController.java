@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -81,35 +79,15 @@ public class ContactEventController {
         return contactEventService.findContactEventsByContactId(contactId.toUpperCase());
     }
 
-    /**
-     * @deprecated
-     */
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Deprecated(since = "2.6.0", forRemoval = true)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
-        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contact.getContactEvents().stream().map(this::convertToDto)
                         .toList());
     }
 
-
-
-    /**
-     * @deprecated
-     */
-    @Operation(summary = "Delete a contact event")
-    @DeleteMapping(value = UrlConstants.API_CONTACTEVENTS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Deprecated(since = "2.6.0", forRemoval = true)
-    public void deleteContactEvent(@PathVariable("id") Long id) {
-        log.warn("DEPRECATED");
-        contactEventService.findById(id);
-        contactEventService.deleteContactEvent(id);
-
-    }
 
     private ContactEventDto convertToDto(ContactEvent contactEvent) {
         ContactEventDto ceDto = modelMapper.map(contactEvent, ContactEventDto.class);
