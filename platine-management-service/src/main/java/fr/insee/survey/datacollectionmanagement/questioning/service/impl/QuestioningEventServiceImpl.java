@@ -1,6 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
@@ -55,7 +57,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
         refreshHighestEvent(questioningId);
-
     }
 
     @Override
@@ -155,6 +156,25 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
             questioningEventRepository.save(candidate);
         }
         refreshHighestEvent(questioning.getId());
+    }
+
+    @Override
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent)
+    {
+
+        if(userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole()))
+        {
+            deleteQuestioningEvent(questioningEventId);
+            return;
+        }
+
+        if(userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole()) && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent))
+        {
+            deleteQuestioningEvent(questioningEventId);
+            return;
+        }
+
+        throw new ForbiddenAccessException(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
     }
 
 

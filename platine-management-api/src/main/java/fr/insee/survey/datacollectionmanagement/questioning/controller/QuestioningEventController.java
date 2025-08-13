@@ -23,10 +23,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +49,8 @@ public class QuestioningEventController {
     private final QuestioningService questioningService;
 
     private final UploadService uploadService;
+
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Operation(summary = "Search for a questioning event by questioning id")
     @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -94,14 +100,20 @@ public class QuestioningEventController {
     @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    public ResponseEntity<String> deleteQuestioningEvent(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteQuestioningEvent(@PathVariable("id") Long id,
+                                                         @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
         QuestioningEvent questioningEvent = questioningEventService.findbyId(id);
 
+        List<String> userRoles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         Upload upload = questioningEvent.getUpload();
-        questioningEventService.deleteQuestioningEvent(id);
+        questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEvent.getId(), questioningEvent.getType());
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);
         }

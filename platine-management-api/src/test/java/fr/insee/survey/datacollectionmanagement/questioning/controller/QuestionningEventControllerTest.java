@@ -1,11 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -41,12 +47,17 @@ class QuestionningEventControllerTest {
     QuestioningService questioningService;
     @Autowired
     MockMvc mockMvc;
+    @Autowired
+    QuestioningEventService questioningEventService;
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            SecurityContextHolder.getContext().setAuthentication(
+                    AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN)
+            );
+        }
     }
-
 
     @Test
     @Transactional
@@ -166,6 +177,33 @@ class QuestionningEventControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("Should delete questioning event")
+    @WithMockUser(roles={"ADMIN"})
+    void shouldDeleteQuestioningEvent() throws Exception {
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Should not delete questioning event")
+    @WithMockUser(roles={"RESPONDENT"})
+    void shouldNotDeleteQuestioningEvent() throws Exception {
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    }
+
 
     private String createJsonExpertEvent(ExpertEventDto event) throws JSONException {
         JSONObject joEvent = new JSONObject();
