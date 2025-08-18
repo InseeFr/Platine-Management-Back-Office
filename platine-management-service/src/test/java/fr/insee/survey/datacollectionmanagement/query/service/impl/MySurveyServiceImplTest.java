@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
@@ -59,6 +60,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setQuestioningId(questioningId);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
         myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
+        myQuestionnaireDetailsDto.setSourceType(SourceTypeEnum.HOUSEHOLD.toString());
 
         mySurveysService = new MySurveysServiceImpl(
                 questioningService,
@@ -95,6 +97,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
+        assertThat(dto.sourceType()).isEqualTo(SourceTypeEnum.HOUSEHOLD);
     }
 
     @Test
@@ -258,6 +261,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
         assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
+        assertThat(dto.sourceType()).isEqualTo(source.getType());
     }
 
     private Questioning createQuestioning(UUID id) {
@@ -292,6 +296,7 @@ class MySurveyServiceImplTest {
         dto.setSurveyUnitId(surveyUnit.getIdSu());
         dto.setDataCollectionTarget(campaign.getDataCollectionTarget().name());
         dto.setQuestioningId(questioning.getId());
+        dto.setSourceType(source.getType().toString());
         return dto;
     }
 
@@ -309,6 +314,7 @@ class MySurveyServiceImplTest {
     private Source createSource(String id) {
         Source source = new Source();
         source.setId(id);
+        source.setType(SourceTypeEnum.HOUSEHOLD);
         return source;
     }
 

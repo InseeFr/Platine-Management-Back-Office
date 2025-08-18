@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,5 +18,6 @@ public record MyQuestionnaireDto(
         Instant partitioningReturnDate,
         String surveyUnitId,
         String interrogationDownloadFileName,
-        String operationUploadReference
+        String operationUploadReference,
+        SourceTypeEnum sourceType
 ) { }
