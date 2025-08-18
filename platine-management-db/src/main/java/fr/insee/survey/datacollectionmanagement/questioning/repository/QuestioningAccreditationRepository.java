@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface QuestioningAccreditationRepository extends JpaRepository<QuestioningAccreditation, Long> {
 
@@ -15,7 +16,7 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
     @Query(value = "SELECT " +
             "so.id AS sourceId, " +
             "s.year_value AS surveyYear, " +
-            "c.period_value AS period, " +
+            "c.period_collect_value AS periodCollect, " +
             "q.id AS questioningId, " +
             "p.label AS partitioningLabel, " +
             "p.id AS partitioningId, " +
@@ -39,7 +40,9 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "LIMIT 500", nativeQuery = true)
     List<MyQuestionnaireDetailsDto> findQuestionnaireDetailsByIdec(String idec);
 
-    Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(Long questioningId);
+    Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIsMainTrue(UUID questioningId);
 
-    Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(Long questioningId, String idContact);
+    Optional<QuestioningAccreditation> findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(UUID questioningId, String idContact);
+
+    Optional<QuestioningAccreditation> findByQuestioning_IdAndIdContact(UUID questioningId, String idContact);
 }

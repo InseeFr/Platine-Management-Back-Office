@@ -42,11 +42,6 @@ public class ContactEventServiceImpl implements ContactEventService {
     }
 
     @Override
-    public void deleteContactEvent(Long id) {
-        contactEventRepository.deleteById(id);
-    }
-
-    @Override
     public Set<ContactEvent> findContactEventsByContact(Contact contact) {
         return contactEventRepository.findByContact(contact);
     }

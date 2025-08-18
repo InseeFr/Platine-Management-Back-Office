@@ -2,9 +2,10 @@ package fr.insee.survey.datacollectionmanagement.questioning.dto;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 
-public record QuestioningUrlContext(String modelName,
-                                    String surveyUnitId,
-                                    Long questioningId,
+import java.util.UUID;
+
+public record QuestioningUrlContext(String surveyUnitId,
+                                    UUID questioningId,
                                     String campaignId,
                                     DataCollectionEnum dataCollection,
                                     String sourceId,

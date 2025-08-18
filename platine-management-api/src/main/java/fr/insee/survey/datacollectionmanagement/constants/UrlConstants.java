@@ -48,6 +48,7 @@ public class UrlConstants {
     public static final String API_QUESTIONING_QUESTIONING_EVENTS = "/api/questionings/questioning-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_TYPE ="/api/questionings/questioning-events/{eventType}";
     public static final String API_QUESTIONING_ID_QUESTIONING_EVENTS = "/api/questionings/{id}/questioning-events";
+    public static final String API_QUESTIONING_ID_EXPERT_EVENTS = "/api/questionings/{id}/expert-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
     public static final String API_QUESTIONING_ID_COMMENT = "/api/questionings/{id}/comment";
@@ -78,7 +79,9 @@ public class UrlConstants {
     public static final String API_CAMPAIGNS_ID_HEADER = "/api/campaigns/{id}/header";
     public static final String API_CAMPAIGNS_ID = "/api/campaigns/{id}";
     public static final String CAMPAIGNS_ID_ONGOING = "/campaigns/{id}/ongoing";
-    public static final String API_CAMPAIGNS_ONGOING = "api/campaigns/ongoing";
+    public static final String API_CAMPAIGNS_ONGOING = "/api/campaigns/ongoing";
+    public static final String API_CAMPAIGNS_COMMONS_ONGOING = "/api/campaigns/commons/ongoing";
+    public static final String API_CAMPAIGNS_COMMONS_ID = "/api/campaigns/commons/{id}";
     public static final String API_CAMPAIGNS_ID_PARTITIONINGS = "/api/campaigns/{id}/partitionings";
     public static final String API_CAMPAIGNS_ID_PARAMS = "/api/campaigns/{id}/params";
     public static final String API_PARTITIONINGS_ID = "/api/partitionings/{id}";
@@ -93,10 +96,9 @@ public class UrlConstants {
 
     public static final String API_METADATA_BUSINESS ="/api/metadata/business/{campaignId}";
 
-
-
     // API CROSS DOMAIN
     public static final String API_CHECK_HABILITATION = "/api/check-habilitation";
+    public static final String API_CHECK_HABILITATION_V1 = "/api/v1/check-habilitation";
     public static final String MOOG_API_CAMPAIGNS = "/api/moog/campaigns";
     public static final String MOOG_API_CAMPAIGNS_ID = "/api/moog/campaigns/{id}";
     public static final String API_MOOG_SEARCH = "/api/moog/campaigns/survey-units";

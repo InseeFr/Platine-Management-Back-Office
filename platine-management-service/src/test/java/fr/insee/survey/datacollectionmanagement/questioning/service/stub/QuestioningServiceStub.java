@@ -9,16 +9,14 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
@@ -33,7 +31,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Questioning findById(Long id) {
+    public Questioning findById(UUID id) {
         Optional<Questioning> questioning = questionings.stream().filter(q -> q.getId().equals(id)).findFirst();
         return questioning.orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
     }
@@ -45,7 +43,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public void deleteQuestioning(Long id) {
+    public void deleteQuestioning(UUID id) {
         questionings.remove(findById(id));
     }
 
@@ -65,7 +63,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public AssistanceDto getMailAssistanceDto(Long questioningId) {
+    public AssistanceDto getMailAssistanceDto(UUID questioningId) {
         return null;
     }
 
@@ -85,13 +83,19 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestioningDetailsDto getQuestioningDetails(Long id) {
+    public QuestioningDetailsDto getQuestioningDetails(UUID id) {
         return null;
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(Long questioningId, Date openingDate, Date closingDate) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
         return questionnaireStatus;
+    }
+
+    @Override
+    public boolean hasExpertiseStatus(UUID questioningId) {
+        Questioning questioning = findById(questioningId);
+        return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestEventType());
     }
 
     @Override

@@ -148,19 +148,19 @@ public class DataloaderTest {
             // Creating table order
             log.info("loading interrogation event order data");
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("7"), TypeQuestioningEvent.HC.toString(), 4));
+                    new InterrogationEventOrder(Long.parseLong("7"), TypeQuestioningEvent.HC, 4));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("6"), TypeQuestioningEvent.WASTE.toString(), 3));
+                    new InterrogationEventOrder(Long.parseLong("6"), TypeQuestioningEvent.WASTE, 3));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL.toString(), 3));
+                    new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL, 3));
             interrogationOrderRepository
-                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP.toString(), 2));
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP, 2));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT.toString(), 2));
+                    new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT, 2));
             interrogationOrderRepository.saveAndFlush(
-                    new InterrogationEventOrder(Long.parseLong("2"), TypeQuestioningEvent.PARTIELINT.toString(), 2));
+                    new InterrogationEventOrder(Long.parseLong("2"), TypeQuestioningEvent.PARTIELINT, 2));
             interrogationOrderRepository
-                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA.toString(), 1));
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("1"), TypeQuestioningEvent.INITLA, 1));
         }
     }
 
@@ -353,6 +353,11 @@ public class DataloaderTest {
         }
         for (Long i = nbExistingQuestionings; i < 10; i++) {
             qu = new Questioning();
+            // add last segment of uuid (12 decimals) and fill with zero
+            // if i = 1   -> 000000000001
+            // if i = 123 -> 000000000123
+            String uuidSuffix = String.format("%012d", i);
+            qu.setId(UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-" + uuidSuffix));
             List<QuestioningEvent> qeList = new ArrayList<>();
             questioningAccreditations = new HashSet<>();
 

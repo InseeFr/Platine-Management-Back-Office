@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -49,14 +50,13 @@ public class QuestioningUrlComponent {
         Survey survey = campaign.getSurvey();
         Source source = survey.getSource();
         QuestioningUrlContext ctx = new QuestioningUrlContext(
-                questioning.getModelName(),
                 questioning.getSurveyUnit().getIdSu(),
                 questioning.getId(),
-                String.format("%s-%s-%s",source.getId().toLowerCase(),survey.getYear(),campaign.getPeriod()),
+                String.format("%s-%s-%s",source.getId().toLowerCase(), survey.getYear(), campaign.getPeriodCollect()),
                 campaign.getDataCollectionTarget(),
                 source.getId().toLowerCase(),
                 survey.getYear(),
-                campaign.getPeriod().getValue(),
+                campaign.getPeriodCollect() == null?"":campaign.getPeriodCollect().getValue(),
                 campaign.getOperationUploadReference(),
                 ""
         );
@@ -117,14 +117,14 @@ public class QuestioningUrlComponent {
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
         if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
             return UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/review/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
+                    .fromUriString(String.format("%s/v3/review/interrogations/%s", baseUrl, context.questioningId()))
                     .toUriString();
         }
         if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
+            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
                     context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
             return  UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/questionnaire/%s/unite-enquetee/%s", baseUrl, context.modelName(), context.surveyUnitId()))
+                    .fromUriString(String.format("%s/v3/interrogations/%s", baseUrl, context.questioningId()))
                     .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
                     .build().toUriString();
         }
@@ -133,12 +133,12 @@ public class QuestioningUrlComponent {
 
     /**
      * Builds deposit proof based on the provided parameters
-     * @param surveyUnitId
-     * @param dataCollection
-     * @return
+     * @param questioningId questioning id
+     * @param dataCollection data collection enum type
+     * @return the deosit proof url for the associated questioning
      */
-    public String buildDepositProofUrl(String surveyUnitId, DataCollectionEnum dataCollection) {
-        String path = String.format("/api/survey-unit/%s/deposit-proof", surveyUnitId);
+    public String buildDepositProofUrl(UUID questioningId, DataCollectionEnum dataCollection) {
+        String path = String.format("/api/interrogations/%s/deposit-proof", questioningId);
 
         if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollection)) {
             return questionnaireApiUrl + path;

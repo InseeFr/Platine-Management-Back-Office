@@ -69,7 +69,7 @@ public class CampaignController {
 
 
     @Operation(summary = "Search for campaigns, paginated")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS, produces = MediaType.APPLICATION_JSON_VALUE)
     public CampaignPage getCampaigns(
 
             @RequestParam(defaultValue = "0") Integer page,
@@ -82,7 +82,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "Search for campaigns by the survey id")
-    @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CampaignDto> getCampaignsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
@@ -91,7 +91,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "Search for campaigns and partitionings by the survey id")
-    @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CampaignPartitioningsDto> getCampaignsPartitioningsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
@@ -100,7 +100,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "Search for a campaign by its id")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"),
@@ -114,14 +114,14 @@ public class CampaignController {
     }
 
     @Operation(summary = "Get campaign parameters")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         return campaign.getParams().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Create a parameter for a campaign")
-    @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = "application/json")
+    @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);
@@ -129,7 +129,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "Update or create a campaign")
-    @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID, produces = "application/json", consumes = "application/json")
+    @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
@@ -194,7 +194,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "campaign is ongoing")
-    @GetMapping(value = UrlConstants.CAMPAIGNS_ID_ONGOING, produces = "application/json")
+    @GetMapping(value = UrlConstants.CAMPAIGNS_ID_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
@@ -204,14 +204,30 @@ public class CampaignController {
     }
 
     @Operation(summary = "get ongoing campaigns")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ONGOING, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CampaignOngoingDto> getOngoingCampaigns() {
         return campaignService.getCampaignOngoingDtos();
     }
 
+    @Operation(summary = "Get commons ongoing campaigns")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<CampaignCommonsDto> getCommonsOngoingCampaigns() {
+        return campaignService.getCampaignCommonsOngoingDtos();
+    }
+
+    @Operation(summary = "Get commons campaign")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_COMMONS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignCommonsDto.class))),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public CampaignCommonsDto getCommonsCampaignsById(@PathVariable("id") String id) {
+        return campaignService.findCampaignDtoById(id);
+    }
+
 
     @Operation(summary = "Search campaigns")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_SEARCH, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CampaignSummaryDto.class))))
     })
@@ -223,7 +239,7 @@ public class CampaignController {
     }
 
     @Operation(summary = "Get campaign header")
-    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_HEADER, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_HEADER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignHeaderDto.class)))
     })

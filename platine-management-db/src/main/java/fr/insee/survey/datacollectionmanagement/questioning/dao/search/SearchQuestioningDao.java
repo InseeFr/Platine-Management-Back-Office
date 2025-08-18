@@ -9,8 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,25 +45,14 @@ public class SearchQuestioningDao {
                         ORDER BY qc.date DESC
                         LIMIT 1
                     ) AS last_communication_type,
-                    (
-                        SELECT qe.type
-                        FROM questioning_event qe
-                        JOIN interrogation_event_order ie
-                        ON ie.status = qe.type
-                        WHERE qe.questioning_id = q.id
-                        ORDER BY ie.event_order DESC, qe.date DESC
-                        LIMIT 1
-                    ) AS highest_event_type,
-                    (
-                        SELECT qe2.date
-                        FROM questioning_event qe2
-                        WHERE qe2.questioning_id = q.id
-                        AND qe2.type IN ('VALINT','VALPAP')
-                        ORDER BY qe2.date DESC
-                        LIMIT 1
-                    ) AS validation_date,
+                    q.highest_event_type AS highest_event_type,
+                    CASE
+                       WHEN q.highest_event_type IN ('VALINT', 'VALPAP') THEN q.highest_event_date
+                       ELSE NULL
+                    END AS validation_date,
                     su.id_su AS survey_unit_id,
-                    su.identification_code AS identification_code""");
+                    su.identification_code AS identification_code,
+                    q.score AS score""");
         sql.append(" ");
         sql.append(joinQuestionings);
         sql.append(" ");
@@ -75,6 +66,15 @@ public class SearchQuestioningDao {
         sql.append(" ");
         sql.append(filterTypes.sqlFilter());
         sql.append(" ");
+        if (pageable.getSort().isSorted()) {
+            sql.append(" ORDER BY ");
+            List<String> orderClauses = new ArrayList<>();
+            for (Sort.Order order : pageable.getSort()) {
+                String direction = order.isAscending() ? "ASC" : "DESC";
+                orderClauses.add(order.getProperty() + " " + direction + " NULLS LAST");
+            }
+            sql.append(String.join(", ", orderClauses));
+        }
         sql.append("""
                 LIMIT :size OFFSET :offset
             )
@@ -86,7 +86,8 @@ public class SearchQuestioningDao {
                 qlimited.highest_event_type,
                 qlimited.survey_unit_id,
                 qlimited.identification_code,
-                qa_all.id_contact AS contact_id
+                qa_all.id_contact AS contact_id,
+                qlimited.score
             FROM qlimited
             LEFT JOIN questioning_accreditation qa_all
                 ON qa_all.questioning_id = qlimited.questioning_id;""");
@@ -107,9 +108,10 @@ public class SearchQuestioningDao {
 
         List<SearchQuestioningDto> results = new ArrayList<>();
         for(Object[] row : rows) {
+            UUID questioningId = buildQuestioningId(row[0]);
             Optional<SearchQuestioningDto> optSearchQuestioningResult = results.stream()
                     // filter on questioning id
-                    .filter(result -> row[0].equals(result.getQuestioningId()))
+                    .filter(result -> questioningId.equals(result.getQuestioningId()))
                     .findFirst();
 
             if(optSearchQuestioningResult.isEmpty()) {
@@ -191,6 +193,19 @@ public class SearchQuestioningDao {
                   )
                 ),""";
         return new SearchFilter(sqlFilter, parameters);
+    }
+
+    private UUID buildQuestioningId(Object rawId) {
+        return switch (rawId) {
+            case UUID uuid -> uuid;
+            case byte[] bytes -> {
+                // if DB returns UUID in binary format
+                ByteBuffer bb = ByteBuffer.wrap(bytes);
+                yield new UUID(bb.getLong(), bb.getLong());
+            }
+            case String str -> UUID.fromString(str);
+            default -> throw new IllegalArgumentException("Unexpected type for id : " + rawId.getClass());
+        };
     }
 
     private SearchFilter buildCampaignFilter(List<String> campaignIds) {
@@ -293,22 +308,13 @@ public class SearchQuestioningDao {
                 .map(name -> ":" + name)
                 .collect(Collectors.joining(", "));
 
-        String filter = """
-                (
-                    SELECT qe.type
-                    FROM questioning_event qe
-                    JOIN interrogation_event_order ie
-                      ON ie.status = qe.type
-                    WHERE qe.questioning_id = q.id
-                    ORDER BY ie.event_order DESC, qe.date DESC
-                    LIMIT 1
-                ) IN (""" + placeholders + ")";
+        String filter = " q.highest_event_type IN (" + placeholders + ")";
 
         return Optional.of(new SearchFilter(filter, parameters));
     }
 
-    private static SearchQuestioningDto mapRowToDto(Object[] row) {
-        Long questioningId = (Long) row[0];
+    private SearchQuestioningDto mapRowToDto(Object[] row) {
+        UUID questioningId = buildQuestioningId(row[0]);
         String campaignId = (String) row[1];
         String lastCommunicationType = (String) row[2];
         Date validationDate = (Date) row[3];
@@ -316,6 +322,7 @@ public class SearchQuestioningDao {
         String surveyUnitId = (String) row[5];
         String identificationCode = (String) row[6];
         String contactId = (String) row[7];
+        Integer score = (Integer) row[8];
 
         TypeCommunicationEvent typeCommunicationEvent = lastCommunicationType != null ? TypeCommunicationEvent.valueOf(lastCommunicationType) : null;
         TypeQuestioningEvent typeQuestioningEvent = highestEventType != null ? TypeQuestioningEvent.valueOf(highestEventType) : null;
@@ -328,7 +335,8 @@ public class SearchQuestioningDao {
                 typeQuestioningEvent,
                 surveyUnitId,
                 identificationCode,
-                contactId
+                contactId,
+                score
         );
     }
 }

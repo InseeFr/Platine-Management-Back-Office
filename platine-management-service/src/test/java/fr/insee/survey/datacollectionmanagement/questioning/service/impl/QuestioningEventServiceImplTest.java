@@ -1,94 +1,106 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class QuestioningEventServiceImplTest {
 
-    @Mock
-    private QuestioningEventRepository questioningEventRepository;
+    private QuestioningEventRepositoryStub questioningEventRepository;
 
-    @Mock
-    private QuestioningRepository questioningRepository;
+    private QuestioningRepositoryStub questioningRepository;
 
-    @InjectMocks
     private QuestioningEventServiceImpl questioningEventService;
 
-    private QuestioningEventInputDto validatedDto;
-    private Questioning questioning;
-    private QuestioningEvent existingEvent;
-
     @BeforeEach
-    void setUp() throws JsonProcessingException {
-        validatedDto = new QuestioningEventInputDto();
-        validatedDto.setQuestioningId(1L);
-        validatedDto.setDate(Date.from(Instant.now()));
-        validatedDto.setPayload(createPayload());
-
-        questioning = new Questioning();
-        questioning.setId(1L);
-
-        existingEvent = new QuestioningEvent();
-        existingEvent.setId(100L);
-        existingEvent.setQuestioning(questioning);
-        existingEvent.setType(TypeQuestioningEvent.VALINT);
+    void setUp() {
+        questioningEventRepository = new QuestioningEventRepositoryStub();
+        questioningRepository = new QuestioningRepositoryStub();
+        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
+        questioningEventService = new QuestioningEventServiceImpl(
+                null,
+                questioningEventRepository,
+                questioningRepository,
+                new ModelMapper(),
+                interrogationEventComparator);
     }
 
-    private JsonNode createPayload() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = "{ \"source\": \"test\" }";
-        return objectMapper.readTree(jsonString);
+    private Questioning createQuestioning() {
+        Questioning questioning = new Questioning();
+        questioning.setId(UUID.randomUUID());
+        questioningRepository.save(questioning);
+        return questioning;
+    }
+
+    private QuestioningEventInputDto createValidedInputDto(UUID questioningId) {
+        QuestioningEventInputDto validatedDto = new QuestioningEventInputDto();
+        validatedDto.setQuestioningId(questioningId);
+        validatedDto.setDate(Date.from(Instant.now()));
+        return validatedDto;
+    }
+
+    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning, Clock clock) {
+        QuestioningEvent event = new QuestioningEvent();
+        event.setId(id);
+        event.setQuestioning(questioning);
+        event.setType(type);
+        event.setDate(Date.from(Instant.now(clock)));
+        return event;
+    }
+
+    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning) {
+        return createQuestioningEvent(id, type, questioning, Clock.systemUTC());
     }
 
     @Test
     @DisplayName("Should throw NotFoundException when questioning does not exist")
     void postValintQuestioningEventTest() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent("eventType", validatedDto))
+        QuestioningEventInputDto input = createValidedInputDto(UUID.randomUUID());
+        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent("eventType", input))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessage("Questioning 1 does not exist");
+                .hasMessage("Questioning "+input.getQuestioningId()+" does not exist");
     }
 
     @Test
     @DisplayName("Should throw TooManyValuesException when multiple VALINT events exist")
     void postValintQuestioningEventTest2() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
-                .thenReturn(List.of(new QuestioningEvent(), new QuestioningEvent()));
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(event);
+        questioningEvents.add(event2);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningEventRepository.save(event);
+        questioningEventRepository.save(event2);
+        questioningRepository.save(questioning);
 
         String valintEvent = TypeQuestioningEvent.VALINT.name();
-
-        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent(valintEvent, validatedDto))
+        QuestioningEventInputDto input = createValidedInputDto(questioningId);
+        assertThatThrownBy(() -> questioningEventService.postQuestioningEvent(valintEvent, input))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("2 VALINT questioningEvents found");
     }
@@ -96,29 +108,32 @@ class QuestioningEventServiceImplTest {
     @Test
     @DisplayName("Should update existing VALINT event when one exists")
     void postValintQuestioningEventTest3() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
-                .thenReturn(List.of(existingEvent));
-        Date dateExistingEvent = existingEvent.getDate();
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(event);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningEventRepository.save(event);
+        questioningRepository.save(questioning);
+        QuestioningEventInputDto input = createValidedInputDto(questioningId);
         String valintEvent = TypeQuestioningEvent.VALINT.name();
-        boolean result = questioningEventService.postQuestioningEvent(valintEvent, validatedDto);
+        boolean result = questioningEventService.postQuestioningEvent(valintEvent, input);
 
         assertThat(result).isFalse();
-        assertThat(existingEvent.getDate()).isEqualTo(dateExistingEvent);
     }
 
     @Test
     @DisplayName("Should create new VALINT event when none exist")
     void postValintQuestioningEventTest4() {
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(questioning));
-        when(questioningEventRepository.findByQuestioningIdAndType(1L, TypeQuestioningEvent.VALINT))
-                .thenReturn(List.of());
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        questioningRepository.save(questioning);
         String valintEvent = TypeQuestioningEvent.VALINT.name();
-
-        boolean result = questioningEventService.postQuestioningEvent(valintEvent, validatedDto);
+        QuestioningEventInputDto input = createValidedInputDto(questioningId);
+        boolean result = questioningEventService.postQuestioningEvent(valintEvent, input);
 
         assertThat(result).isTrue();
-        verify(questioningEventRepository).save(any(QuestioningEvent.class));
     }
 
     @Test
@@ -165,4 +180,324 @@ class QuestioningEventServiceImplTest {
 
         assertThat(result).isFalse();
     }
+
+    @Test
+    @DisplayName("postExpertEvent must throw NotFoundException when the questioning cannot be found")
+    void postExpertEvent_questioningNotFound() {
+        UUID id = UUID.randomUUID();
+        assertThatThrownBy(() -> questioningEventService.postExpertEvent(id, null))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Questioning "+ id +" not found");
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must create an EXPERT event if none already exists")
+    void postExpertEvent_createExpert() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        UUID questioningId = questioning.getId();
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        Questioning updated = questioningRepository.findById(questioningId).orElseThrow();
+
+        assertThat(updated.getScore()).isEqualTo(5);
+        assertThat(updated.getScoreInit()).isEqualTo(5);
+
+        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.EXPERT);
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must create an VALID event if none already exists")
+    void postExpertEvent_createVALID() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        UUID questioningId = questioning.getId();
+
+        ExpertEventDto dto = new ExpertEventDto(9, 9, TypeQuestioningEvent.VALID);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        Questioning updated = questioningRepository.findById(questioningId).orElseThrow();
+
+        assertThat(updated.getScore()).isEqualTo(9);
+        assertThat(updated.getScoreInit()).isEqualTo(9);
+
+        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALID);
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must not duplicate the EXPERT event if an identical event already exists")
+    void postExpertEvent_noDuplicateExpert() {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
+        QuestioningEvent existing2 = createQuestioningEvent(1L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningRepository.save(questioning);
+        questioningEventRepository.save(existing);
+        questioningEventRepository.save(existing2);
+
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.EXPERT);
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must create a ONGEXPERT event if the last one was EXPERT")
+    void postExpertEvent_createONGEXPERTAfterExpert() {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningRepository.save(questioning);
+        questioningEventRepository.save(existing);
+
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must not create a ONGEXPERT event if the last one was ONGEXPERT")
+    void postExpertEvent_notcreateONGEXPERTAfterONGEXPERT() {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
+        QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningRepository.save(questioning);
+        questioningEventRepository.save(existing);
+        questioningEventRepository.save(existing2);
+
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+        assertThat(events).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must create a ONGEXPERT event if ONGEXPERT exist but the last one was VALID")
+    void postExpertEvent_createONGEXPERTAfterVALID() {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
+        QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent existing3 = createQuestioningEvent(3L, TypeQuestioningEvent.VALID, questioning,Clock.offset(Clock.systemUTC(), Duration.ofHours(2)));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(existing);
+        questioningEvents.add(existing2);
+        questioningEvents.add(existing3);
+        questioning.setQuestioningEvents(questioningEvents);
+        questioningRepository.save(questioning);
+        questioningEventRepository.save(existing);
+        questioningEventRepository.save(existing2);
+        questioningEventRepository.save(existing3);
+
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+        assertThat(events).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("postExpertEvent must not create a ONGEXPERT event if the last one is null")
+    void postExpertEvent_noExpertNoEvent() {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        questioningRepository.save(questioning);
+        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
+
+        questioningEventService.postExpertEvent(questioningId, dto);
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+        assertThat(events).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findById should return exception if not exist")
+    void findById_not_exist() {
+        Long id = 1L;
+        assertThatThrownBy(() -> questioningEventService.findbyId(id))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage(String.format("QuestioningEvent %s not found", id));
+    }
+
+    @Test
+    @DisplayName("should save questioning event and refresh highest event")
+    void saveQuestioningEvent() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent saved = questioningEventService.saveQuestioningEvent(questioningEvent);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getQuestioning()).isNotNull();
+        assertThat(saved.getQuestioning().getHighestEventType()).isNotNull()
+                .isEqualTo(TypeQuestioningEvent.INITLA);
+    }
+
+    @Test
+    @DisplayName("delete refresh")
+    void deleteWithRefreshHighestEvent() {
+        Questioning questioning = createQuestioning();
+        questioningRepository.save(questioning);
+        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning);
+        questioningEventRepository.save(event);
+
+        questioningEventService.deleteQuestioningEvent(2L);
+
+        Questioning updatedQuestioning = questioningRepository.findById(questioning.getId()).get();
+
+        assertThat(updatedQuestioning.getHighestEventType()).isNotNull()
+                .isEqualTo(TypeQuestioningEvent.VALINT);
+    }
+
+
+    void shouldSetNullWhenNoEvents() {
+        UUID id = UUID.randomUUID();
+        Questioning questioning = new Questioning();
+        questioning.setId(id);
+        questioning.setQuestioningEvents(null);
+        questioningRepository.save(questioning);
+
+        questioningEventService.refreshHighestEvent(id);
+
+        Questioning updated = questioningRepository.findById(id).orElseThrow();
+        assertThat(updated.getHighestEventType()).as("HighestEventType should be null when no events").isNull();
+        assertThat(updated.getHighestEventDate()).as("HighestEventDate should be null when no events").isNull();
+    }
+
+    @Test
+    void shouldPickLatestInterrogationEvent() {
+        UUID id = UUID.randomUUID();
+        Questioning questioning = new Questioning();
+        questioning.setId(id);
+
+        QuestioningEvent evtInit = new QuestioningEvent();
+        evtInit.setType(TypeQuestioningEvent.INITLA);
+        Date dateInit = new GregorianCalendar(2025, Calendar.JANUARY, 10).getTime();
+        evtInit.setDate(dateInit);
+
+        QuestioningEvent evtPart = new QuestioningEvent();
+        evtPart.setType(TypeQuestioningEvent.PARTIELINT);
+        Date datePart = new GregorianCalendar(2025, Calendar.FEBRUARY, 20).getTime();
+        evtPart.setDate(datePart);
+
+        QuestioningEvent evtVal = new QuestioningEvent();
+        evtVal.setType(TypeQuestioningEvent.VALINT);
+        Date dateVal = new GregorianCalendar(2025, Calendar.MARCH, 5).getTime();
+        evtVal.setDate(dateVal);
+
+        questioning.setQuestioningEvents(Set.of(evtInit, evtPart, evtVal));
+        questioningRepository.save(questioning);
+
+        questioningEventService.refreshHighestEvent(id);
+
+        Questioning updated = questioningRepository.findById(id).orElseThrow();
+        assertThat(updated.getHighestEventType())
+                .as("Should pick the event with highest order by comparator")
+                .isEqualTo(TypeQuestioningEvent.VALINT);
+        assertThat(updated.getHighestEventDate())
+                .as("Should pick the correct date of the highest event")
+                .isEqualTo(dateVal);
+    }
+
+    @Test
+    void shouldThrowWhenQuestioningNotFound() {
+        UUID unknownId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> questioningEventService.refreshHighestEvent(unknownId))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining(unknownId.toString());
+    }
+
+
+
+    @Test
+    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event type")
+    void canUserDeleteQuestioningEventTest1() {
+
+        Questioning questioning = createQuestioning();
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
+        {
+            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(1L)).isPresent();
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+        }
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.REFUSED_EVENTS)
+        {
+            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(1L)).isPresent();
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+        }
+    }
+
+    @Test
+    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event type")
+    void canUserDeleteQuestioningEventTest2() {
+
+        Questioning questioning = createQuestioning();
+        List<String> managementExcludedRoles = AuthorityRoleEnum.MANAGEMENT_EXCLUDED_SECURITY_ROLES;
+
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
+        {
+            long id = new Random().nextLong();
+            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles,  id, typeQuestioningEvent))
+                    .isInstanceOf(ForbiddenAccessException.class)
+                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+        }
+
+        List<TypeQuestioningEvent> typeQuestioningEventsWithoutRefused = Arrays.stream(TypeQuestioningEvent.values())
+                .filter(p -> !TypeQuestioningEvent.REFUSED_EVENTS.contains(p))
+                .toList();
+
+        for (TypeQuestioningEvent typeQuestioningEvent : typeQuestioningEventsWithoutRefused)
+        {
+            long id = new Random().nextLong();
+            List<String> userRoles =  List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
+            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
+            questioningEventRepository.save(questioningEvent);
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, id, typeQuestioningEvent))
+                    .isInstanceOf(ForbiddenAccessException.class)
+                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
+            assertThat(questioningEventRepository.findById(id)).isPresent();
+        }
+    }
+
 }

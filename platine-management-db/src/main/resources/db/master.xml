@@ -10,10 +10,17 @@
     <include file="changelog/020_create-interrogation-event-order.sql" relativeToChangelogFile="true"/>
     <include file="changelog/021_add_column_date_last_extraction_source.sql" relativeToChangelogFile="true"/>
     <include file="changelog/022_add-id-interrogation.sql" relativeToChangelogFile="true"/>
-    <include file="changelog/030_migrate-questionings-to-uuid.sql" relativeToChangelogFile="true"/>
     <include file="changelog/031_create-questioning-assistance-mail.sql" relativeToChangelogFile="true"/>
     <include file="changelog/040_add_operation_upload_reference_to_campaign.sql" relativeToChangelogFile="true"/>
     <include file="changelog/040_create_source_type.sql" relativeToChangelogFile="true"/>
     <include file="changelog/050_create-mail-communication-tables.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/060_migrate-questionings-to-uuid.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/061_add-constraints-campagne.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/070_add_rework_variables_and_events.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/071_fix_scores_questioning_smallint_to_int.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/080_add-period-collect-value.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/090_add_type_and_date_highest_status_event.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/091_fix_remove_datacollection_target_check.sql" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>

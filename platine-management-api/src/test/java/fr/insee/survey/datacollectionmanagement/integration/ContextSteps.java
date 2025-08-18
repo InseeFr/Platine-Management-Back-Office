@@ -151,20 +151,25 @@ public class ContextSteps {
 
     private void createQuestioningContact(String partId, String idSu, String model, String contactId, boolean isMain) {
         Optional<Questioning> q = questioningRepository.findByIdPartitioningAndSurveyUnitIdSu(partId, idSu);
-        final Questioning questioning;
+        Questioning questioning;
 
         if (q.isEmpty()) {
             questioning = new Questioning();
+            questioning.setId(UUID.randomUUID());
             questioning.setIdPartitioning(partId);
             questioning.setModelName(model);
-            questioningRepository.save(questioning);
+            questioning = questioningRepository.save(questioning);
         } else {
             questioning = q.get();
         }
         SurveyUnit su = surveyUnitRepository.findById(idSu).orElseThrow(() -> new IllegalArgumentException("Survey Unit not found"));
-
-        List<QuestioningAccreditation> listAccreditations = questioningAccreditationRepository.findByIdContact(contactId);
-        if (listAccreditations.stream().filter(acc -> acc.getQuestioning().getId().equals(questioning.getId())).toList().isEmpty()) {
+        UUID questioningId = questioning.getId();
+        List<QuestioningAccreditation> linkedAccreditations = questioningAccreditationRepository
+                .findByIdContact(contactId)
+                .stream()
+                .filter(acc -> acc.getQuestioning().getId().equals(questioningId))
+                .toList();
+        if (linkedAccreditations.isEmpty()) {
             QuestioningAccreditation qa = new QuestioningAccreditation();
             qa.setQuestioning(questioning);
             qa.setIdContact(contactId);

@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.user.Authorit
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
 import fr.insee.survey.datacollectionmanagement.query.service.MySurveysService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ public class MyQuestioningsController {
 
     @GetMapping(value = UrlConstants.API_MY_QUESTIONNAIRES)
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    @Parameter(name = "idec", hidden = true)
     public List<MyQuestionnaireDto> getMyQuestionnaires(@CurrentSecurityContext(expression = "authentication.name")
                                            String idec) {
         return mySurveysService.getListMyQuestionnaires(idec.toUpperCase());

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -148,11 +149,12 @@ class QuestioningInformationsServiceImplTest {
     @Test
     void testMapQuestioningInformationsDto_shouldMapCorrectly() {
         // Given
+        UUID uuid = UUID.randomUUID();
         QuestioningInformations infos = new QuestioningInformations();
         infos.setReturnDate("2025-05-10");
         infos.setLogo("logo.png");
         infos.setSourceId("source123");
-        infos.setQuestioningId("qst456");
+        infos.setQuestioningId(uuid);
         infos.setIdentificationCode("id789");
         infos.setIdentifier("cont123");
         infos.setGender("Male");
@@ -179,7 +181,7 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("logo.png", result.getLogo());
         assertEquals("/mes-enquetes", result.getUrlLogout());
 
-        String expectedUrlAssistance = "/mes-enquetes/source123/contacter-assistance/auth?questioningId=qst456&surveyUnitId=id789&contactId=cont123";
+        String expectedUrlAssistance = "/mes-enquetes/source123/contacter-assistance/auth?questioningId="+uuid+"&surveyUnitId=id789&contactId=cont123";
         assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
 
         assertNotNull(result.getContactInformationsDto());

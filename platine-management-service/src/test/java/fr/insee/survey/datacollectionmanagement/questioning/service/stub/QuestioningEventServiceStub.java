@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Setter
 public class QuestioningEventServiceStub implements QuestioningEventService {
@@ -31,7 +33,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
 
     @Override
     public void deleteQuestioningEvent(Long id) {
-        //not used
+        // not used
     }
 
     @Override
@@ -54,7 +56,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId) {
         return questioningEvents;
     }
 
@@ -71,5 +73,15 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     @Override
     public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
         return false;
+    }
+
+    @Override
+    public void postExpertEvent(UUID id, ExpertEventDto expertEventDto) {
+        //not used
+    }
+
+    @Override
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent) {
+        //not used
     }
 }

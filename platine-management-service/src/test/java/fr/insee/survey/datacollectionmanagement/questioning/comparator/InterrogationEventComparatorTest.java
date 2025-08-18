@@ -1,16 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.comparator;
 
-import fr.insee.survey.datacollectionmanagement.questioning.domain.InterrogationEventOrder;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.InterrogationEventOrderRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,39 +16,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 class InterrogationEventComparatorTest {
-
-    private static final int O_INITLA     = 1;
-    private static final int O_PARTIEL_VAL = 2;
-    private static final int O_REF_WAST   = 3;
-    private static final int O_HC         = 4;
-
-    @Mock
-    private InterrogationEventOrderRepository orderRepository;
 
     private InterrogationEventComparator comparator;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        when(orderRepository.findAll()).thenReturn(List.of(
-                order("INITLA",     O_INITLA),
-                order("PARTIELINT", O_PARTIEL_VAL),
-                order("VALINT",     O_PARTIEL_VAL),
-                order("VALPAP",     O_PARTIEL_VAL),
-                order("REFUSAL",    O_REF_WAST),
-                order("WASTE",      O_REF_WAST),
-                order("HC",         O_HC)
-        ));
-
+        InterrogationEventOrderRepositoryStub orderRepository = new InterrogationEventOrderRepositoryStub();
         comparator = new InterrogationEventComparator(orderRepository);
-    }
-
-    private static InterrogationEventOrder order(String status, int valeur) {
-        return new InterrogationEventOrder(null, status, valeur);
     }
 
     @ParameterizedTest(name = "#{index}: expected highest = {1}")
@@ -243,7 +216,35 @@ class InterrogationEventComparatorTest {
                         List.of(event(TypeQuestioningEvent.PARTIELINT,0),
                                 event(TypeQuestioningEvent.VALPAP,-1),
                                 event(TypeQuestioningEvent.VALINT,-2)),
-                        TypeQuestioningEvent.PARTIELINT)
+                        TypeQuestioningEvent.PARTIELINT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.INITLA),
+                                event(TypeQuestioningEvent.EXPERT)),
+                        TypeQuestioningEvent.EXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ONGEXPERT,0),
+                                event(TypeQuestioningEvent.VALID,-1),
+                                event(TypeQuestioningEvent.EXPERT,-2)),
+                        TypeQuestioningEvent.ONGEXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.VALID,0),
+                                event(TypeQuestioningEvent.ONGEXPERT,-1),
+                                event(TypeQuestioningEvent.EXPERT,-2)),
+                        TypeQuestioningEvent.VALID),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ONGEXPERT,0),
+                                event(TypeQuestioningEvent.ENDEXPERT,-1)),
+                        TypeQuestioningEvent.ONGEXPERT),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.ENDEXPERT,0),
+                                event(TypeQuestioningEvent.VALID,-1)),
+                        TypeQuestioningEvent.ENDEXPERT)
+
         );
     }
 

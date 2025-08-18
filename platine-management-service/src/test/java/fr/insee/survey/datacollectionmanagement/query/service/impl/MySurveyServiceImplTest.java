@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,7 +47,7 @@ class MySurveyServiceImplTest {
         Date date = new Date();
         instant = date.toInstant();
         questioningService = new QuestioningServiceStub();
-
+        UUID questioningId = UUID.randomUUID();
         myQuestionnaireDetailsDto = new MyQuestionnaireDetailsDto();
         questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(myQuestionnaireDetailsDto));
 
@@ -55,7 +56,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setSurveyUnitIdentificationName("Name123");
         myQuestionnaireDetailsDto.setSourceId("source1");
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
-        myQuestionnaireDetailsDto.setQuestioningId(1L);
+        myQuestionnaireDetailsDto.setQuestioningId(questioningId);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
         myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
 
@@ -65,7 +66,7 @@ class MySurveyServiceImplTest {
                 questioningAccreditationRepositoryStub);
 
         Questioning mockQuestioning = new Questioning();
-        mockQuestioning.setId(1L);
+        mockQuestioning.setId(questioningId);
         mockQuestioning.setIdPartitioning("partition1");
         questioningService.saveQuestioning(mockQuestioning);
 
@@ -88,10 +89,10 @@ class MySurveyServiceImplTest {
         assertThat(dto.partitioningLabel()).isEqualTo("Partition Label");
         assertThat(dto.surveyUnitIdentificationCode()).isEqualTo("Code123");
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -111,8 +112,8 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING.name());
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -134,9 +135,9 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.depositProofUrl()).isEqualTo("http://depositProof-url");
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
 
@@ -152,7 +153,7 @@ class MySurveyServiceImplTest {
         assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.depositProofUrl()).isNull();
     }
 
@@ -173,9 +174,9 @@ class MySurveyServiceImplTest {
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED.name());
         assertThat(dto.depositProofUrl()).isEqualTo("http://depositProof-url");
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
 
@@ -202,10 +203,10 @@ class MySurveyServiceImplTest {
         assertThat(dto.partitioningLabel()).isEqualTo("Partition Label");
         assertThat(dto.surveyUnitIdentificationCode()).isEqualTo("Code123");
         assertThat(dto.surveyUnitIdentificationName()).isEqualTo("Name123");
-        assertThat(dto.questioningAccessUrl()).isEqualTo("http://access-url");
+        assertThat(dto.interrogationAccessUrl()).isEqualTo("http://access-url");
         assertThat(dto.partitioningId()).isEqualTo("partition1");
         assertThat(dto.surveyUnitId()).isEqualTo("SU123");
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
@@ -220,7 +221,7 @@ class MySurveyServiceImplTest {
         Campaign campaign = createCampaign("OFATSRD2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "ofats");
         Partitioning partitioning = createPartitioning("partitioningOfats", campaign);
         SurveyUnit surveyUnit = createSurveyUnit("OFATSRD2025A000001");
-        Questioning questioning = createQuestioning(1234L);
+        Questioning questioning = createQuestioning(UUID.randomUUID());
         MyQuestionnaireDetailsDto questionnaireDetailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
         List<MyQuestionnaireDetailsDto> questionnaireDetailsDtoList = List.of(questionnaireDetailsDto);
         questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(questionnaireDetailsDtoList);
@@ -231,9 +232,9 @@ class MySurveyServiceImplTest {
         assertThat(result).isNotEmpty().hasSize(1);
 
         MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
-        assertThat(dto.questioningDownloadFileName()).isNotBlank();
+        assertThat(dto.interrogationDownloadFileName()).isNotBlank();
     }
 
     @Test
@@ -241,10 +242,10 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnaires_FileUploadStatus() {
         Source source = createSource("SOURCE");
         Survey survey = createSurvey(source, "SURVEY2025", 2025);
-        Campaign campaign = createCampaign("SURVEY2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
+        Campaign campaign = createCampaign("SURVEY2025M01", PeriodEnum.M01, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
         Partitioning partitioning = createPartitioning("partitioning1", campaign);
         SurveyUnit surveyUnit = createSurveyUnit("SU001");
-        Questioning questioning = createQuestioning(555L);
+        Questioning questioning = createQuestioning(UUID.randomUUID());
         MyQuestionnaireDetailsDto detailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
 
         detailsDto.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD.name());
@@ -254,12 +255,12 @@ class MySurveyServiceImplTest {
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("SU001");
         assertThat(result).hasSize(1);
         MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.questioningStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
-        assertThat(dto.questioningAccessUrl()).isNull();
+        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+        assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
     }
 
-    private Questioning createQuestioning(Long id) {
+    private Questioning createQuestioning(UUID id) {
         Questioning questioning = new Questioning();
         questioning.setId(id);
         questioning.setModelName("modelName");
@@ -278,7 +279,7 @@ class MySurveyServiceImplTest {
         MyQuestionnaireDetailsDto dto = new MyQuestionnaireDetailsDto();
         dto.setSourceId(source.getId());
         dto.setSurveyYear(survey.getYear());
-        dto.setPeriod(campaign.getPeriod().name());
+        dto.setPeriodCollect(campaign.getPeriodCollect().name());
         dto.setPartitioningLabel(partitioning.getLabel());
         dto.setPartitioningId(partitioning.getId());
         dto.setPartitioningOpeningDate(partitioning.getOpeningDate());
@@ -323,6 +324,7 @@ class MySurveyServiceImplTest {
         Campaign campaign = new Campaign();
         campaign.setId(id);
         campaign.setPeriod(period);
+        campaign.setPeriodCollect(period);
         campaign.setSurvey(survey);
         campaign.setDataCollectionTarget(dataCollection);
         campaign.setOperationUploadReference(operationUploadReference);

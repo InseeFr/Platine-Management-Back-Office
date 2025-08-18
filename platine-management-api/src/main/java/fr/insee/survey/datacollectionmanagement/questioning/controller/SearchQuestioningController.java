@@ -13,8 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -26,27 +30,29 @@ public class SearchQuestioningController {
     private final QuestioningService questioningService;
 
     @Operation(summary = "Multi-criteria search questionings")
-    @PostMapping(value = UrlConstants.API_QUESTIONINGS_SEARCH, produces = "application/json")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public Slice<SearchQuestioningDto> searchQuestionings(
             @RequestBody(required = false) SearchQuestioningParams searchParams,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
-        log.info(
-                "Search questionings with param {} page = {} pageSize = {}", searchParams, page, pageSize);
+            @RequestParam(defaultValue = "20") Integer pageSize,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection) {
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
+                searchParams, page, pageSize, sortBy, sortDirection);
+
+        Sort sort = Sort.unsorted();
+        if (sortBy != null && sortDirection != null) {
+            sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        }
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         return questioningService.searchQuestionings(searchParams, pageable);
-
     }
 
     @Operation(summary = "Get questioning details")
-    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = "application/json")
-    public QuestioningDetailsDto getQuestioning (@PathVariable("id") Long id) {
-
+    @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    public QuestioningDetailsDto getQuestioning (@PathVariable("id") UUID id) {
         return questioningService.getQuestioningDetails(id);
-
     }
-
-
 }

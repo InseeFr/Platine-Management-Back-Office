@@ -13,6 +13,7 @@ public class CampaignDto {
     private int year;
     private String campaignWording;
     private String period;
+    private String periodCollect;
     private boolean sensitivity;
     @DataCollectionTargetValid
     private String dataCollectionTarget;

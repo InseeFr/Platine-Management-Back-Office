@@ -10,10 +10,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public interface QuestioningAccreditationService {
 
     List<QuestioningAccreditation> findByContactIdentifier(String id);
+
+    boolean hasAccreditation(UUID questioningId, String contactId);
 
     Page<QuestioningAccreditation> findAll(Pageable pageable);
 
@@ -32,7 +35,7 @@ public interface QuestioningAccreditationService {
 
     void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
 
-    void setMainQuestioningAccreditationToContact(String contactId, Long questioningId);
+    void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId);
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
                                                      Contact newContact,

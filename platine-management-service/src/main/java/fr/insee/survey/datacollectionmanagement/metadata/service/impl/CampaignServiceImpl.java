@@ -117,6 +117,13 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
+    public List<CampaignCommonsDto> getCampaignCommonsOngoingDtos() {
+        return campaignRepository.findByDataCollectionTargetIsNot(DataCollectionEnum.FILE_UPLOAD).stream()
+                .filter(campaign -> isCampaignOngoing(campaign.getId()))
+                .map(this::convertToCampaignCommonsDto).toList();
+    }
+
+    @Override
     public List<ParamsDto> saveParameterForCampaign(Campaign campaign, ParamsDto paramsDto) {
         Parameters param = parametersService.convertToEntity(paramsDto);
         param.setMetadataId(StringUtils.upperCase(campaign.getId()));
@@ -128,8 +135,17 @@ public class CampaignServiceImpl implements CampaignService {
 
     private CampaignOngoingDto convertToCampaignOngoingDto(Campaign campaign) {
         CampaignOngoingDto result = modelmapper.map(campaign, CampaignOngoingDto.class);
+        result.setYearCollect(campaign.getSurvey().getYear());
         result.setSourceId(campaign.getSurvey().getSource().getId());
         return result;
+    }
+
+    private CampaignCommonsDto convertToCampaignCommonsDto(Campaign campaign) {
+        return new CampaignCommonsDto(
+                campaign.getId(),
+                campaign.getDataCollectionTarget().name(),
+                campaign.isSensitivity(),
+                "WEB");
     }
 
 
@@ -221,4 +237,8 @@ public class CampaignServiceImpl implements CampaignService {
                 .orElse(CollectionStatus.UNDEFINED);
     }
 
+    @Override
+    public CampaignCommonsDto findCampaignDtoById(String campaignId) {
+        return convertToCampaignCommonsDto(this.findById(campaignId));
+    }
 }

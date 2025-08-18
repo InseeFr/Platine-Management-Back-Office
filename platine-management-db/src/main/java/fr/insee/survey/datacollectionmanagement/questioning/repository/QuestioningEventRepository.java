@@ -5,12 +5,13 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface QuestioningEventRepository extends JpaRepository<QuestioningEvent, Long> {
     
-    List<QuestioningEvent> findByQuestioningIdAndType(Long questioningId, TypeQuestioningEvent type);
+    List<QuestioningEvent> findByQuestioningIdAndType(UUID questioningId, TypeQuestioningEvent type);
 
     Long countByUploadId(Long idupload);
 
-    List<QuestioningEvent> findByQuestioningId(Long questioningId);
+    List<QuestioningEvent> findByQuestioningId(UUID questioningId);
 }

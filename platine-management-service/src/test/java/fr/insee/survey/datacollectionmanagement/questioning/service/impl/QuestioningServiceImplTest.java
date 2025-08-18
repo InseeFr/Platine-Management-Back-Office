@@ -20,41 +20,44 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.InterrogationEventOrderRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
 
 
     private static final String SURVEY_UNIT_ID = "12345";
-
-    @Mock
-    private InterrogationEventOrderRepository eventOrderRepository;
 
     @Mock
     private QuestioningRepository questioningRepository;
@@ -96,39 +99,20 @@ class QuestioningServiceImplTest {
 
     private Partitioning partitioning;
 
-    private static final int O_INITLA     = 1;
-    private static final int O_PARTIEL_VAL = 2;
-    private static final int O_REF_WAST   = 3;
-    private static final int O_HC         = 4;
-
     @BeforeEach
     void setUp() {
 
         partitioning = new Partitioning();
 
-        when(eventOrderRepository.findAll()).thenReturn(List.of(
-                order("INITLA",     O_INITLA),
-                order("PARTIELINT", O_PARTIEL_VAL),
-                order("VALINT",     O_PARTIEL_VAL),
-                order("VALPAP",     O_PARTIEL_VAL),
-                order("REFUSAL",    O_REF_WAST),
-                order("WASTE",      O_REF_WAST),
-                order("HC",         O_HC)
-        ));
-
-        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(eventOrderRepository);
+        InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
 
         questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
-                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent, surveyUnitService,
-                partitioningService, contactService, questioningEventService, questioningAccreditationService,
+                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent,
+                contactService, questioningEventService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
-    private static InterrogationEventOrder order(String status, int valeur) {
-        return new InterrogationEventOrder(null, status, valeur);
-    }
-
 
     @Test
     @DisplayName("Check notFoundException when 0 questioning found for 1 surveyUnit and one camapaign")
@@ -175,8 +159,9 @@ class QuestioningServiceImplTest {
     }
 
     private Questioning initQuestioning() {
+        UUID questioningId = UUID.randomUUID();
         questioning = new Questioning();
-        questioning.setId(1L);
+        questioning.setId(questioningId);
         SurveyUnit su = new SurveyUnit();
         su.setIdSu(SURVEY_UNIT_ID);
         questioning.setSurveyUnit(su);
@@ -201,9 +186,9 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return correct QuestioningDetailsDto based on SourceTypeEnum")
     void testGetQuestioningDetails(SourceTypeEnum sourceType, boolean expectedIsHousehold) {
         // Given
-        Long questioningId = 1L;
+        UUID questioningId = UUID.randomUUID();
+        questioning = new Questioning();
         questioning.setId(questioningId);
-
         SurveyUnit su = new SurveyUnit();
         su.setIdSu("1");
         su.setIdentificationName("identificationName");
@@ -261,18 +246,17 @@ class QuestioningServiceImplTest {
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
     }
 
-
     @Test
     @DisplayName("Should throw NotFoundException when questioning does not exist")
     void shouldThrowNotFoundExceptionWhenQuestioningNotFound() {
         // Given
-        Long questioningId = 99L;
+        UUID questioningId = UUID.randomUUID();
         when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> questioningService.getQuestioningDetails(questioningId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Questioning 99 not found");
+                .hasMessageContaining("Questioning "+questioningId+" not found");
     }
 
     @DisplayName("Should return NOT_RECEIVED when no events exist")
@@ -393,11 +377,13 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance without personalisation returns null")
     void getMailAssistanceDtoNoMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
 
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
+        when(partitioningRepository.findById(q1.getIdPartitioning())).thenReturn(Optional.ofNullable(partitioning));
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertNull(assistanceDto.getMailAssistance());
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
     }
@@ -405,13 +391,14 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with questioning personalisation returns the right mail")
     void getMailAssistanceDtoQuestioningMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
         String assistanceMail = "assistanceq1@assistance.fr";
 
         q1.setAssistanceMail(assistanceMail);
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistanceMail);
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
 
@@ -420,14 +407,15 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getMailAssistance with campaign personalisation returns the right mail")
     void getMailAssistanceDtoCampaignMail() {
-        Questioning q1 = buildQuestioning(1L, "SU1");
+        UUID questioningId1 = UUID.randomUUID();
+        Questioning q1 = buildQuestioning(questioningId1, "SU1");
         String assistancePart = "assistancePart@assistance.fr";
 
-        when(questioningRepository.findById(1L)).thenReturn(Optional.of(q1));
-        when(partitioningService.findById(q1.getIdPartitioning())).thenReturn(partitioning);
+        when(questioningRepository.findById(questioningId1)).thenReturn(Optional.of(q1));
+        when(partitioningRepository.findById(q1.getIdPartitioning())).thenReturn(Optional.ofNullable(partitioning));
         when(parametersService.findSuitableParameterValue(partitioning, ParameterEnum.MAIL_ASSISTANCE)).thenReturn(assistancePart);
 
-        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(1L);
+        AssistanceDto assistanceDto = questioningService.getMailAssistanceDto(questioningId1);
         assertThat(assistanceDto.getMailAssistance()).isEqualTo(assistancePart);
         assertThat(assistanceDto.getSurveyUnitId()).isEqualTo("SU1");
 
@@ -473,7 +461,7 @@ class QuestioningServiceImplTest {
         return cal.getTime();
     }
 
-    private Questioning buildQuestioning(Long id, String suId) {
+    private Questioning buildQuestioning(UUID id, String suId) {
         Questioning q = new Questioning();
         q.setId(id);
         q.setIdPartitioning("PART001");
@@ -497,6 +485,27 @@ class QuestioningServiceImplTest {
         q.setQuestioningCommunications(new HashSet<>());
         return q;
     }
+
+    @ParameterizedTest
+    @MethodSource("hasExpertiseStatusScenarios")
+    void testHasExpertiseStatus(TypeQuestioningEvent event, boolean expected) {
+        UUID id = UUID.randomUUID();
+        Questioning q = new Questioning();
+        q.setHighestEventType(event);
+
+        when(questioningRepository.findById(id)).thenReturn(Optional.of(q));
+
+        assertThat(questioningService.hasExpertiseStatus(id)).isEqualTo(expected);
+    }
+
+    private static Stream<Arguments> hasExpertiseStatusScenarios() {
+        return Stream.of(
+                Arguments.of(null, false),
+                Arguments.of(TypeQuestioningEvent.REFUSAL, false),
+                Arguments.of(TypeQuestioningEvent.EXPERT, true)
+        );
+    }
+
 
 
 }

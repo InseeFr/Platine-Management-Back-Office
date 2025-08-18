@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,14 +72,14 @@ public class MoogController {
 
     }
 
-    @GetMapping(path = UrlConstants.API_MOOG_MAIL, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_MOOG_MAIL, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get Moog questioning events by campaign and idSu")
     public ResponseEntity<String> getMoogMail(@PathVariable("id") String contactId) {
         Contact contact = contactService.findByIdentifier(contactId);
         return ResponseEntity.ok().body(contact.getEmail());
     }
 
-    @GetMapping(path = UrlConstants.API_MOOG_EVENTS, produces = "application/json")
+    @GetMapping(path = UrlConstants.API_MOOG_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get Moog questioning events by campaign and idSu")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = MoogQuestioningEventDto.class)))),
@@ -90,19 +91,19 @@ public class MoogController {
 
     }
 
-    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_EXTRACTION, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_EXTRACTION, produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogExtractionRowDto> provideDataForExtraction(@PathVariable String idCampaign) {
         log.info("Request GET for extraction of campaign : {}", idCampaign);
         return moogService.getExtraction(idCampaign);
     }
 
-    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_CAMPAIGN_SURVEYUNITS_FOLLOWUP, produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogExtractionRowDto> displaySurveyUnitsToFollowUp(@PathVariable String idCampaign) {
         log.info("Request GET for su to follow up - campaign {}", idCampaign);
         return new JSONCollectionWrapper<>(moogService.getSurveyUnitsToFollowUp(idCampaign));
     }
 
-    @GetMapping(value = UrlConstants.MOOG_API_READONLY_URL, produces = "application/json")
+    @GetMapping(value = UrlConstants.MOOG_API_READONLY_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getReadOnlyUrl(@PathVariable String idCampaign, @PathVariable String surveyUnitId) {
         log.info("Request READONLY url for su {} and campaign {}", surveyUnitId, idCampaign);
         String url;

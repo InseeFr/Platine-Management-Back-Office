@@ -36,6 +36,91 @@
       "realmRoles": ["respondent"]
     },
     {
+      "username": "E2E_RESPON_1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Keith",
+      "lastName": "Cozart",
+      "email": "e2erespon1@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_1",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
+      "username": "E2E_RESPON_2",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Jaylah",
+      "lastName": "Hickmon",
+      "email": "e2erespon2@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_2",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
+      "username": "E2E_RESPON_3",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Patrick Earl",
+      "lastName": "Houston",
+      "email": "e2erespon3@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_3",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
+      "username": "E2E_RESPON_EEC",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Nayvadius",
+      "lastName": "Cash",
+      "email": "e2erespon_eec@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_EEC",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
+      "username": "E2E_RESPON_CLOSED",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Skye",
+      "lastName": "Edwards",
+      "email": "e2erespon_closed@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_RESPON_CLOSED",
+          "temporary": false
+        }
+      ],
+
+      "realmRoles": ["respondent"]
+    },
+    {
       "username": "respon2",
       "enabled": true,
       "emailVerified": true,

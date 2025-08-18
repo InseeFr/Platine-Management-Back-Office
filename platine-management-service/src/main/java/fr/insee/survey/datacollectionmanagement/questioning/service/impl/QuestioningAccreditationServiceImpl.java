@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +43,13 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
 
     public List<QuestioningAccreditation> findByContactIdentifier(String id) {
         return questioningAccreditationRepository.findByIdContact(id);
+    }
+
+    @Override
+    public boolean hasAccreditation(UUID questioningId, String contactId) {
+        Optional<QuestioningAccreditation> accreditation = questioningAccreditationRepository
+                .findByQuestioning_IdAndIdContact(questioningId, contactId);
+        return accreditation.isPresent();
     }
 
     @Override
@@ -97,7 +105,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, Long questioningId) {
+    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 

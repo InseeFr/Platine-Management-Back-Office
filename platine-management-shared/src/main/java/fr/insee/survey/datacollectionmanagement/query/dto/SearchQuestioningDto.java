@@ -7,10 +7,11 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class SearchQuestioningDto {
-    private final Long questioningId;
+    private final UUID questioningId;
     private final String campaignId;
     private final TypeCommunicationEvent lastCommunicationType;
     private final Date validationDate;
@@ -18,15 +19,17 @@ public class SearchQuestioningDto {
     private final String surveyUnitId;
     private final String identificationCode;
     private final List<String> contactIds;
+    private final Integer score;
 
-    public SearchQuestioningDto(Long questioningId,
+    public SearchQuestioningDto(UUID questioningId,
                                    String campaignId,
                                    TypeCommunicationEvent lastCommunicationType,
                                    Date validationDate,
                                    TypeQuestioningEvent highestEventType,
                                    String surveyUnitId,
                                    String identificationCode,
-                                   String contactId) {
+                                   String contactId,
+                                   Integer score) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
         this.lastCommunicationType = lastCommunicationType;
@@ -36,6 +39,7 @@ public class SearchQuestioningDto {
         this.identificationCode = identificationCode;
         this.contactIds = new ArrayList<>();
         this.contactIds.add(contactId);
+        this.score = score;
     }
 
     public void addContactId(String contactId) {

@@ -5,25 +5,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @ScenarioScope
 public class QuestioningContext {
-    private final Map<Integer, Long> questioningIdMap = new HashMap<>();
+    private final Map<Integer, UUID> questioningIdMap = new HashMap<>();
 
-    public void registerQuestioning(Integer key, Long realId) {
+    public void registerQuestioning(Integer key, UUID realId) {
         questioningIdMap.put(key, realId);
     }
 
-    public Long getRealId(Integer key) {
-        Long id = questioningIdMap.get(key);
+    public UUID getRealId(Integer key) {
+        UUID id = questioningIdMap.get(key);
         if (id == null) {
             throw new IllegalStateException("No questioning registered for key " + key);
         }
         return id;
     }
 
-    public Integer getKey(Long realId) {
+    public Integer getKey(UUID realId) {
         return questioningIdMap.entrySet()
                 .stream()
                 .filter(e -> e.getValue().equals(realId))

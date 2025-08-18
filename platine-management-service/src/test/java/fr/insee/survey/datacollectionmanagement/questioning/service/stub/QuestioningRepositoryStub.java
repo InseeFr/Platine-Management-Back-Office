@@ -8,10 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class QuestioningRepositoryStub implements QuestioningRepository {
@@ -21,6 +18,11 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     @Override
     public Set<Questioning> findByIdPartitioning(String idPartitioning) {
         return Set.of();
+    }
+
+    @Override
+    public int deleteByidPartitioning(String idPartitioning) {
+        return 0;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public void deleteAllByIdInBatch(Iterable<Long> longs) {
+    public void deleteAllByIdInBatch(Iterable<UUID> longs) {
         // not used
     }
 
@@ -83,17 +85,17 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public Questioning getOne(Long aLong) {
+    public Questioning getOne(UUID uuid) {
         return null;
     }
 
     @Override
-    public Questioning getById(Long aLong) {
+    public Questioning getById(UUID uuid) {
         return null;
     }
 
     @Override
-    public Questioning getReferenceById(Long aLong) {
+    public Questioning getReferenceById(UUID uuid) {
         return null;
     }
 
@@ -144,13 +146,13 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public Optional<Questioning> findById(Long aLong) {
-        return questionings.stream().filter(questioning -> questioning.getId().equals(aLong)).findFirst();
+    public Optional<Questioning> findById(UUID uuid) {
+        return questionings.stream().filter(questioning -> questioning.getId().equals(uuid)).findFirst();
     }
 
     @Override
-    public boolean existsById(Long aLong) {
-        return findById(aLong).isPresent();
+    public boolean existsById(UUID uuid) {
+        return findById(uuid).isPresent();
     }
 
     @Override
@@ -159,7 +161,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public List<Questioning> findAllById(Iterable<Long> longs) {
+    public List<Questioning> findAllById(Iterable<UUID> longs) {
         return List.of();
     }
 
@@ -169,7 +171,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public void deleteById(Long aLong) {
+    public void deleteById(UUID uuid) {
         // not used
     }
 
@@ -179,7 +181,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public void deleteAllById(Iterable<? extends Long> longs) {
+    public void deleteAllById(Iterable<? extends UUID> longs) {
         // not used
     }
 

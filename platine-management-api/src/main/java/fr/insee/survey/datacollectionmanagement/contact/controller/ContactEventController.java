@@ -15,14 +15,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class ContactEventController {
     private final ModelMapper modelMapper;
 
     @Operation(summary = "Create a contact event")
-    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto,
                                                                @CurrentSecurityContext(expression = "authentication.name") String contactId) {
@@ -57,7 +56,7 @@ public class ContactEventController {
     }
 
     @Operation(summary = "Create a contactEvent (accessible only by user with PORTAL_PRIVILEGE)")
-    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE, produces = "application/json", consumes = "application/json")
+    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
 
@@ -71,7 +70,7 @@ public class ContactEventController {
     }
 
     @Operation(summary = "Find all contact-events")
-    @GetMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = "application/json")
+    @GetMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public List<ContactEventDto> getAllContactEvents(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
@@ -80,35 +79,15 @@ public class ContactEventController {
         return contactEventService.findContactEventsByContactId(contactId.toUpperCase());
     }
 
-    /**
-     * @deprecated
-     */
     @Operation(summary = "Search for contactEvents by the contact id")
-    @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = "application/json")
-    @Deprecated(since = "2.6.0", forRemoval = true)
+    @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
-        log.warn("DEPRECATED");
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contact.getContactEvents().stream().map(this::convertToDto)
                         .toList());
     }
 
-
-
-    /**
-     * @deprecated
-     */
-    @Operation(summary = "Delete a contact event")
-    @DeleteMapping(value = UrlConstants.API_CONTACTEVENTS_ID, produces = "application/json")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Deprecated(since = "2.6.0", forRemoval = true)
-    public void deleteContactEvent(@PathVariable("id") Long id) {
-        log.warn("DEPRECATED");
-        contactEventService.findById(id);
-        contactEventService.deleteContactEvent(id);
-
-    }
 
     private ContactEventDto convertToDto(ContactEvent contactEvent) {
         ContactEventDto ceDto = modelMapper.map(contactEvent, ContactEventDto.class);

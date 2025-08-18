@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public interface QuestioningEventService {
@@ -33,7 +35,7 @@ public interface QuestioningEventService {
 
     Long countIdUploadInEvents(Long idupload);
 
-    List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId);
+    List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId);
 
     QuestioningEventDto convertToDto(QuestioningEvent questioningEvent) ;
 
@@ -46,4 +48,13 @@ public interface QuestioningEventService {
      * @return true if event is created, false in other cases
      */
     boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto);
+
+    /**
+     * Create a questioningEvent for expertise event
+     * @param id
+     * @param expertEventDto
+     */
+    void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
+
+    void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent);
 }

@@ -1,26 +1,31 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
@@ -31,6 +36,9 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final ModelMapper modelMapper;
 
+    private final InterrogationEventComparator interrogationEventComparator;
+
+
     @Override
     public QuestioningEvent findbyId(Long id) {
         return questioningEventRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", id)));
@@ -38,12 +46,17 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public QuestioningEvent saveQuestioningEvent(QuestioningEvent questioningEvent) {
-        return questioningEventRepository.save(questioningEvent);
+        QuestioningEvent saved = questioningEventRepository.save(questioningEvent);
+        refreshHighestEvent(saved.getQuestioning().getId());
+        return saved;
     }
 
     @Override
     public void deleteQuestioningEvent(Long id) {
+        QuestioningEvent questioningEvent = findbyId(id);
+        UUID questioningId = questioningEvent.getQuestioning().getId();
         questioningEventRepository.deleteById(id);
+        refreshHighestEvent(questioningId);
     }
 
     @Override
@@ -70,7 +83,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(Long questioningId) {
+    public List<QuestioningEventDto> getQuestioningEventsByQuestioningId(UUID questioningId) {
         List<QuestioningEvent> events = questioningEventRepository.findByQuestioningId(questioningId);
         return events.stream().map(qe -> modelMapper.map(qe, QuestioningEventDto.class)).toList();
     }
@@ -87,7 +100,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public boolean postQuestioningEvent(String eventType, QuestioningEventInputDto questioningEventInputDto) {
 
-        Long questioningId = questioningEventInputDto.getQuestioningId();
+        UUID questioningId = questioningEventInputDto.getQuestioningId();
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 
@@ -106,6 +119,79 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setDate(questioningEventInputDto.getDate());
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         questioningEventRepository.save(newQuestioningEvent);
+        refreshHighestEvent(questioningId);
         return true;
     }
+
+    @Override
+    public void postExpertEvent(UUID id, ExpertEventDto expertEventDto) {
+        Questioning questioning = questioningRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", id)));
+        questioning.setScore(expertEventDto.score());
+        questioning.setScoreInit(expertEventDto.scoreInit());
+        questioningRepository.save(questioning);
+
+        Set<QuestioningEvent> events = questioning.getQuestioningEvents();
+        QuestioningEvent lastEvent = Optional.ofNullable(events)
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(qe -> TypeQuestioningEvent.EXPERT_EVENTS.contains(qe.getType()))
+                .max(Comparator.comparing(QuestioningEvent::getDate))
+                .orElse(null);
+
+        QuestioningEvent candidate = new QuestioningEvent();
+        candidate.setQuestioning(questioning);
+        candidate.setType(expertEventDto.type());
+        candidate.setDate(new Date());
+
+        if (lastEvent == null &&
+                (candidate.getType() == TypeQuestioningEvent.EXPERT
+                        || candidate.getType() == TypeQuestioningEvent.VALID)) {
+            questioningEventRepository.save(candidate);
+        }
+
+        if (lastEvent != null
+                && candidate.getType() != lastEvent.getType()
+                && candidate.getType() != TypeQuestioningEvent.EXPERT) {
+            questioningEventRepository.save(candidate);
+        }
+        refreshHighestEvent(questioning.getId());
+    }
+
+    @Override
+    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent)
+    {
+
+        if(userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole()))
+        {
+            deleteQuestioningEvent(questioningEventId);
+            return;
+        }
+
+        if(userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole()) && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent))
+        {
+            deleteQuestioningEvent(questioningEventId);
+            return;
+        }
+
+        throw new ForbiddenAccessException(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
+    }
+
+
+    public void refreshHighestEvent(UUID questioningId) {
+        questioningEventRepository.flush();
+        Questioning questioning = questioningRepository.findById(questioningId)
+                .orElseThrow(() -> new NotFoundException(String.format("Questioning %s not found", questioningId)));
+
+        Optional<QuestioningEvent> highestEvent = Optional.ofNullable(questioning.getQuestioningEvents())
+                .orElse(Collections.emptySet())
+                .stream()
+                .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                .max(interrogationEventComparator);
+
+        questioning.setHighestEventType(highestEvent.map(QuestioningEvent::getType).orElse(null));
+        questioning.setHighestEventDate(highestEvent.map(QuestioningEvent::getDate).orElse(null));
+        questioningRepository.save(questioning);
+    }
+
 }

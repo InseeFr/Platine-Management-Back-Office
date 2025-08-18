@@ -6,9 +6,12 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningSurveyUnitD
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class QuestioningDetailsDtoBuilder {
     private final QuestioningDetailsDto instance;
@@ -22,7 +25,7 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder questioningId(Long id) {
+    public QuestioningDetailsDtoBuilder questioningId(UUID id) {
         instance.setQuestioningId(id);
         return this;
     }
@@ -47,11 +50,13 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, QuestioningEventDto lastEvent, QuestioningEventDto validatedEvent) {
+    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestEventType, Date highestEventDate, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
-        if (lastEvent != null) {
-            instance.setLastEvent(lastEvent.getType());
-            instance.setDateLastEvent(lastEvent.getEventDate());
+        if (highestEventType != null && highestEventDate != null) {
+            Long highestEventId = events.stream().filter( e -> e.getType().equals(highestEventType.name()) && e.getEventDate().equals(highestEventDate)).toList().getFirst().getId();
+            instance.setLastEventId(highestEventId);
+            instance.setLastEvent(String.valueOf(highestEventType));
+            instance.setDateLastEvent(highestEventDate);
         }
         if (validatedEvent != null) {
             instance.setValidationDate(validatedEvent.getEventDate());
