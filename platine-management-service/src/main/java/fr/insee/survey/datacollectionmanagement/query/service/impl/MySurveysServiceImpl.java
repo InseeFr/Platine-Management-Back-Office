@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.QuestioningUrls;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.MyQuestionnaireDto;
@@ -72,7 +71,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getSurveyUnitId(),
                     urls.downloadUrl().orElse(null),
                     details.getOperationUploadReference(),
-                    SourceTypeEnum.valueOf(details.getSourceType())
+                    details.getSourceType()
             );
 
             myQuestionnaireDtos.add(myQuestionnaireDto);
