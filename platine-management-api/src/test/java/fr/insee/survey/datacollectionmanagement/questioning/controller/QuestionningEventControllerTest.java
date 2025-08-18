@@ -59,6 +59,7 @@ class QuestionningEventControllerTest {
         }
     }
 
+
     @Test
     @Transactional
     void getQuestioningEventOk() throws Exception {

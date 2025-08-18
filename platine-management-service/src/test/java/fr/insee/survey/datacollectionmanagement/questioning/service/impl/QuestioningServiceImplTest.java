@@ -1,6 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
@@ -32,6 +38,15 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,15 +58,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-
-import java.util.*;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
@@ -424,42 +430,42 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getQuestioningStatusFileUpload returns INCOMING when today is before openingDate")
     void shouldReturnIncomingWhenBeforeOpeningDate() {
-        Date openingDate = addDays(new Date(), 2);
-        Date closingDate = addDays(new Date(), 10);
+      Date openingDate = addDays(new Date(), 2);
+      Date closingDate = addDays(new Date(), 10);
 
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
+      QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
-        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
+      assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
     }
 
-    @Test
-    @DisplayName("getQuestioningStatusFileUpload returns RECEIVED when today is after closingDate")
-    void shouldReturnReceivedWhenAfterClosingDate() {
-        Date openingDate = addDays(new Date(), -10);
-        Date closingDate = addDays(new Date(), -2);
+  @Test
+  @DisplayName("getQuestioningStatusFileUpload returns RECEIVED when today is after closingDate")
+  void shouldReturnReceivedWhenAfterClosingDate() {
+    Date openingDate = addDays(new Date(), -10);
+    Date closingDate = addDays(new Date(), -2);
 
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
+    QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
-        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
-    }
+    assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
+  }
 
-    @Test
-    @DisplayName("getQuestioningStatusFileUpload returns IN_PROGRESS when today is between openingDate and closingDate")
-    void shouldReturnInProgressWhenBetweenDates() {
-        Date openingDate = addDays(new Date(), -2);
-        Date closingDate = addDays(new Date(), 2);
+  @Test
+  @DisplayName("getQuestioningStatusFileUpload returns IN_PROGRESS when today is between openingDate and closingDate")
+  void shouldReturnInProgressWhenBetweenDates() {
+    Date openingDate = addDays(new Date(), -2);
+    Date closingDate = addDays(new Date(), 2);
 
-        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
+    QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
-        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
-    }
+    assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
+  }
 
-    private Date addDays(Date date, int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DATE, days);
-        return cal.getTime();
-    }
+  private Date addDays(Date date, int days) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    cal.add(Calendar.DATE, days);
+    return cal.getTime();
+  }
 
     private Questioning buildQuestioning(UUID id, String suId) {
         Questioning q = new Questioning();

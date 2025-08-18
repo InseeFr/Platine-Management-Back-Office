@@ -237,28 +237,28 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationDownloadFileName()).isNotBlank();
     }
 
-    @Test
-    @DisplayName("Should return questionnaire with status based on File Upload logic")
-    void getListMyQuestionnaires_FileUploadStatus() {
-        Source source = createSource("SOURCE");
-        Survey survey = createSurvey(source, "SURVEY2025", 2025);
-        Campaign campaign = createCampaign("SURVEY2025M01", PeriodEnum.M01, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
-        Partitioning partitioning = createPartitioning("partitioning1", campaign);
-        SurveyUnit surveyUnit = createSurveyUnit("SU001");
-        Questioning questioning = createQuestioning(UUID.randomUUID());
-        MyQuestionnaireDetailsDto detailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
+  @Test
+  @DisplayName("Should return questionnaire with status based on File Upload logic")
+  void getListMyQuestionnaires_FileUploadStatus() {
+    Source source = createSource("SOURCE");
+    Survey survey = createSurvey(source, "SURVEY2025", 2025);
+    Campaign campaign = createCampaign("SURVEY2025A00", PeriodEnum.A00, survey, DataCollectionEnum.FILE_UPLOAD, "uploadRef");
+    Partitioning partitioning = createPartitioning("partitioning1", campaign);
+    SurveyUnit surveyUnit = createSurveyUnit("SU001");
+    Questioning questioning = createQuestioning(UUID.randomUUID());
+    MyQuestionnaireDetailsDto detailsDto = createQuestionnaireDetailsDto(source, survey, campaign, partitioning, surveyUnit, questioning);
 
-        detailsDto.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD.name());
-        questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(detailsDto));
-        questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
+    detailsDto.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD.name());
+    questioningAccreditationRepositoryStub.setMyQuestionnaireDetailsDto(List.of(detailsDto));
+    questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
 
-        List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("SU001");
-        assertThat(result).hasSize(1);
-        MyQuestionnaireDto dto = result.getFirst();
-        assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
-        assertThat(dto.interrogationAccessUrl()).isNull();
-        assertThat(dto.depositProofUrl()).isNull();
-    }
+    List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("SU001");
+    assertThat(result).hasSize(1);
+    MyQuestionnaireDto dto = result.getFirst();
+    assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
+    assertThat(dto.interrogationAccessUrl()).isNull();
+    assertThat(dto.depositProofUrl()).isNull();
+  }
 
     private Questioning createQuestioning(UUID id) {
         Questioning questioning = new Questioning();
