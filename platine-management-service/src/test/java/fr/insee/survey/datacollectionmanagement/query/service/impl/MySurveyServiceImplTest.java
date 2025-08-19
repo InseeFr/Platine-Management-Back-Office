@@ -97,7 +97,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
-        assertThat(dto.sourceType()).isEqualTo(SourceTypeEnum.HOUSEHOLD.toString());
+        assertThat(dto.sourceType()).isEqualTo(SourceTypeEnum.HOUSEHOLD);
     }
 
     @Test
@@ -261,7 +261,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.NOT_STARTED.name());
         assertThat(dto.interrogationAccessUrl()).isNull();
         assertThat(dto.depositProofUrl()).isNull();
-        assertThat(dto.sourceType()).isEqualTo(source.getType().toString());
+        assertThat(dto.sourceType()).isEqualTo(source.getType());
     }
 
     private Questioning createQuestioning(UUID id) {
