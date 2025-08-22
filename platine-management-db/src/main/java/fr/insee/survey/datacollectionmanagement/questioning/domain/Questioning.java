@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class Questioning {
     private Set<QuestioningAccreditation> questioningAccreditations;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
-    private Set<QuestioningEvent> questioningEvents;
+    private Set<QuestioningEvent> questioningEvents = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "questioning")
     private Set<QuestioningCommunication> questioningCommunications;

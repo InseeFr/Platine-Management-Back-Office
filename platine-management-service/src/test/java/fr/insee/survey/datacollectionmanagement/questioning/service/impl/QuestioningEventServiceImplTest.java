@@ -366,15 +366,20 @@ class QuestioningEventServiceImplTest {
     void deleteWithRefreshHighestEvent() {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
-        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning);
+
+        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(3L, TypeQuestioningEvent.PARTIELINT, questioning);
         questioningEventRepository.save(event);
+        questioningEventRepository.save(event2);
 
-        questioningEventService.deleteQuestioningEvent(2L);
+        questioning.setHighestEventDate(event2.getDate());
+        questioning.setHighestEventType(event2.getType());
+        questioningRepository.save(questioning);
+        questioningEventService.deleteQuestioningEvent(3L);
+        questioningRepository.flush();
 
-        Questioning updatedQuestioning = questioningRepository.findById(questioning.getId()).get();
-
-        assertThat(updatedQuestioning.getHighestEventType()).isNotNull()
-                .isEqualTo(TypeQuestioningEvent.VALINT);
+        assertThat(questioning.getHighestEventType()).isEqualTo(event.getType());
+        assertThat(questioning.getHighestEventDate()).isEqualTo(event.getDate());
     }
 
 
