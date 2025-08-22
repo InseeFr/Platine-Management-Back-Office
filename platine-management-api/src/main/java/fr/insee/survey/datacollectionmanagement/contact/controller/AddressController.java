@@ -60,7 +60,7 @@ public class AddressController {
     @PutMapping(value = UrlConstants.API_CONTACTS_ID_ADDRESS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<AddressDto> putAddress(@PathVariable("id") String id,
-                                                  @RequestHeader(name = "source", defaultValue = "unknown") String source,
+                                                  @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                   @RequestBody AddressDto addressDto,
                                                  Authentication auth) {
         Contact contact = contactService.findByIdentifier(id);
