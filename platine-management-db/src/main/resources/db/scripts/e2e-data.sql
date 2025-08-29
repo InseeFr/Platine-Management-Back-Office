@@ -48,13 +48,13 @@ VALUES
 INSERT INTO public.campaign
 (id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity, operation_upload_reference)
 VALUES
-('E2E_CAMPAIGN_1', 'E2E Testing Household Campaign for a contact with only one interrogation existing in its partition', 'E2E_SURVEY_1', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_2', 'E2E Testing Business Campaign for a contact with multiple interrogations and one SU', 'E2E_SURVEY_2', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_3', 'E2E Testing Business Campaign for a contact with multiple interrogations SUs', 'E2E_SURVEY_3', 'X00', 2025, 'XFORM1', false, null),
-('E2E_CAMPAIGN_4', 'E2E Testing Business Campaign for a contact with one interrogation and one SU', 'E2E_SURVEY_4', 'X00', 2025, 'LUNATIC_SENSITIVE', false, null),
-('E2E_CAMPAIGN_R2D2', 'E2E R2D2 Business Testing Campaign for a contact with multiple interrogations SUs', 'E2E_SURVEY_R2D2', 'X00', 2025, 'FILE_UPLOAD', false, 'op upload reference'),
-('E2E_CAMPAIGN_EEC', 'E2E Testing Campaign EEC', 'E2E_SURVEY_EEC', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_CLOSED', 'E2E Testing Campaign CLOSED', 'E2E_SURVEY_CLOSED', 'X00', 2025, 'LUNATIC_NORMAL', false, null);
+('E2E_CAMPAIGN_1', 'E2E Testing Household Campaign for E2E_RESPON_1 with only one interrogation existing in its partition', 'E2E_SURVEY_1', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_2', 'E2E Testing Business Campaign for E2E_RESPON_2 with multiple interrogations and one SU', 'E2E_SURVEY_2', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_3', 'E2E Testing Business Campaign for E2E_RESPON_3 and E2E_RESPON_4 with multiple interrogations and SUs', 'E2E_SURVEY_3', 'X00', 2025, 'XFORM1', false, null),
+('E2E_CAMPAIGN_4', 'E2E Testing Business Campaign for E2E_RESPON_4 with one interrogation and one SU', 'E2E_SURVEY_4', 'X00', 2025, 'LUNATIC_SENSITIVE', false, null),
+('E2E_CAMPAIGN_R2D2', 'E2E R2D2 Business Testing Campaign for E2E_RESPON_3 with multiple interrogations SUs', 'E2E_SURVEY_R2D2', 'X00', 2025, 'FILE_UPLOAD', false, 'op upload reference'),
+('E2E_CAMPAIGN_EEC', 'E2E Testing Campaign EEC for E2E_RESPON_EEC', 'E2E_SURVEY_EEC', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_CLOSED', 'E2E Testing Campaign CLOSED for E2E_RESPON_CLOSED', 'E2E_SURVEY_CLOSED', 'X00', 2025, 'LUNATIC_NORMAL', false, null);
 
                   -- E2E tests partitioning --
 
