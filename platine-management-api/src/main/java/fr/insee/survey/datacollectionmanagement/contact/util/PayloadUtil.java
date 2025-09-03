@@ -13,11 +13,11 @@ public class PayloadUtil {
         throw new IllegalStateException("Utility class");
     }
 
-
-    public static JsonNode getPayloadAuthor(String author) {
-        Map<String, String> mapAuthor = new HashMap<>();
-        mapAuthor.put("author", author);
-        return new ObjectMapper().valueToTree(mapAuthor);
+    public static JsonNode getPayloadAuthorAndSource(String author, String source) {
+      Map<String, String> mapAuthorAndSource = new HashMap<>();
+      mapAuthorAndSource.put("author", author);
+      mapAuthorAndSource.put("source", source);
+      return new ObjectMapper().valueToTree(mapAuthorAndSource);
     }
 
 

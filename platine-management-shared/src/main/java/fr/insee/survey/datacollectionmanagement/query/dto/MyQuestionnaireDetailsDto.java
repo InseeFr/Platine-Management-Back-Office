@@ -28,4 +28,5 @@ public class MyQuestionnaireDetailsDto {
     private String dataCollectionTarget;
     private String operationUploadReference;
     private String modelName;
+    private String sourceType;
 }

@@ -92,6 +92,7 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
+                                                     @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                      @CurrentSecurityContext(expression = "authentication.name") String contactId) {
         if (!contactDto.getIdentifier().equalsIgnoreCase(contactId)) {
             throw new NotMatchException("contactId and contact identifier don't match");
@@ -99,7 +100,8 @@ public class ContactController {
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
             throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
         }
-        JsonNode payload = PayloadUtil.getPayloadAuthor(contactId.toUpperCase());
+
+        JsonNode payload = PayloadUtil.getPayloadAuthorAndSource(contactId.toUpperCase(), source);
         ContactDto contact = contactService.update(contactDto, payload);
         return ResponseEntity.ok(contact);
 
@@ -109,7 +111,8 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
-                                                 @RequestBody @Valid ContactDto contactDto,
+                                                  @RequestHeader(name = "Source", defaultValue = "unknown") String source,
+                                                  @RequestBody @Valid ContactDto contactDto,
                                                  Authentication auth) throws JsonProcessingException {
         if (!contactDto.getIdentifier().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and contact identifier don't match");
@@ -118,7 +121,7 @@ public class ContactController {
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest()
                 .buildAndExpand(id).toUriString());
 
-        JsonNode payload = PayloadUtil.getPayloadAuthor(auth.getName());
+      JsonNode payload = PayloadUtil.getPayloadAuthorAndSource(auth.getName(), source);
         HttpStatus httpStatus = HttpStatus.OK;
         try {
             contactService.findByIdentifier(id);

@@ -28,7 +28,8 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "su.id_su AS surveyUnitId," +
             "c.datacollection_target AS dataCollectionTarget, " +
             "c.operation_upload_reference AS operationUploadReference, " +
-            "q.model_name AS modelName " +
+            "q.model_name AS modelName, " +
+            "so.type AS sourceType " +
             "FROM questioning_accreditation qa " +
             "JOIN questioning q ON qa.questioning_id = q.id " +
             "JOIN partitioning p ON q.id_partitioning = p.id " +

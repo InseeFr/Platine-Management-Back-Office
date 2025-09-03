@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +49,6 @@ public class QuestioningEventController {
 
     private final UploadService uploadService;
 
-    private final ModelMapper modelMapper = new ModelMapper();
-
     @Operation(summary = "Search for a questioning event by questioning id")
     @GetMapping(value = UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
@@ -75,7 +72,6 @@ public class QuestioningEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") UUID id,
                                                     @RequestBody QuestioningEventDto questioningEventDto) {
-        questioningService.findById(id);
         QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
         QuestioningEvent newQuestioningEvent = questioningEventService.saveQuestioningEvent(questioningEvent);
         return questioningEventService.convertToDto(newQuestioningEvent);
@@ -113,6 +109,7 @@ public class QuestioningEventController {
                 .toList();
 
         Upload upload = questioningEvent.getUpload();
+
         questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEvent.getId(), questioningEvent.getType());
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);
