@@ -14,6 +14,10 @@ public class UserRoleValidator implements ConstraintValidator<ValidUserRole, Str
 
     @Override
     public boolean isValid(String role, ConstraintValidatorContext context) {
-        return role == null || role.isBlank() || UserRoles.INTERVIEWER.equals(role) || UserRoles.REVIEWER.equals(role);
+        return role == null ||
+                role.isBlank() ||
+                UserRoles.INTERVIEWER.equals(role) ||
+                UserRoles.REVIEWER.equals(role) ||
+                UserRoles.EXPERT.equals(role);
     }
 }
