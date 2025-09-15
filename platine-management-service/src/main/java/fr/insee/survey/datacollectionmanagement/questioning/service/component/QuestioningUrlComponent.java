@@ -9,10 +9,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnu
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -52,6 +53,7 @@ public class QuestioningUrlComponent {
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 questioning.getSurveyUnit().getIdSu(),
                 questioning.getId(),
+                null,
                 String.format("%s-%s-%s",source.getId().toLowerCase(), survey.getYear(), campaign.getPeriodCollect()),
                 campaign.getDataCollectionTarget(),
                 source.getId().toLowerCase(),
@@ -115,20 +117,40 @@ public class QuestioningUrlComponent {
      * @return The generated V3 access URL.
      */
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
-        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
-            return UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/review/interrogations/%s", baseUrl, context.questioningId()))
-                    .toUriString();
-        }
-        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
-            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
-                    context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
-            return  UriComponentsBuilder
-                    .fromUriString(String.format("%s/v3/interrogations/%s", baseUrl, context.questioningId()))
-                    .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
-                    .build().toUriString();
-        }
-        return "";
+        String normalizedRole = StringUtils.defaultString(role).toLowerCase();
+        String questioningId = context.questioningId().toString();
+
+        return switch (normalizedRole) {
+            case UserRoles.REVIEWER -> {
+                UriComponentsBuilder builder = UriComponentsBuilder
+                        .fromUriString(baseUrl)
+                        .pathSegment("v3", "review", "interrogations", questioningId);
+
+                if (StringUtils.isNotBlank(context.surveyUnitLabelDetails())) {
+                    builder.queryParam("surveyUnitLabel", context.surveyUnitLabelDetails());
+                }
+
+                yield builder.build().toUriString();
+            }
+            case UserRoles.INTERVIEWER -> {
+                String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
+                        context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
+
+                UriComponentsBuilder builder = UriComponentsBuilder
+                        .fromUriString(baseUrl)
+                        .pathSegment("v3", "interrogations", questioningId);
+
+                if (StringUtils.isNotBlank(context.surveyUnitLabelDetails())) {
+                    builder.queryParam("surveyUnitLabel", context.surveyUnitLabelDetails());
+                }
+
+                yield builder
+                        .queryParam(PATH_ASSISTANCE, UriUtils.encode(urlAssistance, StandardCharsets.UTF_8))
+                        .build()
+                        .toUriString();
+            }
+            default -> "";
+        };
     }
 
     /**
