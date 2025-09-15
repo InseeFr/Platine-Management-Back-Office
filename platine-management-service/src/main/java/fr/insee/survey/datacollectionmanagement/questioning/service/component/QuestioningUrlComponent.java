@@ -127,7 +127,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "review", "interrogations", questioningId);
 
                 if (StringUtils.isNotBlank(context.surveyUnitLabelDetails())) {
-                    builder.queryParam("surveyUnitLabel", context.surveyUnitLabelDetails());
+                    builder.queryParam("surveyUnitLabel", UriUtils.encode(context.surveyUnitLabelDetails(), StandardCharsets.UTF_8));
                 }
 
                 yield builder.build().toUriString();
@@ -141,7 +141,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "interrogations", questioningId);
 
                 if (StringUtils.isNotBlank(context.surveyUnitLabelDetails())) {
-                    builder.queryParam("surveyUnitLabel", context.surveyUnitLabelDetails());
+                    builder.queryParam("surveyUnitLabel", UriUtils.encode(context.surveyUnitLabelDetails(), StandardCharsets.UTF_8));
                 }
 
                 yield builder

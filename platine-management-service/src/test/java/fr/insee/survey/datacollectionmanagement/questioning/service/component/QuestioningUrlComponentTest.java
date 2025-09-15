@@ -178,22 +178,22 @@ class QuestioningUrlComponentTest {
 
     @Test
     void testLunaticNormalInterviewer_AccessUrl_with_SU_Info() {
-        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null, "Entreprise Test (123456789)");
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null, "Entreprise Test&Recette? (123456789)");
         String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-normal/v3/interrogations/" + questioningId  +
-                "?surveyUnitLabel=Entreprise Test (123456789)&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
+                "?surveyUnitLabel=Entreprise%20Test%26Recette%3F%20%28123456789%29&pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
 
         assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testLunaticNormalReviewer_AccessUrl_with_SU_Info() {
-        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null, "Entreprise Test (123456789)");
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null, "Test (123456789)");
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
 
         String expected = "https://lunatic-normal/v3/review/interrogations/" + questioningId  +
-                "?surveyUnitLabel=Entreprise Test (123456789)";
+                "?surveyUnitLabel=Test%20%28123456789%29";
 
         assertThat(url).isEqualTo(expected);
     }
