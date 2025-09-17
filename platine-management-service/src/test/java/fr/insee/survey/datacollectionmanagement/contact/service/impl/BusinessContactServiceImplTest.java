@@ -103,7 +103,7 @@ class BusinessContactServiceImplTest {
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.getCount()).isEqualTo(0);
+        assertThat(result.getCount()).isZero();
         assertThat(result.getBusinessContactDtoList()).isEmpty();
     }
 }
