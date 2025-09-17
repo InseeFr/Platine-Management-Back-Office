@@ -14,7 +14,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningS
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,14 +39,12 @@ public class MySurveysServiceImpl implements MySurveysService {
         for (MyQuestionnaireDetailsDto details : myQuestionnaireDetailsDtos) {
             boolean isBusiness = SourceTypeEnum.BUSINESS.name().equalsIgnoreCase(details.getSourceType());
 
-            String surveyUnitLabelDetails = isBusiness ? buildSurveyUnitLabelDetails(details.getSurveyUnitLabel(),
-                    details.getSurveyUnitIdentificationName(),
-                    details.getSurveyUnitId()): null;
-
             QuestioningUrlContext ctx = new QuestioningUrlContext(
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
-                    surveyUnitLabelDetails,
+                    isBusiness,
+                    details.getSurveyUnitLabel(),
+                    details.getSurveyUnitIdentificationName(),
                     String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriodCollect()),
                     DataCollectionEnum.valueOf(details.getDataCollectionTarget()),
                     details.getSourceId().toLowerCase(),
@@ -115,13 +112,6 @@ public class MySurveysServiceImpl implements MySurveysService {
 
     private boolean isOpen(QuestionnaireStatusTypeEnum questioningStatus) {
         return QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus);
-    }
-
-    private String buildSurveyUnitLabelDetails(String label, String identificationName, String surveyUnitId) {
-        if (StringUtils.isBlank(label)) {
-            return String.format("%s (%s)", identificationName, surveyUnitId);
-        }
-        return String.format("%s %s (%s)", StringUtils.capitalize(label), identificationName, surveyUnitId);
     }
 
 }
