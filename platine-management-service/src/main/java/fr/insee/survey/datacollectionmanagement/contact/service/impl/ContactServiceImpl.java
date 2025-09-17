@@ -258,7 +258,9 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto createAndSaveContact(ContactDto contactDto) {
         ContactDto ldapContact = ldapService.createUser(contactDto);
-        contactRepository.save(modelMapper.map(ldapContact, Contact.class));
+        Contact contact = modelMapper.map(ldapContact, Contact.class);
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
+        contactRepository.save(contact);
         return ldapContact;
     }
 
