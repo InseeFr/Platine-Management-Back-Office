@@ -1,16 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactSource;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessAddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessContactsDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.BusinessContactService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,24 +29,21 @@ public class BusinessContactServiceImpl implements BusinessContactService {
 
     private final ContactService contactService;
 
+    private final ContactSourceService contactSourceService;
+
+    BusinessContactsDto businessContactsDto = new BusinessContactsDto();
+
     @Override
     public BusinessContactsDto findMainContactByCampaignAndSurveyUnit(String campaignId, String surveyUnitId) {
-        Set<Partitioning> setParts = campaignService.findById(campaignId).getPartitionings();
-        List<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
-        for (Partitioning part : setParts) {
-            Optional<Questioning> questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            questioning.ifPresent(value -> questioningAccreditationList.addAll(value.
-                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList()));
-
-        }
-        int size = questioningAccreditationList.size();
-        BusinessContactsDto businessContactsDto = new BusinessContactsDto();
+        Campaign campaign = campaignService.findById(campaignId);
+        ContactSource contactSource = contactSourceService.findMainContactSourceBySourceAndSurveyUnit(campaign.getSurvey().getSource().getId(), surveyUnitId);
+        int size = (contactSource != null)? 1:0;
         businessContactsDto.setCount(size);
         businessContactsDto.setStart(size);
         businessContactsDto.setHit(size);
         List<BusinessContactDto> businessContactDtoList = new ArrayList<>();
-        for (QuestioningAccreditation questioningAccreditation : questioningAccreditationList) {
-            businessContactDtoList.add(getBusinessContactFromIdentifier(questioningAccreditation.getIdContact()));
+        if (contactSource!=null){
+            businessContactDtoList.add(getBusinessContactFromIdentifier(contactSource.getId().getContactId()));
         }
         businessContactsDto.setBusinessContactDtoList(businessContactDtoList);
         return businessContactsDto;
