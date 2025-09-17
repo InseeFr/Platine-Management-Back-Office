@@ -12,6 +12,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -408,29 +412,14 @@ class QuestioningUrlComponentTest {
         assertThat(url).isEqualTo("test-" + surveyUnitId + "-sourceid-2024-T04.xlsx");
     }
 
-    @Test
-    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelNull() {
+    @ParameterizedTest
+    @NullSource
+    @EmptySource
+    @ValueSource(strings = { "   " })
+    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankish(String label) {
         String identificationName = "Alpha";
 
-        String result = component.buildSurveyUnitLabelDetails(null, identificationName, surveyUnitId);
-
-        assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
-    }
-
-    @Test
-    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelEmpty() {
-        String identificationName = "Alpha";
-
-        String result = component.buildSurveyUnitLabelDetails("", identificationName, surveyUnitId);
-
-        assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
-    }
-
-    @Test
-    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankSpaces() {
-        String identificationName = "Alpha";
-
-        String result = component.buildSurveyUnitLabelDetails("   ", identificationName, surveyUnitId);
+        String result = component.buildSurveyUnitLabelDetails(label, identificationName, surveyUnitId);
 
         assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
     }
