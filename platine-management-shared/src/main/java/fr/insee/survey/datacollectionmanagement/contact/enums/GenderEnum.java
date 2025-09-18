@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.enums;
 
 public enum GenderEnum {
-    Female, Male, Undefined;
+  FEMALE, MALE, UNDEFINED;
 
 
   public static GenderEnum fromStringIgnoreCase(String value) {
@@ -10,7 +10,7 @@ public enum GenderEnum {
         return g;
       }
     }
-    return GenderEnum.Undefined;
+    return GenderEnum.UNDEFINED;
   }
 
 }

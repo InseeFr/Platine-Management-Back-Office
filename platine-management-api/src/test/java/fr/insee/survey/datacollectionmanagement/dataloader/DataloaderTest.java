@@ -228,11 +228,11 @@ public class DataloaderTest {
         contact.setLastName("lastName" + i);
         contact.setEmail(contact.getFirstName() + contact.getLastName() + "@test.com");
         if (i % 3 == 0)
-            contact.setGender(GenderEnum.Female);
+            contact.setGender(GenderEnum.FEMALE);
         if (i % 3 == 1)
-            contact.setGender(GenderEnum.Male);
+            contact.setGender(GenderEnum.MALE);
         if (i % 3 == 2)
-          contact.setGender(GenderEnum.Undefined);
+          contact.setGender(GenderEnum.UNDEFINED);
         return contact;
     }
 
