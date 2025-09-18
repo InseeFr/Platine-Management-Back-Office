@@ -80,7 +80,7 @@ class ContactServiceImplTest {
         String contactId = "123";
         Contact contact = new Contact();
         contact.setIdentifier(contactId);
-        contact.setGender(GenderEnum.FEMALE);
+        contact.setGender(GenderEnum.Female);
         contact.setLastName("Smith");
 
         contactRepository.save(contact);
@@ -91,7 +91,7 @@ class ContactServiceImplTest {
 
         assertNotNull(result);
         assertEquals("123", result.getIdentifier());
-        assertEquals(GenderEnum.FEMALE, result.getCivility());
+        assertEquals(GenderEnum.Female, result.getCivility());
         assertEquals(1, result.getListCampaigns().size());
         assertEquals("CAMP1", result.getListCampaigns().get(0).id());
     }
@@ -107,7 +107,7 @@ class ContactServiceImplTest {
         String contactId = "123";
         Contact contact = new Contact();
         contact.setIdentifier(contactId);
-        contact.setGender(GenderEnum.MALE);
+        contact.setGender(GenderEnum.Male);
 
         contactRepository.save(contact);
         viewService.setCampaignsByIdentifiers(Collections.emptyMap());
@@ -181,7 +181,7 @@ class ContactServiceImplTest {
         // GIVEN
         Contact contact = new Contact();
         contact.setIdentifier("id-999");
-        contact.setGender(GenderEnum.MALE);
+        contact.setGender(GenderEnum.Male);
         contactRepository.save(contact);
 
         ContactDto contactDto = new ContactDto();

@@ -62,16 +62,16 @@ class BusinessContactServiceImplTest {
                                 new PartitionConfig(
                                         ID_PARTITION1,
                                         List.of(
-                                                new ContactConfig(ID_CONTAC1, true, GenderEnum.UNDEFINED, true),
-                                                new ContactConfig(ID_CONTAC2, false, GenderEnum.FEMALE, false)
+                                                new ContactConfig(ID_CONTAC1, true, GenderEnum.Undefined, true),
+                                                new ContactConfig(ID_CONTAC2, false, GenderEnum.Female, false)
                                         ))
                                 ,
                                 new PartitionConfig(
                                         ID_PARTITION2,
                                         List.of(
-                                                new ContactConfig(ID_CONTAC3, true, GenderEnum.FEMALE, true),
-                                                new ContactConfig(ID_CONTAC4, false, GenderEnum.FEMALE, false),
-                                                new ContactConfig(ID_CONTAC5, true, GenderEnum.FEMALE, false)
+                                                new ContactConfig(ID_CONTAC3, true, GenderEnum.Female, true),
+                                                new ContactConfig(ID_CONTAC4, false, GenderEnum.Female, false),
+                                                new ContactConfig(ID_CONTAC5, true, GenderEnum.Female, false)
                                         ))
                         )
                         ,
@@ -84,8 +84,8 @@ class BusinessContactServiceImplTest {
                                 new PartitionConfig(
                                         ID_PARTITION1,
                                         List.of(
-                                                new ContactConfig(ID_CONTAC1, false, GenderEnum.MALE, true),
-                                                new ContactConfig(ID_CONTAC2, true, GenderEnum.FEMALE, false)
+                                                new ContactConfig(ID_CONTAC1, false, GenderEnum.Male, true),
+                                                new ContactConfig(ID_CONTAC2, true, GenderEnum.Female, false)
                                         ))
                         )
                         ,
@@ -105,8 +105,8 @@ class BusinessContactServiceImplTest {
                                 new PartitionConfig(
                                         ID_PARTITION1,
                                         List.of(
-                                                new ContactConfig(ID_CONTAC1, true, GenderEnum.UNDEFINED, true),
-                                                new ContactConfig(ID_CONTAC2, false, GenderEnum.FEMALE, false)
+                                                new ContactConfig(ID_CONTAC1, true, GenderEnum.Undefined, true),
+                                                new ContactConfig(ID_CONTAC2, false, GenderEnum.Female, false)
                                         ))
                                 ,
                                 new PartitionConfig(
@@ -117,7 +117,7 @@ class BusinessContactServiceImplTest {
                                 new PartitionConfig(
                                         ID_PARTITION3,
                                         List.of(
-                                                new ContactConfig(ID_CONTAC3, false, GenderEnum.UNDEFINED, true)
+                                                new ContactConfig(ID_CONTAC3, false, GenderEnum.Undefined, true)
                                         ))
                         )
                         ,

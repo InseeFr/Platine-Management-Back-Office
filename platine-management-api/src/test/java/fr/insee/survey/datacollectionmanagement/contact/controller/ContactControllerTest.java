@@ -309,7 +309,7 @@ class ContactControllerTest {
         contactMock.setEmail("test@insee.fr");
         contactMock.setFirstName("firstName" + identifier);
         contactMock.setLastName("lastName" + identifier);
-        contactMock.setGender(GenderEnum.MALE);
+        contactMock.setGender(GenderEnum.Male);
 
         return contactMock;
     }

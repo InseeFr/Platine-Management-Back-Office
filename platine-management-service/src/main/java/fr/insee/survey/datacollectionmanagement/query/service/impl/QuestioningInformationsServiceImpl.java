@@ -129,10 +129,10 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         String formattedLastName = "";
 
         if (gender != null) {
-            if (gender.equalsIgnoreCase(GenderEnum.MALE.name())) {
+            if (gender.equalsIgnoreCase(GenderEnum.Male.name())) {
                 formattedGender = "M.";
             }
-            if (gender.equalsIgnoreCase((GenderEnum.FEMALE.name()))) {
+            if (gender.equalsIgnoreCase((GenderEnum.Female.name()))) {
                 formattedGender = "Mme";
             }
         }

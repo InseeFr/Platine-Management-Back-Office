@@ -95,9 +95,9 @@ public class BusinessContactServiceImpl implements BusinessContactService {
     }
 
     private String getBusinessCivility(GenderEnum gender) {
-        if (gender.equals(GenderEnum.FEMALE))
+        if (gender.equals(GenderEnum.Female))
             return "MADAME";
-        if (gender.equals(GenderEnum.MALE))
+        if (gender.equals(GenderEnum.Male))
             return "MONSIEUR";
         return "";
     }
