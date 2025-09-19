@@ -172,4 +172,9 @@ public class ContactSourceRepositoryStub implements ContactSourceRepository {
     public Page<ContactSource> findAll(Pageable pageable) {
         return null;
     }
+
+    @Override
+    public ContactSource findByIdSourceIdAndIdSurveyUnitIdAndIsMain(String sourceId, String surveyUnitId, boolean isMain) {
+        return null;
+    }
 }

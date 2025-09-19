@@ -21,6 +21,11 @@ public class ContactSourceServiceStub implements ContactSourceService {
     }
 
     @Override
+    public ContactSource findMainContactSourceBySourceAndSurveyUnit(String sourceId, String surveyUnitId) {
+        return null;
+    }
+
+    @Override
     public ContactSource saveContactSource(String contactId, String sourceId, String surveyUnitId, boolean isMain) {
         ContactSource contactSource = new ContactSource();
         ContactSourceId contactSourceId = new ContactSourceId(sourceId, contactId, surveyUnitId);
