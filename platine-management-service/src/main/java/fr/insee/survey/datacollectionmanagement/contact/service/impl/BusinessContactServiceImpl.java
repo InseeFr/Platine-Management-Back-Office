@@ -42,7 +42,7 @@ public class BusinessContactServiceImpl implements BusinessContactService {
                 .map(Campaign::getSurvey)
                 .map(Survey::getSource)
                 .map(Source::getId)
-                .orElseThrow(() -> new IllegalStateException("..."));
+                .orElseThrow(() -> new IllegalStateException("source Id not found"));
 
         ContactSource contactSource = contactSourceService
                 .findMainContactSourceBySourceAndSurveyUnit(sourceId, surveyUnitId);
