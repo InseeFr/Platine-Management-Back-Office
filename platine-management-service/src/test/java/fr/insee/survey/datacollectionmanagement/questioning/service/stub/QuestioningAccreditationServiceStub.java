@@ -62,15 +62,30 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
-        QuestioningAccreditation qa = new QuestioningAccreditation();
-        Questioning questioning = new Questioning();
-        questioning.setId(questioningId);
-        qa.setQuestioning(questioning);
-        qa.setIdContact(contactId);
-        qa.setMain(true);
-        questioningAccreditationList.add(qa);
+    public void assignMainAccreditationForNewContact(String contactId, UUID questioningId) {
+      QuestioningAccreditation qa = new QuestioningAccreditation();
+      Questioning questioning = new Questioning();
+      questioning.setId(questioningId);
+      qa.setQuestioning(questioning);
+      qa.setIdContact(contactId);
+      qa.setMain(true);
+      questioningAccreditationList.add(qa);
     }
+
+  @Override
+  public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
+    questioningAccreditationList.removeIf(
+        qa -> qa.getQuestioning().getId().equals(questioningId)
+    );
+
+    QuestioningAccreditation qa = new QuestioningAccreditation();
+    Questioning questioning = new Questioning();
+    questioning.setId(questioningId);
+    qa.setQuestioning(questioning);
+    qa.setIdContact(contactId);
+    qa.setMain(true);
+    questioningAccreditationList.add(qa);
+  }
 
     @Override
     public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, String surveyUnitId, JsonNode payload, Campaign campaign) {

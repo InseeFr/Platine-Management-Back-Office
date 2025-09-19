@@ -35,6 +35,8 @@ public interface QuestioningAccreditationService {
 
     void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
 
+    void assignMainAccreditationForNewContact(String contactId, UUID questioningId);
+
     void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId);
 
     void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,

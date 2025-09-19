@@ -246,16 +246,19 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDto createContactAndAssignToAccreditationAsMain(UUID questioningId, ContactDto contact) {
-        if(!questioningRepository.existsById(questioningId))
-        {
-            throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
-        }
+      if(!questioningRepository.existsById(questioningId)) {
+        throw new NotFoundException(String.format("Missing Questioning with id %s", questioningId));
+      }
 
-        ContactDto ldapAddedContactDto = createAndSaveContact(contact);
-        saveContactCreationEvent(ldapAddedContactDto.getIdentifier());
-        assignMainContactToQuestioning(ldapAddedContactDto.getIdentifier(), questioningId);
-        return ldapAddedContactDto;
+      ContactDto ldapAddedContactDto = createAndSaveContact(contact);
+
+      saveContactCreationEvent(ldapAddedContactDto.getIdentifier());
+
+      questioningAccreditationService.assignMainAccreditationForNewContact(ldapAddedContactDto.getIdentifier(), questioningId);
+
+      return ldapAddedContactDto;
     }
+
 
     @Override
     public ContactDto createAndSaveContact(ContactDto contactDto) {
@@ -274,10 +277,5 @@ public class ContactServiceImpl implements ContactService {
         contactEventDto.setPayload(ServiceJsonUtil.createPayload("platine-pilotage"));
         contactEventDto.setIdentifier(contactId);
         contactEventService.addContactEvent(contactEventDto);
-    }
-
-    @Override
-    public void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId) {
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactIdentifier, questioningId);
     }
 }
