@@ -7,7 +7,7 @@ import lombok.Data;
 public class CampaignOngoingDto {
 
     @NotBlank
-    private String id   ;
+    private String id;
     private String sourceId;
     private int year;
     private int yearCollect;

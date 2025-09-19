@@ -73,9 +73,6 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.ldap.api.url}")
     private String ldapApiUrl;
 
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.property}")
-    private String ldapApiProperty;
-
     @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.role}")
     private String ldapApiRole;
 

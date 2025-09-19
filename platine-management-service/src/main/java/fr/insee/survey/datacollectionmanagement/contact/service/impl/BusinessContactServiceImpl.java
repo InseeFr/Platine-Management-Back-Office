@@ -10,14 +10,17 @@ import fr.insee.survey.datacollectionmanagement.contact.service.BusinessContactS
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,22 +34,30 @@ public class BusinessContactServiceImpl implements BusinessContactService {
 
     private final ContactSourceService contactSourceService;
 
-    BusinessContactsDto businessContactsDto = new BusinessContactsDto();
 
     @Override
     public BusinessContactsDto findMainContactByCampaignAndSurveyUnit(String campaignId, String surveyUnitId) {
         Campaign campaign = campaignService.findById(campaignId);
-        ContactSource contactSource = contactSourceService.findMainContactSourceBySourceAndSurveyUnit(campaign.getSurvey().getSource().getId(), surveyUnitId);
-        int size = (contactSource != null)? 1:0;
-        businessContactsDto.setCount(size);
-        businessContactsDto.setStart(size);
-        businessContactsDto.setHit(size);
-        List<BusinessContactDto> businessContactDtoList = new ArrayList<>();
-        if (contactSource!=null){
-            businessContactDtoList.add(getBusinessContactFromIdentifier(contactSource.getId().getContactId()));
-        }
-        businessContactsDto.setBusinessContactDtoList(businessContactDtoList);
-        return businessContactsDto;
+        String sourceId = Optional.of(campaign)
+                .map(Campaign::getSurvey)
+                .map(Survey::getSource)
+                .map(Source::getId)
+                .orElseThrow(() -> new IllegalStateException("..."));
+
+        ContactSource contactSource = contactSourceService
+                .findMainContactSourceBySourceAndSurveyUnit(sourceId, surveyUnitId);
+
+        List<BusinessContactDto> businessContactDtoList = (contactSource != null && contactSource.getId() != null)
+                ? List.of(getBusinessContactFromIdentifier(contactSource.getId().getContactId()))
+                : Collections.emptyList();
+        int size = businessContactDtoList.size();
+
+        return BusinessContactsDto.builder()
+                .count(size)
+                .start(size)
+                .hit(size)
+                .businessContactDtoList(businessContactDtoList)
+                .build();
     }
 
     private BusinessContactDto getBusinessContactFromIdentifier(@NonNull String contactId) {
