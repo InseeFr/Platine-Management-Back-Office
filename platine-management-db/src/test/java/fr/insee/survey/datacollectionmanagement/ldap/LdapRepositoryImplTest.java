@@ -31,10 +31,8 @@ class LdapServiceImplTest {
 
     private static final String REALM = "testRealm";
     private static final String STORAGE = "testStorage";
-    private static final String ACCREDITATION_ID = "testId";
     private static final String ACCREDITATION_APP = "testApp";
     private static final String ACCREDITATION_ROLE = "testRole";
-    private static final String ACCREDITATION_PROPERTY = "testProperty";
     private static final String PASSWORD = "pw";
     private static final String LOGIN = "login";
 
@@ -61,10 +59,8 @@ class LdapServiceImplTest {
 
         ReflectionTestUtils.setField(ldapRepository, "realm", REALM);
         ReflectionTestUtils.setField(ldapRepository, "storage", STORAGE);
-        ReflectionTestUtils.setField(ldapRepository, "accreditationId", ACCREDITATION_ID);
         ReflectionTestUtils.setField(ldapRepository, "accreditationApplication", ACCREDITATION_APP);
         ReflectionTestUtils.setField(ldapRepository, "accreditationRole", ACCREDITATION_ROLE);
-        ReflectionTestUtils.setField(ldapRepository, "accreditationProperty", ACCREDITATION_PROPERTY);
     }
 
     @BeforeEach
@@ -80,16 +76,14 @@ class LdapServiceImplTest {
             "username": "%s",
             "habilitations": [
                 {
-                    "id": "%s",
                     "application": "%s",
-                    "role": "%s",
-                    "property": "%s"
+                    "role": "%s"
                 }
             ]
         }
         """,
                 username,
-                ACCREDITATION_ID, ACCREDITATION_APP, ACCREDITATION_ROLE, ACCREDITATION_PROPERTY
+                ACCREDITATION_APP, ACCREDITATION_ROLE
         );
     }
 
@@ -114,8 +108,6 @@ class LdapServiceImplTest {
 
         assertThat(ldapAccreditationDtos).hasSize(1);
         assertThat(ldapAccreditationDtos.getFirst().getRole()).isEqualTo(ACCREDITATION_ROLE);
-        assertThat(ldapAccreditationDtos.getFirst().getId()).isEqualTo(ACCREDITATION_ID);
-        assertThat(ldapAccreditationDtos.getFirst().getProperty()).isEqualTo(ACCREDITATION_PROPERTY);
         assertThat(ldapAccreditationDtos.getFirst().getApplication()).isEqualTo(ACCREDITATION_APP);
         assertThat(ldapContactOutputDtoResponseEntity.getBody().getUsername()).isEqualTo(username);
 

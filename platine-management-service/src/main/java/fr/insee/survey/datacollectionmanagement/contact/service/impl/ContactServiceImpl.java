@@ -21,6 +21,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ContactServiceImpl implements ContactService {
 
     private final ContactRepository contactRepository;
@@ -215,7 +217,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact convertToEntity(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
         Contact oldContact = findByIdentifier(contactDto.getIdentifier());
         contact.setComment(oldContact.getComment());
         contact.setAddress(oldContact.getAddress());
@@ -227,7 +229,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
         return contact;
     }
 
@@ -258,7 +260,9 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto createAndSaveContact(ContactDto contactDto) {
         ContactDto ldapContact = ldapService.createUser(contactDto);
-        contactRepository.save(modelMapper.map(ldapContact, Contact.class));
+        Contact contact = modelMapper.map(ldapContact, Contact.class);
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
+        contactRepository.save(contact);
         return ldapContact;
     }
 
