@@ -102,6 +102,4 @@ public interface ContactService {
     ContactDto createAndSaveContact(ContactDto contactDto);
 
     void saveContactCreationEvent(String contactId) ;
-
-    void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId);
 }

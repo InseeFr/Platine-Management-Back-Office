@@ -72,30 +72,43 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         questioningAccreditationRepository.deleteById(acc.getId());
     }
 
-    @Override
-    public void createQuestioningAccreditation(Questioning questioning,
-                                               boolean isMain,
-                                               Contact contact,
-                                               JsonNode payload,
-                                               Date date,
-                                               Campaign campaign)
-    {
-        QuestioningAccreditation qa = questioningAccreditationRepository
-                .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier())
-                .orElseGet(() -> {
-                    QuestioningAccreditation created = new QuestioningAccreditation();
-                    created.setIdContact(contact.getIdentifier());
-                    created.setCreationDate(date);
-                    created.setQuestioning(questioning);
-                    return created;
-                });
+  @Override
+  public void createQuestioningAccreditation(Questioning questioning,
+      boolean isMain,
+      Contact contact,
+      JsonNode payload,
+      Date date,
+      Campaign campaign) {
 
-        qa.setMain(isMain);
-        questioningAccreditationRepository.save(qa);
-        logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+    findOrCreateAndSaveAccreditation(questioning, isMain, contact, date);
+    logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+  }
+
+    /**
+     * Trouve une accréditation existante ou en crée une nouvelle, la configure et la sauvegarde.
+     * C'est la méthode de base pour la persistance des accréditations.
+     * @return L'entité QuestioningAccreditation persistée.
+     */
+    private QuestioningAccreditation findOrCreateAndSaveAccreditation(Questioning questioning,
+        boolean isMain,
+        Contact contact,
+        Date date) {
+      QuestioningAccreditation qa = questioningAccreditationRepository
+          .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier())
+          .orElseGet(() -> {
+            QuestioningAccreditation created = new QuestioningAccreditation();
+            created.setIdContact(contact.getIdentifier());
+            created.setCreationDate(date);
+            created.setQuestioning(questioning);
+            return created;
+          });
+
+      qa.setMain(isMain);
+      return questioningAccreditationRepository.save(qa);
     }
 
-    @Override
+
+  @Override
     public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload)
     {
         qa.setMain(true);
@@ -104,25 +117,52 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         contactEventService.saveContactEvent(contactEvent);
     }
 
-    @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
-        Questioning questioning = questioningRepository.findById(questioningId)
-                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
+    private record AccreditationContext(
+        Questioning questioning,
+        Contact contact,
+        Optional<QuestioningAccreditation> existingMainAccreditation
+    ) {}
 
-        Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
+  private AccreditationContext prepareAccreditationContext(String contactId, UUID questioningId) {
+    Questioning questioning = questioningRepository.findById(questioningId)
+        .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 
-        Date date = Date.from(Instant.now());
-        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
-        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+    Contact contact = contactRepository.findById(contactId)
+        .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
-        Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
+    Optional<QuestioningAccreditation> existingMainAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
-        questioningAccreditation.ifPresentOrElse(
-                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign),
-                () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
-    }
+    return new AccreditationContext(questioning, contact, existingMainAccreditation);
+  }
+
+
+  @Override
+  public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
+    AccreditationContext context = prepareAccreditationContext(contactId, questioningId);
+
+    Date date = Date.from(Instant.now());
+    Campaign campaign = partitioningService.findById(context.questioning().getIdPartitioning()).getCampaign();
+    JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+
+    context.existingMainAccreditation().ifPresentOrElse(
+        accreditation -> updateExistingMainAccreditationToNewContact(accreditation, context.contact(), context.questioning().getSurveyUnit().getIdSu(), payload, campaign),
+        () -> createQuestioningAccreditation(context.questioning(), true, context.contact(), payload, date, campaign));
+  }
+
+  @Override
+  public void assignMainAccreditationForNewContact(String contactId, UUID questioningId) {
+    AccreditationContext context = prepareAccreditationContext(contactId, questioningId);
+
+    context.existingMainAccreditation().ifPresent(accreditation -> {
+      if (accreditation.getIdContact().equals(context.contact().getIdentifier())) {
+        return;
+      }
+      questioningAccreditationRepository.deleteById(accreditation.getId());
+    });
+
+    findOrCreateAndSaveAccreditation(context.questioning(), true, context.contact(), Date.from(Instant.now()));
+  }
 
     @Override
     public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,

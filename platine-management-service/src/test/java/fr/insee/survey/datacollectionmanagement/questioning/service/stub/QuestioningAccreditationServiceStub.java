@@ -62,6 +62,17 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
+    public void assignMainAccreditationForNewContact(String contactId, UUID questioningId) {
+      QuestioningAccreditation qa = new QuestioningAccreditation();
+      Questioning questioning = new Questioning();
+      questioning.setId(questioningId);
+      qa.setQuestioning(questioning);
+      qa.setIdContact(contactId);
+      qa.setMain(true);
+      questioningAccreditationList.add(qa);
+    }
+
+  @Override
     public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
         QuestioningAccreditation qa = new QuestioningAccreditation();
         Questioning questioning = new Questioning();
