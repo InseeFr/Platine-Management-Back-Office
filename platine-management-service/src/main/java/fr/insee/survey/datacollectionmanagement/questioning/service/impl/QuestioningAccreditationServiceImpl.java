@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceSer
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.AccreditationContext;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
@@ -116,12 +117,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, eventPayload);
         contactEventService.saveContactEvent(contactEvent);
     }
-
-    private record AccreditationContext(
-        Questioning questioning,
-        Contact contact,
-        Optional<QuestioningAccreditation> existingMainAccreditation
-    ) {}
 
   private AccreditationContext prepareAccreditationContext(String contactId, UUID questioningId) {
     Questioning questioning = questioningRepository.findById(questioningId)
