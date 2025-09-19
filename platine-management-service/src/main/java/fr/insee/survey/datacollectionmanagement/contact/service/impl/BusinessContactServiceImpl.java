@@ -1,25 +1,26 @@
 package fr.insee.survey.datacollectionmanagement.contact.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
+import fr.insee.survey.datacollectionmanagement.contact.domain.ContactSource;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessAddressDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessContactDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.BusinessContactsDto;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.contact.service.BusinessContactService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.contact.service.ContactSourceService;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,27 +32,32 @@ public class BusinessContactServiceImpl implements BusinessContactService {
 
     private final ContactService contactService;
 
+    private final ContactSourceService contactSourceService;
+
+
     @Override
     public BusinessContactsDto findMainContactByCampaignAndSurveyUnit(String campaignId, String surveyUnitId) {
-        Set<Partitioning> setParts = campaignService.findById(campaignId).getPartitionings();
-        List<QuestioningAccreditation> questioningAccreditationList = new ArrayList<>();
-        for (Partitioning part : setParts) {
-            Optional<Questioning> questioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);
-            questioning.ifPresent(value -> questioningAccreditationList.addAll(value.
-                    getQuestioningAccreditations().stream().filter(QuestioningAccreditation::isMain).toList()));
+        Campaign campaign = campaignService.findById(campaignId);
+        String sourceId = Optional.of(campaign)
+                .map(Campaign::getSurvey)
+                .map(Survey::getSource)
+                .map(Source::getId)
+                .orElseThrow(() -> new IllegalStateException("source Id not found"));
 
-        }
-        int size = questioningAccreditationList.size();
-        BusinessContactsDto businessContactsDto = new BusinessContactsDto();
-        businessContactsDto.setCount(size);
-        businessContactsDto.setStart(size);
-        businessContactsDto.setHit(size);
-        List<BusinessContactDto> businessContactDtoList = new ArrayList<>();
-        for (QuestioningAccreditation questioningAccreditation : questioningAccreditationList) {
-            businessContactDtoList.add(getBusinessContactFromIdentifier(questioningAccreditation.getIdContact()));
-        }
-        businessContactsDto.setBusinessContactDtoList(businessContactDtoList);
-        return businessContactsDto;
+        ContactSource contactSource = contactSourceService
+                .findMainContactSourceBySourceAndSurveyUnit(sourceId, surveyUnitId);
+
+        List<BusinessContactDto> businessContactDtoList = (contactSource != null && contactSource.getId() != null)
+                ? List.of(getBusinessContactFromIdentifier(contactSource.getId().getContactId()))
+                : Collections.emptyList();
+        int size = businessContactDtoList.size();
+
+        return BusinessContactsDto.builder()
+                .count(size)
+                .start(size)
+                .hit(size)
+                .businessContactDtoList(businessContactDtoList)
+                .build();
     }
 
     private BusinessContactDto getBusinessContactFromIdentifier(@NonNull String contactId) {
