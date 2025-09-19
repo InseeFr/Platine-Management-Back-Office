@@ -215,7 +215,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact convertToEntity(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
         Contact oldContact = findByIdentifier(contactDto.getIdentifier());
         contact.setComment(oldContact.getComment());
         contact.setAddress(oldContact.getAddress());
@@ -227,7 +227,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public Contact convertToEntityNewContact(ContactDto contactDto) {
         Contact contact = modelMapper.map(contactDto, Contact.class);
-        contact.setGender(GenderEnum.valueOf(contactDto.getCivility()));
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
         return contact;
     }
 
@@ -258,7 +258,9 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDto createAndSaveContact(ContactDto contactDto) {
         ContactDto ldapContact = ldapService.createUser(contactDto);
-        contactRepository.save(modelMapper.map(ldapContact, Contact.class));
+        Contact contact = modelMapper.map(ldapContact, Contact.class);
+        contact.setGender(GenderEnum.fromStringIgnoreCase(contactDto.getCivility()));
+        contactRepository.save(contact);
         return ldapContact;
     }
 

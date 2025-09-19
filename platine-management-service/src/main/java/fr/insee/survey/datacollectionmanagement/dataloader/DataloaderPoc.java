@@ -272,7 +272,7 @@ public class DataloaderPoc {
         c.setLastName(name);
         c.setFirstName(firstName);
         c.setPhone(faker.phoneNumber().phoneNumber());
-        c.setGender(GenderEnum.valueOf(faker.demographic().sex()));
+        c.setGender(GenderEnum.fromStringIgnoreCase(faker.demographic().sex()));
         c.setFunction(faker.job().title());
         c.setComment(faker.beer().name());
         c.setEmail(firstName.toLowerCase() + "." + name.toLowerCase() + "@cocorico.fr");

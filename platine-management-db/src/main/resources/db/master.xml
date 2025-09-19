@@ -21,6 +21,7 @@
     <include file="changelog/080_add-period-collect-value.sql" relativeToChangelogFile="true"/>
     <include file="changelog/090_add_type_and_date_highest_status_event.sql" relativeToChangelogFile="true"/>
     <include file="changelog/091_fix_remove_datacollection_target_check.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/092_fix_null_gender.sql" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

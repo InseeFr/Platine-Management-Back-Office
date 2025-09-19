@@ -113,7 +113,7 @@ public class ContextSteps {
         c.setIdentifier(contactId);
         c.setFirstName(firstName);
         c.setLastName(lastName);
-        c.setGender(GenderEnum.valueOf(gender));
+        c.setGender(GenderEnum.fromStringIgnoreCase(gender));
         Address address = new Address();
         address.setStreetNumber(streetNumber);
         addressRepository.save(address);
