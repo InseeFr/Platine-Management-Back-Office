@@ -162,6 +162,8 @@ public class ContactController {
             @RequestBody ContactDto contactDto)  {
 
         contactService.createContactAndAssignToAccreditationAsMain(interrogationId, contactDto);
+        log.info(
+                "Update main contact {} for interrogation {}", contactDto.getIdentifier(), interrogationId);
     }
 
     @GetMapping(path = UrlConstants.API_CONTACTS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
