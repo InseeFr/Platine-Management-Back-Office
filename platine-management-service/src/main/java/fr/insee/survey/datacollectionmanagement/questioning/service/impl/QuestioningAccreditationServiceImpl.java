@@ -19,16 +19,15 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningA
 import fr.insee.survey.datacollectionmanagement.util.ServiceJsonUtil;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -86,9 +85,9 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
   }
 
     /**
-     * Trouve une accréditation existante ou en crée une nouvelle, la configure et la sauvegarde.
-     * C'est la méthode de base pour la persistance des accréditations.
-     * @return L'entité QuestioningAccreditation persistée.
+     * Finds an existing accreditation or creates a new one, then configures and saves it.
+     * This is the core method for accreditation persistence.
+     * @return The persisted QuestioningAccreditation entity.
      */
     private QuestioningAccreditation findOrCreateAndSaveAccreditation(Questioning questioning,
         boolean isMain,
