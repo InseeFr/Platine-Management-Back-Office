@@ -160,6 +160,18 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     viewService.saveView(defaulView);
 
     findOrCreateAndSaveAccreditation(context.questioning(), true, context.contact(), Date.from(Instant.now()));
+
+    Campaign campaign = partitioningService.findById(context.questioning().getIdPartitioning()).getCampaign();
+    contactSourceService.saveContactSource(
+        context.contact().getIdentifier(),
+        campaign.getSurvey().getSource().getId(),
+        campaign.getSurvey().getId(),
+        true);
+
+    viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
+        context.contact().getIdentifier(),
+        campaign.getSurvey().getId(),
+        campaign.getId());
   }
 
     @Override
