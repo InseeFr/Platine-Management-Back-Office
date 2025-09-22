@@ -77,7 +77,7 @@ class QuestioningAccreditationServiceImplTest {
         Campaign campaign = getCampaignFromPartition();
         JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
-        service.logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+        service.logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, false);
 
         assertContactEvent(contact, payload);
         assertContactSourceExists(contact.getIdentifier(), campaign, questioning.getSurveyUnit().getIdSu());
@@ -94,7 +94,7 @@ class QuestioningAccreditationServiceImplTest {
         setupViewAndSource(contact, campaign, questioning);
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier())).hasSize(1);
 
-        service.logContactAccreditationLossUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+        service.logContactAccreditationLossUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, false);
 
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier())).hasSize(1);
         assertContactEvent(contact, payload);
@@ -113,7 +113,7 @@ class QuestioningAccreditationServiceImplTest {
 
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier())).isEmpty();
 
-        service.logContactAccreditationLossUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+        service.logContactAccreditationLossUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, false);
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier()).getFirst().getIdSu()).isNull();
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier()).getFirst().getCampaignId()).isNull();
         assertThat(viewService.findViewByIdentifier(contact.getIdentifier()).getFirst().getIdentifier()).isEqualTo(contact.getIdentifier());
@@ -135,7 +135,7 @@ class QuestioningAccreditationServiceImplTest {
 
         JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
-        service.updateExistingMainAccreditationToNewContact(qa, newContact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+        service.updateExistingMainAccreditationToNewContact(qa, newContact, questioning.getSurveyUnit().getIdSu(), payload, campaign, false);
 
         assertMainAccreditation(newContact, questioning);
         assertContactEvent(oldContact, payload);
@@ -148,7 +148,7 @@ class QuestioningAccreditationServiceImplTest {
     {
         UUID questioningId = UUID.randomUUID();
         assertThatThrownBy(() -> service.setMainQuestioningAccreditationToContact(
-                "contact-id", questioningId))
+                "contact-id", questioningId, false))
                 .isInstanceOf(NotFoundException.class).hasMessage(String.format("Missing Questioning with id %s", questioningId));
     }
 
@@ -255,7 +255,7 @@ class QuestioningAccreditationServiceImplTest {
         JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
         Campaign campaign = getCampaignFromPartition();
 
-        service.createQuestioningAccreditation(questioning, true, contact, payload , now, campaign);
+        service.createQuestioningAccreditation(questioning, true, contact, payload , now, campaign, false);
 
         Optional<QuestioningAccreditation> saved = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -273,7 +273,7 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("new-contact");
         Questioning questioning = createAndRegisterQuestioning();
 
-        service.setMainQuestioningAccreditationToContact(contact.getIdentifier(), questioning.getId());
+        service.setMainQuestioningAccreditationToContact(contact.getIdentifier(), questioning.getId(), false);
 
         Optional<QuestioningAccreditation> saved = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -294,7 +294,7 @@ class QuestioningAccreditationServiceImplTest {
         setupViewAndSource(oldContact, campaign, questioning);
         saveMainAccreditation(oldContact, questioning);
 
-        service.setMainQuestioningAccreditationToContact(newContact.getIdentifier(), questioning.getId());
+        service.setMainQuestioningAccreditationToContact(newContact.getIdentifier(), questioning.getId(), false);
 
         Optional<QuestioningAccreditation> updated = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -371,7 +371,7 @@ class QuestioningAccreditationServiceImplTest {
         qa.setIdContact(contact.getIdentifier());
         accreditationRepo.save(qa);
 
-        service.updateExistingMainAccreditationToNewContact(qa, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
+        service.updateExistingMainAccreditationToNewContact(qa, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, false);
 
         assertThat(contactEventService.findContactEventsByContact(contact)).isEmpty();
         Optional<QuestioningAccreditation> result = accreditationRepo.findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());
@@ -395,7 +395,7 @@ class QuestioningAccreditationServiceImplTest {
         existing.setQuestioning(questioning);
         accreditationRepo.save(existing);
 
-        service.createQuestioningAccreditation(questioning, true, contact, payload, now, campaign);
+        service.createQuestioningAccreditation(questioning, true, contact, payload, now, campaign, false);
 
         Optional<QuestioningAccreditation> result = accreditationRepo
                 .findAccreditationsByQuestioningIdAndIsMainTrue(questioning.getId());

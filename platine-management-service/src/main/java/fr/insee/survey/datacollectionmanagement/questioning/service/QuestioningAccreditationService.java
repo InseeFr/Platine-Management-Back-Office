@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.javafaker.Bool;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -14,44 +15,42 @@ import java.util.UUID;
 
 public interface QuestioningAccreditationService {
 
-    List<QuestioningAccreditation> findByContactIdentifier(String id);
+  List<QuestioningAccreditation> findByContactIdentifier(String id);
 
-    boolean hasAccreditation(UUID questioningId, String contactId);
+  boolean hasAccreditation(UUID questioningId, String contactId);
 
-    Page<QuestioningAccreditation> findAll(Pageable pageable);
+  Page<QuestioningAccreditation> findAll(Pageable pageable);
 
-    QuestioningAccreditation findById(Long id);
-   
-    QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
+  QuestioningAccreditation findById(Long id);
 
-    void deleteAccreditation(QuestioningAccreditation c);
+  QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
-    void createQuestioningAccreditation(Questioning questioning,
-                                        boolean isMain,
-                                        Contact contact,
-                                        JsonNode payload,
-                                        Date date,
-                                        Campaign campaign);
+  void deleteAccreditation(QuestioningAccreditation c);
 
-    void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
+  void createQuestioningAccreditation(Questioning questioning,
+      boolean isMain,
+      Contact contact,
+      JsonNode payload,
+      Date date,
+      Campaign campaign, Boolean isNew);
 
-    void assignMainAccreditationForNewContact(String contactId, UUID questioningId);
+  void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);
 
-    void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId);
+  void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId, Boolean isNew);
 
-    void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
-                                                     Contact newContact,
-                                                     String surveyUnitId,
-                                                     JsonNode payload,
-                                                     Campaign campaign);
+  void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
+      Contact newContact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew);
 
-    void logContactAccreditationLossUpdate(Contact contact,
-                                           String surveyUnitId,
-                                           JsonNode payload,
-                                           Campaign campaign);
+  void logContactAccreditationLossUpdate(Contact contact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew);
 
-    void logContactAccreditationGainUpdate(Contact contact,
-                                           String surveyUnitId,
-                                           JsonNode payload,
-                                           Campaign campaign);
+  void logContactAccreditationGainUpdate(Contact contact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew);
 }
