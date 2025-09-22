@@ -113,7 +113,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
         .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
     Date date = Date.from(Instant.now());
-    Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
+    Campaign campaign = partitioningService.getById(questioning.getIdPartitioning()).getCampaign();
     JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
     Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository

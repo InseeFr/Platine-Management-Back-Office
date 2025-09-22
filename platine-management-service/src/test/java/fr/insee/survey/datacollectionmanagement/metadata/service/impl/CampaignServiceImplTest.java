@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -440,6 +441,62 @@ class CampaignServiceImplTest {
         assertThat(result.getFirst().sensitivity()).isFalse();
 
 
+    }
+
+    @Test
+    void insertOrUpdateCampaign_shouldCreateWithGeneratedTechnicalId_andDefaultTarget() {
+        // given
+        Campaign newCamp = new Campaign();
+        newCamp.setId("NEW1");
+        newCamp.setDataCollectionTarget(null);
+
+        // when
+        Campaign saved = campaignServiceImpl.insertOrUpdateCampaign(newCamp);
+
+        // then
+        assertThat(saved).isNotNull();
+        assertThat(saved.getTechnicalId()).isNotNull();
+        assertThat(saved.getDataCollectionTarget())
+                .isEqualTo(DataCollectionEnum.LUNATIC_NORMAL);
+    }
+
+    @Test
+    void insertOrUpdateCampaign_shouldKeepExistingTechnicalId_onUpdate() {
+        // given
+        Campaign existing = new Campaign();
+        existing.setId("EXIST1");
+        existing.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
+        existing.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD);
+        campaignRepositoryStub.setCampaigns(List.of(existing));
+
+        Campaign toUpdate = new Campaign();
+        toUpdate.setId("EXIST1");
+        toUpdate.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE);
+
+        // when
+        Campaign result = campaignServiceImpl.insertOrUpdateCampaign(toUpdate);
+
+        // then
+        assertThat(result.getTechnicalId())
+                .isEqualTo(existing.getTechnicalId());
+
+        assertThat(result.getDataCollectionTarget())
+                .isEqualTo(DataCollectionEnum.LUNATIC_SENSITIVE);
+    }
+
+    @Test
+    void insertOrUpdateCampaign_shouldNotOverrideDataCollectionTarget_whenAlreadySetOnCreate() {
+        // given
+        Campaign newCamp = new Campaign();
+        newCamp.setId("CAMP_WITH_TARGET");
+        newCamp.setDataCollectionTarget(DataCollectionEnum.FILE_UPLOAD);
+
+        // when
+        Campaign saved = campaignServiceImpl.insertOrUpdateCampaign(newCamp);
+
+        // then
+        assertThat(saved.getTechnicalId()).isNotNull();
+        assertThat(saved.getDataCollectionTarget()).isEqualTo(DataCollectionEnum.FILE_UPLOAD);
     }
 
     private Campaign openedCampaign(String id) {

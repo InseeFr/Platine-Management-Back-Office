@@ -185,7 +185,7 @@ class QuestioningAccreditationServiceImplTest {
     }
 
     private Campaign getCampaignFromPartition() {
-        return partitioningService.findById("partition-id").getCampaign();
+        return partitioningService.getById("partition-id").getCampaign();
     }
 
     private QuestioningAccreditation saveMainAccreditation(Contact contact, Questioning questioning) {

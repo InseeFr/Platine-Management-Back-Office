@@ -104,7 +104,7 @@ public class QuestioningAccreditationController {
 
         // save new accreditation or update existing one
         Set<QuestioningAccreditation> setExistingAccreditations = questioning.getQuestioningAccreditations();
-        Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+        Partitioning part = partitioningService.getById(questioning.getIdPartitioning());
 
         String idSu = questioning.getSurveyUnit().getIdSu();
 

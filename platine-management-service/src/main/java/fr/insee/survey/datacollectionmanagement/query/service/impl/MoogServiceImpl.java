@@ -58,7 +58,7 @@ public class MoogServiceImpl implements MoogService {
         for (View view : listView) {
             MoogSearchDto moogSearchDto = new MoogSearchDto();
             Contact c = contactService.findByIdentifier(view.getIdentifier());
-            Campaign camp = campaignService.findById(view.getCampaignId());
+            Campaign camp = campaignService.getById(view.getCampaignId());
             MoogCampaignDto moogCampaign = new MoogCampaignDto();
             moogCampaign.setId(view.getCampaignId());
             moogCampaign.setLabel(camp.getCampaignWording());
@@ -94,7 +94,7 @@ public class MoogServiceImpl implements MoogService {
 
         List<MoogQuestioningEventDto> moogEvents = moogRepository.getEventsByIdSuByCampaign(campaign, idSu);
 
-        Campaign camp = campaignService.findById(campaign);
+        Campaign camp = campaignService.getById(campaign);
         MoogCampaignDto moogCampaign = new MoogCampaignDto();
         moogCampaign.setId(campaign);
         moogCampaign.setLabel(camp.getCampaignWording());
@@ -118,7 +118,7 @@ public class MoogServiceImpl implements MoogService {
 
     @Override
     public String getReadOnlyUrl(String idCampaign, String surveyUnitId) throws NotFoundException {
-        Campaign campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.getById(idCampaign);
         Set<Partitioning> setParts = campaign.getPartitionings();
         for (Partitioning part : setParts) {
             Optional<Questioning> optionalQuestioning = questioningService.findByIdPartitioningAndSurveyUnitIdSu(part.getId(), surveyUnitId);

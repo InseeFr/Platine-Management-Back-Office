@@ -53,6 +53,7 @@ public class SurveySteps {
         survey.setVisaNumber("visa");
         Source source = new Source();
         source.setId("SOURCE-ID");
+        source.setMandatoryMySurveys(false);
         source = sourceRepository.save(source);
 
         survey.setSource(source);

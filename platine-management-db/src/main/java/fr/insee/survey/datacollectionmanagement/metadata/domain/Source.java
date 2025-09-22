@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ public class Source {
 
     @Id
     private String id;
+
     private String longWording;
     private String shortWording;
     private Boolean forceClose;
@@ -52,5 +54,4 @@ public class Source {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Enumerated(EnumType.STRING)
     private Set<Parameters> params;
-
 }

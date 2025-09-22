@@ -9,13 +9,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface CampaignService {
 
     Collection<CampaignMoogDto> getCampaigns();
 
-    Campaign findById(String idCampaign);
+    Campaign getById(String idCampaign);
+
+    Optional<Campaign> findById(String idCampaign);
 
     Page<Campaign> findAll(Pageable pageable);
 

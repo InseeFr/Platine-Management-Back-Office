@@ -135,7 +135,7 @@ public class CampaignRepositoryStub implements CampaignRepository {
 
     @Override
     public <S extends Campaign> S save(S entity) {
-        return null;
+        return entity;
     }
 
     @Override
