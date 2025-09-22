@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.dataloader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.github.javafaker.Faker;
 import fr.insee.survey.datacollectionmanagement.contact.domain.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
@@ -259,6 +260,7 @@ public class DataloaderTest {
                 source.setLongWording("Long wording of " + sourceName + " ?");
                 source.setShortWording("Short wording of " + sourceName);
                 source.setPeriodicity(PeriodicityEnum.T);
+                source.setMandatoryMySurveys(false);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
@@ -290,6 +292,7 @@ public class DataloaderTest {
                         Campaign campaign = new Campaign();
                         int trimester = k + 1;
                         String period = "T0" + trimester;
+                        campaign.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
                         campaign.setYear(year - j);
                         campaign.setPeriod(PeriodEnum.valueOf(period));
                         campaign.setId(sourceName + (year - j) + period);
@@ -303,6 +306,7 @@ public class DataloaderTest {
                         for (int l = 0; l < 2; l++) {
 
                             Partitioning part = new Partitioning();
+                            part.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
                             part.setId(sourceName + (year - j) + "T" + trimester + "00" + l);
                             log.info("Part created : {}", part.getId());
                             Date openingDate = sdf.parse("01/01/" + year);

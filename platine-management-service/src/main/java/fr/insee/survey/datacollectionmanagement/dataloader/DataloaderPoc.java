@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.dataloader;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
@@ -371,6 +372,7 @@ public class DataloaderPoc {
                     campaign.setPeriod(PeriodEnum.valueOf(period));
                     String idampaign = sourceName + (year - j) + period;
                     campaign.setId(idampaign);
+                    campaign.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
                     campaign.setCampaignWording(
                             "Campaign about " + sourceName + " in " + (year - j) + " and period " + period);
 

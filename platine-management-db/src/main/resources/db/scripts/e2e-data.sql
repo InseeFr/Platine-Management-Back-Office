@@ -48,28 +48,28 @@ VALUES
                                  -- E2E tests campaigns --
 
 INSERT INTO public.campaign
-(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity, operation_upload_reference)
+(id, technical_id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity, operation_upload_reference)
 VALUES
-('E2E_CAMPAIGN_1', 'E2E Testing Household Campaign for E2E_RESPON_1 with only one interrogation existing in its partition', 'E2E_SURVEY_1', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_2', 'E2E Testing Business Campaign for E2E_RESPON_2 with multiple interrogations and one SU', 'E2E_SURVEY_2', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_3', 'E2E Testing Business Campaign for E2E_RESPON_3 and E2E_RESPON_4 with multiple interrogations and SUs', 'E2E_SURVEY_3', 'X00', 2025, 'XFORM1', false, null),
-('E2E_CAMPAIGN_4', 'E2E Testing Business Campaign for E2E_RESPON_4 with one interrogation and one SU', 'E2E_SURVEY_4', 'X00', 2025, 'LUNATIC_SENSITIVE', false, null),
-('E2E_CAMPAIGN_R2D2', 'E2E R2D2 Business Testing Campaign for E2E_RESPON_3 with multiple interrogations SUs', 'E2E_SURVEY_R2D2', 'X00', 2025, 'FILE_UPLOAD', false, 'op upload reference'),
-('E2E_CAMPAIGN_EEC', 'E2E Testing Campaign EEC for E2E_RESPON_EEC', 'E2E_SURVEY_EEC', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
-('E2E_CAMPAIGN_CLOSED', 'E2E Testing Campaign CLOSED for E2E_RESPON_CLOSED', 'E2E_SURVEY_CLOSED', 'X00', 2025, 'LUNATIC_NORMAL', false, null);
+('E2E_CAMPAIGN_1', '00000000-0000-0000-0000-000000000001', 'E2E Testing Household Campaign for E2E_RESPON_1 with only one interrogation existing in its partition', 'E2E_SURVEY_1', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_2', '00000000-0000-0000-0000-000000000002', 'E2E Testing Business Campaign for E2E_RESPON_2 with multiple interrogations and one SU', 'E2E_SURVEY_2', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_3', '00000000-0000-0000-0000-000000000003', 'E2E Testing Business Campaign for E2E_RESPON_3 and E2E_RESPON_4 with multiple interrogations and SUs', 'E2E_SURVEY_3', 'X00', 2025, 'XFORM1', false, null),
+('E2E_CAMPAIGN_4', '00000000-0000-0000-0000-000000000004', 'E2E Testing Business Campaign for E2E_RESPON_4 with one interrogation and one SU', 'E2E_SURVEY_4', 'X00', 2025, 'LUNATIC_SENSITIVE', false, null),
+('E2E_CAMPAIGN_R2D2', '00000000-0000-0000-0000-000000000005', 'E2E R2D2 Business Testing Campaign for E2E_RESPON_3 with multiple interrogations SUs', 'E2E_SURVEY_R2D2', 'X00', 2025, 'FILE_UPLOAD', false, 'op upload reference'),
+('E2E_CAMPAIGN_EEC', '00000000-0000-0000-0000-000000000006', 'E2E Testing Campaign EEC for E2E_RESPON_EEC', 'E2E_SURVEY_EEC', 'X00', 2025, 'LUNATIC_NORMAL', false, null),
+('E2E_CAMPAIGN_CLOSED', '00000000-0000-0000-0000-000000000007', 'E2E Testing Campaign CLOSED for E2E_RESPON_CLOSED', 'E2E_SURVEY_CLOSED', 'X00', 2025, 'LUNATIC_NORMAL', false, null);
 
                   -- E2E tests partitioning --
 
 INSERT INTO public.partitioning
-(id, closing_date, opening_date, return_date, campaign_id, "label")
+(id, technical_id, closing_date, opening_date, return_date, campaign_id, "label")
 VALUES
-('PART1', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_1', 'E2E Partition 1 Label'),
-('PART2', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_2', 'E2E Partition 2 Label'),
-('PART3', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_3', 'E2E Partition 3 Label'),
-('PART4', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_4', 'E2E Partition 4 Label'),
-('PARTR2D2', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_R2D2', 'E2E Partition R2D2 Label'),
-('PARTEEC', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_EEC', 'E2E Partition EEC Label'),
-('PARTCLOSED', '2020-12-30 01:00:00.000', '2020-03-07 01:00:00.000', '2020-12-31 10:33:27.723',  'E2E_CAMPAIGN_CLOSED', 'E2E Partition CLOSED Label');
+('PART1', '00000000-0000-0000-0000-000000000001', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_1', 'E2E Partition 1 Label'),
+('PART2', '00000000-0000-0000-0000-000000000002', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_2', 'E2E Partition 2 Label'),
+('PART3', '00000000-0000-0000-0000-000000000003', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_3', 'E2E Partition 3 Label'),
+('PART4', '00000000-0000-0000-0000-000000000004', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_4', 'E2E Partition 4 Label'),
+('PARTR2D2', '00000000-0000-0000-0000-000000000005', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_R2D2', 'E2E Partition R2D2 Label'),
+('PARTEEC', '00000000-0000-0000-0000-000000000006', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2099-12-31 10:33:27.723',  'E2E_CAMPAIGN_EEC', 'E2E Partition EEC Label'),
+('PARTCLOSED', '00000000-0000-0000-0000-000000000007', '2020-12-30 01:00:00.000', '2020-03-07 01:00:00.000', '2020-12-31 10:33:27.723',  'E2E_CAMPAIGN_CLOSED', 'E2E Partition CLOSED Label');
 
 
                     -- E2E tests adress --

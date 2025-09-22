@@ -109,7 +109,7 @@ public class WebclientController {
         String idPartitioning = StringUtils.upperCase(questioningWebclientDto.getIdPartitioning());
 
 
-        Partitioning part = partitioningService.findById(idPartitioning);
+        Partitioning part = partitioningService.getById(idPartitioning);
 
         HttpStatus httpStatus = HttpStatus.OK;
 
@@ -260,7 +260,7 @@ public class WebclientController {
     public ResponseEntity<MetadataDto> getMetadata(@PathVariable("id") String id) {
 
         MetadataDto metadataDto = new MetadataDto();
-        Partitioning part = partitioningService.findById(StringUtils.upperCase(id));
+        Partitioning part = partitioningService.getById(StringUtils.upperCase(id));
         metadataDto.setPartitioningDto(convertToDto(part));
         metadataDto.setCampaignDto(convertToDto(part.getCampaign()));
         metadataDto.setSurveyDto(convertToDto(part.getCampaign().getSurvey()));
@@ -328,7 +328,7 @@ public class WebclientController {
     private HttpStatus getHttpStatus(String id) {
         HttpStatus httpStatus;
         try {
-            partitioningService.findById(id);
+            partitioningService.getById(id);
             log.info("Update partitioning with the id {}", id);
             httpStatus = HttpStatus.OK;
 

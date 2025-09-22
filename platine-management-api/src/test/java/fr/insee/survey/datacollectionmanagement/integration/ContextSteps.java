@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Address;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
@@ -58,6 +59,7 @@ public class ContextSteps {
     public void createSource(String sourceId) {
         Source source = new Source();
         source.setId(sourceId);
+        source.setMandatoryMySurveys(false);
         sourceRepository.save(source);
     }
 
@@ -77,6 +79,7 @@ public class ContextSteps {
     public void createCampaign(String campaignId, String surveyId) {
         Campaign campaign = new Campaign();
         campaign.setId(campaignId);
+        campaign.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
         Survey survey = surveyRepository.findById(surveyId).orElseThrow(() -> new IllegalArgumentException("Survey not found"));
         campaign.setSurvey(survey);
         campaignRepository.save(campaign);
@@ -87,6 +90,7 @@ public class ContextSteps {
     public void createPartitioning(String partId, String campaignId) {
         Partitioning part = new Partitioning();
         part.setId(partId);
+        part.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
         part.setCampaign(campaign);
         partitioningRepository.save(part);

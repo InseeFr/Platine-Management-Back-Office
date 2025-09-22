@@ -32,6 +32,10 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: install model filiere
+        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.1.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.1 -Dpackaging=jar -DgeneratePom=true
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any

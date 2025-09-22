@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
@@ -65,9 +66,14 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public Campaign findById(String idCampaign) {
-        return campaignRepository.findById(idCampaign).orElseThrow(
+    public Campaign getById(String idCampaign) {
+        return findById(idCampaign).orElseThrow(
                 () -> new NotFoundException(String.format("Campaign %s not found", idCampaign)));
+    }
+
+    @Override
+    public Optional<Campaign> findById(String idCampaign) {
+        return campaignRepository.findById(idCampaign);
     }
 
 
@@ -81,10 +87,17 @@ public class CampaignServiceImpl implements CampaignService {
         return campaignRepository.findAll();
     }
 
-     @Override
+    @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
+        Optional<Campaign> campaignOptional = findById(campaign.getId());
+        if (campaignOptional.isPresent()) {
+            campaign.setTechnicalId(campaignOptional.get().getTechnicalId());
+        } else {
+            campaign.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
+        }
+
         if (campaign.getDataCollectionTarget() == null)
-          campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
+            campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
         return campaignRepository.save(campaign);
     }
 
@@ -174,7 +187,7 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public CampaignHeaderDto findCampaignHeaderById(String id) {
-        Campaign campaign = findById(id);
+        Campaign campaign = getById(id);
         return convertToCampaignHeaderDto(campaign);
     }
 
@@ -253,6 +266,6 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public CampaignCommonsDto findCampaignDtoById(String campaignId) {
-        return convertToCampaignCommonsDto(this.findById(campaignId));
+        return convertToCampaignCommonsDto(this.getById(campaignId));
     }
 }

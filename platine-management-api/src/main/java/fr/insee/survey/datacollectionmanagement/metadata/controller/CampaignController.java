@@ -139,7 +139,7 @@ public class CampaignController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ResponseEntity<CampaignDto> getCampaign(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.getById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(campaign));
 
 
@@ -148,14 +148,14 @@ public class CampaignController {
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.getById(StringUtils.upperCase(id));
         return campaign.getParams().stream().map(this::convertToDto).toList();
     }
 
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
-        Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
+        Campaign campaign = campaignService.getById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);
         return campaignService.saveParameterForCampaign(campaign, paramsDto);
     }
@@ -187,7 +187,7 @@ public class CampaignController {
         HttpStatus httpStatus;
 
         try {
-            campaignService.findById(id);
+            campaignService.getById(id);
             log.info("Update campaign with the id {}", campaignDto.getId());
             httpStatus = HttpStatus.OK;
         } catch (NotFoundException e) {
@@ -204,7 +204,7 @@ public class CampaignController {
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
-        Campaign campaign = campaignService.findById(id);
+        Campaign campaign = campaignService.getById(id);
         if (campaignService.isCampaignOngoing(id)) {
             throw new ImpossibleToDeleteException("Campaign is still ongoing and can't be deleted");
         }

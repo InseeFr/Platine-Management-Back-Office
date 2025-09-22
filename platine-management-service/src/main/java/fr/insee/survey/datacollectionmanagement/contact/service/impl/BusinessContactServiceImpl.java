@@ -37,7 +37,7 @@ public class BusinessContactServiceImpl implements BusinessContactService {
 
     @Override
     public BusinessContactsDto findMainContactByCampaignAndSurveyUnit(String campaignId, String surveyUnitId) {
-        Campaign campaign = campaignService.findById(campaignId);
+        Campaign campaign = campaignService.getById(campaignId);
         String sourceId = Optional.of(campaign)
                 .map(Campaign::getSurvey)
                 .map(Survey::getSource)

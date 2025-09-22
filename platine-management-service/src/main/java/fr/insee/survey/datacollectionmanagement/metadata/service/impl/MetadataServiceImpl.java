@@ -25,7 +25,7 @@ public class MetadataServiceImpl implements MetadataService {
         BusinessMetadataDto businessMetadataDto = new BusinessMetadataDto();
 
         CampaignBusinessDto campaignBusinessDto = new CampaignBusinessDto();
-        Campaign campaign = campaignService.findById(campaignId);
+        Campaign campaign = campaignService.getById(campaignId);
         campaignBusinessDto.setCampaignWording(campaign.getCampaignWording());
         businessMetadataDto.setCampaignBusinessDto(campaignBusinessDto);
 

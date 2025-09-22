@@ -66,7 +66,7 @@ public class UploadServiceImpl implements UploadService {
             try {
                 QuestioningEvent qe = new QuestioningEvent();
 
-                Campaign campaign = campaignService.findById(idCampaign);
+                Campaign campaign = campaignService.getById(idCampaign);
                 Set<Partitioning> setParts = campaign.getPartitionings();
                 if (setParts.isEmpty()) {
                     throw new RessourceNotValidatedException("No partitionings found for campaign ", idCampaign);
@@ -74,7 +74,7 @@ public class UploadServiceImpl implements UploadService {
 
                 Set<Questioning> questionings = questioningService.findBySurveyUnitIdSu(mmDto.getIdSu());
 
-                List<String> listIdParts = campaignService.findById(idCampaign).getPartitionings().stream().map(Partitioning::getId).toList();
+                List<String> listIdParts = campaignService.getById(idCampaign).getPartitionings().stream().map(Partitioning::getId).toList();
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning())).findFirst();
 
                 qe.setUpload(up);
@@ -124,7 +124,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public List<Upload> findAllByIdCampaign(String idCampaign) {
 
-        Campaign campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.getById(idCampaign);
 
         List<String> partitioningIds = campaign.getPartitionings().stream().map(Partitioning::getId).toList();
 
@@ -149,7 +149,7 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public boolean checkUploadDate(String idCampaign, Date date) {
-        Campaign campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.getById(idCampaign);
         long timestamp = date.getTime();
         Optional<Date> openingDate = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
                 .toList().stream()
