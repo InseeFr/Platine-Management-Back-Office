@@ -12,6 +12,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningEventServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -31,6 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchQuestioningSteps {
     @Autowired
     QuestioningServiceImpl questioningService;
+
+    @Autowired
+    QuestioningEventServiceImpl questioningEventService;
 
     @Autowired
     QuestioningRepository questioningRepository;
@@ -68,17 +72,29 @@ public class SearchQuestioningSteps {
         questioningContext.registerQuestioning(id, questioning.getId());
     }
 
-    @Transactional
-    @Given("the questioning event for questioning {int} with type {string} and date {string}")
-    public void createQuestioningEvent(int questioningId, String type, String isoDate) throws ParseException {
-        Date date = sdf.parse(isoDate);
-        UUID realId = questioningContext.getRealId(questioningId);
-        Questioning questioning = questioningRepository.getReferenceById(realId);
-        QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
-        questioning.getQuestioningEvents().add(qe);
-        questioningEventRepository.save(qe);
-        questioningRepository.save(questioning);
-    }
+  @Transactional
+  @Given("the questioning event for questioning {int} with type {string} and date {string}")
+  public void createQuestioningEvent(int questioningId, String type, String isoDate) throws ParseException {
+    Date date = sdf.parse(isoDate);
+    UUID realId = questioningContext.getRealId(questioningId);
+
+    // 1. Récupérer le questioning
+    Questioning questioning = questioningRepository.getReferenceById(realId);
+
+    // 2. Créer et sauvegarder l'événement
+    QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
+    questioningEventRepository.save(qe);
+
+    // 3. Mettre à jour la relation bidirectionnelle
+    questioning.getQuestioningEvents().add(qe);
+
+    // 4. Sauvegarder le questioning pour mettre à jour la collection
+    questioningRepository.saveAndFlush(questioning);
+
+    // 5. Rafraîchir le plus haut événement (comme dans saveQuestioningEvent)
+    questioningEventService.refreshHighestEvent(realId);
+  }
+
 
     @Transactional
     @Given("the questioning communication for questioning {int} with type {string} and date {string}")
