@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.metadata.dto.input;
 import fr.insee.modelefiliere.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 
+import java.util.Optional;
+
 public record SourceCreateContextDto(
         String id,
         String type,

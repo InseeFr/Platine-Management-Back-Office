@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto.input;
 
 import fr.insee.modelefiliere.CommunicationStepDto;
+import fr.insee.modelefiliere.ContextDto;
 import fr.insee.modelefiliere.PartitionDto;
 import jakarta.validation.constraints.NotBlank;
 

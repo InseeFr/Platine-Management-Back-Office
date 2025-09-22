@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: install model filiere
-        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.1.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.1 -Dpackaging=jar -DgeneratePom=true
+        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.2-SNAPSHOT.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.2-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
 
       - name: Build and analyze
         env:
