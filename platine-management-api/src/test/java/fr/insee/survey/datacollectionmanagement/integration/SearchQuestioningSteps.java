@@ -12,6 +12,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningEventServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -37,6 +38,10 @@ public class SearchQuestioningSteps {
 
     @Autowired
     QuestioningEventRepository questioningEventRepository;
+
+    @Autowired
+    QuestioningEventServiceImpl questioningEventService;
+
 
     @Autowired
     SurveyUnitRepository surveyUnitRepository;
@@ -77,6 +82,7 @@ public class SearchQuestioningSteps {
         QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
         questioning.getQuestioningEvents().add(qe);
         questioningEventRepository.save(qe);
+        questioningEventService.refreshHighestEvent(questioning.getId());
         questioningRepository.save(questioning);
     }
 

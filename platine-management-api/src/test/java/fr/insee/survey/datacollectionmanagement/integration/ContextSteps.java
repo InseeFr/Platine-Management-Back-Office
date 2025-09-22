@@ -54,6 +54,7 @@ public class ContextSteps {
     public void createSource(String sourceId) {
         Source source = new Source();
         source.setId(sourceId);
+        source.setMandatoryMySurveys(false);
         sourceRepository.save(source);
     }
 

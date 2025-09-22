@@ -1,8 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -20,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SurveySteps {
     @Autowired
@@ -53,6 +53,7 @@ public class SurveySteps {
         survey.setVisaNumber("visa");
         Source source = new Source();
         source.setId("SOURCE-ID");
+        source.setMandatoryMySurveys(false);
         source = sourceRepository.save(source);
 
         survey.setSource(source);

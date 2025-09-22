@@ -21,19 +21,17 @@ import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
 @AutoConfigureMockMvc
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("/integration/query")
+@SelectClasspathResource("integration/query")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "fr.insee.survey.datacollectionmanagement.integration")
-@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, json:target/cucumber.json, html:target/cucumber_report.html,"
-        + " usage:target/usage.jsonx, junit:target/junit.xml")
-public class CucumberTest {
+@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME,     value = "pretty, json:target/cucumber.json, html:target/cucumber_report.html, junit:target/failsafe-reports/cucumber.xml")
+public class CucumberIT {
     @DataTableType
     public ExpectedQuestioning toExpectedQuestioning(Map<String, String> row) {
         return new ExpectedQuestioning(
                 Integer.parseInt(row.get("id")),
                 row.get("surveyUnitId"),
                 row.get("validationDate"),
-                row.get("highestEventType"),
-                row.get("lastCommunicationType")
+                row.get("highestEventType"),                row.get("lastCommunicationType")
         );
     }
 }
