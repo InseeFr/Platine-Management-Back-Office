@@ -138,13 +138,23 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <configuration>
-                            <includes>
-                                <include>**/*IT.java</include>
-                            </includes>
-                        </configuration>
-                    </execution>
+                  <execution>
+                    <id>integration-test</id>
+                    <goals>
+                      <goal>integration-test</goal>
+                      <goal>verify</goal>
+                    </goals>
+                    <configuration>
+                      <includes>
+                        <include>**/integration/**/*</include>
+                      </includes>
+                      <testFailureIgnore>false</testFailureIgnore>
+                      <useFile>false</useFile>
+                      <systemPropertyVariables>
+                        <cucumber.options>--plugin pretty,json:target/cucumber.json,html:target/cucumber_report.html,usage:target/usage.jsonx,junit:target/junit.xml</cucumber.options>
+                      </systemPropertyVariables>
+                    </configuration>
+                  </execution>
                 </executions>
             </plugin>
         </plugins>

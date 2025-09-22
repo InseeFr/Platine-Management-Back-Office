@@ -155,6 +155,10 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
       questioningAccreditationRepository.deleteById(accreditation.getId());
     });
 
+    View defaulView = new View();
+    defaulView.setIdentifier(contactId);
+    viewService.saveView(defaulView);
+
     findOrCreateAndSaveAccreditation(context.questioning(), true, context.contact(), Date.from(Instant.now()));
   }
 
