@@ -147,12 +147,8 @@
                     <configuration>
                       <includes>
                         <include>**/integration/**/*</include>
+                        <include>**/*IT.java</include>
                       </includes>
-                      <testFailureIgnore>false</testFailureIgnore>
-                      <useFile>false</useFile>
-                      <systemPropertyVariables>
-                        <cucumber.options>--plugin pretty,json:target/cucumber.json,html:target/cucumber_report.html,usage:target/usage.jsonx,junit:target/junit.xml</cucumber.options>
-                      </systemPropertyVariables>
                     </configuration>
                   </execution>
                 </executions>
