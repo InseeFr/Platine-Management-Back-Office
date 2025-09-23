@@ -110,7 +110,7 @@ public class QuestioningController {
             @PathVariable("interrogationId") UUID interrogationId,
             @PathVariable("contactId") String contactId)  {
 
-        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId);
+        questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId, false);
     }
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {

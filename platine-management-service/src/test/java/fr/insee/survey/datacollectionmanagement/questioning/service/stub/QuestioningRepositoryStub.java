@@ -21,7 +21,7 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public int deleteByidPartitioning(String idPartitioning) {
+    public Integer deleteByidPartitioning(String idPartitioning) {
         return 0;
     }
 

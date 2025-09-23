@@ -51,7 +51,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign) {
+    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign, Boolean isNew) {
         // not used
     }
 
@@ -61,44 +61,24 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
         // not used
     }
 
-    @Override
-    public void assignMainAccreditationForNewContact(String contactId, UUID questioningId) {
-      QuestioningAccreditation qa = new QuestioningAccreditation();
-      Questioning questioning = new Questioning();
-      questioning.setId(questioningId);
-      qa.setQuestioning(questioning);
-      qa.setIdContact(contactId);
-      qa.setMain(true);
-      questioningAccreditationList.add(qa);
-    }
-
   @Override
-  public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
-    questioningAccreditationList.removeIf(
-        qa -> qa.getQuestioning().getId().equals(questioningId)
-    );
-
-    QuestioningAccreditation qa = new QuestioningAccreditation();
-    Questioning questioning = new Questioning();
-    questioning.setId(questioningId);
-    qa.setQuestioning(questioning);
-    qa.setIdContact(contactId);
-    qa.setMain(true);
-    questioningAccreditationList.add(qa);
+  public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId,
+      Boolean isNew) {
+      // not used
   }
 
     @Override
-    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, String surveyUnitId, JsonNode payload, Campaign campaign) {
+    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation, Contact newContact, String surveyUnitId, JsonNode payload, Campaign campaign, Boolean isNew) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationLossUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationLossUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign, Boolean isNew) {
         // not used
     }
 
     @Override
-    public void logContactAccreditationGainUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign) {
+    public void logContactAccreditationGainUpdate(Contact contact, String surveyUnitId, JsonNode payload, Campaign campaign, Boolean isNew) {
         // not used
     }
 }
