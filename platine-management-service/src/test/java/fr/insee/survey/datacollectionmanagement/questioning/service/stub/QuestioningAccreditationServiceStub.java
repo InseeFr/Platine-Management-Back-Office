@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.javafaker.Bool;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -65,7 +64,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
   @Override
   public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId,
       Boolean isNew) {
-
+      // not used
   }
 
     @Override
