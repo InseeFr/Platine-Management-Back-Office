@@ -40,8 +40,6 @@
 		<sonar.java.binaries>target</sonar.java.binaries>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../platine-management-api/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<modelmapper-version>3.2.0</modelmapper-version>
-        <spring-security.version>6.5.4</spring-security.version>
-        <spring-framework.version>6.2.11</spring-framework.version>
 	</properties>
 
     <dependencies>
