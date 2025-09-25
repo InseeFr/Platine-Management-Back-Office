@@ -24,6 +24,7 @@ public class MyQuestionnaireDetailsDto {
     private Date partitioningReturnDate;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
+    private String surveyUnitLabel;
     private String surveyUnitId;
     private String dataCollectionTarget;
     private String operationUploadReference;
