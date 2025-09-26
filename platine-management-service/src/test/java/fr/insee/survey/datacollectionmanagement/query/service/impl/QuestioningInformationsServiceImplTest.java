@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.query.domain.QuestioningInformations;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningInformationsDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
@@ -170,7 +171,7 @@ class QuestioningInformationsServiceImplTest {
         infos.setStreetName("Main St");
         infos.setStreetNumber("123");
         infos.setSpecialDistribution("Special");
-
+        infos.setSourceType(SourceTypeEnum.BUSINESS.toString());
 
         // When
         QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
@@ -181,7 +182,8 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("logo.png", result.getLogo());
         assertEquals("/mes-enquetes", result.getUrlLogout());
 
-        String expectedUrlAssistance = "/mes-enquetes/source123/contacter-assistance/auth?interrogationId="+uuid+"&surveyUnitId=id789&contactId=cont123";
+        String expectedUrlAssistance = String.format("/assistance/faq-entreprise/contact?interrogationId=%s&suId=%s&sourceId=%s",
+                 infos.getQuestioningId().toString(), infos.getIdentificationCode(), infos.getSourceId().toLowerCase());
         assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
 
         assertNotNull(result.getContactInformationsDto());
@@ -206,7 +208,6 @@ class QuestioningInformationsServiceImplTest {
         // Arrange
         CampaignServiceStub campaignService = new CampaignServiceStub();
         QuestioningServiceStub questioningService = new QuestioningServiceStub();
-
         QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, campaignService, questioningService);
 
         Assertions.assertThatThrownBy(()->service.findQuestioningInformationsDtoReviewer("camp1", "su1")).isInstanceOf(NotFoundException.class);
@@ -217,7 +218,6 @@ class QuestioningInformationsServiceImplTest {
         // Arrange
         CampaignServiceStub campaignService = new CampaignServiceStub();
         QuestioningServiceStub questioningService = new QuestioningServiceStub();
-
         QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, campaignService, questioningService);
 
         Assertions.assertThatThrownBy(()->service.findQuestioningInformationsDtoInterviewer("camp1", "su1", "cont123")).isInstanceOf(NotFoundException.class);
