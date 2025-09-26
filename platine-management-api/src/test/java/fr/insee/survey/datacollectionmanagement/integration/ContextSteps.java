@@ -51,11 +51,11 @@ public class ContextSteps {
     ViewRepository viewRepository;
 
     @Transactional
-    @Given("the source {string}")
-    public void createSource(String sourceId) {
+    @Given("the source {string} with type {string}")
+    public void createSource(String sourceId, String type) {
         Source source = new Source();
         source.setId(sourceId);
-        source.setType(SourceTypeEnum.BUSINESS);
+        source.setType(SourceTypeEnum.valueOf(type));
         sourceRepository.save(source);
     }
 
