@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactSource
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -255,6 +256,7 @@ public class DataloaderTest {
                 source.setLongWording("Long wording of " + sourceName + " ?");
                 source.setShortWording("Short wording of " + sourceName);
                 source.setPeriodicity(PeriodicityEnum.T);
+                source.setType(SourceTypeEnum.BUSINESS);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
