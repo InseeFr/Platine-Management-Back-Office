@@ -147,9 +147,8 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("0987654321", result);
     }
 
-    @Test
-    void testMapQuestioningInformationsDto_shouldMapCorrectly() {
-        // Given
+    QuestioningInformations initInfos(boolean isBusiness)
+    {
         UUID uuid = UUID.randomUUID();
         QuestioningInformations infos = new QuestioningInformations();
         infos.setReturnDate("2025-05-10");
@@ -171,7 +170,14 @@ class QuestioningInformationsServiceImplTest {
         infos.setStreetName("Main St");
         infos.setStreetNumber("123");
         infos.setSpecialDistribution("Special");
-        infos.setSourceType(SourceTypeEnum.BUSINESS.toString());
+        infos.setSourceType(isBusiness ? SourceTypeEnum.BUSINESS.toString() : SourceTypeEnum.HOUSEHOLD.toString());
+        return infos;
+    }
+
+    @Test
+    void testMapQuestioningInformationsDto_shouldMapCorrectly() {
+        // Given
+        QuestioningInformations infos = initInfos(true);
 
         // When
         QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
@@ -201,6 +207,22 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("Survey Label", result.getSurveyUnitInformationsDto().getLabel());
         assertEquals("su123", result.getSurveyUnitInformationsDto().getSurveyUnitId());
         assertEquals("Name123", result.getSurveyUnitInformationsDto().getIdentificationName());
+    }
+
+    @Test
+    void testMapQuestioningInformationsDto_houseHoldRedirectionForm() {
+        // Given
+        QuestioningInformations infos = initInfos(false);
+
+        // When
+        QuestioningInformationsServiceImpl service = new QuestioningInformationsServiceImpl(null, null, null);
+        QuestioningInformationsDto result = service.mapQuestioningInformationsDto(infos);
+
+
+        String expectedUrlAssistance = String.format("/assistance/faq-particulier/contact?interrogationId=%s&suId=%s&sourceId=%s",
+                infos.getQuestioningId().toString(), infos.getIdSu(), infos.getSourceId().toLowerCase());
+
+        assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
     }
 
 
