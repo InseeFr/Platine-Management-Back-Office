@@ -142,11 +142,10 @@ class QuestioningUrlComponentTest {
         assertThat(q).containsKey("pathAssistance");
 
         String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
+        assertThat(assistance).contains("/mes-enquetes/" + sourceId.toLowerCase())
                 .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
+                .contains("surveyUnitId=" + surveyUnitId)
+                .contains("contactId=" + contactId);
     }
 
     @Test
@@ -167,11 +166,10 @@ class QuestioningUrlComponentTest {
         assertThat(q).containsKey("pathAssistance");
 
         String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
+        assertThat(assistance).contains("/mes-enquetes/" + sourceId.toLowerCase())
                 .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
+                .contains("surveyUnitId=" + surveyUnitId)
+                .contains("contactId=" + contactId);
     }
 
     @Test
@@ -244,11 +242,10 @@ class QuestioningUrlComponentTest {
         assertThat(q).containsKey("pathAssistance");
 
         String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
-                .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
+        assertThat(assistance).contains("/mes-enquetes/" + sourceId.toLowerCase())
+            .contains("interrogationId=" + questioningId)
+            .contains("surveyUnitId=" + surveyUnitId)
+            .contains("contactId=");
     }
 
     @Test
@@ -318,11 +315,10 @@ class QuestioningUrlComponentTest {
 
         String assistance = base64UrlDecode(q.get("pathAssistance"));
         assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
+                .startsWith("/mes-enquetes/" + sourceId.toLowerCase() + "/contacter-assistance/auth")
                 .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
-
+                .contains("surveyUnitId=" + surveyUnitId)
+                .contains("contactId=");
     }
 
     @Test
