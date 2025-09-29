@@ -12,18 +12,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,16 +42,10 @@ class QuestioningUrlComponentTest {
         component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url);
     }
 
-    private QuestioningUrlContext createQuestioningUrlContext(
-            DataCollectionEnum dataCollection,
-            String operation,
-            boolean isBusiness, String surveyUnitLabel, String identificationName) {
+    private QuestioningUrlContext createQuestioningUrlContext(DataCollectionEnum dataCollection, String operation) {
         return new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
-                isBusiness,
-                surveyUnitLabel,
-                identificationName,
                 String.format("%s-%s-%s",sourceId.toLowerCase(),surveyYear,period),
                 dataCollection,
                 sourceId.toLowerCase(),
@@ -69,10 +53,6 @@ class QuestioningUrlComponentTest {
                 period.name(),
                 operation,
                 contactId);
-    }
-
-    private QuestioningUrlContext createQuestioningUrlContext(DataCollectionEnum dataCollection, String operation) {
-        return createQuestioningUrlContext(dataCollection, operation, false, null, null);
     }
 
     private Partitioning mockPartitioning(DataCollectionEnum target) {
@@ -108,70 +88,26 @@ class QuestioningUrlComponentTest {
         return questioning;
     }
 
-    private static Map<String, String> parseQuery(String query) {
-        if (query == null || query.isEmpty()) return Map.of();
-        return Arrays.stream(query.split("&"))
-                .map(kv -> kv.split("=", 2))
-                .collect(Collectors.toMap(
-                        kv -> kv[0],
-                        kv -> kv.length > 1 ? kv[1] : ""
-                ));
-    }
-
-    private static String base64UrlDecode(String value) {
-        if (value == null) return null;
-        byte[] bytes = Base64.getUrlDecoder().decode(value);
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
-
     @Test
     void testLunaticNormalInterviewer() {
-        // given
-        QuestioningUrlContext ctx = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_NORMAL, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
-        // when
-        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, ctx);
+        String expected = "https://lunatic-normal/v3/interrogations/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
 
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getScheme()).isEqualTo("https");
-        assertThat(uri.getHost()).isEqualTo("lunatic-normal");
-        assertThat(uri.getPath()).isEqualTo("/v3/interrogations/" + questioningId);
-
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKey("pathAssistance");
-
-        String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
-                .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
+        assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testLunaticSensitiveInterviewer() {
-        // given
-        QuestioningUrlContext ctx = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_SENSITIVE, null);
+        QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.LUNATIC_SENSITIVE, null);
+        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, questioningUrlContext);
 
-        // when
-        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, ctx);
+        String expected = "https://lunatic-sensitive/v3/interrogations/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D" + contactId;
 
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getScheme()).isEqualTo("https");
-        assertThat(uri.getHost()).isEqualTo("lunatic-sensitive");
-        assertThat(uri.getPath()).isEqualTo("/v3/interrogations/" + questioningId);
-
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKey("pathAssistance");
-
-        String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
-                .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
+        assertThat(url).isEqualTo(expected);
     }
 
     @Test
@@ -227,102 +163,22 @@ class QuestioningUrlComponentTest {
 
     @Test
     void testLunaticNormalInterviewer_defaultAccessUrl() {
-        // when
-        String url = component.getAccessUrl(
-                UserRoles.INTERVIEWER,
-                createQuestioning(),
-                mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL)
-        );
+        String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
 
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getScheme()).isEqualTo("https");
-        assertThat(uri.getHost()).isEqualTo("lunatic-normal");
-        assertThat(uri.getPath()).isEqualTo("/v3/interrogations/" + questioningId);
+        String expected = "https://lunatic-normal/v3/interrogations/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D";
 
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKey("pathAssistance");
-
-        String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
-                .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
-    }
-
-    @Test
-    void testLunaticNormalInterviewer_AccessUrl_with_SU_Info() {
-        // given
-        QuestioningUrlContext ctx = createQuestioningUrlContext(
-                DataCollectionEnum.LUNATIC_NORMAL, null, true, "Entreprise", "Test&Recette?"
-        );
-        String expectedLabel = "Entreprise Test&Recette? (" + surveyUnitId + ")";
-
-        // when
-        String url = component.buildAccessUrl(UserRoles.INTERVIEWER, ctx);
-
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getHost()).isEqualTo("lunatic-normal");
-
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKeys("pathAssistance", "surveyUnitLabel");
-
-        String labelDecoded = base64UrlDecode(q.get("surveyUnitLabel"));
-        assertThat(labelDecoded).isEqualTo(expectedLabel);
-    }
-
-    @Test
-    void testLunaticNormalReviewer_AccessUrl_with_SU_Info() {
-        // given
-        QuestioningUrlContext ctx = createQuestioningUrlContext(
-                DataCollectionEnum.LUNATIC_NORMAL, null, true, null, "Test"
-        );
-
-        String expectedLabel = component.buildSurveyUnitLabelDetails(null, "Test", surveyUnitId);
-
-        // when
-        String url = component.buildAccessUrl(UserRoles.REVIEWER, ctx);
-
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getScheme()).isEqualTo("https");
-        assertThat(uri.getHost()).isEqualTo("lunatic-normal");
-        assertThat(uri.getPath()).isEqualTo("/v3/review/interrogations/" + questioningId);
-
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKey("surveyUnitLabel");
-
-        String labelDecoded = base64UrlDecode(q.get("surveyUnitLabel"));
-        assertThat(labelDecoded).isEqualTo(expectedLabel);
+        assertThat(url).isEqualTo(expected);
     }
 
     @Test
     void testLunaticSensitiveInterviewer_defaultAccessUrl() {
-        // when
-        String url = component.getAccessUrl(
-                UserRoles.INTERVIEWER,
-                createQuestioning(),
-                mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE)
-        );
+        String url = component.getAccessUrl(UserRoles.INTERVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_SENSITIVE));
 
-        // then
-        URI uri = URI.create(url);
-        assertThat(uri.getScheme()).isEqualTo("https");
-        assertThat(uri.getHost()).isEqualTo("lunatic-sensitive");
-        assertThat(uri.getPath()).isEqualTo("/v3/interrogations/" + questioningId);
+        String expected = "https://lunatic-sensitive/v3/interrogations/" + questioningId  +
+                "?pathAssistance=%2Fmes-enquetes%2Fsourceid%2Fcontacter-assistance%2Fauth%3FinterrogationId%3D" + questioningId + "%26surveyUnitId%3D" + surveyUnitId + "%26contactId%3D";
 
-        Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsOnlyKeys("pathAssistance");
-
-        String assistance = base64UrlDecode(q.get("pathAssistance"));
-        assertThat(assistance)
-                .startsWith("/assistance/faq-particulier/contact?")
-                .contains("interrogationId=" + questioningId)
-                .contains("suId=" + surveyUnitId)
-                .contains("sourceId=" + sourceId.toLowerCase());
-
+        assertThat(url).isEqualTo(expected);
     }
 
     @Test
@@ -416,24 +272,7 @@ class QuestioningUrlComponentTest {
         assertThat(url).isEqualTo("test-" + surveyUnitId + "-sourceid-2024-T04.xlsx");
     }
 
-    @ParameterizedTest
-    @NullSource
-    @EmptySource
-    @ValueSource(strings = { "   " })
-    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankish(String label) {
-        String identificationName = "Alpha";
 
-        String result = component.buildSurveyUnitLabelDetails(label, identificationName, surveyUnitId);
 
-        assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
-    }
 
-    @Test
-    void buildSurveyUnitLabelDetails_capitalizesFirstLetter_only() {
-        String identificationName = "Alpha";
-
-        String result = component.buildSurveyUnitLabelDetails("entreprise", identificationName, surveyUnitId);
-
-        assertThat(result).isEqualTo("Entreprise " + identificationName + " (" + surveyUnitId + ")");
-    }
 }

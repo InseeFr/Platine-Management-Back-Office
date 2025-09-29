@@ -83,8 +83,6 @@ class MySurveyServiceImplTest {
         when(questioningUrlComponent.buildAccessUrl(any(),any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
-        myQuestionnaireDetailsDto.setSourceType(SourceTypeEnum.BUSINESS.name());
-        myQuestionnaireDetailsDto.setSurveyUnitLabel("Entreprise");
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertThat(result).isNotEmpty().hasSize(1);
@@ -99,6 +97,7 @@ class MySurveyServiceImplTest {
         assertThat(dto.interrogationStatus()).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS.name());
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
+        assertThat(dto.sourceType()).isEqualTo(SourceTypeEnum.HOUSEHOLD);
     }
 
     @Test
@@ -198,7 +197,6 @@ class MySurveyServiceImplTest {
     void getListMyQuestionnairesTest7() {
         when(questioningUrlComponent.buildAccessUrl(any(),any())).thenReturn("http://access-url");
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.NOT_STARTED);
-        myQuestionnaireDetailsDto.setSourceType(SourceTypeEnum.BUSINESS.name());
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
@@ -215,7 +213,6 @@ class MySurveyServiceImplTest {
         assertThat(dto.depositProofUrl()).isNull();
         assertThat(dto.partitioningReturnDate()).isEqualTo(instant);
     }
-
 
     @Test
     @DisplayName("Should return questionnaire ofats file upload")

@@ -25,7 +25,6 @@ public interface QuestioningAccreditationRepository extends JpaRepository<Questi
             "p.return_date AS partitioningReturnDate, " +
             "su.identification_code AS surveyUnitIdentificationCode, " +
             "su.identification_name AS surveyUnitIdentificationName, " +
-            "su.label AS surveyUnitLabel, " +
             "su.id_su AS surveyUnitId," +
             "c.datacollection_target AS dataCollectionTarget, " +
             "c.operation_upload_reference AS operationUploadReference, " +

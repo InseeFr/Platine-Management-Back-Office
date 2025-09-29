@@ -6,17 +6,14 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -37,7 +34,6 @@ public class QuestioningUrlComponent {
 
 
     private static final String PATH_ASSISTANCE = "pathAssistance";
-    private static final String SURVEY_UNIT_LABEL = "surveyUnitLabel";
 
     /**
      * Generates an access URL based on the provided parameters.
@@ -56,16 +52,11 @@ public class QuestioningUrlComponent {
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 questioning.getSurveyUnit().getIdSu(),
                 questioning.getId(),
-                false,
-                null,
-                null,
                 String.format("%s-%s-%s",source.getId().toLowerCase(), survey.getYear(), campaign.getPeriodCollect()),
                 campaign.getDataCollectionTarget(),
                 source.getId().toLowerCase(),
                 survey.getYear(),
-                Optional.ofNullable(campaign.getPeriodCollect())
-                        .map(PeriodEnum::name)
-                        .orElse(""),
+                campaign.getPeriodCollect() == null?"":campaign.getPeriodCollect().getValue(),
                 campaign.getOperationUploadReference(),
                 ""
         );
@@ -124,48 +115,20 @@ public class QuestioningUrlComponent {
      * @return The generated V3 access URL.
      */
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
-        String questioningId = context.questioningId().toString();
-        String encodedLabel = "";
-
-        if (context.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
-                    context.surveyUnitLabel(),
-                    context.surveyUnitIdentificationName(),
-                    context.surveyUnitId());
-            encodedLabel = Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitLabelDetails.getBytes(StandardCharsets.UTF_8));
+        if (UserRoles.REVIEWER.equalsIgnoreCase(role)) {
+            return UriComponentsBuilder
+                    .fromUriString(String.format("%s/v3/review/interrogations/%s", baseUrl, context.questioningId()))
+                    .toUriString();
         }
-
-        return switch (StringUtils.defaultString(role).toLowerCase()) {
-            case UserRoles.REVIEWER -> {
-                UriComponentsBuilder builder = UriComponentsBuilder
-                        .fromUriString(baseUrl)
-                        .pathSegment("v3", "review", "interrogations", questioningId);
-
-                if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
-                }
-
-                yield builder.build().toUriString();
-            }
-            case UserRoles.INTERVIEWER -> {
-                String urlAssistanceRoot = context.isBusiness() ? "/assistance/faq-entreprise/contact" : "/assistance/faq-particulier/contact";
-                String urlAssistance = String.format("%s?interrogationId=%s&suId=%s&sourceId=%s",
-                        urlAssistanceRoot, context.questioningId(), context.surveyUnitId(), context.sourceId().toLowerCase());
-                String encodedAssistance = Base64.getUrlEncoder().withoutPadding().encodeToString(urlAssistance.getBytes());
-                UriComponentsBuilder builder = UriComponentsBuilder
-                        .fromUriString(baseUrl)
-                        .pathSegment("v3", "interrogations", questioningId);
-
-                if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
-                }
-
-                yield builder
-                        .queryParam(PATH_ASSISTANCE, encodedAssistance)
-                        .toUriString();
-            }
-            default -> "";
-        };
+        if (UserRoles.INTERVIEWER.equalsIgnoreCase(role)) {
+            String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
+                    context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
+            return  UriComponentsBuilder
+                    .fromUriString(String.format("%s/v3/interrogations/%s", baseUrl, context.questioningId()))
+                    .queryParam(PATH_ASSISTANCE, URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8))
+                    .build().toUriString();
+        }
+        return "";
     }
 
     /**
@@ -199,12 +162,4 @@ public class QuestioningUrlComponent {
             default -> String.format("%s-%s-%s-%d-%s.xlsx", context.operationUpload(), context.surveyUnitId(), context.sourceId(), context.surveyYear(), context.period());
         };
     }
-
-    public String buildSurveyUnitLabelDetails(String label, String identificationName, String surveyUnitId) {
-        if (StringUtils.isBlank(label)) {
-            return String.format("%s (%s)", identificationName, surveyUnitId);
-        }
-        return String.format("%s %s (%s)", StringUtils.capitalize(label), identificationName, surveyUnitId);
-    }
-
 }
