@@ -36,6 +36,5 @@ public class QuestioningInformations {
     private String logo;
     private UUID questioningId;
     private String sourceId;
-    private String sourceType;
 
 }

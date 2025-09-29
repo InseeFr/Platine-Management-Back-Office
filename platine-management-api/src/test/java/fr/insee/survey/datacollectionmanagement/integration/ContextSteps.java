@@ -9,7 +9,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
@@ -55,7 +54,6 @@ public class ContextSteps {
     public void createSource(String sourceId) {
         Source source = new Source();
         source.setId(sourceId);
-        source.setType(SourceTypeEnum.BUSINESS);
         sourceRepository.save(source);
     }
 

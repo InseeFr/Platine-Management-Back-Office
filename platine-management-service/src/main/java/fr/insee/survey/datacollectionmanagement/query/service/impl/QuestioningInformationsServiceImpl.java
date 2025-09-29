@@ -3,7 +3,6 @@ package fr.insee.survey.datacollectionmanagement.query.service.impl;
 import fr.insee.survey.datacollectionmanagement.contact.enums.GenderEnum;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.query.domain.QuestioningInformations;
 import fr.insee.survey.datacollectionmanagement.query.dto.AddressInformationsDto;
@@ -31,6 +30,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
     private final CampaignService campaignService;
 
     private final QuestioningService questioningService;
+
 
     @Override
     public QuestioningInformationsDto findQuestioningInformationsDtoReviewer(String idCampaign, String idsu) {
@@ -62,6 +62,9 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         return mapQuestioningInformationsDto(infos);
     }
 
+
+
+
     protected QuestioningInformationsDto mapQuestioningInformationsDto(QuestioningInformations infos) {
         QuestioningInformationsDto questioningInformationsDto = new QuestioningInformationsDto();
 
@@ -69,10 +72,8 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         questioningInformationsDto.setReturnDate(infos.getReturnDate());
         questioningInformationsDto.setLogo(infos.getLogo());
         questioningInformationsDto.setUrlLogout("/mes-enquetes");
-
-        String urlAssistanceRoot = infos.getSourceType().equalsIgnoreCase(SourceTypeEnum.BUSINESS.toString()) ? "/assistance/faq-entreprise/contact" : "/assistance/faq-particulier/contact";
-        String urlAssistance = String.format("%s?interrogationId=%s&suId=%s&sourceId=%s",
-                urlAssistanceRoot, infos.getQuestioningId().toString(), infos.getIdSu(), infos.getSourceId().toLowerCase());
+        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
+                infos.getSourceId(), infos.getQuestioningId().toString(), infos.getIdentificationCode(), infos.getIdentifier());
         questioningInformationsDto.setUrlAssistance(URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8));
 
         // Map ContactInformationsDto
