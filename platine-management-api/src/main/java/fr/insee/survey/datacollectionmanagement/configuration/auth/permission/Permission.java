@@ -4,16 +4,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum Permission {
-    READ_INTERRO(false),
-    UPDATE_INTERRO(false),
-    DELETE_INTERRO(false),
-    READ_PARTITION(false),
-    UPDATE_PARTITION(false),
-    DELETE_PARTITION(false),
-    READ_ASSISTANCE(true);
+
+    READ_AND_WRITE(true);
 
     private final boolean isGlobalPermission;
-
     public boolean isGlobalPermission() {
         return isGlobalPermission;
     }

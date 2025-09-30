@@ -35,6 +35,7 @@ public class ProfiledAuthenticationConverter implements Converter<Jwt, AbstractA
         fillGrantedRoles(applicationConfig.getRoleWebClient(), AuthorityRoleEnum.WEB_CLIENT);
         fillGrantedRoles(applicationConfig.getRolePortal(), AuthorityRoleEnum.PORTAL);
         fillGrantedRoles(applicationConfig.getRoleReader(), AuthorityRoleEnum.READER);
+        fillGrantedRoles(applicationConfig.getRoleSupport(), AuthorityRoleEnum.SUPPORT);
     }
 
 

@@ -9,7 +9,8 @@ public enum AuthorityRoleEnum {
     INTERNAL_USER,
     RESPONDENT,
     PORTAL,
-    READER;
+    READER,
+    SUPPORT;
 
 
 
@@ -30,7 +31,8 @@ public enum AuthorityRoleEnum {
             RESPONDENT.securityRole(),
             PORTAL.securityRole(),
             READER.securityRole(),
-            WEB_CLIENT.securityRole()
+            WEB_CLIENT.securityRole(),
+            SUPPORT.securityRole()
     );
 
 }

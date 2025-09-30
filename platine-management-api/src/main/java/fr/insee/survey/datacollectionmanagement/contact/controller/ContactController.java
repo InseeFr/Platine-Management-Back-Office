@@ -50,7 +50,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class ContactController {
+public class  ContactController {
 
     private final ContactService contactService;
 
@@ -107,9 +107,11 @@ public class ContactController {
 
     }
 
+//    @PreAuthorize("hasPermission(#interroId, 'READ_ACCESS')")
+
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')" + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                   @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                   @RequestBody @Valid ContactDto contactDto,
@@ -157,7 +159,7 @@ public class ContactController {
 
     @Operation(summary = "Give questioning main accreditation to a created target contact")
     @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize("hasPermission('READ_AND_WRITE')")
     public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
             @PathVariable("interrogationId") UUID interrogationId,
             @RequestBody ContactDto contactDto)  {

@@ -16,13 +16,6 @@ public class SourceRetrievalStrategyConfig {
             RetrieveSourceFromInterrogationStrategy fromInterrogationStrategy,
             RetrieveSourceFromPartitionStrategy fromPartitionStrategy) {
 
-        return Map.of(
-                Permission.READ_INTERRO, fromInterrogationStrategy,
-                Permission.UPDATE_INTERRO, fromInterrogationStrategy,
-                Permission.DELETE_INTERRO, fromInterrogationStrategy,
-                Permission.READ_PARTITION, fromPartitionStrategy,
-                Permission.UPDATE_PARTITION, fromPartitionStrategy,
-                Permission.DELETE_PARTITION, fromPartitionStrategy
-        );
+        return Map.of(Permission.READ_AND_WRITE, fromInterrogationStrategy);
     }
 }

@@ -47,6 +47,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
             return false;
         }
 
+        // can doing this check also, should we remove it ?
         if(permissionToCheck.isGlobalPermission()) {
             return true;
         }
@@ -58,12 +59,11 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
         }
 
         String sourceId = sourceRetrievalStrategy.getSourceId(targetDomainObject);
-
         return profile.can(permissionToCheck, sourceId);
     }
 
     /**
-     * Chech a permission with a target type (ex. @PreAuthorize("hasPermission(#interroId, 'READ', 'INTERROGATION')"))
+     * Check a permission with a target type (ex. @PreAuthorize("hasPermission(#interroId, 'READ', 'INTERROGATION')"))
      * not used at this moment but could be usefyl to separate permission from the resource we want to access
      * instead of 'READ_INTERRO' as permission, we could have 'READ' permission and 'INTERRO' as resource
      */
@@ -73,5 +73,10 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
                                  String targetType,
                                  Object permission) {
         return hasPermission(authentication, targetId, permission);
+    }
+
+    public boolean hasPermission(Authentication authentication,
+                                 Object permission) {
+        return hasPermission(authentication, null, permission);
     }
 }
