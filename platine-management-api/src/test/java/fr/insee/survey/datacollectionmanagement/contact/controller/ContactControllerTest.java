@@ -290,16 +290,14 @@ class ContactControllerTest {
             "username": "%s",
             "habilitations": [
                 {
-                    "id": "%s",
                     "application": "%s",
-                    "role": "%s",
-                    "property": "%s"
+                    "role": "%s"
                 }
             ]
         }
         """,
                 username,
-                applicationConfig.getLdapApiId(), applicationConfig.getLdapApiApplication(), applicationConfig.getLdapApiRole(), applicationConfig.getLdapApiProperty()
+                applicationConfig.getLdapApiApplication(), applicationConfig.getLdapApiRole()
         );
     }
 

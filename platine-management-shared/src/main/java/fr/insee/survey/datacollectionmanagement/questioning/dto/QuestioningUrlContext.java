@@ -6,6 +6,9 @@ import java.util.UUID;
 
 public record QuestioningUrlContext(String surveyUnitId,
                                     UUID questioningId,
+                                    boolean isBusiness,
+                                    String surveyUnitLabel,
+                                    String surveyUnitIdentificationName,
                                     String campaignId,
                                     DataCollectionEnum dataCollection,
                                     String sourceId,

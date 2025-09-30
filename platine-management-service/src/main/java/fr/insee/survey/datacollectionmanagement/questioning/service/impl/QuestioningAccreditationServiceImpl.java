@@ -33,171 +33,177 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QuestioningAccreditationServiceImpl implements QuestioningAccreditationService {
 
-    private final QuestioningAccreditationRepository questioningAccreditationRepository;
-    private final ContactEventService contactEventService;
-    private final ContactSourceService contactSourceService;
-    private final PartitioningService partitioningService;
-    private final ViewService viewService;
-    private final QuestioningRepository questioningRepository;
-    private final ContactRepository contactRepository;
+  private final QuestioningAccreditationRepository questioningAccreditationRepository;
+  private final ContactEventService contactEventService;
+  private final ContactSourceService contactSourceService;
+  private final PartitioningService partitioningService;
+  private final ViewService viewService;
+  private final QuestioningRepository questioningRepository;
+  private final ContactRepository contactRepository;
 
-    public List<QuestioningAccreditation> findByContactIdentifier(String id) {
-        return questioningAccreditationRepository.findByIdContact(id);
-    }
+  public List<QuestioningAccreditation> findByContactIdentifier(String id) {
+    return questioningAccreditationRepository.findByIdContact(id);
+  }
 
-    @Override
-    public boolean hasAccreditation(UUID questioningId, String contactId) {
-        Optional<QuestioningAccreditation> accreditation = questioningAccreditationRepository
-                .findByQuestioning_IdAndIdContact(questioningId, contactId);
-        return accreditation.isPresent();
-    }
+  @Override
+  public boolean hasAccreditation(UUID questioningId, String contactId) {
+    Optional<QuestioningAccreditation> accreditation = questioningAccreditationRepository
+        .findByQuestioning_IdAndIdContact(questioningId, contactId);
+    return accreditation.isPresent();
+  }
 
-    @Override
-    public Page<QuestioningAccreditation> findAll(Pageable pageable) {
-        return questioningAccreditationRepository.findAll(pageable);
-    }
+  @Override
+  public Page<QuestioningAccreditation> findAll(Pageable pageable) {
+    return questioningAccreditationRepository.findAll(pageable);
+  }
 
-    @Override
-    public QuestioningAccreditation findById(Long id) {
-        return questioningAccreditationRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
-    }
+  @Override
+  public QuestioningAccreditation findById(Long id) {
+    return questioningAccreditationRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("QuestioningAccreditation %s not found", id)));
+  }
 
-    @Override
-    public QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation) {
-        return questioningAccreditationRepository.save(questioningAccreditation);
-    }
+  @Override
+  public QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation) {
+    return questioningAccreditationRepository.save(questioningAccreditation);
+  }
 
-    @Override
-    public void deleteAccreditation(QuestioningAccreditation acc) {
-        questioningAccreditationRepository.deleteById(acc.getId());
-    }
+  @Override
+  public void deleteAccreditation(QuestioningAccreditation acc) {
+    questioningAccreditationRepository.deleteById(acc.getId());
+  }
 
-    @Override
-    public void createQuestioningAccreditation(Questioning questioning,
-                                               boolean isMain,
-                                               Contact contact,
-                                               JsonNode payload,
-                                               Date date,
-                                               Campaign campaign)
-    {
-        QuestioningAccreditation qa = questioningAccreditationRepository
-                .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier())
-                .orElseGet(() -> {
-                    QuestioningAccreditation created = new QuestioningAccreditation();
-                    created.setIdContact(contact.getIdentifier());
-                    created.setCreationDate(date);
-                    created.setQuestioning(questioning);
-                    return created;
-                });
+  @Override
+  public void createQuestioningAccreditation(Questioning questioning,
+      boolean isMain,
+      Contact contact,
+      JsonNode payload,
+      Date date,
+      Campaign campaign, Boolean isNew)
+  {
+    QuestioningAccreditation qa = questioningAccreditationRepository
+        .findAccreditationsByQuestioningIdAndIdContactAndIsMainFalse(questioning.getId(), contact.getIdentifier())
+        .orElseGet(() -> {
+          QuestioningAccreditation created = new QuestioningAccreditation();
+          created.setIdContact(contact.getIdentifier());
+          created.setCreationDate(date);
+          created.setQuestioning(questioning);
+          return created;
+        });
 
-        qa.setMain(isMain);
-        questioningAccreditationRepository.save(qa);
-        logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign);
-    }
+    qa.setMain(isMain);
+    questioningAccreditationRepository.save(qa);
+    logContactAccreditationGainUpdate(contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, isNew);
+  }
 
-    @Override
-    public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload)
-    {
-        qa.setMain(true);
-        questioningAccreditationRepository.save(qa);
-        ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, eventPayload);
-        contactEventService.saveContactEvent(contactEvent);
-    }
+  @Override
+  public void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload)
+  {
+    qa.setMain(true);
+    questioningAccreditationRepository.save(qa);
+    ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, eventPayload);
+    contactEventService.saveContactEvent(contactEvent);
+  }
 
-    @Override
-    public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId) {
-        Questioning questioning = questioningRepository.findById(questioningId)
-                .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
+  @Override
+  public void setMainQuestioningAccreditationToContact(String contactId, UUID questioningId, Boolean isNew) {
+    Questioning questioning = questioningRepository.findById(questioningId)
+        .orElseThrow(() -> new NotFoundException(String.format("Missing Questioning with id %s", questioningId)));
 
-        Contact contact = contactRepository.findById(contactId)
-                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
+    Contact contact = contactRepository.findById(contactId)
+        .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
-        Date date = Date.from(Instant.now());
-        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
-        JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
+    Date date = Date.from(Instant.now());
+    Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
+    JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
-        Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
+    Optional<QuestioningAccreditation> questioningAccreditation = questioningAccreditationRepository
         .findAccreditationsByQuestioningIdAndIsMainTrue(questioningId);
 
-        questioningAccreditation.ifPresentOrElse(
-                accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign),
-                () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign));
+    questioningAccreditation.ifPresentOrElse(
+        accreditation -> updateExistingMainAccreditationToNewContact(accreditation, contact, questioning.getSurveyUnit().getIdSu(), payload, campaign, isNew),
+        () -> createQuestioningAccreditation(questioning, true, contact, payload, date, campaign, isNew));
+  }
+
+  @Override
+  public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
+      Contact newContact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew)  {
+
+    if(existingAccreditation.getIdContact().equals(newContact.getIdentifier()))
+    {
+      return;
     }
 
-    @Override
-    public void updateExistingMainAccreditationToNewContact(QuestioningAccreditation existingAccreditation,
-                                                            Contact newContact,
-                                                            String surveyUnitId,
-                                                            JsonNode payload,
-                                                            Campaign campaign)  {
+    Contact previousContact = contactRepository.findById(existingAccreditation.getIdContact())
+        .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
 
-        if(existingAccreditation.getIdContact().equals(newContact.getIdentifier()))
-        {
-            return;
-        }
+    questioningAccreditationRepository.deleteById(existingAccreditation.getId());
+    logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign, isNew);
 
-        Contact previousContact = contactRepository.findById(existingAccreditation.getIdContact())
-                .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", existingAccreditation.getIdContact())));
+    createQuestioningAccreditation(existingAccreditation.getQuestioning(), true, newContact, payload, new Date(), campaign, isNew);
+  }
 
-        questioningAccreditationRepository.deleteById(existingAccreditation.getId());
-        logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign);
+  @Override
+  public void logContactAccreditationLossUpdate(Contact contact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew
+  ) {
 
-        createQuestioningAccreditation(existingAccreditation.getQuestioning(), true, newContact, payload, new Date(), campaign);
+
+    List<View> viewsToDelete = viewService.findByIdentifierAndIdSuAndCampaignId(
+        contact.getIdentifier(),
+        surveyUnitId,
+        campaign.getId());
+
+    viewsToDelete.forEach(viewService::deleteView);
+
+    List<View> views = viewService.findViewByIdentifier(contact.getIdentifier());
+
+    if(views.isEmpty())
+    {
+      View defaulView = new View();
+      defaulView.setIdentifier(contact.getIdentifier());
+      viewService.saveView(defaulView);
     }
 
-    @Override
-    public void logContactAccreditationLossUpdate(Contact contact,
-                                                  String surveyUnitId,
-                                                  JsonNode payload,
-                                                  Campaign campaign
-    ) {
-
-
-            List<View> viewsToDelete = viewService.findByIdentifierAndIdSuAndCampaignId(
-                    contact.getIdentifier(),
-                    surveyUnitId,
-                    campaign.getId());
-
-            viewsToDelete.forEach(viewService::deleteView);
-
-            List<View> views = viewService.findViewByIdentifier(contact.getIdentifier());
-
-            if(views.isEmpty())
-            {
-                View defaulView = new View();
-                defaulView.setIdentifier(contact.getIdentifier());
-                viewService.saveView(defaulView);
-            }
-
-        ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
-        contactEventService.saveContactEvent(contactEvent);
-
-        contactSourceService.deleteContactSource(
-                contact.getIdentifier(),
-                campaign.getSurvey().getSource().getId(),
-                surveyUnitId);
+    if(isNew.equals(Boolean.FALSE)) {
+      ContactEvent contactEvent = contactEventService.createContactEvent(contact,
+          ContactEventTypeEnum.update, payload);
+      contactEventService.saveContactEvent(contactEvent);
     }
 
-    @Override
-    public void logContactAccreditationGainUpdate(Contact contact,
-                                                  String surveyUnitId,
-                                                  JsonNode payload,
-                                                  Campaign campaign
-    ) {
+    contactSourceService.deleteContactSource(
+        contact.getIdentifier(),
+        campaign.getSurvey().getSource().getId(),
+        surveyUnitId);
+  }
 
-        ContactEvent contactEvent = contactEventService.createContactEvent(contact, ContactEventTypeEnum.update, payload);
-        contactEventService.saveContactEvent(contactEvent);
+  @Override
+  public void logContactAccreditationGainUpdate(Contact contact,
+      String surveyUnitId,
+      JsonNode payload,
+      Campaign campaign, Boolean isNew
+  ) {
 
-        contactSourceService.saveContactSource(
-                contact.getIdentifier(),
-                campaign.getSurvey().getSource().getId(),
-                surveyUnitId,
-                true);
-
-        viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
-                contact.getIdentifier(),
-                surveyUnitId,
-                campaign.getId());
+    if(isNew.equals(Boolean.FALSE)) {
+      ContactEvent contactEvent = contactEventService.createContactEvent(contact,
+          ContactEventTypeEnum.update, payload);
+      contactEventService.saveContactEvent(contactEvent);
     }
+
+    contactSourceService.saveContactSource(
+        contact.getIdentifier(),
+        campaign.getSurvey().getSource().getId(),
+        surveyUnitId,
+        true);
+
+    viewService.createViewAndDeleteEmptyExistingOnesByIdentifier(
+        contact.getIdentifier(),
+        surveyUnitId,
+        campaign.getId());
+  }
 
 }

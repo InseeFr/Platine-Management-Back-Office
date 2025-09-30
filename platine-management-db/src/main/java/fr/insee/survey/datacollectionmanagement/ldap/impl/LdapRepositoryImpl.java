@@ -31,17 +31,12 @@ public class LdapRepositoryImpl implements LdapRepository {
     @Value("${fr.insee.datacollectionmanagement.ldap.api.storage}")
     String storage;
 
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.id}")
-    String accreditationId;
-
     @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.application}")
     String accreditationApplication;
 
     @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.role}")
     String accreditationRole;
 
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.property}")
-    String accreditationProperty;
 
     @Override
     public ResponseEntity<LdapContactOutputDto> createContact()
@@ -55,9 +50,7 @@ public class LdapRepositoryImpl implements LdapRepository {
 
         LdapAccreditationDto ldapAccreditationDto = new LdapAccreditationDto();
         ldapAccreditationDto.setApplication(accreditationApplication);
-        ldapAccreditationDto.setProperty(accreditationProperty);
         ldapAccreditationDto.setRole(accreditationRole);
-        ldapAccreditationDto.setId(accreditationId);
         LdapContactInputDto ldapContact = new LdapContactInputDto();
         ldapContact.setHabilitations(List.of(ldapAccreditationDto));
 

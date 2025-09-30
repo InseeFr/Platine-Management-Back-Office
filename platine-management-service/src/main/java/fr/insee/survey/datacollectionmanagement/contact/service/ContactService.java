@@ -99,9 +99,9 @@ public interface ContactService {
 
     ContactDto createContactAndAssignToAccreditationAsMain(UUID questioningId, ContactDto contact);
 
+    void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId);
+
     ContactDto createAndSaveContact(ContactDto contactDto);
 
     void saveContactCreationEvent(String contactId) ;
-
-    void assignMainContactToQuestioning(String contactIdentifier, UUID questioningId);
 }

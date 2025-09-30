@@ -37,9 +37,14 @@ public class MySurveysServiceImpl implements MySurveysService {
         List<MyQuestionnaireDetailsDto> myQuestionnaireDetailsDtos = questioningAccreditationRepository.findQuestionnaireDetailsByIdec(contactId);
 
         for (MyQuestionnaireDetailsDto details : myQuestionnaireDetailsDtos) {
+            boolean isBusiness = SourceTypeEnum.BUSINESS.name().equalsIgnoreCase(details.getSourceType());
+
             QuestioningUrlContext ctx = new QuestioningUrlContext(
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
+                    isBusiness,
+                    details.getSurveyUnitLabel(),
+                    details.getSurveyUnitIdentificationName(),
                     String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriodCollect()),
                     DataCollectionEnum.valueOf(details.getDataCollectionTarget()),
                     details.getSourceId().toLowerCase(),
@@ -108,4 +113,5 @@ public class MySurveysServiceImpl implements MySurveysService {
     private boolean isOpen(QuestionnaireStatusTypeEnum questioningStatus) {
         return QuestionnaireStatusTypeEnum.IN_PROGRESS.equals(questioningStatus) || QuestionnaireStatusTypeEnum.NOT_STARTED.equals(questioningStatus);
     }
+
 }
