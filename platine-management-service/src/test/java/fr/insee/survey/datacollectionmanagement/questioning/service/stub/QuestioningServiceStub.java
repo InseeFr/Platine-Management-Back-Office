@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -42,7 +43,12 @@ public class QuestioningServiceStub implements QuestioningService {
         return questioning;
     }
 
-    @Override
+  @Override
+  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+    return List.of();
+  }
+
+  @Override
     public void deleteQuestioning(UUID id) {
         questionings.remove(findById(id));
     }

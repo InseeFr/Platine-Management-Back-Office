@@ -84,6 +84,7 @@ public class UrlConstants {
     public static final String API_CAMPAIGNS_COMMONS_ID = "/api/campaigns/commons/{id}";
     public static final String API_CAMPAIGNS_ID_PARTITIONINGS = "/api/campaigns/{id}/partitionings";
     public static final String API_CAMPAIGNS_ID_PARAMS = "/api/campaigns/{id}/params";
+    public static final String API_CAMPAIGN_ID_QUESTIONINGS_CSV = "/api/campaign/{campaignId}/questioning-csv";
     public static final String API_PARTITIONINGS_ID = "/api/partitionings/{id}";
     public static final String API_OWNERS = "/api/owners";
     public static final String API_OWNERS_ID = "/api/owners/{id}";

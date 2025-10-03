@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
@@ -8,14 +9,14 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 public interface QuestioningService {
 
@@ -24,6 +25,8 @@ public interface QuestioningService {
     Questioning findById(UUID id);
 
     Questioning saveQuestioning(Questioning questioning);
+
+    List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId);
 
     void deleteQuestioning(UUID id);
 
