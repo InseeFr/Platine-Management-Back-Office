@@ -525,8 +525,8 @@ class QuestioningServiceImplTest {
               id1,
               "p1",
               "su1",
-              TypeQuestioningEvent.VALINT,  // Utilisation de l'énumération
-              new Date()                      // Utilisation de Date au lieu de LocalDateTime
+              TypeQuestioningEvent.VALINT,
+              new Date()
           ),
           new QuestioningCsvDto(
               id2,
@@ -570,7 +570,7 @@ class QuestioningServiceImplTest {
     @Test
     void getQuestioningsByCampaignIdForCsv_shouldHandleNullCampaignId() {
       // Given
-      when(questioningRepository.findQuestioningDataForCsvByCampaignId(eq(null)))
+      when(questioningRepository.findQuestioningDataForCsvByCampaignId(null))
           .thenReturn(Collections.emptyList());
 
       // When/Then
