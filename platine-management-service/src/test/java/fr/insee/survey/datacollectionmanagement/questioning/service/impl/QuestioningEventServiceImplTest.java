@@ -11,6 +11,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
@@ -48,7 +49,8 @@ class QuestioningEventServiceImplTest {
                 questioningEventRepository,
                 questioningRepository,
                 new ModelMapper(),
-                interrogationEventComparator);
+                interrogationEventComparator,
+                new ExpertEventComponent());
     }
 
     private Questioning createQuestioning() {
@@ -337,7 +339,7 @@ class QuestioningEventServiceImplTest {
     private static Stream<Arguments> okCasesDuplicate() {
         return Stream.of(
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT),
-                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.VALID, TypeQuestioningEvent.VALID),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.VALID),
                 Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.ENDEXPERT),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL)
         );
@@ -386,7 +388,7 @@ class QuestioningEventServiceImplTest {
         assertThat(questioning.getHighestEventDate()).isEqualTo(event.getDate());
     }
 
-
+    @Test
     void shouldSetNullWhenNoEvents() {
         UUID id = UUID.randomUUID();
         Questioning questioning = new Questioning();
