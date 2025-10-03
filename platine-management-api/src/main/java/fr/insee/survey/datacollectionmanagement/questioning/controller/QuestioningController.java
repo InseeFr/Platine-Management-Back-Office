@@ -82,7 +82,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')" + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     public ResponseEntity<List<QuestioningDto>> getQuestioningsBySurveyUnit(@PathVariable("id") String id) {
         SurveyUnit su = surveyUnitService.findbyId(StringUtils.upperCase(id));
         return new ResponseEntity<>(su.getQuestionings().stream().map(this::convertToDto).toList(), HttpStatus.OK);
