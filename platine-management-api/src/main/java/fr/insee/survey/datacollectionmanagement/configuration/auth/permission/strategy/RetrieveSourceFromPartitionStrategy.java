@@ -9,7 +9,7 @@ public class RetrieveSourceFromPartitionStrategy implements SourceRetrievalStrat
     PartitioningService partitioningService;
 
     /**
-     * Retrieve source from interrogation
+     * Retrieve source from partition id
      * @param partitionId
      * @return
      */
