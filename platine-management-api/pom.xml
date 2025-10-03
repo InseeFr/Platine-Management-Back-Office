@@ -13,7 +13,7 @@
 
     <properties>
         <springdoc-version>2.8.0</springdoc-version>
-        <jakarta-version>3.1.0</jakarta-version>
+        <jakarta-version>4.0.0</jakarta-version>
         <cucumber.version>7.18.0</cucumber.version>
     </properties>
 
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>2.5.2</version>
+            <version>2.6.0</version>
         </dependency>
 
         <!--Cucumber-->
@@ -178,7 +178,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.12</version>
+                        <version>0.8.13</version>
                         <executions>
                             <execution>
                                 <id>report-aggregate</id>
