@@ -160,14 +160,18 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         boolean saved = false;
         if (lastEvent == null &&
                 (candidate.getType() == TypeQuestioningEvent.EXPERT
-                        || candidate.getType() == TypeQuestioningEvent.VALID)) {
+                        || candidate.getType() == TypeQuestioningEvent.VALID
+                        || candidate.getType() == TypeQuestioningEvent.NOQUAL)) {
             candidate = questioningEventRepository.save(candidate);
             saved = true;
         }
 
         if (lastEvent != null
                 && candidate.getType() != lastEvent.getType()
-                && candidate.getType() != TypeQuestioningEvent.EXPERT) {
+                && (candidate.getType() != TypeQuestioningEvent.EXPERT
+                || lastEvent.getType() == TypeQuestioningEvent.NOQUAL)
+                && !(lastEvent.getType() == TypeQuestioningEvent.EXPERT
+                    && candidate.getType() == TypeQuestioningEvent.VALID)) {
             candidate = questioningEventRepository.save(candidate);
             saved = true;
         }

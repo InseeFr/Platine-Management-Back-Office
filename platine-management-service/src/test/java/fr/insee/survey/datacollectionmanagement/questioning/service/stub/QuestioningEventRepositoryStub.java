@@ -132,7 +132,14 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
 
     @Override
     public <S extends QuestioningEvent> List<S> saveAll(Iterable<S> entities) {
-        return List.of();
+        Objects.requireNonNull(entities, "entities must not be null");
+
+        List<S> saved = new ArrayList<>();
+        for (S entity : entities) {
+            if (entity == null) continue;
+            saved.add(save(entity));
+        }
+        return saved;
     }
 
     @Override
