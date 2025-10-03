@@ -92,7 +92,7 @@ public class  ContactController {
 
     @Operation(summary = "Put contact info")
     @PutMapping(value = UrlConstants.API_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')" + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
                                                      @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                      @CurrentSecurityContext(expression = "authentication.name") String contactId) {
@@ -108,8 +108,6 @@ public class  ContactController {
         return ResponseEntity.ok(contact);
 
     }
-
-//    @PreAuthorize("hasPermission(#interroId, 'READ_ACCESS')")
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -198,16 +196,6 @@ public class  ContactController {
         }
         return new PageImpl<>(Collections.emptyList());
 
-    }
-
-    @Operation(summary = "Retrieve user roles and permissions")
-    @GetMapping(value = UrlConstants.API_CONTACT_ROLE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public AuthorizationProfile retrieveContactRole(Authentication authentication) {
-        if(authentication instanceof ProfiledAuthenticationToken token) {
-            return token.getProfile();
-        }
-        return AuthorizationProfile.emptyAuthorizationProfile();
     }
 
     static class ContactPage extends PageImpl<ContactDto> {

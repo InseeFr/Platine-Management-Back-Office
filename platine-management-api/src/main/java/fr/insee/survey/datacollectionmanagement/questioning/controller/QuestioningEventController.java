@@ -70,6 +70,7 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     public QuestioningEventDto postQuestioningEvent(@Parameter(description = "questioning id") UUID id,
                                                     @RequestBody QuestioningEventDto questioningEventDto) {
         QuestioningEvent questioningEvent = questioningEventService.convertToEntity(questioningEventDto);
@@ -79,6 +80,7 @@ public class QuestioningEventController {
 
     @Operation(summary = "Create a questioning event")
     @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
             @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningEventDto.class))),
@@ -94,6 +96,7 @@ public class QuestioningEventController {
 
     @Operation(summary = "Delete a questioning event")
     @DeleteMapping(value = {UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, UrlConstants.API_MOOG_DELETE_QUESTIONING_EVENT}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
@@ -121,6 +124,7 @@ public class QuestioningEventController {
     @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Expert event Created"),
             @ApiResponse(responseCode = "400", description = "Bad request"),

@@ -82,7 +82,7 @@ public class QuestioningController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')" + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
     public ResponseEntity<List<QuestioningDto>> getQuestioningsBySurveyUnit(@PathVariable("id") String id) {
         SurveyUnit su = surveyUnitService.findbyId(StringUtils.upperCase(id));
         return new ResponseEntity<>(su.getQuestionings().stream().map(this::convertToDto).toList(), HttpStatus.OK);
@@ -105,7 +105,7 @@ public class QuestioningController {
 
     @Operation(summary = "Give questioning main accreditation to target contact")
     @PutMapping(value = UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
     public void updateInterrogationToMainContactAsMain(
             @PathVariable("interrogationId") UUID interrogationId,
             @PathVariable("contactId") String contactId)  {

@@ -16,6 +16,7 @@ public record AuthorizationProfile(
             return false;
         }
 
+        // hasPermission doing this check already, should we removed it ?
         if(permission.isGlobalPermission()) {
             return true;
         }

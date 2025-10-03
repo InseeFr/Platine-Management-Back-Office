@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.controller;
 
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.AuthorizationProfile;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.ProfiledAuthenticationToken;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -29,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -169,6 +172,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
     }
 
+    @Operation(summary = "Retrieve user roles and permissions")
+    @GetMapping(value = UrlConstants.API_CONTACT_ROLE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public AuthorizationProfile retrieveContactRole(Authentication authentication) {
+        if(authentication instanceof ProfiledAuthenticationToken token) {
+            return token.getProfile();
+        }
+        return AuthorizationProfile.emptyAuthorizationProfile();
+    }
 
     private User convertToEntity(UserDto userDto) throws ParseException {
 

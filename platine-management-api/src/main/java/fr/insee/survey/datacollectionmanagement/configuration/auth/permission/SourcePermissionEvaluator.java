@@ -47,7 +47,6 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
             return false;
         }
 
-        // can doing this check also, should we remove it ?
         if(permissionToCheck.isGlobalPermission()) {
             return true;
         }
@@ -55,6 +54,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
         SourceRetrievalStrategy sourceRetrievalStrategy = sourceStrategies.get(permissionToCheck);
         if (sourceRetrievalStrategy == null) {
             // TODO: custom exception, no strategy found
+            // Why it should be an exception, permissions is not necessarily linked to a resource ?
             throw new RuntimeException("permission strategy not found");
         }
 
@@ -73,10 +73,5 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
                                  String targetType,
                                  Object permission) {
         return hasPermission(authentication, targetId, permission);
-    }
-
-    public boolean hasPermission(Authentication authentication,
-                                 Object permission) {
-        return hasPermission(authentication, null, permission);
     }
 }
