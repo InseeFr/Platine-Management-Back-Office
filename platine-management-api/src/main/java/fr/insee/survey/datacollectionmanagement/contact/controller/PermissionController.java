@@ -35,15 +35,5 @@ public class PermissionController {
         log.info("permission success for READ_ACCESS and id: {} !!!!!", interroId);
         // ...
     }
-
-    @Operation(summary = "Retrieve user roles")
-    @GetMapping(value = "/api/permissions", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public AuthorizationProfile ploup(Authentication authentication) {
-        if(authentication instanceof ProfiledAuthenticationToken token) {
-            return token.getProfile();
-        }
-        return AuthorizationProfile.emptyAuthorizationProfile();
-    }
 }
 

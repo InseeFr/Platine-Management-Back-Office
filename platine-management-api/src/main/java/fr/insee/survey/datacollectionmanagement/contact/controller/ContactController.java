@@ -2,6 +2,8 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.AuthorizationProfile;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.ProfiledAuthenticationToken;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -196,6 +198,16 @@ public class  ContactController {
         }
         return new PageImpl<>(Collections.emptyList());
 
+    }
+
+    @Operation(summary = "Retrieve user roles")
+    @GetMapping(value = UrlConstants.API_CONTACT_ROLE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public AuthorizationProfile retrieveContactRole(Authentication authentication) {
+        if(authentication instanceof ProfiledAuthenticationToken token) {
+            return token.getProfile();
+        }
+        return AuthorizationProfile.emptyAuthorizationProfile();
     }
 
     static class ContactPage extends PageImpl<ContactDto> {
