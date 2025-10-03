@@ -109,18 +109,25 @@ class ExpertEventComponentTest {
     }
 
     @Test
-    void transition_EXPERT_to_VALID_isNotAllowed_example() {
-        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.VALID)).isFalse();
-    }
-
-    @Test
-    void transition_toEXPERT_onlyFrom_NOQUAL_allowed_example() {
+    void transition_toEXPERT_onlyFrom_NOQUALorVALID_allowed_example() {
         assertThat(component.isTransitionAllowed(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.EXPERT)).isTrue();
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.VALID, TypeQuestioningEvent.EXPERT)).isTrue();
     }
 
     @Test
-    void transition_toEXPERT_fromOtherThan_NOQUAL_isNotAllowed_example() {
-        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.VALID, TypeQuestioningEvent.EXPERT)).isFalse();
+    void transition_toEXPERT_fromOtherThan_NOQUALorVALID_isNotAllowed_example() {
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.EXPERT)).isFalse();
+    }
+
+    @Test
+    void transition_fromENDEXPERT_to_NOQUALorEXPERT_isNotAllowed_example() {
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT)).isFalse();
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)).isFalse();
+    }
+
+    @Test
+    void transition_toNOQUAL_from_fromOtherThan_NOQUAL_isAllowed_example() {
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL)).isTrue();
     }
 
     @Test

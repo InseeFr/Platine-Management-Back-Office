@@ -230,19 +230,20 @@ class QuestioningEventServiceImplTest {
                 Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ONGEXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.NOQUAL, 0, 0),
                 Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.VALID, 9, 9),
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.VALID, 9, 9),
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL, 0, 0),
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.ENDEXPERT, 7, 7),
                 Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.ONGEXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.NOQUAL, 0, 0),
                 Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.EXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.VALID, 9, 9),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.EXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ENDEXPERT, 7, 7),
                 Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ONGEXPERT, 5, 5),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.VALID, 9, 9),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL, 0, 0)
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.VALID, 9, 9)
         );
     }
 
@@ -271,10 +272,9 @@ class QuestioningEventServiceImplTest {
         return Stream.of(
                 Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ONGEXPERT),
                 Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ENDEXPERT),
-                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.VALID),
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.EXPERT),
-                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.EXPERT),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT)
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)
         );
     }
 
