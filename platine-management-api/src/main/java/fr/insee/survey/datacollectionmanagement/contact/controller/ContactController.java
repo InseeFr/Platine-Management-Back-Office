@@ -200,7 +200,7 @@ public class  ContactController {
 
     }
 
-    @Operation(summary = "Retrieve user roles")
+    @Operation(summary = "Retrieve user roles and permissions")
     @GetMapping(value = UrlConstants.API_CONTACT_ROLE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public AuthorizationProfile retrieveContactRole(Authentication authentication) {
