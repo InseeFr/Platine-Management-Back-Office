@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import org.springframework.data.domain.Example;
@@ -35,7 +36,12 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
         return List.of();
     }
 
-    @Override
+  @Override
+  public List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(String campaignId) {
+    return List.of();
+  }
+
+  @Override
     public Set<Questioning> findBySurveyUnitIdSu(String idSu) {
         return Set.of();
     }
