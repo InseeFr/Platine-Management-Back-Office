@@ -283,19 +283,18 @@ class ContactControllerTest {
         assertThat(questioningAccreditations).isEmpty();
     }
 
-    String createResponseBody(String username)
-    {
+    String createResponseBody(String username) {
         return String.format("""
-        {
-            "username": "%s",
-            "habilitations": [
-                {
-                    "application": "%s",
-                    "role": "%s"
-                }
-            ]
-        }
-        """,
+                        {
+                            "username": "%s",
+                            "habilitations": [
+                                {
+                                    "application": "%s",
+                                    "role": "%s"
+                                }
+                            ]
+                        }
+                        """,
                 username,
                 applicationConfig.getLdapApiApplication(), applicationConfig.getLdapApiRole()
         );
@@ -391,7 +390,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
@@ -414,7 +413,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())

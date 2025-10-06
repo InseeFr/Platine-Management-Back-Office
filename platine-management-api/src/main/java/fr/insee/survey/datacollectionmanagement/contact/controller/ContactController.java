@@ -94,7 +94,7 @@ public class  ContactController {
 
     @Operation(summary = "Put contact info")
     @PutMapping(value = UrlConstants.API_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
                                                      @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                      @CurrentSecurityContext(expression = "authentication.name") String contactId) {
