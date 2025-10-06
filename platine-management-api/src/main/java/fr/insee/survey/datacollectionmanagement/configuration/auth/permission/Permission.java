@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Permission {
 
-    READ_AND_WRITE(true);
+    READ_SUPPORT(true);
 
     private final boolean isGlobalPermission;
     public boolean isGlobalPermission() {

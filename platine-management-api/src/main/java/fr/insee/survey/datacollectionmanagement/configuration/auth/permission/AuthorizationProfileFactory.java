@@ -14,8 +14,8 @@ public class AuthorizationProfileFactory {
         Set<Permission> permissions = new HashSet<>();
 
         for(AuthorityRoleEnum applicationRole : applicationRoles) {
-            if (!Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.SUPPORT)) {
-                permissions.add(Permission.READ_AND_WRITE);
+            if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.SUPPORT)) {
+                permissions.add(Permission.READ_SUPPORT);
             }
         }
         return new AuthorizationProfile(applicationRoles, sources, permissions);

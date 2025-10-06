@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.permission;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.strategy.SourceRetrievalStrategy;
-import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -17,7 +16,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
     private final Map<Permission, SourceRetrievalStrategy> sourceStrategies;
 
     /**
-     * Chech a permission with a target (ex. @PreAuthorize("hasPermission(#interroId, 'READ_INTERRO')"))
+     * Chech a permission with a target (ex. @PreAuthorize("hasPermission(#interroId, 'READ_SUPPORT')"))
      */
     @Override
     public boolean hasPermission(Authentication authentication,
@@ -37,10 +36,6 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
         }
 
         AuthorizationProfile profile = ((ProfiledAuthenticationToken) authentication).getProfile();
-        if(profile.appRoles().contains(AuthorityRoleEnum.ADMIN)) {
-            return true;
-        }
-
         Permission permissionToCheck = Permission.valueOf((String) permission);
 
         if(!profile.permissions().contains(permissionToCheck)) {
@@ -53,9 +48,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
 
         SourceRetrievalStrategy sourceRetrievalStrategy = sourceStrategies.get(permissionToCheck);
         if (sourceRetrievalStrategy == null) {
-            // TODO: custom exception, no strategy found
-            // Why it should be an exception, permissions is not necessarily linked to a resource ?
-            throw new RuntimeException("permission strategy not found");
+            throw new SourceRetrievalStrategyException("permission strategy not found for given sources");
         }
 
         String sourceId = sourceRetrievalStrategy.getSourceId(targetDomainObject);

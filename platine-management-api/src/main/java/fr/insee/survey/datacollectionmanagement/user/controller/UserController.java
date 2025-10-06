@@ -175,7 +175,7 @@ public class UserController {
     @Operation(summary = "Retrieve user roles and permissions")
     @GetMapping(value = UrlConstants.API_USER_ROLE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-    public AuthorizationProfile retrieveContactRole(Authentication authentication) {
+    public AuthorizationProfile retrieveUserRole(Authentication authentication) {
         if(authentication instanceof ProfiledAuthenticationToken token) {
             return token.getProfile();
         }

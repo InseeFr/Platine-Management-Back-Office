@@ -32,7 +32,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 
 @RestController
-@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +47,7 @@ public class PartitioningController {
 
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
     public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(id);
         return ResponseEntity.ok()
@@ -59,6 +59,7 @@ public class PartitioningController {
 
     @Operation(summary = "Search for a partitioning by its id")
     @GetMapping(value = UrlConstants.API_PARTITIONINGS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<PartitioningDto> getPartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(partitioning));
@@ -73,6 +74,7 @@ public class PartitioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<PartitioningDto> putPartitioning(@PathVariable("id") String id,
                                                            @RequestBody PartitioningDto partitioningDto) {
         if (!partitioningDto.getId().equalsIgnoreCase(id)) {
@@ -101,6 +103,7 @@ public class PartitioningController {
     @DeleteMapping(value = UrlConstants.API_PARTITIONINGS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void deletePartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(id);
         partitioningService.deletePartitioningById(id);

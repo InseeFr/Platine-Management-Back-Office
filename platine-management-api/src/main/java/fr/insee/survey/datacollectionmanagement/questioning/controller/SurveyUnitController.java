@@ -66,7 +66,7 @@ public class SurveyUnitController {
     @Operation(summary = "Multi-criteria search survey-unit")
     @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public Page<SearchSurveyUnitDto> searchSurveyUnits(@RequestParam(required = true) String searchParam, @RequestParam(required = true) @Valid @ValidSurveyUnitParam @Schema(description = "id or code or name") String searchType, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
         log.info("Search surveyUnit by {} with param = {} page = {} pageSize = {}", searchType, searchParam, page, pageSize);
 
@@ -86,7 +86,7 @@ public class SurveyUnitController {
     @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDetailsDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public SurveyUnitDetailsDto findSurveyUnit(@PathVariable("id") String id) {
         return surveyUnitService.getDetailsById(id);
     }
@@ -95,7 +95,7 @@ public class SurveyUnitController {
     @Operation(summary = "Multi-criteria search survey-unit")
     @GetMapping(value = UrlConstants.API_SURVEY_UNITS_SEARCH + "/V2", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchSurveyUnitDto.class)))), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad Request")})
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public Page<SearchSurveyUnitDto> searchSurveyUnitsByParam(@RequestParam(required = true) String searchParam, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "20") Integer pageSize) {
         log.info("Search surveyUnit ith param = {} page = {} pageSize = {}", searchParam, page, pageSize);
 
@@ -108,7 +108,7 @@ public class SurveyUnitController {
     @Operation(summary = "Create or update a survey unit")
     @PutMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))), @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = SurveyUnitDto.class))), @ApiResponse(responseCode = "400", description = "Bad request")})
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<SurveyUnitDto> putSurveyUnit(@PathVariable("id") String id, @RequestBody @Valid SurveyUnitDto surveyUnitDto) {
         if (!surveyUnitDto.getIdSu().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSu don't match");
@@ -142,7 +142,7 @@ public class SurveyUnitController {
     @DeleteMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "No content"), @ApiResponse(responseCode = "404", description = "Not found"), @ApiResponse(responseCode = "400", description = "Bad request")})
     @Deprecated(since = "2.6.0", forRemoval = true)
-    @PreAuthorize("hasPermission(null, 'READ_AND_WRITE')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void deleteSurveyUnit(@PathVariable("id") String id) {
         log.warn("DEPRECATED");
         SurveyUnit surveyUnit = surveyUnitService.findbyId(id);
