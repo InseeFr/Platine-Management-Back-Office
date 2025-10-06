@@ -40,4 +40,10 @@ class ExpertEventValidatorTest {
         IsExpertEventValidator validator = new IsExpertEventValidator();
         Assertions.assertTrue(validator.isValid(TypeQuestioningEvent.ENDEXPERT,null));
     }
+
+    @Test
+    void noqual_isValid() {
+        IsExpertEventValidator validator = new IsExpertEventValidator();
+        Assertions.assertTrue(validator.isValid(TypeQuestioningEvent.NOQUAL,null));
+    }
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IsExpertEvent {
-    String message() default "type must be one of EXPERT, ONGEXPERT, VALID, ENDEXPERT";
+    String message() default "type must be one of EXPERT, ONGEXPERT, VALID, ENDEXPERT, NOQUAL";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

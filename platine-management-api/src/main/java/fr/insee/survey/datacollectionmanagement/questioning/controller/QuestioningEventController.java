@@ -117,7 +117,7 @@ public class QuestioningEventController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
     }
 
-    @Operation(summary = "Create a expert event [EXPERT, ONGEXPERT, VALID, ENDEXPERT] for a questioning")
+    @Operation(summary = "Create a expert event [EXPERT, ONGEXPERT, VALID, ENDEXPERT, NOQUAL] for a questioning")
     @PostMapping(value = UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
