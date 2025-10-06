@@ -117,7 +117,7 @@ public class UrlConstants {
     public static final String API_MY_QUESTIONNAIRES = "/api/contacts/questionnaires";
     public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey-units/{id}/contacts";
     public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey-units/{id}/partitionings";
-    public static final String API_CONTACT_ROLE = "/api/contact/role";
+    public static final String API_USER_ROLE = "/api/user/role";
 
 
     public static final String API_SURVEY_UNITS_SEARCH = "/api/survey-units/search";
