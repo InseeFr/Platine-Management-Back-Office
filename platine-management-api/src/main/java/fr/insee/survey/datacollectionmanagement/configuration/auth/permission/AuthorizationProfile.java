@@ -11,11 +11,7 @@ public record AuthorizationProfile(
         Set<Permission> permissions
 ) {
 
-    public boolean can(@NonNull Permission permission, @NonNull String sourceId) {
-        if(!this.permissions.contains(permission)) {
-            return false;
-        }
-
+    public boolean can(@NonNull String sourceId) {
         if(sources == null) {
             return false;
         }

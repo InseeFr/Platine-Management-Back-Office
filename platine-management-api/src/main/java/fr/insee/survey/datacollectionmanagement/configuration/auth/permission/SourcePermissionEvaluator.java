@@ -52,7 +52,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
         }
 
         String sourceId = sourceRetrievalStrategy.getSourceId(targetDomainObject);
-        return profile.can(permissionToCheck, sourceId);
+        return profile.can(sourceId);
     }
 
     /**
