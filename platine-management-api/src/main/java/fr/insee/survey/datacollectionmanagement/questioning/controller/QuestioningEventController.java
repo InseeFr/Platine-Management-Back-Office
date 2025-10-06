@@ -131,6 +131,10 @@ public class QuestioningEventController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     public void createExpertEvent(@PathVariable UUID id, @RequestBody @Valid ExpertEventDto expertEventDto) {
+        log.info("Creation of a new expert event: type {}, score {}, score-init {}",
+                expertEventDto.type(),
+                expertEventDto.score(),
+                expertEventDto.scoreInit());
         questioningEventService.postExpertEvent(id, expertEventDto);
     }
 
