@@ -48,7 +48,7 @@ public class SourcePermissionEvaluator implements PermissionEvaluator {
 
         SourceRetrievalStrategy sourceRetrievalStrategy = sourceStrategies.get(permissionToCheck);
         if (sourceRetrievalStrategy == null) {
-            throw new SourceRetrievalStrategyException("permission strategy not found for given sources");
+            throw new SourceRetrievalStrategyException(targetDomainObject);
         }
 
         String sourceId = sourceRetrievalStrategy.getSourceId(targetDomainObject);

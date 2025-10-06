@@ -13,9 +13,7 @@ import java.util.Map;
 public class SourceRetrievalStrategyConfig {
     @Bean
     public Map<Permission, SourceRetrievalStrategy> sourcesStrategies(
-            RetrieveSourceFromInterrogationStrategy fromInterrogationStrategy,
             RetrieveSourceFromPartitionStrategy fromPartitionStrategy) {
-
-        return Map.of(Permission.READ_SUPPORT, fromInterrogationStrategy);
+        return Map.of(Permission.READ_SUPPORT, fromPartitionStrategy);
     }
 }
