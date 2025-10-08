@@ -223,7 +223,7 @@
       "emailVerified": true,
       "firstName": "Alan",
       "lastName": "Maman",
-      "email": "e2e_support_1@insee.fr",
+      "email": "e2esupport1@insee.fr",
       "credentials": [
         {
           "type": "password",

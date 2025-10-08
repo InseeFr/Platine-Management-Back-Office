@@ -88,6 +88,8 @@ VALUES
 ('E2E_RESPON_4',   'No comment', 'e2erespon4@insee.fr', 'Dana', 'Producer', 'Female', 'Owens', '0600000000', 1, NULL, false,  '', NULL),
 ('E2E_RESPON_EEC', 'No comment', 'e2erespon_eec@insee.fr', 'Nayvadius', '', 'Male', 'Cash', '0600000000', 1, NULL, false,  '', NULL),
 ('E2E_RESPON_CLOSED', 'No comment', 'e2erespon_closed@insee.fr', 'Skye', '', 'Female', 'Edwards', '0600000000', 1, NULL, false,  '', NULL);
+('E2E_SUPPORT_1',   'No comment', 'e2esupport1@insee.fr', 'Alan', '', 'Male', 'Maman', '0600000000', 1, NULL, false,  NULL, NULL),
+
 
                                  -- E2E tests contacts events --
 
