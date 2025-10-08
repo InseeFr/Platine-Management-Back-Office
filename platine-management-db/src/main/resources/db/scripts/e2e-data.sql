@@ -104,7 +104,6 @@ VALUES
 (6, '2023-03-21 16:19:45.648', 4, 'E2E_RESPON_4', NULL),
 (7, '2023-03-21 16:19:45.648', 4, 'E2E_SUPPORT_1', NULL);
 
-
                                  -- E2E tests survey unit --
 
 INSERT INTO public.survey_unit

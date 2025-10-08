@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @RequiredArgsConstructor
@@ -30,7 +31,6 @@ public class SearchQuestioningController {
 
     @Operation(summary = "Multi-criteria search questionings")
     @PostMapping(value = UrlConstants.API_QUESTIONINGS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
     public Slice<SearchQuestioningDto> searchQuestionings(
             @RequestBody(required = false) SearchQuestioningParams searchParams,
             @RequestParam(defaultValue = "0") Integer page,
@@ -52,8 +52,6 @@ public class SearchQuestioningController {
 
     @Operation(summary = "Get questioning details")
     @GetMapping(value = UrlConstants.API_QUESTIONINGS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
-
     public QuestioningDetailsDto getQuestioning (@PathVariable("id") UUID id) {
         return questioningService.getQuestioningDetails(id);
     }

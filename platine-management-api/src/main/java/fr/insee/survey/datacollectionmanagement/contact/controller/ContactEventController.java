@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController(value = "contactEvents")
-@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Enpoints to create, update, delete and find contacts")
 @RequiredArgsConstructor
 @Validated
@@ -81,6 +80,8 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);
         return ResponseEntity.status(HttpStatus.OK)

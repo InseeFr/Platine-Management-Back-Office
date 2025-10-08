@@ -2,8 +2,6 @@ package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.AuthorizationProfile;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.ProfiledAuthenticationToken;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -47,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "1 - Contacts", description = "Endpoints to create, update, delete and find contacts")
 @Slf4j
 @RequiredArgsConstructor
@@ -78,7 +77,6 @@ public class  ContactController {
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES +
             " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
-            " || " + AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES +
             " || hasPermission(null, 'READ_SUPPORT')")
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
@@ -163,7 +161,6 @@ public class  ContactController {
 
     @Operation(summary = "Give questioning main accreditation to a created target contact")
     @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
             @PathVariable("interrogationId") UUID interrogationId,
             @RequestBody ContactDto contactDto)  {

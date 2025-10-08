@@ -74,6 +74,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
+@PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Tag(name = "3 - Metadata", description = "Endpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @Validated
@@ -96,7 +97,6 @@ public class CampaignController {
 
     @Operation(summary = "Search for campaigns, paginated")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public CampaignPage getCampaigns(
 
             @RequestParam(defaultValue = "0") Integer page,
@@ -110,7 +110,6 @@ public class CampaignController {
 
     @Operation(summary = "Search for campaigns by the survey id")
     @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<CampaignDto> getCampaignsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
@@ -120,7 +119,6 @@ public class CampaignController {
 
     @Operation(summary = "Search for campaigns and partitionings by the survey id")
     @GetMapping(value = UrlConstants.API_SURVEYS_ID_CAMPAIGNS_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<CampaignPartitioningsDto> getCampaignsPartitioningsBySurvey(@PathVariable("id") String id) {
 
         Survey survey = surveyService.findById(id);
@@ -135,7 +133,6 @@ public class CampaignController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<CampaignDto> getCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(campaign));
@@ -145,7 +142,6 @@ public class CampaignController {
 
     @Operation(summary = "Get campaign parameters")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         return campaign.getParams().stream().map(this::convertToDto).toList();
@@ -153,7 +149,6 @@ public class CampaignController {
 
     @Operation(summary = "Create a parameter for a campaign")
     @PutMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Campaign campaign = campaignService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);
@@ -176,7 +171,6 @@ public class CampaignController {
             },
                     schema = @Schema(implementation = CampaignDto.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<CampaignDto> putCampaign(@PathVariable("id") String id, @RequestBody @Valid CampaignDto campaignDto) {
         if (!campaignDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idCampaign don't match");
@@ -203,7 +197,6 @@ public class CampaignController {
     @DeleteMapping(value = {UrlConstants.API_CAMPAIGNS_ID, UrlConstants.MOOG_API_CAMPAIGNS_ID})
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
         Campaign campaign = campaignService.findById(id);
         if (campaignService.isCampaignOngoing(id)) {
@@ -234,7 +227,6 @@ public class CampaignController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = OnGoingDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public OnGoingDto isOnGoingCampaign(@PathVariable("id") String id) {
         return new OnGoingDto(campaignService.isCampaignOngoing(id));
     }
@@ -258,7 +250,6 @@ public class CampaignController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignCommonsDto.class))),
             @ApiResponse(responseCode = "404", description = "Not found")
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public CampaignCommonsDto getCommonsCampaignsById(@PathVariable("id") String id) {
         return campaignService.findCampaignDtoById(id);
     }
