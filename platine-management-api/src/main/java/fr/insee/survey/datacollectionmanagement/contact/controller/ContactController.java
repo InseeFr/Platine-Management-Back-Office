@@ -79,7 +79,7 @@ public class  ContactController {
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES +
             " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
             " || " + AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES +
-            " || + hasPermission(null, 'READ_SUPPORT')")
+            " || hasPermission(null, 'READ_SUPPORT')")
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         return contactService.getContactDetails(idContact);
