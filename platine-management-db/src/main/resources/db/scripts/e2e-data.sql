@@ -87,8 +87,8 @@ VALUES
 ('E2E_RESPON_3',   'No comment', 'e2erespon3@insee.fr', 'Patrick Earl', 'CEO', 'Male', 'Houston', '0600000000', 1, NULL, false,  'Ghetty Green Inc.', NULL),
 ('E2E_RESPON_4',   'No comment', 'e2erespon4@insee.fr', 'Dana', 'Producer', 'Female', 'Owens', '0600000000', 1, NULL, false,  '', NULL),
 ('E2E_RESPON_EEC', 'No comment', 'e2erespon_eec@insee.fr', 'Nayvadius', '', 'Male', 'Cash', '0600000000', 1, NULL, false,  '', NULL),
-('E2E_RESPON_CLOSED', 'No comment', 'e2erespon_closed@insee.fr', 'Skye', '', 'Female', 'Edwards', '0600000000', 1, NULL, false,  '', NULL);
-('E2E_SUPPORT_1',   'No comment', 'e2esupport1@insee.fr', 'Alan', '', 'Male', 'Maman', '0600000000', 1, NULL, false,  NULL, NULL),
+('E2E_RESPON_CLOSED', 'No comment', 'e2erespon_closed@insee.fr', 'Skye', '', 'Female', 'Edwards', '0600000000', 1, NULL, false,  '', NULL),
+('E2E_SUPPORT_1',   'No comment', 'e2esupport1@insee.fr', 'Alan', '', 'Male', 'Maman', '0600000000', 1, NULL, false,  NULL, NULL);
 
 
                                  -- E2E tests contacts events --
@@ -102,6 +102,8 @@ VALUES
 (4, '2023-03-21 16:19:45.648', 3, 'E2E_RESPON_EEC', NULL),
 (5, '2023-03-21 16:19:45.648', 3, 'E2E_RESPON_CLOSED', NULL),
 (6, '2023-03-21 16:19:45.648', 4, 'E2E_RESPON_4', NULL);
+(6, '2023-03-21 16:19:45.648', 4, 'E2E_SUPPORT_1', NULL);
+
 
                                  -- E2E tests survey unit --
 
