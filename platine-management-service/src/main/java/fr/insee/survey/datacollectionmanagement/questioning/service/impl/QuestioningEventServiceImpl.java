@@ -19,6 +19,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
@@ -155,6 +157,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                         || (lastExpertEvent != null && expertEventComponent.isTransitionAllowed(lastExpertEvent.getType(), newType));
 
         if (!shouldSaveNewEvent) {
+            log.info("Expert event {} has not been saved", expertEventDto.type());
             return;
         }
 
@@ -164,6 +167,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         created.setDate(new Date());
 
         created = questioningEventRepository.save(created);
+
+        log.info("New expert event {} has been saved", newType);
 
         questioning.getQuestioningEvents().add(created);
         refreshHighestEvent(questioning.getId());
