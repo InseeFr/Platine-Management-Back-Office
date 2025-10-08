@@ -50,7 +50,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class  ContactController {
+public class ContactController {
 
     private final ContactService contactService;
 

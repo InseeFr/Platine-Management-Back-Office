@@ -1,403 +1,324 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.permission;
 
+import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
 import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JwtAuthenticationConverterTest {
-
-    @Mock
-    private ProfileFactory profileFactory;
+class ProfiledAuthenticationConverterTest {
 
     @Mock
     private ApplicationConfig applicationConfig;
 
     @Mock
-    private AuthorizationProfile authorizationProfile;
+    private AuthorizationProfileFactory profileFactory;
 
-    private JwtAuthenticationConverter converter;
+    private ProfiledAuthenticationConverter converter;
 
-    private Map<String, List<GrantedAuthority>> roles;
-    private String principalClaimName = "preferred_username";
+    private static final String PRINCIPAL_CLAIM_NAME = "preferred_username";
 
     @BeforeEach
     void setUp() {
-        roles = new HashMap<>();
-        converter = new JwtAuthenticationConverter();
+        // Setup default application config
+        when(applicationConfig.getRoleAdmin()).thenReturn(Arrays.asList("ROLE_ADMIN", "ADMIN"));
+        when(applicationConfig.getRoleRespondent()).thenReturn(Arrays.asList("ROLE_RESPONDENT"));
+        when(applicationConfig.getRoleInternalUser()).thenReturn(Arrays.asList("ROLE_INTERNAL_USER"));
+        when(applicationConfig.getRoleWebClient()).thenReturn(Arrays.asList("ROLE_WEB_CLIENT"));
+        when(applicationConfig.getRolePortal()).thenReturn(Arrays.asList("ROLE_PORTAL"));
+        when(applicationConfig.getRoleReader()).thenReturn(Arrays.asList("ROLE_READER"));
+        when(applicationConfig.getRoleSupport()).thenReturn(Arrays.asList("ROLE_SUPPORT"));
+        when(applicationConfig.getRoleClaim()).thenReturn(null);
 
-        // Initialize roles for testing
-        List<String> adminConfigRoles = Arrays.asList("ADMIN", "SUPER_ADMIN");
-        List<String> userConfigRoles = Arrays.asList("USER", "BASIC_USER");
+        // Setup profile factory to return a basic profile
+        when(profileFactory.buildProfile(any(), any())).thenAnswer(invocation -> {
+            Set<AuthorityRoleEnum> roles = invocation.getArgument(0);
+            Set<String> sources = invocation.getArgument(1);
+            return new AuthorizationProfile(roles, sources, new HashSet<>());
+        });
 
-        fillGrantedRoles(adminConfigRoles, AuthorityRoleEnum.ADMIN);
-        fillGrantedRoles(userConfigRoles, AuthorityRoleEnum.USER);
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
     }
 
     @Test
-    void convert_shouldCreateProfiledAuthenticationTokenWithCorrectAttributes() {
+    void testConvert_withValidJwt_shouldReturnAuthenticationToken() {
         // Given
         String username = "testuser";
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, username);
-
-        Map<String, Object> realmAccess = new HashMap<>();
-        realmAccess.put("roles", Arrays.asList("ADMIN", "USER"));
-        claims.put("realm_access", realmAccess);
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn(null);
-        when(profileFactory.buildProfile(any(), any())).thenReturn(authorizationProfile);
+        Jwt jwt = createJwt(username, Arrays.asList("ROLE_ADMIN"));
 
         // When
-        ProfiledAuthenticationToken result = (ProfiledAuthenticationToken) converter.convert(jwt);
+        AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
         assertThat(result).isNotNull();
+        assertThat(result).isInstanceOf(ProfiledAuthenticationToken.class);
         assertThat(result.getName()).isEqualTo(username);
-        assertThat(result.getProfile()).isEqualTo(authorizationProfile);
         assertThat(result.getAuthorities()).isNotEmpty();
-        verify(profileFactory).buildProfile(any(Set.class), any(Set.class));
     }
 
     @Test
-    void convert_shouldExtractAuthoritiesFromApplicationRoles() {
+    void testConvert_withAdminRole_shouldGrantAdminAuthority() {
         // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-
-        Map<String, Object> realmAccess = new HashMap<>();
-        realmAccess.put("roles", Arrays.asList("ADMIN"));
-        claims.put("realm_access", realmAccess);
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn(null);
-        when(profileFactory.buildProfile(any(), any())).thenReturn(authorizationProfile);
+        Jwt jwt = createJwt("admin", Arrays.asList("ROLE_ADMIN"));
 
         // When
-        ProfiledAuthenticationToken result = (ProfiledAuthenticationToken) converter.convert(jwt);
+        AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
+        assertThat(result.getAuthorities()).hasSize(1);
         assertThat(result.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .contains("ROLE_ADMIN");
+                .contains(AuthorityRoleEnum.ADMIN.securityRole());
     }
 
     @Test
-    void getApplicationRoles_shouldReturnEmptySetWhenUserRolesIsNull() {
+    void testConvert_withMultipleRoles_shouldGrantMultipleAuthorities() {
         // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("custom_roles");
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN", "ROLE_READER", "ROLE_SUPPORT"));
 
         // When
-        Set<AuthorityRoleEnum> result = converter.getApplicationRoles(jwt);
+        AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getApplicationRoles_shouldFilterNullAndBlankRoles() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-        claims.put("custom_roles", Arrays.asList("ADMIN", null, "", "  ", "USER"));
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("custom_roles");
-
-        // When
-        Set<AuthorityRoleEnum> result = converter.getApplicationRoles(jwt);
-
-        // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).contains(AuthorityRoleEnum.ADMIN, AuthorityRoleEnum.USER);
-    }
-
-    @Test
-    void getApplicationRoles_shouldOnlyIncludeRolesInConfiguredMapping() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-        claims.put("custom_roles", Arrays.asList("ADMIN", "UNKNOWN_ROLE", "USER"));
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("custom_roles");
-
-        // When
-        Set<AuthorityRoleEnum> result = converter.getApplicationRoles(jwt);
-
-        // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).contains(AuthorityRoleEnum.ADMIN, AuthorityRoleEnum.USER);
-        assertThat(result).doesNotContain(AuthorityRoleEnum.UNKNOWN);
-    }
-
-    @Test
-    void getApplicationRoles_shouldReturnDistinctRoles() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-        claims.put("custom_roles", Arrays.asList("ADMIN", "SUPER_ADMIN", "ADMIN"));
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("custom_roles");
-
-        // When
-        Set<AuthorityRoleEnum> result = converter.getApplicationRoles(jwt);
-
-        // Then
-        assertThat(result).containsExactly(AuthorityRoleEnum.ADMIN);
-    }
-
-    @Test
-    void fillGrantedRoles_shouldNotModifyRolesMapWhenConfigRolesIsNull() {
-        // Given
-        Map<String, List<GrantedAuthority>> rolesBeforeFill = new HashMap<>(roles);
-
-        // When
-        fillGrantedRoles(null, AuthorityRoleEnum.ADMIN);
-
-        // Then
-        assertThat(roles).isEqualTo(rolesBeforeFill);
-    }
-
-    @Test
-    void fillGrantedRoles_shouldSkipNullConfigRoles() {
-        // Given
-        List<String> configRoles = Arrays.asList("VALID_ROLE", null, "ANOTHER_VALID");
-        int initialSize = roles.size();
-
-        // When
-        fillGrantedRoles(configRoles, AuthorityRoleEnum.VIEWER);
-
-        // Then
-        assertThat(roles).containsKey("VALID_ROLE");
-        assertThat(roles.get("VALID_ROLE"))
+        assertThat(result.getAuthorities()).hasSize(3);
+        assertThat(result.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .contains("ROLE_VIEWER");
+                .containsExactlyInAnyOrder(
+                        AuthorityRoleEnum.ADMIN.securityRole(),
+                        AuthorityRoleEnum.READER.securityRole(),
+                        AuthorityRoleEnum.SUPPORT.securityRole()
+                );
     }
 
     @Test
-    void fillGrantedRoles_shouldSkipBlankConfigRoles() {
+    void testConvert_withDuplicateRoles_shouldReturnDistinctAuthorities() {
         // Given
-        List<String> configRoles = Arrays.asList("VALID_ROLE", "", "  ");
+        when(applicationConfig.getRoleAdmin()).thenReturn(Arrays.asList("ROLE_ADMIN", "ADMIN"));
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN", "ADMIN"));
 
         // When
-        fillGrantedRoles(configRoles, AuthorityRoleEnum.EDITOR);
+        AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
-        assertThat(roles).containsKey("VALID_ROLE");
-        assertThat(roles.get("VALID_ROLE"))
+        assertThat(result.getAuthorities()).hasSize(1);
+        assertThat(result.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
-                .contains("ROLE_EDITOR");
+                .contains(AuthorityRoleEnum.ADMIN.securityRole());
     }
 
     @Test
-    void fillGrantedRoles_shouldAddAuthoritiesToExistingKey() {
+    void testConvert_withNoMatchingRoles_shouldReturnEmptyAuthorities() {
         // Given
-        List<String> firstRoles = Arrays.asList("SHARED_ROLE");
-        List<String> secondRoles = Arrays.asList("SHARED_ROLE");
+        Jwt jwt = createJwt("user", Arrays.asList("UNKNOWN_ROLE", "INVALID_ROLE"));
 
         // When
-        fillGrantedRoles(firstRoles, AuthorityRoleEnum.ADMIN);
-        fillGrantedRoles(secondRoles, AuthorityRoleEnum.USER);
+        AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
-        assertThat(roles.get("SHARED_ROLE")).hasSize(2);
-        assertThat(roles.get("SHARED_ROLE"))
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactlyInAnyOrder("ROLE_ADMIN", "ROLE_USER");
-    }
-
-    @Test
-    void fillGrantedRoles_shouldCreateNewEntryForNewRole() {
-        // Given
-        List<String> configRoles = Arrays.asList("NEW_ROLE");
-
-        // When
-        fillGrantedRoles(configRoles, AuthorityRoleEnum.MODERATOR);
-
-        // Then
-        assertThat(roles).containsKey("NEW_ROLE");
-        assertThat(roles.get("NEW_ROLE")).hasSize(1);
-        assertThat(roles.get("NEW_ROLE").get(0).getAuthority()).isEqualTo("ROLE_MODERATOR");
-    }
-
-    @Test
-    void getUserRoles_shouldUseRealmAccessWhenRoleClaimIsNull() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        Map<String, Object> realmAccess = new HashMap<>();
-        List<String> expectedRoles = Arrays.asList("admin", "user");
-        realmAccess.put("roles", expectedRoles);
-        claims.put("realm_access", realmAccess);
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn(null);
-
-        // When
-        List<String> result = converter.getUserRoles(jwt);
-
-        // Then
-        assertThat(result).isEqualTo(expectedRoles);
-    }
-
-    @Test
-    void getUserRoles_shouldUseRealmAccessWhenRoleClaimIsBlank() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        Map<String, Object> realmAccess = new HashMap<>();
-        List<String> expectedRoles = Arrays.asList("admin", "user");
-        realmAccess.put("roles", expectedRoles);
-        claims.put("realm_access", realmAccess);
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("  ");
-
-        // When
-        List<String> result = converter.getUserRoles(jwt);
-
-        // Then
-        assertThat(result).isEqualTo(expectedRoles);
-    }
-
-    @Test
-    void getUserRoles_shouldUseCustomRoleClaimWhenConfigured() {
-        // Given
-        String customClaimName = "custom_roles";
-        List<String> expectedRoles = Arrays.asList("custom_admin", "custom_user");
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(customClaimName, expectedRoles);
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn(customClaimName);
-
-        // When
-        List<String> result = converter.getUserRoles(jwt);
-
-        // Then
-        assertThat(result).isEqualTo(expectedRoles);
-    }
-
-    @Test
-    void getUserRoles_shouldReturnNullWhenCustomClaimNotPresent() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("non_existent_claim");
-
-        // When
-        List<String> result = converter.getUserRoles(jwt);
-
-        // Then
-        assertThat(result).isNull();
-    }
-
-    @Test
-    void convert_shouldHandleEmptyRolesList() {
-        // Given
-        Map<String, Object> claims = new HashMap<>();
-        claims.put(principalClaimName, "user");
-        claims.put("custom_roles", Collections.emptyList());
-
-        Jwt jwt = createJwt(claims);
-
-        when(applicationConfig.getRoleClaim()).thenReturn("custom_roles");
-        when(profileFactory.buildProfile(any(), any())).thenReturn(authorizationProfile);
-
-        // When
-        ProfiledAuthenticationToken result = (ProfiledAuthenticationToken) converter.convert(jwt);
-
-        // Then
-        assertThat(result).isNotNull();
         assertThat(result.getAuthorities()).isEmpty();
     }
 
-    // Helper methods
-    private Jwt createJwt(Map<String, Object> claims) {
+    @Test
+    void testConvert_withNullRolesInJwt_shouldReturnEmptyAuthorities() {
+        // Given
+        Jwt jwt = createJwtWithoutRoles("user");
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void testConvert_withEmptyRoles_shouldReturnEmptyAuthorities() {
+        // Given
+        Jwt jwt = createJwt("user", Collections.emptyList());
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void testConvert_withBlankRolesInList_shouldFilterThem() {
+        // Given
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN", "", "  ", "ROLE_READER"));
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).hasSize(2);
+        assertThat(result.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
+                .containsExactlyInAnyOrder(
+                        AuthorityRoleEnum.ADMIN.securityRole(),
+                        AuthorityRoleEnum.READER.securityRole()
+                );
+    }
+
+    @Test
+    void testConvert_withCustomRoleClaim_shouldExtractRolesFromCustomClaim() {
+        // Given
+        String customClaimName = "custom_roles";
+        when(applicationConfig.getRoleClaim()).thenReturn(customClaimName);
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(PRINCIPAL_CLAIM_NAME, "user");
+        claims.put(customClaimName, Arrays.asList("ROLE_ADMIN"));
+
+        Jwt jwt = createJwtWithClaims(claims);
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).hasSize(1);
+        assertThat(result.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
+                .contains(AuthorityRoleEnum.ADMIN.securityRole());
+    }
+
+    @Test
+    void testConvert_allRoleTypes_shouldMapCorrectly() {
+        // Given
+        Jwt jwt = createJwt("user", Arrays.asList(
+                "ROLE_ADMIN",
+                "ROLE_RESPONDENT",
+                "ROLE_INTERNAL_USER",
+                "ROLE_WEB_CLIENT",
+                "ROLE_PORTAL",
+                "ROLE_READER",
+                "ROLE_SUPPORT"
+        ));
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).hasSize(7);
+        assertThat(result.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
+                .containsExactlyInAnyOrder(
+                        AuthorityRoleEnum.ADMIN.securityRole(),
+                        AuthorityRoleEnum.RESPONDENT.securityRole(),
+                        AuthorityRoleEnum.INTERNAL_USER.securityRole(),
+                        AuthorityRoleEnum.WEB_CLIENT.securityRole(),
+                        AuthorityRoleEnum.PORTAL.securityRole(),
+                        AuthorityRoleEnum.READER.securityRole(),
+                        AuthorityRoleEnum.SUPPORT.securityRole()
+                );
+    }
+
+    @Test
+    void testFillGrantedRoles_withNullConfigRoles_shouldHandleGracefully() {
+        // Given
+        when(applicationConfig.getRoleAdmin()).thenReturn(null);
+
+        // When/Then - Should not throw exception
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN"));
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        assertThat(result.getAuthorities()).isEmpty();
+    }
+
+    @Test
+    void testFillGrantedRoles_withBlankConfigRole_shouldSkipIt() {
+        // Given
+        when(applicationConfig.getRoleAdmin()).thenReturn(Arrays.asList("ROLE_ADMIN", "", null));
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
+
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN"));
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getAuthorities()).hasSize(1);
+    }
+
+    @Test
+    void testConvert_shouldPassRolesToProfileFactory() {
+        // Given
+        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN", "ROLE_SUPPORT"));
+
+        // When
+        converter.convert(jwt);
+
+        // Then - Verify profile factory was called (implementation specific)
+        assertThat(((ProfiledAuthenticationToken) converter.convert(jwt)).getProfile()).isNotNull();
+    }
+
+    @Test
+    void testConvert_withDifferentPrincipalClaimName_shouldExtractCorrectName() {
+        // Given
+        String customPrincipalClaim = "sub";
+        converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, customPrincipalClaim);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(customPrincipalClaim, "customUser");
+        Map<String, Object> realmAccess = new HashMap<>();
+        realmAccess.put("roles", Arrays.asList("ROLE_ADMIN"));
+        claims.put("realm_access", realmAccess);
+
+        Jwt jwt = createJwtWithClaims(claims);
+
+        // When
+        AbstractAuthenticationToken result = converter.convert(jwt);
+
+        // Then
+        assertThat(result.getName()).isEqualTo("customUser");
+    }
+
+    // Helper methods to create JWT mocks
+    private Jwt createJwt(String username, List<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(PRINCIPAL_CLAIM_NAME, username);
+
+        Map<String, Object> realmAccess = new HashMap<>();
+        realmAccess.put("roles", roles);
+        claims.put("realm_access", realmAccess);
+
+        return createJwtWithClaims(claims);
+    }
+
+    private Jwt createJwtWithoutRoles(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(PRINCIPAL_CLAIM_NAME, username);
+
+        Map<String, Object> realmAccess = new HashMap<>();
+        realmAccess.put("roles", null);
+        claims.put("realm_access", realmAccess);
+
+        return createJwtWithClaims(claims);
+    }
+
+    private Jwt createJwtWithClaims(Map<String, Object> claims) {
         return new Jwt(
-                "token-value",
+                "token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
                 Map.of("alg", "RS256"),
                 claims
         );
-    }
-
-    // Simulating the fillGrantedRoles method behavior for testing
-    private void fillGrantedRoles(List<String> configRoles, AuthorityRoleEnum authorityRole) {
-        if (configRoles == null) {
-            return;
-        }
-
-        for (String configRole : configRoles) {
-            if (configRole == null || configRole.isBlank()) {
-                return;
-            }
-
-            this.roles.compute(configRole, (key, grantedAuthorities) -> {
-                if (grantedAuthorities == null) {
-                    grantedAuthorities = new ArrayList<>();
-                }
-                grantedAuthorities.add(new SimpleGrantedAuthority(authorityRole.securityRole()));
-                return grantedAuthorities;
-            });
-        }
-    }
-}
-
-// Supporting classes for the test (you'll need these in your actual codebase)
-enum AuthorityRoleEnum {
-    ADMIN("ROLE_ADMIN"),
-    USER("ROLE_USER"),
-    VIEWER("ROLE_VIEWER"),
-    EDITOR("ROLE_EDITOR"),
-    MODERATOR("ROLE_MODERATOR"),
-    UNKNOWN("ROLE_UNKNOWN");
-
-    private final String role;
-
-    AuthorityRoleEnum(String role) {
-        this.role = role;
-    }
-
-    public String securityRole() {
-        return role;
-    }
-
-    public static AuthorityRoleEnum fromSecurityRole(String role) {
-        for (AuthorityRoleEnum e : values()) {
-            if (e.securityRole().equals(role)) {
-                return e;
-            }
-        }
-        return UNKNOWN;
     }
 }
