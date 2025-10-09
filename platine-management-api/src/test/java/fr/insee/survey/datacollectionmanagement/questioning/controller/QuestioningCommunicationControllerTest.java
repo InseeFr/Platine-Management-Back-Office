@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
@@ -49,7 +50,7 @@ class QuestioningCommunicationControllerTest {
     ResponseEntity<Void> response = questioningCommunicationController
         .createQuestioningCommunication(communicationType, inputDto);
 
-    assertThat(response.getStatusCodeValue()).isEqualTo(201);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf((201)));
     verify(questioningCommunicationService, times(1))
         .postQuestioningCommunication(communicationType, inputDto);
   }
@@ -70,7 +71,7 @@ class QuestioningCommunicationControllerTest {
     ResponseEntity<Void> response = questioningCommunicationController
         .createQuestioningCommunication(communicationType, inputDto);
 
-    assertThat(response.getStatusCodeValue()).isEqualTo(200);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
     verify(questioningCommunicationService, times(1))
         .postQuestioningCommunication(communicationType, inputDto);
   }
