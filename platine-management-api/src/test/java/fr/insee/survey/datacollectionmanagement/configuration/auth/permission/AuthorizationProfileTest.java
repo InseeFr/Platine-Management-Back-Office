@@ -10,7 +10,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class AuthorizationProfileTest {
+class AuthorizationProfileTest {
 
     @Test
     @DisplayName("Should return true when sourceId exists in sources")

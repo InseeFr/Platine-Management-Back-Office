@@ -63,8 +63,7 @@ class ProfiledAuthenticationConverterTest {
         AbstractAuthenticationToken result = converter.convert(jwt);
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result).isInstanceOf(ProfiledAuthenticationToken.class);
+        assertThat(result).isNotNull().isInstanceOf(ProfiledAuthenticationToken.class);
         assertThat(result.getName()).isEqualTo(username);
         assertThat(result.getAuthorities()).isNotEmpty();
     }
