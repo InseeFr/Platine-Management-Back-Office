@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.permission;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.utils.JwtConverterUtils;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -75,34 +76,9 @@ public class ProfiledAuthenticationConverter implements Converter<Jwt, AbstractA
     }
 
     private void fillGrantedRoles(List<String> configRoles, AuthorityRoleEnum authorityRole) {
-
-        if(configRoles == null) {
-            return;
-        }
-
-        for (String configRole : configRoles ) {
-            if(configRole == null || configRole.isBlank()) {
-                return;
-            }
-
-            this.roles.compute(configRole, (key, grantedAuthorities) -> {
-                if(grantedAuthorities == null) {
-                    grantedAuthorities = new ArrayList<>();
-                }
-                grantedAuthorities.add(new SimpleGrantedAuthority(authorityRole.securityRole()));
-                return grantedAuthorities;
-            });
-        }
+        JwtConverterUtils.fillGrantedRoles(configRoles, authorityRole, roles);
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> getUserRoles(Jwt jwt) {
-        Map<String, Object> claims = jwt.getClaims();
-
-        if(applicationConfig.getRoleClaim() == null || applicationConfig.getRoleClaim().isBlank()) {
-            Map<String, Object> realmAccess = jwt.getClaim(REALM_ACCESS);
-            return (List<String>) realmAccess.get(REALM_ACCESS_ROLE);
-        }
-        return (List<String>) claims.get(applicationConfig.getRoleClaim());
-    }
+        return JwtConverterUtils.getUserRoles(jwt, applicationConfig, REALM_ACCESS, REALM_ACCESS_ROLE);}
 }
