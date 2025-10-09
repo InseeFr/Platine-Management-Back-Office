@@ -38,15 +38,15 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
   @Override
   public boolean postQuestioningCommunication(String communicationType,
       QuestioningCommunicationInputDto questioningCommunicationInputDto) {
-    UUID questioningId = questioningCommunicationInputDto.getQuestioningId();
+    UUID questioningId = questioningCommunicationInputDto.questioningId();
     Questioning questioning = questioningRepository.findById(questioningId)
         .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 
     QuestioningCommunication newQuestioningCommunication = new QuestioningCommunication();
     newQuestioningCommunication.setQuestioning(questioning);
     newQuestioningCommunication.setType(TypeCommunicationEvent.valueOf(communicationType));
-    newQuestioningCommunication.setStatus(questioningCommunicationInputDto.getStatus());
-    newQuestioningCommunication.setDate(questioningCommunicationInputDto.getDate());
+    newQuestioningCommunication.setStatus(questioningCommunicationInputDto.status());
+    newQuestioningCommunication.setDate(questioningCommunicationInputDto.date());
     newQuestioningCommunication = questioningCommunicationRepository.save(newQuestioningCommunication);
 
     // Update the bidirectional link
