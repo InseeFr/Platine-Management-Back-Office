@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningCommunicationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +32,12 @@ class QuestioningCommunicationServiceImplTest {
 
     private QuestioningCommunicationServiceImpl questioningCommunicationService;
 
-    @BeforeEach
+    private QuestioningCommunicationRepository questioningCommunicationRepository;
+
+
+  @BeforeEach
     void setUp() {
-        questioningCommunicationService = new QuestioningCommunicationServiceImpl(modelMapper, questioningRepository);
+        questioningCommunicationService = new QuestioningCommunicationServiceImpl(modelMapper, questioningRepository, questioningCommunicationRepository);
     }
 
     @Test
