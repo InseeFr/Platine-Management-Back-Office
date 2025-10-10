@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.permission;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
-import fr.insee.survey.datacollectionmanagement.configuration.auth.utils.JwtConverterUtils;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
