@@ -92,7 +92,7 @@ public class SearchQuestioningSteps {
 
     @Transactional
     @Given("the questioning communication for questioning {int} with type {string} and date {string}")
-    public void createQuestioningCommunication(int questioningId, String type, String isoDate) throws ParseException {
+    public void createQuestioningCommunication(int questioningId, String type, String isoDate) {
         LocalDateTime date = LocalDateTime.parse(isoDate, FORMATTER);
         UUID realId = questioningContext.getRealId(questioningId);
         Questioning questioning = questioningRepository.getReferenceById(realId);
