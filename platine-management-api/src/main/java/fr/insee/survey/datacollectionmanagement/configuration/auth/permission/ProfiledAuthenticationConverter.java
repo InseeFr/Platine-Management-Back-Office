@@ -76,9 +76,31 @@ public class ProfiledAuthenticationConverter implements Converter<Jwt, AbstractA
     }
 
     private void fillGrantedRoles(List<String> configRoles, AuthorityRoleEnum authorityRole) {
-        JwtConverterUtils.fillGrantedRoles(configRoles, authorityRole, roles);
-    }
+        if(configRoles == null) {
+            return;
+        }
 
+        for (String configRole : configRoles ) {
+            if(configRole == null || configRole.isBlank()) {
+                return;
+            }
+
+            roles.compute(configRole, (key, grantedAuthorities) -> {
+                if(grantedAuthorities == null) {
+                    grantedAuthorities = new ArrayList<>();
+                }
+                grantedAuthorities.add(new SimpleGrantedAuthority(authorityRole.securityRole()));
+                return grantedAuthorities;
+            });
+        }    }
+
+    @SuppressWarnings("unchecked")
     private List<String> getUserRoles(Jwt jwt) {
-        return JwtConverterUtils.getUserRoles(jwt, applicationConfig, REALM_ACCESS, REALM_ACCESS_ROLE);}
-}
+        Map<String, Object> claims = jwt.getClaims();
+
+        if(applicationConfig.getRoleClaim() == null || applicationConfig.getRoleClaim().isBlank()) {
+            Map<String, Object> realmAccess = jwt.getClaim(REALM_ACCESS);
+            return (List<String>) realmAccess.get(REALM_ACCESS_ROLE);
+        }
+        return (List<String>) claims.get(applicationConfig.getRoleClaim());
+    }}

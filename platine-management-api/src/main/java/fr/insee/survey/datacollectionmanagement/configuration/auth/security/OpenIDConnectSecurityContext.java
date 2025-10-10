@@ -99,8 +99,4 @@ public class OpenIDConnectSecurityContext {
     ProfiledAuthenticationConverter jwtAuthenticationConverter(ApplicationConfig applicationConfig, AuthorizationProfileFactory profileFactory) {
         return new ProfiledAuthenticationConverter(applicationConfig, profileFactory, "preferred_username");
     }
-
-    Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
-        return new GrantedAuthorityConverter(applicationConfig);
-    }
 }
