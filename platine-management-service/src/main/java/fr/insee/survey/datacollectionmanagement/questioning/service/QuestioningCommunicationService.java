@@ -11,6 +11,6 @@ public interface QuestioningCommunicationService {
 
     List<QuestioningCommunicationDto> findQuestioningCommunicationsByQuestioningId(UUID questioningId);
 
-    boolean postQuestioningCommunication(String communicationEventType, QuestioningCommunicationInputDto questioningCommunicationInputDto);
+    void postQuestioningCommunication(QuestioningCommunicationInputDto questioningCommunicationInputDto);
 
 }

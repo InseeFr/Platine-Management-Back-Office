@@ -1,14 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -19,17 +14,11 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunic
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningCommunicationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
@@ -42,7 +31,7 @@ class QuestioningCommunicationServiceImplTest {
   @Mock
   private QuestioningCommunicationRepository questioningCommunicationRepository;
 
-  private ModelMapper modelMapper = new ModelMapper();
+  private final ModelMapper modelMapper = new ModelMapper();
 
   private QuestioningCommunicationServiceImpl questioningCommunicationService;
 
@@ -65,8 +54,6 @@ class QuestioningCommunicationServiceImplTest {
 
     assertThat(result).isNotNull();
     assertEquals(2, result.size());
-    assertThat(result.getFirst()).isNotNull();
-    assertThat(result.get(1)).isNotNull();
   }
 
   @Test
@@ -82,36 +69,43 @@ class QuestioningCommunicationServiceImplTest {
 
   @Test
   void shouldCreateQuestioningCommunicationWhenQuestioningExists() {
+    // Given
     UUID questioningId = UUID.randomUUID();
     Questioning questioning = new Questioning();
     questioning.setQuestioningCommunications(new HashSet<>());
 
-    QuestioningCommunicationInputDto inputDto = new QuestioningCommunicationInputDto(questioningId, Date.from(Instant.now()), StatusCommunication.AUTOMATIC);
+    QuestioningCommunicationInputDto inputDto =
+        new QuestioningCommunicationInputDto(questioningId, StatusCommunication.AUTOMATIC, TypeCommunicationEvent.COURRIER_CNR);
 
     when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
     when(questioningCommunicationRepository.save(any(QuestioningCommunication.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    boolean result = questioningCommunicationService.postQuestioningCommunication("COURRIER_CNR", inputDto);
+    // When
+    questioningCommunicationService.postQuestioningCommunication(inputDto);
 
-    assertTrue(result);
+    // Then
     verify(questioningCommunicationRepository, times(1)).save(any(QuestioningCommunication.class));
     assertThat(questioning.getQuestioningCommunications()).hasSize(1);
 
     QuestioningCommunication saved = questioning.getQuestioningCommunications().iterator().next();
     assertEquals(TypeCommunicationEvent.COURRIER_CNR, saved.getType());
     assertEquals(StatusCommunication.AUTOMATIC, saved.getStatus());
+    assertNotNull(saved.getDate());
     assertEquals(questioning, saved.getQuestioning());
   }
 
   @Test
   void shouldThrowNotFoundExceptionWhenQuestioningDoesNotExist() {
     UUID questioningId = UUID.randomUUID();
-    QuestioningCommunicationInputDto inputDto = new QuestioningCommunicationInputDto(questioningId, Date.from(Instant.now()), StatusCommunication.AUTOMATIC);
+    QuestioningCommunicationInputDto inputDto =
+        new QuestioningCommunicationInputDto(questioningId, StatusCommunication.AUTOMATIC, TypeCommunicationEvent.COURRIER_ACCOMPAGNEMENT);
+
     when(questioningRepository.findById(questioningId)).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () ->
-        questioningCommunicationService.postQuestioningCommunication("EMAIL", inputDto));
+    assertThrows(NotFoundException.class,
+        () -> questioningCommunicationService.postQuestioningCommunication(inputDto));
+
     verify(questioningCommunicationRepository, never()).save(any());
   }
 
@@ -121,22 +115,22 @@ class QuestioningCommunicationServiceImplTest {
     Questioning questioning = new Questioning();
     questioning.setQuestioningCommunications(new HashSet<>());
 
-    Date date = Date.from(Instant.now());
-    QuestioningCommunicationInputDto inputDto = new QuestioningCommunicationInputDto(questioningId, date,StatusCommunication.MANUAL );
+    QuestioningCommunicationInputDto inputDto =
+        new QuestioningCommunicationInputDto(questioningId, StatusCommunication.MANUAL, TypeCommunicationEvent.COURRIER_ACCOMPAGNEMENT);
 
     when(questioningRepository.findById(questioningId)).thenReturn(Optional.of(questioning));
     when(questioningCommunicationRepository.save(any(QuestioningCommunication.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    questioningCommunicationService.postQuestioningCommunication("COURRIER_CNRAR", inputDto);
+    questioningCommunicationService.postQuestioningCommunication(inputDto);
 
     ArgumentCaptor<QuestioningCommunication> captor = ArgumentCaptor.forClass(QuestioningCommunication.class);
     verify(questioningCommunicationRepository).save(captor.capture());
-    QuestioningCommunication saved = captor.getValue();
 
-    assertEquals(TypeCommunicationEvent.COURRIER_CNRAR, saved.getType());
+    QuestioningCommunication saved = captor.getValue();
+    assertEquals(TypeCommunicationEvent.COURRIER_ACCOMPAGNEMENT, saved.getType());
     assertEquals(StatusCommunication.MANUAL, saved.getStatus());
-    assertEquals(date, saved.getDate());
+    assertNotNull(saved.getDate());
     assertEquals(questioning, saved.getQuestioning());
   }
 }

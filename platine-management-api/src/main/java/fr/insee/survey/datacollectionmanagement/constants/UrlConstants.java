@@ -47,7 +47,7 @@ public class UrlConstants {
     public static final String API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS = "/api/questionings/{id}/questioning-accreditations";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS = "/api/questionings/questioning-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_TYPE ="/api/questionings/questioning-events/{eventType}";
-    public static final String API_QUESTIONING_QUESTIONING_COMMUNICATION_TYPE ="/api/questionings/questioning-communication/{communicationType}";
+    public static final String API_QUESTIONING_QUESTIONING_COMMUNICATION ="/api/questionings/questioning-communication";
     public static final String API_QUESTIONING_ID_QUESTIONING_EVENTS = "/api/questionings/{id}/questioning-events";
     public static final String API_QUESTIONING_ID_EXPERT_EVENTS = "/api/questionings/{id}/expert-events";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";

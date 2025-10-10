@@ -6,11 +6,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommu
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -40,19 +39,17 @@ public class QuestioningCommunicationController {
         return questioningCommunicationService.findQuestioningCommunicationsByQuestioningId(id);
     }
 
-    @Operation(summary = "Create a questioning communication")
-    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_COMMUNICATION_TYPE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Create a questioning communication",
+        description = "Creates a new communication event for a given questioning.")
+    @PostMapping(value = UrlConstants.API_QUESTIONING_QUESTIONING_COMMUNICATION, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = QuestioningCommunicationDto.class))),
-        @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningCommunicationDto.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "201", description = "Communication created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request payload or parameters"),
         @ApiResponse(responseCode = "404", description = "Questioning not found")
     })
-    public ResponseEntity<Void> createQuestioningCommunication(@PathVariable("communicationType") String communicationType, @RequestBody QuestioningCommunicationInputDto questioningCommunicationInputDto) {
-      if (questioningCommunicationService.postQuestioningCommunication(communicationType, questioningCommunicationInputDto)) {
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-      }
-      return ResponseEntity.ok().build();
+    public ResponseEntity<Void> createQuestioningCommunication(@Valid @RequestBody QuestioningCommunicationInputDto questioningCommunicationInputDto) {
+      questioningCommunicationService.postQuestioningCommunication(questioningCommunicationInputDto);
+      return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 

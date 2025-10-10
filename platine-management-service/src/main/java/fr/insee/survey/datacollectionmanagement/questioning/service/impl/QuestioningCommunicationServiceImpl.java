@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,22 +37,20 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
   }
 
   @Override
-  public boolean postQuestioningCommunication(String communicationType,
-      QuestioningCommunicationInputDto questioningCommunicationInputDto) {
+  public void postQuestioningCommunication(QuestioningCommunicationInputDto questioningCommunicationInputDto) {
     UUID questioningId = questioningCommunicationInputDto.questioningId();
     Questioning questioning = questioningRepository.findById(questioningId)
         .orElseThrow(() -> new NotFoundException(String.format("Questioning %s does not exist", questioningId)));
 
     QuestioningCommunication newQuestioningCommunication = new QuestioningCommunication();
     newQuestioningCommunication.setQuestioning(questioning);
-    newQuestioningCommunication.setType(TypeCommunicationEvent.valueOf(communicationType));
+    newQuestioningCommunication.setType(questioningCommunicationInputDto.communicationType());
     newQuestioningCommunication.setStatus(questioningCommunicationInputDto.status());
-    newQuestioningCommunication.setDate(questioningCommunicationInputDto.date());
+    newQuestioningCommunication.setDate(LocalDateTime.now());
     newQuestioningCommunication = questioningCommunicationRepository.save(newQuestioningCommunication);
 
     // Update the bidirectional link
     questioning.getQuestioningCommunications().add(newQuestioningCommunication);
-    return true;
   }
 
 }
