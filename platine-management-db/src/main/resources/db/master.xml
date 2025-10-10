@@ -26,5 +26,5 @@
     <include file="changelog/101_create_survey_unit_event.sql" relativeToChangelogFile="true"/>
     <include file="changelog/110_add_pnd_to_communications.sql" relativeToChangelogFile="true"/>
     <include file="changelog/120_add_display_faq_to_source.sql" relativeToChangelogFile="true"/>
-
+    <include file="changelog/121_update_questioning_communications.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

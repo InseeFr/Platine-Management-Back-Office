@@ -371,6 +371,8 @@ CREATE TABLE public.questioning_communication (
 	status varchar(255) NULL,
 	"type" varchar(255) NULL,
 	questioning_id int8 NULL,
+	with_receipt boolean false,
+    with_questionnaire boolean false,
 	CONSTRAINT questioning_communication_pkey PRIMARY KEY (id),
 	CONSTRAINT fkrs4r6iv2ckjlqy5xwt5026jqb FOREIGN KEY (questioning_id) REFERENCES public.questioning(id)
 );
