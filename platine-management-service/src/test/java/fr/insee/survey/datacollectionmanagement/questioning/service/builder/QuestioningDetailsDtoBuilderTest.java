@@ -1,7 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.builder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningSurveyUnitDto;
@@ -9,13 +7,18 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningComme
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import org.junit.jupiter.api.Test;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class QuestioningDetailsDtoBuilderTest {
 
@@ -133,17 +136,27 @@ class QuestioningDetailsDtoBuilderTest {
       QuestioningCommunicationDto comm1 = new QuestioningCommunicationDto();
       comm1.setType("EMAIL");
       comm1.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709022000000L), ZoneId.systemDefault()));
-
       QuestioningCommunicationDto comm2 = new QuestioningCommunicationDto();
       comm2.setType("PHONE_CALL");
       comm2.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
+        QuestioningCommunicationDto comm3 = new QuestioningCommunicationDto();
+        comm3.setType("RELANCE");
+        comm3.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L);
+        comm3.setWithQuestionnaire(true);
+        comm3.setWithReceipt(true);
+
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .communications(List.of(comm1, comm2))
+                .communications(List.of(comm1, comm2, comm3))
                 .build();
 
-        assertThat(dto.getListCommunications()).hasSize(2);
+        assertThat(dto.getListCommunications()).hasSize(3);
         assertThat(dto.getLastCommunication()).isEqualTo("PHONE_CALL");
         assertThat(dto.getDateLastCommunication()).isEqualTo(comm2.getDate());
+        assertFalse(dto.getListCommunications().get(1).isWithReceipt());
+        assertFalse(dto.getListCommunications().get(1).isWithReceipt());
+        assertTrue(dto.getListCommunications().get(2).isWithQuestionnaire());
+        assertTrue(dto.getListCommunications().get(2).isWithReceipt());
+
     }
 
     @Test
