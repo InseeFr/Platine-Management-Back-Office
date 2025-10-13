@@ -99,6 +99,7 @@ public class PartitioningController {
 
     @Operation(summary = "Delete a partitioning, its partitionings, partitionings, questionings ...")
     @DeleteMapping(value = UrlConstants.API_PARTITIONINGS_ID)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public void deletePartitioning(@PathVariable("id") String id) {
         Partitioning partitioning = partitioningService.findById(id);

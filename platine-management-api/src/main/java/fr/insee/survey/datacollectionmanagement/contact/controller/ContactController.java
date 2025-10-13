@@ -140,6 +140,7 @@ public class ContactController {
     @Operation(summary = "Delete a contact, its address, its contactEvents")
     @DeleteMapping(value = UrlConstants.API_CONTACTS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Deprecated(since = "2.6.0", forRemoval = true)
     public void deleteContact(@PathVariable("id") String id) {
         log.warn("DEPRECATED");
