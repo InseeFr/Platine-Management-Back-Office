@@ -18,6 +18,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -49,6 +51,7 @@ public class SearchQuestioningSteps {
     private QuestioningContext questioningContext;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private Slice<SearchQuestioningDto> resultPage;
 
@@ -78,28 +81,19 @@ public class SearchQuestioningSteps {
     Date date = sdf.parse(isoDate);
     UUID realId = questioningContext.getRealId(questioningId);
 
-    // 1. Récupérer le questioning
     Questioning questioning = questioningRepository.getReferenceById(realId);
-
-    // 2. Créer et sauvegarder l'événement
     QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
     questioningEventRepository.save(qe);
-
-    // 3. Mettre à jour la relation bidirectionnelle
     questioning.getQuestioningEvents().add(qe);
-
-    // 4. Sauvegarder le questioning pour mettre à jour la collection
     questioningRepository.saveAndFlush(questioning);
-
-    // 5. Rafraîchir le plus haut événement (comme dans saveQuestioningEvent)
     questioningEventService.refreshHighestEvent(realId);
   }
 
 
     @Transactional
     @Given("the questioning communication for questioning {int} with type {string} and date {string}")
-    public void createQuestioningCommunication(int questioningId, String type, String isoDate) throws ParseException {
-        Date date = sdf.parse(isoDate);
+    public void createQuestioningCommunication(int questioningId, String type, String isoDate) {
+        LocalDateTime date = LocalDateTime.parse(isoDate, FORMATTER);
         UUID realId = questioningContext.getRealId(questioningId);
         Questioning questioning = questioningRepository.getReferenceById(realId);
         QuestioningCommunication qc = new QuestioningCommunication(date, TypeCommunicationEvent.valueOf(type), questioning, StatusCommunication.MANUAL);

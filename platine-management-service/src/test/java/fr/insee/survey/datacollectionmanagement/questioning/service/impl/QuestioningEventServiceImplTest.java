@@ -11,18 +11,23 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -44,7 +49,8 @@ class QuestioningEventServiceImplTest {
                 questioningEventRepository,
                 questioningRepository,
                 new ModelMapper(),
-                interrogationEventComparator);
+                interrogationEventComparator,
+                new ExpertEventComponent());
     }
 
     private Questioning createQuestioning() {
@@ -190,153 +196,153 @@ class QuestioningEventServiceImplTest {
                 .hasMessage("Questioning "+ id +" not found");
     }
 
-    @Test
-    @DisplayName("postExpertEvent must create an EXPERT event if none already exists")
-    void postExpertEvent_createExpert() {
+    @ParameterizedTest(name = "OK | init={0} -> post={1}({2},{3})")
+    @MethodSource("okCases")
+    void postExpertEvent_OK(TypeQuestioningEvent initialType,
+                            TypeQuestioningEvent postedType,
+                            int score, int scoreInit) {
         Questioning questioning = createQuestioning();
-        questioningRepository.save(questioning);
         UUID questioningId = questioning.getId();
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
+        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(init);
+        questioning.setQuestioningEvents(questioningEvents);
 
-        questioningEventService.postExpertEvent(questioningId, dto);
+        questioningRepository.save(questioning);
+        questioningEventRepository.saveAll(questioning.getQuestioningEvents());
+
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType));
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, postedType);
+        assertThat(events).hasSize(1);
 
         Questioning updated = questioningRepository.findById(questioningId).orElseThrow();
-
-        assertThat(updated.getScore()).isEqualTo(5);
-        assertThat(updated.getScoreInit()).isEqualTo(5);
-
-        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.EXPERT);
-        assertThat(events).hasSize(1);
+        assertThat(updated.getScore()).isEqualTo(score);
+        assertThat(updated.getScoreInit()).isEqualTo(scoreInit);
     }
 
-    @Test
-    @DisplayName("postExpertEvent must create an VALID event if none already exists")
-    void postExpertEvent_createVALID() {
-        Questioning questioning = createQuestioning();
-        questioningRepository.save(questioning);
-        UUID questioningId = questioning.getId();
-
-        ExpertEventDto dto = new ExpertEventDto(9, 9, TypeQuestioningEvent.VALID);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
-
-        Questioning updated = questioningRepository.findById(questioningId).orElseThrow();
-
-        assertThat(updated.getScore()).isEqualTo(9);
-        assertThat(updated.getScoreInit()).isEqualTo(9);
-
-        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.VALID);
-        assertThat(events).hasSize(1);
+    private static Stream<Arguments> okCases() {
+        return Stream.of(
+                Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.EXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.VALID,  9, 9),
+                Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.NOQUAL, 0, 0),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ONGEXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.NOQUAL, 0, 0),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.VALID, 9, 9),
+                Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.VALID, 9, 9),
+                Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL, 0, 0),
+                Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.ONGEXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.NOQUAL, 0, 0),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.EXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.VALID, 9, 9),
+                Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.EXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ENDEXPERT, 7, 7),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ONGEXPERT, 5, 5),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.VALID, 9, 9)
+        );
     }
 
-    @Test
-    @DisplayName("postExpertEvent must not duplicate the EXPERT event if an identical event already exists")
-    void postExpertEvent_noDuplicateExpert() {
+    @ParameterizedTest(name = "NOT OK | init={0} -> post={1}")
+    @MethodSource("notOkCases")
+    void postExpertEvent_NOT_OK(TypeQuestioningEvent initialType,
+                            TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        QuestioningEvent existing2 = createQuestioningEvent(1L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
-        questioningEvents.add(existing);
-        questioningEvents.add(existing2);
+        questioningEvents.add(init);
         questioning.setQuestioningEvents(questioningEvents);
+
         questioningRepository.save(questioning);
-        questioningEventRepository.save(existing);
-        questioningEventRepository.save(existing2);
+        questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.EXPERT);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
-
-        List<QuestioningEvent> events = questioningEventRepository.findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.EXPERT);
-        assertThat(events).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("postExpertEvent must create a ONGEXPERT event if the last one was EXPERT")
-    void postExpertEvent_createONGEXPERTAfterExpert() {
-        Questioning questioning = createQuestioning();
-        UUID questioningId = questioning.getId();
-        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        Set<QuestioningEvent> questioningEvents = new HashSet<>();
-        questioningEvents.add(existing);
-        questioning.setQuestioningEvents(questioningEvents);
-        questioningRepository.save(questioning);
-        questioningEventRepository.save(existing);
-
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
 
         List<QuestioningEvent> events = questioningEventRepository
-                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+                .findByQuestioningIdAndType(questioningId, postedType);
+        assertThat(events).isEmpty();
+    }
+
+    private static Stream<Arguments> notOkCases() {
+        return Stream.of(
+                Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ONGEXPERT),
+                Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ENDEXPERT),
+                Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.EXPERT),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)
+        );
+    }
+
+    @ParameterizedTest(name = "NOT OK duplicate | init={0},{1} -> post={2}")
+    @MethodSource("notOkCasesDuplicate")
+    void postExpertEvent_NOT_OK_Duplicate(TypeQuestioningEvent initialType,
+                                          TypeQuestioningEvent initialType2,
+                                          TypeQuestioningEvent postedType) {
+        Questioning questioning = createQuestioning();
+        UUID questioningId = questioning.getId();
+        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        Set<QuestioningEvent> questioningEvents = new HashSet<>();
+        questioningEvents.add(init);
+        questioningEvents.add(init2);
+        questioning.setQuestioningEvents(questioningEvents);
+
+        questioningRepository.save(questioning);
+        questioningEventRepository.saveAll(questioning.getQuestioningEvents());
+
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+
+        List<QuestioningEvent> events = questioningEventRepository
+                .findByQuestioningIdAndType(questioningId, postedType);
         assertThat(events).hasSize(1);
     }
 
-    @Test
-    @DisplayName("postExpertEvent must not create a ONGEXPERT event if the last one was ONGEXPERT")
-    void postExpertEvent_notcreateONGEXPERTAfterONGEXPERT() {
-        Questioning questioning = createQuestioning();
-        UUID questioningId = questioning.getId();
-        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
-        Set<QuestioningEvent> questioningEvents = new HashSet<>();
-        questioningEvents.add(existing);
-        questioningEvents.add(existing2);
-        questioning.setQuestioningEvents(questioningEvents);
-        questioningRepository.save(questioning);
-        questioningEventRepository.save(existing);
-        questioningEventRepository.save(existing2);
-
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
-
-        List<QuestioningEvent> events = questioningEventRepository
-                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
-        assertThat(events).hasSize(1);
+    private static Stream<Arguments> notOkCasesDuplicate() {
+        return Stream.of(
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.EXPERT),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.ONGEXPERT),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.VALID, TypeQuestioningEvent.VALID),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ENDEXPERT),
+                Arguments.of(TypeQuestioningEvent.EXPERT, TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.NOQUAL)
+        );
     }
 
-    @Test
-    @DisplayName("postExpertEvent must create a ONGEXPERT event if ONGEXPERT exist but the last one was VALID")
-    void postExpertEvent_createONGEXPERTAfterVALID() {
+    @ParameterizedTest(name = "OK duplicate | init={0},{1} -> post={2}")
+    @MethodSource("okCasesDuplicate")
+    void postExpertEvent_OK_Duplicate(TypeQuestioningEvent initialType,
+                                          TypeQuestioningEvent initialType2,
+                                          TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent existing = createQuestioningEvent(1L, TypeQuestioningEvent.EXPERT, questioning);
-        QuestioningEvent existing2 = createQuestioningEvent(2L, TypeQuestioningEvent.ONGEXPERT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
-        QuestioningEvent existing3 = createQuestioningEvent(3L, TypeQuestioningEvent.VALID, questioning,Clock.offset(Clock.systemUTC(), Duration.ofHours(2)));
+        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
-        questioningEvents.add(existing);
-        questioningEvents.add(existing2);
-        questioningEvents.add(existing3);
+        questioningEvents.add(init);
+        questioningEvents.add(init2);
         questioning.setQuestioningEvents(questioningEvents);
+
         questioningRepository.save(questioning);
-        questioningEventRepository.save(existing);
-        questioningEventRepository.save(existing2);
-        questioningEventRepository.save(existing3);
+        questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
 
         List<QuestioningEvent> events = questioningEventRepository
-                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
+                .findByQuestioningIdAndType(questioningId, postedType);
         assertThat(events).hasSize(2);
     }
 
-    @Test
-    @DisplayName("postExpertEvent must not create a ONGEXPERT event if the last one is null")
-    void postExpertEvent_noExpertNoEvent() {
-        Questioning questioning = createQuestioning();
-        UUID questioningId = questioning.getId();
-        questioningRepository.save(questioning);
-        ExpertEventDto dto = new ExpertEventDto(5, 5, TypeQuestioningEvent.ONGEXPERT);
-
-        questioningEventService.postExpertEvent(questioningId, dto);
-
-        List<QuestioningEvent> events = questioningEventRepository
-                .findByQuestioningIdAndType(questioningId, TypeQuestioningEvent.ONGEXPERT);
-        assertThat(events).isEmpty();
+    private static Stream<Arguments> okCasesDuplicate() {
+        return Stream.of(
+                Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT),
+                Arguments.of(TypeQuestioningEvent.VALID, TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.VALID),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.ENDEXPERT),
+                Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.NOQUAL)
+        );
     }
 
     @Test
@@ -382,7 +388,7 @@ class QuestioningEventServiceImplTest {
         assertThat(questioning.getHighestEventDate()).isEqualTo(event.getDate());
     }
 
-
+    @Test
     void shouldSetNullWhenNoEvents() {
         UUID id = UUID.randomUUID();
         Questioning questioning = new Questioning();

@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
@@ -68,7 +69,12 @@ public class QuestioningServiceImpl implements QuestioningService {
         return questioningRepository.save(questioning);
     }
 
-    @Override
+  @Override
+  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+    return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
+  }
+
+  @Override
     public void deleteQuestioning(UUID id) {
         questioningRepository.deleteById(id);
     }
