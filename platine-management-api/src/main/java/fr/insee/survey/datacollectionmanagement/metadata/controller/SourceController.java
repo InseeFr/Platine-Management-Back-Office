@@ -54,7 +54,7 @@ public class SourceController {
     private final QuestioningService questioningService;
 
     private final ParametersService parametersService;
-    
+
     private final SurveyService surveyService;
 
     @Operation(summary = "Search for sources, paginated")
@@ -112,7 +112,7 @@ public class SourceController {
     @DeleteMapping(value = UrlConstants.API_SOURCES_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public void deleteSource(@PathVariable("id") String id) {
         int nbQuestioningDeleted = 0;
         int nbViewDeleted = 0;

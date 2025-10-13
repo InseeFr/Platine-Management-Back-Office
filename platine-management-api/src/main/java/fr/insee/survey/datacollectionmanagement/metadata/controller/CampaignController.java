@@ -168,6 +168,7 @@ public class CampaignController {
 
     @Operation(summary = "Delete a campaign, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = {UrlConstants.API_CAMPAIGNS_ID, UrlConstants.MOOG_API_CAMPAIGNS_ID})
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public void deleteCampaign(@PathVariable("id") String id) throws NotFoundException {
         Campaign campaign = campaignService.findById(id);
