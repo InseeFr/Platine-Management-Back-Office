@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
@@ -27,6 +28,7 @@ class UploadServiceImplTest {
     private QuestioningServiceStub questioningServiceStub;
     private QuestioningEventServiceStub questioningEventServiceStub;
     private CampaignServiceStub campaignServiceStub;
+    private QuestioningCommunicationService questioningCommunicationService;
     @Mock
     private UploadRepository uploadRepository;
 
@@ -35,7 +37,7 @@ class UploadServiceImplTest {
         questioningServiceStub = new QuestioningServiceStub();
         questioningEventServiceStub = new QuestioningEventServiceStub();
         campaignServiceStub = new CampaignServiceStub();
-        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,campaignServiceStub,questioningServiceStub); ;
+        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,questioningCommunicationService, campaignServiceStub,questioningServiceStub); ;
     }
     @Test
     @DisplayName("Should save something")
