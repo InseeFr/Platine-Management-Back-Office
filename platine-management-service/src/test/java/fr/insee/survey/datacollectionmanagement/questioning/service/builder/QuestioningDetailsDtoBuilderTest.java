@@ -133,15 +133,15 @@ class QuestioningDetailsDtoBuilderTest {
 
     @Test
     void shouldSetCommunications() {
-      QuestioningCommunicationDto comm1 = new QuestioningCommunicationDto();
-      comm1.setType("EMAIL");
-      comm1.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709022000000L), ZoneId.systemDefault()));
-      QuestioningCommunicationDto comm2 = new QuestioningCommunicationDto();
-      comm2.setType("PHONE_CALL");
-      comm2.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
+        QuestioningCommunicationDto comm1 = new QuestioningCommunicationDto();
+        comm1.setType("EMAIL");
+        comm1.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709022000000L), ZoneId.systemDefault()));
+        QuestioningCommunicationDto comm2 = new QuestioningCommunicationDto();
+        comm2.setType("PHONE_CALL");
+        comm2.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
         QuestioningCommunicationDto comm3 = new QuestioningCommunicationDto();
         comm3.setType("RELANCE");
-        comm3.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L);
+        comm3.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
         comm3.setWithQuestionnaire(true);
         comm3.setWithReceipt(true);
 
