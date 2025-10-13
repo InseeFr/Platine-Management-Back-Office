@@ -17,7 +17,7 @@ import java.util.Date;
 
 @RestController
 @Slf4j
-@Tag(name = "5 - Moog", description = "Enpoints for moog")
+@Tag(name = "6 - Moog", description = "Enpoints for moog")
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @RequiredArgsConstructor
 public class MetadataController {
