@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,7 @@ public class QuestioningDetailsDto {
     private Date dateLastEvent;
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunication;
-    private Date dateLastCommunication;
+    private LocalDateTime dateLastCommunication;
     private List<QuestioningCommentOutputDto> listComments;
     private Date validationDate;
     private String readOnlyUrl;
