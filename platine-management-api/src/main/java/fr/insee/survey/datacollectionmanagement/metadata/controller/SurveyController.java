@@ -126,6 +126,7 @@ public class SurveyController {
     @Operation(summary = "Delete a survey, its campaigns, partitionings, questionings ...")
     @DeleteMapping(value = UrlConstants.API_SURVEYS_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public void deleteSurvey(@PathVariable("id") String id) {
         Survey survey = surveyService.findById(id);

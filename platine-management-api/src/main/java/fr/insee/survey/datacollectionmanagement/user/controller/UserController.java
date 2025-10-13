@@ -132,6 +132,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public ResponseEntity deleteUser(@PathVariable("id") String id) {
         User user = userService.findByIdentifier(id);
