@@ -10,11 +10,16 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
@@ -32,6 +37,8 @@ public class UploadServiceImpl implements UploadService {
     private final UploadRepository uploadRepository;
 
     private final QuestioningEventService questioningEventService;
+
+    private final QuestioningCommunicationService questioningCommunicationService;
 
     private final CampaignService campaignService;
 
@@ -80,6 +87,14 @@ public class UploadServiceImpl implements UploadService {
                 qe.setPayload(payload);
                 qe.setDate(today);
                 liste.add(questioningEventService.saveQuestioningEvent(qe));
+
+                if(TypeQuestioningEvent.valueOf(mmDto.getStatus()).equals(TypeQuestioningEvent.PND))
+                {
+                  questioningCommunicationService.postQuestioningCommunication(new QuestioningCommunicationInputDto(quest.get().getId(),
+                      StatusCommunication.MANUAL, TypeCommunicationEvent.PND));
+
+                }
+
                 if (quest.isPresent()) {
                     quest.get().getQuestioningEvents().add(qe);
                     questioningService.saveQuestioning(quest.get());
