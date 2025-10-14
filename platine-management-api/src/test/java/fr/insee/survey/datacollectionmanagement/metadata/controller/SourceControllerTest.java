@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
@@ -64,6 +65,27 @@ class SourceControllerTest {
     void getSourceNotFound() throws Exception {
         String identifier = "SOURCENOTFOUND";
         this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID, identifier)).andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+
+    }
+
+    @Test
+    void getSupportBySourceOk() throws Exception {
+        String identifier = "SOURCE1";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value("SupportInsee"))
+                .andExpect(jsonPath("label").value("Support INSEE"))
+                .andExpect(jsonPath("mail").value("mail.test@test.fr"));
+
+    }
+
+    @Test
+    void getSupportBySourceNotFound() throws Exception {
+        String identifier = "SOURCENOTFOUND";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }

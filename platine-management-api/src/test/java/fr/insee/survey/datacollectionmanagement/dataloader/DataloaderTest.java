@@ -250,6 +250,11 @@ public class DataloaderTest {
         ownerInsee.setLabel("Insee");
         Set<Source> setSourcesInsee = new HashSet<>();
 
+        Support supportInsee = new Support();
+        supportInsee.setId("SupportInsee");
+        supportInsee.setLabel("Support INSEE");
+        supportInsee.setMail("mail.test@test.fr");
+
         while (sourceRepository.count() < 2) {
 
             Source source = new Source();
@@ -331,6 +336,8 @@ public class DataloaderTest {
                 source.setSurveys(setSurveys);
                 ownerRepository.saveAll(List.of(ownerInsee));
                 source.setOwner(ownerInsee);
+                supportRepository.save(supportInsee);
+                source.setSupport(supportInsee);
                 sourceRepository.save(source);
                 log.info("Source created : " + source);
                 ownerInsee.setSources(setSourcesInsee);
