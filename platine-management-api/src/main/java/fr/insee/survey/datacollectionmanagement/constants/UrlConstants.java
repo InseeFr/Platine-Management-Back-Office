@@ -40,6 +40,7 @@ public class UrlConstants {
 
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
+    public static final String API_SURVEY_UNITS_ID_CAMPAIGNS = "/api/survey-units/{id}/campaigns";
     public static final String API_SURVEY_UNITS_ID_QUESTIONINGS = "/api/survey-units/{id}/questionings";
     public static final String API_SURVEY_UNITS_ID_COMMENT = "/api/survey-units/{id}/comment";
     public static final String API_SURVEY_UNITS_ID_EVENTS = "/api/survey-units/{id}/events";

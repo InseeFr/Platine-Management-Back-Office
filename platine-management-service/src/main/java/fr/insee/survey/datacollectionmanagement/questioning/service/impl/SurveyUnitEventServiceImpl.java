@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
@@ -21,8 +22,8 @@ import java.util.List;
 @Transactional
 public class SurveyUnitEventServiceImpl implements SurveyUnitEventService {
     private final SurveyUnitEventRepository surveyUnitEventRepository;
-    private final CampaignService campaignService;
     private final SurveyUnitService surveyUnitService;
+    private final CampaignService campaignService;
     private final Clock clock;
 
     @Override
@@ -36,8 +37,13 @@ public class SurveyUnitEventServiceImpl implements SurveyUnitEventService {
 
     @Override
     public void createEvent(SurveyUnitEventRequestDto eventDto, String surveyUnitId) {
-        Campaign campaign = campaignService.findById(eventDto.campaignId());
+        List<String> campaignIds = surveyUnitService.getCampaignIds(surveyUnitId);
+        if(! campaignIds.contains(eventDto.campaignId())) {
+            throw new NotFoundException("Campaign not found in survey unit's campaigns");
+        }
+
         SurveyUnit surveyUnit = surveyUnitService.findbyId(surveyUnitId);
+        Campaign campaign = campaignService.findById(eventDto.campaignId());
 
         Instant eventDate = Instant.ofEpochMilli(eventDto.eventDate());
 

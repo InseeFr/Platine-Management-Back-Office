@@ -135,4 +135,25 @@ class SurveyUnitEventControllerTest {
                 ]""";
         JSONAssert.assertEquals(expectedResult, jsonResult, JSONCompareMode.NON_EXTENSIBLE);
     }
+
+    @Test
+    @DisplayName("Should return 404 Not Found when campaign is not linked to survey unit")
+    void shouldReturn404WhenCampaignNotLinkedToSurveyUnit() throws Exception {
+        // given
+        String jsonBody = """
+        {
+          "campaignId": "UNKNOWN_CAMPAIGN",
+          "eventType": "TEMPORARY_INACTIVITY",
+          "source": "SIRUS",
+          "eventDate": 1760368478661
+        }
+        """;
+
+        // when / then
+        mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonBody)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }

@@ -101,6 +101,13 @@ public class SurveyUnitController {
         return surveyUnitService.findByParameter(searchParam, pageable);
     }
 
+    @Operation(summary = "Get survey unit campaigns")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID_CAMPAIGNS,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> getCampaignIds(@PathVariable(value = "id") String surveyUnitId) {
+        return surveyUnitService.getCampaignIds(surveyUnitId);
+    }
+
 
     @Operation(summary = "Create or update a survey unit")
     @PutMapping(value = UrlConstants.API_SURVEY_UNITS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
