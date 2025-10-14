@@ -79,25 +79,19 @@ class SurveyUnitEventControllerTest {
         // when / then
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format(jsonBody, "SOURCE22023T04", SurveyUnitEventType.CESSATION_IN_PROGRESS, SurveyUnitEventSource.ENTERPRISE, "1760368478660"))
+                        .content(String.format(jsonBody, "SOURCE12023T01", SurveyUnitEventType.CESSATION_IN_PROGRESS, SurveyUnitEventSource.ENTERPRISE, "1760368478660"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000001")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format(jsonBody, "SOURCE22023T04", SurveyUnitEventType.RESTRUCTURING, SurveyUnitEventSource.OTHER_SOURCE, "1760368478662"))
+                        .content(String.format(jsonBody, "SOURCE22022T02", SurveyUnitEventType.RESTRUCTURING, SurveyUnitEventSource.OTHER_SOURCE, "1760368478662"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format(jsonBody, "SOURCE22023T04", SurveyUnitEventType.TEMPORARY_INACTIVITY, SurveyUnitEventSource.SIRUS, "1760368478661"))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(String.format(jsonBody, "SOURCE22023T03", SurveyUnitEventType.PERMANENT_CESSATION, SurveyUnitEventSource.OTHER_SOURCE, "1760368478663"))
+                        .content(String.format(jsonBody, "SOURCE12023T01", SurveyUnitEventType.TEMPORARY_INACTIVITY, SurveyUnitEventSource.SIRUS, "1760368478661"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -112,25 +106,18 @@ class SurveyUnitEventControllerTest {
         String expectedResult = """
                 [
                     {
-                      "campaignId": "SOURCE22023T04",
+                      "campaignId": "SOURCE12023T01",
                       "eventType": "CESSATION_IN_PROGRESS",
                       "source": "ENTERPRISE",
                       "eventDate": 1760368478660,
                       "eventCreationDate": 1747395350727
                     },
                     {
-                      "campaignId": "SOURCE22023T04",
+                      "campaignId": "SOURCE12023T01",
                       "eventType": "TEMPORARY_INACTIVITY",
                       "source": "SIRUS",
                       "eventDate": 1760368478661,
                       "eventCreationDate": 1747395350727
-                    },
-                    {
-                      "campaignId": "SOURCE22023T03",
-                      "eventType": "PERMANENT_CESSATION",
-                      "source": "OTHER_SOURCE",
-                      "eventDate": 1760368478663,
-                      "eventCreationDate":1747395350727
                     }
                 ]""";
         JSONAssert.assertEquals(expectedResult, jsonResult, JSONCompareMode.NON_EXTENSIBLE);
