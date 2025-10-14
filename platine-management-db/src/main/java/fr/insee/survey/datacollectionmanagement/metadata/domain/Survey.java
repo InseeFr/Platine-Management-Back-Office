@@ -60,5 +60,4 @@ public class Survey {
     @ManyToOne
     @JoinColumn(name = "source_id")
     private Source source;
-
 }

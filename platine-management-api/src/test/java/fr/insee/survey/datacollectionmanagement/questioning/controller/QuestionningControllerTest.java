@@ -115,7 +115,7 @@ class QuestionningControllerTest {
         assertThat(qa.get().getQuestioning().getId()).isEqualTo(questioningId);
 
         Questioning questioning = questioningService.findById(questioningId);
-        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
+        Campaign campaign = partitioningService.getById(questioning.getIdPartitioning()).getCampaign();
         Source source =  campaign.getSurvey().getSource();
         ContactSource contactSource = contactSourceService.findContactSource(contactId, source.getId(), questioning.getSurveyUnit().getIdSu());
 
@@ -147,7 +147,7 @@ class QuestionningControllerTest {
         assertThat(contactEventService.findContactEventsByContactId(replacedContactId).getLast().getType()).isEqualTo(ContactEventTypeEnum.update.toString());
 
         Questioning questioning = questioningService.findById(questioningId);
-        Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
+        Campaign campaign = partitioningService.getById(questioning.getIdPartitioning()).getCampaign();
         Source source =  campaign.getSurvey().getSource();
         SurveyUnit su = questioning.getSurveyUnit();
         String sourceId =  source.getId();

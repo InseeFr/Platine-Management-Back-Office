@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
@@ -21,7 +22,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,6 +52,7 @@ public class CampaignSteps {
             String idCampaign = campaign.get("IdCampaign");
             Campaign campaignObject = new Campaign();
             campaignObject.setId(idCampaign);
+            campaignObject.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
             //campaignObject.setId("idCampaign");
             // Example: Print the campaign ID
             log.info("Campaign ID: " + idCampaign);

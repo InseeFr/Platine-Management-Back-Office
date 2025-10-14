@@ -16,15 +16,15 @@ INSERT INTO public.survey(id, cnis_url, communication, diffusion_url, long_objec
   ('AQV2023', 'http://cnis/AQV2023', '', 'http://diffusion/AQV2023', 'Cette enquête permet de connaître précisément...', 'AQV stromae V2', 'http://notice/AQV2023', 0, 'Cette enquête permet de connaître précisément ...', 'Test pour AQV', 'http://specimenUrl/AQV2022', '2023xxxxxx', 2023, 'AQV'),
   ('AQV2024', 'http://cnis/AQV2024', '', 'http://diffusion/AQV2024', 'Cette enquête permet de connaître précisément...', 'AQV stromae V2', 'http://notice/AQV2023', 0, 'Cette enquête permet de connaître précisément ...', 'Test pour AQV', 'http://specimenUrl/AQV2022', '2024xxxxxx', 2024, 'AQV');
 
-INSERT INTO public.campaign(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity) VALUES
-  ('AQV2022X00', 'AQV2022X00', 'AQV2022', 'X00', 2022, 'LUNATIC_NORMAL', false),
-  ('AQV2024X00', 'AQV2024X00', 'AQV2024', 'X00', 2024, 'LUNATIC_NORMAL', false),
-  ('AQV2023X00', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
+INSERT INTO public.campaign(id, technical_id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity) VALUES
+  ('AQV2022X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa01', 'AQV2022X00', 'AQV2022', 'X00', 2022, 'LUNATIC_NORMAL', false),
+  ('AQV2024X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa02', 'AQV2024X00', 'AQV2024', 'X00', 2024, 'LUNATIC_NORMAL', false),
+  ('AQV2023X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa03', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
 
-INSERT INTO public.partitioning (id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
-  ('AQV2024X0000', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
-  ('AQV2023X0000', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
-  ('AQV2022X0000', '2099-10-30 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
+INSERT INTO public.partitioning (id, technical_id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
+  ('AQV2024X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa01', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
+  ('AQV2023X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa02', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
+  ('AQV2022X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa03', '2099-10-30 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
 
 INSERT INTO public.address(id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type) VALUES
   (207, 'France', 'rue des oies', '1', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),

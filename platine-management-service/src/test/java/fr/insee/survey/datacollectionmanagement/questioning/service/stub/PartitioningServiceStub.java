@@ -6,22 +6,36 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Setter
 public class PartitioningServiceStub implements PartitioningService {
 
-    private Partitioning stubbedPartition;
+    public List<Partitioning> savedPartitionings = new ArrayList<>();
+
+    @Getter
+    private Partitioning lastSaved;
 
     @Override
-    public Partitioning findById(String id) {
-        return stubbedPartition;
+    public Partitioning getById(String id) {
+        return lastSaved;
+    }
+
+    @Override
+    public Optional<Partitioning> findById(String id) {
+        return Optional.of(getById(id));
     }
 
     @Override
     public Partitioning insertOrUpdatePartitioning(Partitioning partitioning) {
-        stubbedPartition = partitioning;
-        return stubbedPartition;
+        savedPartitionings.removeIf(x -> Objects.equals(x.getId(), partitioning.getId()));
+        savedPartitionings.add(partitioning);
+        lastSaved = partitioning;
+        return partitioning;
     }
 
     @Override
@@ -35,4 +49,7 @@ public class PartitioningServiceStub implements PartitioningService {
                 part.getOpeningDate().toInstant().isBefore(now);
     }
 
+    public void setSavedPartitionings(List<Partitioning> partitionings) {
+        this.savedPartitionings = new ArrayList<>(partitionings);
+    }
 }

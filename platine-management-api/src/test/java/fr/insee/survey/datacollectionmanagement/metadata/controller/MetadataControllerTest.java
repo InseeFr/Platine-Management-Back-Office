@@ -54,8 +54,8 @@ class MetadataControllerTest {
     void getCampaignOk() throws Exception {
         String campaignId = "SOURCE12023T01";
 
-        assertDoesNotThrow(() -> campaignService.findById(campaignId));
-        Campaign campaign = campaignService.findById(campaignId);
+        assertDoesNotThrow(() -> campaignService.getById(campaignId));
+        Campaign campaign = campaignService.getById(campaignId);
         this.mockMvc.perform(get(UrlConstants.API_METADATA_BUSINESS, campaignId)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
                 .andExpect(xpath("/InformationsCollecte/ServiceProducteur/Libelle")

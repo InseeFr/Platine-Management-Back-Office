@@ -49,7 +49,7 @@ public class PartitioningController {
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
-        Campaign campaign = campaignService.findById(id);
+        Campaign campaign = campaignService.getById(id);
         return ResponseEntity.ok()
                 .body(campaign.getPartitionings().stream().map(this::convertToDto)
                         .toList());
@@ -60,7 +60,7 @@ public class PartitioningController {
     @Operation(summary = "Search for a partitioning by its id")
     @GetMapping(value = UrlConstants.API_PARTITIONINGS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PartitioningDto> getPartitioning(@PathVariable("id") String id) {
-        Partitioning partitioning = partitioningService.findById(StringUtils.upperCase(id));
+        Partitioning partitioning = partitioningService.getById(StringUtils.upperCase(id));
         return ResponseEntity.ok().body(convertToDto(partitioning));
 
 
@@ -86,7 +86,7 @@ public class PartitioningController {
         HttpStatus httpStatus;
 
         try {
-            partitioningService.findById(id);
+            partitioningService.getById(id);
             log.info("Update partitioning with the id {}", partitioningDto.getId());
             httpStatus = HttpStatus.OK;
         } catch (NotFoundException e) {
@@ -102,7 +102,7 @@ public class PartitioningController {
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
     public void deletePartitioning(@PathVariable("id") String id) {
-        Partitioning partitioning = partitioningService.findById(id);
+        Partitioning partitioning = partitioningService.getById(id);
         partitioningService.deletePartitioningById(id);
 
         int nbQuestioningDeleted = questioningService.deleteQuestioningsOfOnePartitioning(partitioning);
