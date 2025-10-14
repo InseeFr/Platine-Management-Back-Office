@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
 @Validated

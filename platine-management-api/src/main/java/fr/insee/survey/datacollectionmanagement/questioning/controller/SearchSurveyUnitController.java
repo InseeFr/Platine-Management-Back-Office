@@ -35,7 +35,7 @@ import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
+@Tag(name = "3 - Survey units", description = "Enpoints to create, update, delete and find survey units")
 @Slf4j
 @RequiredArgsConstructor
 public class SearchSurveyUnitController {

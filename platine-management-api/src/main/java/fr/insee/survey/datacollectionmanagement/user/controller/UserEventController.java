@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RestController(value = "UserEvents")
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
-@Tag(name = "7-User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
+@Tag(name = "7 - User", description = "Enpoints to create, update, delete and find users, their events and accreditations")
 @RequiredArgsConstructor
 @Validated
 public class UserEventController {

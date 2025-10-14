@@ -75,7 +75,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "3 - Metadata", description = "Endpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Endpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @Validated
 @RequiredArgsConstructor
