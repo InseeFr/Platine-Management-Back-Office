@@ -218,6 +218,22 @@
       "realmRoles": ["admin"]
     },
     {
+      "username": "E2E_SUPPORT_1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Alan",
+      "lastName": "Maman",
+      "email": "e2esupport1@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2E_SUPPORT_1",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["assistance"]
+    },
+    {
       "id": "15cfea92-65bc-441e-bf55-1234c73b3129",
       "username": "service-account-webclient",
       "emailVerified": false,

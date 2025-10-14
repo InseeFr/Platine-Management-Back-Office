@@ -53,9 +53,9 @@ class QuestionningEventControllerTest {
     @BeforeEach
     void init() {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            SecurityContextHolder.getContext().setAuthentication(
-                    AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN)
-            );
+            SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
+                    .getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+
         }
     }
 

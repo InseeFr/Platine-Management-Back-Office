@@ -75,7 +75,9 @@ public class ContactController {
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)
-    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES +
+            " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
+            " || hasPermission(null, 'READ_SUPPORT')")
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         return contactService.getContactDetails(idContact);
@@ -83,14 +85,14 @@ public class ContactController {
 
     @Operation(summary = "Get contact info")
     @GetMapping(value = UrlConstants.API_CONTACT)
-    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ContactDetailsDto getContactInfo(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
         return contactService.getContactDetails(contactId.toUpperCase());
     }
 
     @Operation(summary = "Put contact info")
     @PutMapping(value = UrlConstants.API_CONTACT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public ResponseEntity<ContactDto> putContactInfo(@RequestBody @Valid ContactDto contactDto,
                                                      @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                      @CurrentSecurityContext(expression = "authentication.name") String contactId) {
@@ -109,7 +111,9 @@ public class ContactController {
 
     @Operation(summary = "Update or create a contact")
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES +
+            " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
+            " || hasPermission(null, 'READ_SUPPORT')")
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                   @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                   @RequestBody @Valid ContactDto contactDto,
@@ -157,7 +161,6 @@ public class ContactController {
 
     @Operation(summary = "Give questioning main accreditation to a created target contact")
     @PutMapping(value = UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void putContactInterrogationInLdapAndAssignToInterrogationAsMain(
             @PathVariable("interrogationId") UUID interrogationId,
             @RequestBody ContactDto contactDto)  {
@@ -173,6 +176,7 @@ public class ContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES  + " || hasPermission(null, 'READ_SUPPORT')")
     public Page<SearchContactDto> searchContacts(
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = false) @Valid @ValidContactParam String searchType,

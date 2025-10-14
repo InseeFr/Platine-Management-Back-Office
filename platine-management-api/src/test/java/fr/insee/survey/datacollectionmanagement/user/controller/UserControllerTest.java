@@ -30,10 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -138,6 +141,20 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and user identifier don't match")));
 
+    }
+
+    @Test
+    void getSupportPermissions() throws Exception {
+
+        this.mockMvc.perform(
+                        get(UrlConstants.API_USER_ROLE)
+                                .with(authentication(AuthenticationUserProvider
+                                        .getAuthenticatedUserWithPermissions("TEST1", AuthorityRoleEnum.SUPPORT)))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.appRoles[0]").value("SUPPORT"))
+                .andExpect(jsonPath("$.permissions[0]").value("READ_SUPPORT"))
+                .andExpect(jsonPath("$.sources").isEmpty());
     }
 
     private User initGestionnaire(String identifier) {
