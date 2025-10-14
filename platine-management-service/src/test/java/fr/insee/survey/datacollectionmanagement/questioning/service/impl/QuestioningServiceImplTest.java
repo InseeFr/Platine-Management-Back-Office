@@ -1,6 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
@@ -8,6 +18,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.ParameterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
@@ -32,6 +43,17 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitSe
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,15 +65,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-
-import java.util.*;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
@@ -506,6 +519,99 @@ class QuestioningServiceImplTest {
         );
     }
 
+    @Test
+    void getQuestioningsByCampaignIdForCsv_shouldReturnListWhenDataExists() {
+      // Given
+      String campaignId = "campaign123";
+      UUID id1 = UUID.randomUUID();
+      UUID id2 = UUID.randomUUID();
 
+      List<QuestioningCsvDto> expectedDtos = Arrays.asList(
+          new QuestioningCsvDto(
+              id1,
+              "p1",
+              "su1",
+              TypeQuestioningEvent.VALINT,
+              new Date()
+          ),
+          new QuestioningCsvDto(
+              id2,
+              "p2",
+              "su2",
+              TypeQuestioningEvent.FOLLOWUP,
+              new Date(System.currentTimeMillis() - 86400000)  // Date d'hier
+          )
+      );
+
+      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+          .thenReturn(expectedDtos);
+
+      // When
+      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+      // Then
+      assertNotNull(result);
+      assertEquals(2, result.size());
+      assertEquals(expectedDtos, result);
+      assertEquals(id1, result.getFirst().getInterrogationId());
+      assertEquals(TypeQuestioningEvent.VALINT, result.getFirst().getHighestEventType());
+    }
+
+    @Test
+    void getQuestioningsByCampaignIdForCsv_shouldReturnEmptyListWhenNoData() {
+      // Given
+      String campaignId = "campaign123";
+
+      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+          .thenReturn(Collections.emptyList());
+
+      // When
+      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+      // Then
+      assertNotNull(result);
+      assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getQuestioningsByCampaignIdForCsv_shouldHandleNullCampaignId() {
+      // Given
+      when(questioningRepository.findQuestioningDataForCsvByCampaignId(null))
+          .thenReturn(Collections.emptyList());
+
+      // When/Then
+      assertDoesNotThrow(() -> {
+        List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(null);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+      });
+    }
+
+    @Test
+    void getQuestioningsByCampaignIdForCsv_shouldReturnSingleItemWhenOnlyOneExists() {
+      // Given
+      String campaignId = "campaign123";
+      UUID id = UUID.randomUUID();
+      QuestioningCsvDto expectedDto = new QuestioningCsvDto(
+          id,
+          "p1",
+          "su1",
+          TypeQuestioningEvent.PND,
+          new Date()
+      );
+
+      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+          .thenReturn(Collections.singletonList(expectedDto));
+
+      // When
+      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+      // Then
+      assertNotNull(result);
+      assertEquals(1, result.size());
+      assertEquals(expectedDto, result.getFirst());
+      assertEquals(id, result.getFirst().getInterrogationId());
+      assertEquals(TypeQuestioningEvent.PND, result.getFirst().getHighestEventType());
+    }
 
 }
