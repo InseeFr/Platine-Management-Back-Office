@@ -3,8 +3,10 @@ package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Parameters;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.SupportDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -82,6 +84,15 @@ public class SourceServiceImpl implements SourceService {
                         .anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId())))
                 .map(source -> modelMapper.map(source, SourceDto.class))
                 .toList();
+    }
+
+    @Override
+    public SupportDto getSupportBySource(String sourceId) {
+        Support support = sourceRepository.findSupportBySourceId(sourceId)
+                .orElseThrow(() -> new NotFoundException(String.format("Support not found for source %s", sourceId)));
+        SupportDto supportDto = modelMapper.map(support, SupportDto.class);
+        log.info("Support {} found", supportDto.getLabel());
+        return supportDto;
     }
 
 }
