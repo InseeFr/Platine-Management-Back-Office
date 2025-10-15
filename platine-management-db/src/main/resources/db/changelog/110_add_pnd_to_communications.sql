@@ -14,5 +14,4 @@ LEFT JOIN
     questioning_communication qc ON qe.questioning_id = qc.questioning_id AND qe.type = qc.type
 WHERE
     qe.type = 'PND' AND qc.id IS NULL; -- only if not exists
-    qe.type = 'PND' AND qc.id IS NULL; -- only if not exists
 
