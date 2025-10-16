@@ -162,6 +162,7 @@ public class CampaignController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = CampaignDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(examples = {
                     @ExampleObject(name = "LUNATIC_NORMAL campaign", value = LUNATIC_NORMAL_CAMPAIGN),

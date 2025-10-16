@@ -98,6 +98,7 @@ public class SurveyController {
 
     @Operation(summary = "Update or create a survey")
     @PutMapping(value = UrlConstants.API_SURVEYS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<SurveyDto> putSurvey(@PathVariable("id") String id, @RequestBody @Valid SurveyDto surveyDto) {
         if (!surveyDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and idSurvey don't match");
