@@ -278,6 +278,7 @@ public class WebclientController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = MetadataDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_WEBCLIENT_PRIVILEGES)
     @Transactional
     public ResponseEntity<MetadataDto> putMetadata(@PathVariable("id") String id,
                                                    @RequestBody @Valid MetadataDto metadataDto) {

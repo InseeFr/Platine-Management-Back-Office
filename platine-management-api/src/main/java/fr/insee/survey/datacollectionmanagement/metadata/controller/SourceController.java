@@ -82,7 +82,7 @@ public class SourceController {
 
     @Operation(summary = "Update or create a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<SourceOwnerSupportDto> putSource(@PathVariable("id") String id, @RequestBody @Valid SourceOwnerSupportDto sourceDto) {
         if (!sourceDto.getId().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and source id don't match");
@@ -178,7 +178,7 @@ public class SourceController {
 
     @Operation(summary = "Create a parameter for a source")
     @PutMapping(value = UrlConstants.API_SOURCES_ID_PARAMS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public List<ParamsDto> putParams(@PathVariable("id") String id, @RequestBody @Valid ParamsDto paramsDto) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         ParamValidator.validateParams(paramsDto);

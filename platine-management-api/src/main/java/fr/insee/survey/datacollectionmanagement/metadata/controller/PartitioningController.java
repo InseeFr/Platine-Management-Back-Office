@@ -74,6 +74,7 @@ public class PartitioningController {
             @ApiResponse(responseCode = "201", description = "Created", content = @Content(schema = @Schema(implementation = PartitioningDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public ResponseEntity<PartitioningDto> putPartitioning(@PathVariable("id") String id,
                                                            @RequestBody PartitioningDto partitioningDto) {
         if (!partitioningDto.getId().equalsIgnoreCase(id)) {

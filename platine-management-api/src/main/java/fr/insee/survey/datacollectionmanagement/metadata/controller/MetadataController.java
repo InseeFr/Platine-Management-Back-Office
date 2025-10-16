@@ -33,6 +33,7 @@ public class MetadataController {
     }
 
     @PutMapping(value = UrlConstants.MOOG_API_CAMPAIGNS_ID)
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public void updateCampaignInProgressMoog(@PathVariable("id") String id, @RequestBody CampaignMoogDto campaignMoogDto) {
         log.info("Updating Moog campaign with id {}", id);
         Campaign campaign = campaignService.findById(id);
