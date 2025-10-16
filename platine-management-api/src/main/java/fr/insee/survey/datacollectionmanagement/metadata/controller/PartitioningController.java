@@ -33,7 +33,7 @@ import java.util.List;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
 public class PartitioningController {
@@ -48,6 +48,7 @@ public class PartitioningController {
 
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
     public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(id);
         return ResponseEntity.ok()

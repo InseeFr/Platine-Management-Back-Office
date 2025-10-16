@@ -5,17 +5,17 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationInputDto;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningCommunicationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -51,6 +51,11 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
 
     // Update the bidirectional link
     questioning.getQuestioningCommunications().add(newQuestioningCommunication);
+  }
+
+  @Override
+  public void deleteQuestioningCommunication(Long questioningCommunicationId) {
+    questioningCommunicationRepository.deleteById(questioningCommunicationId);
   }
 
 }

@@ -56,7 +56,7 @@ import java.util.*;
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
 @Slf4j
-@Tag(name = "6 - Webclients", description = "Endpoints for webclients")
+@Tag(name = "7 - Webclients", description = "Endpoints for webclients")
 @RequiredArgsConstructor
 @Validated
 public class WebclientController {

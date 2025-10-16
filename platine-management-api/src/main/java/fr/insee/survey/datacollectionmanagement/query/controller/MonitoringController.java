@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "5 - Moog", description = "Enpoints for moog")
+@Tag(name = "6 - Moog", description = "Enpoints for moog")
 @Slf4j
 @RequiredArgsConstructor
 public class MonitoringController {

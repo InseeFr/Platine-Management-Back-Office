@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @Slf4j
 @RequiredArgsConstructor
 @Validated
@@ -59,7 +59,7 @@ public class SourceController {
 
     @Operation(summary = "Search for sources, paginated")
     @GetMapping(value = UrlConstants.API_SOURCES, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
     public List<SourceDto> getSources() {
         return sourceService.findAll().stream().map(this::convertToDto).toList();
     }

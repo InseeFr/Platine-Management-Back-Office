@@ -37,7 +37,7 @@ import java.util.List;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
+@Tag(name = "3 - Survey units", description = "Enpoints to create, update, delete and find survey units")
 @Slf4j
 @RequiredArgsConstructor
 @Validated
@@ -99,6 +99,13 @@ public class SurveyUnitController {
         Pageable pageable = PageRequest.of(page, pageSize);
 
         return surveyUnitService.findByParameter(searchParam, pageable);
+    }
+
+    @Operation(summary = "Get survey unit campaigns")
+    @GetMapping(value = UrlConstants.API_SURVEY_UNITS_ID_CAMPAIGNS,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> getCampaignIds(@PathVariable(value = "id") String surveyUnitId) {
+        return surveyUnitService.getCampaignIds(surveyUnitId);
     }
 
 

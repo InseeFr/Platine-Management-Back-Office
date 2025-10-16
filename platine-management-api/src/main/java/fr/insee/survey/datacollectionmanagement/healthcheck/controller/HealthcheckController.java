@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "8 - Healthcheck", description = "healthcheck")
+@Tag(name = "9 - Healthcheck", description = "healthcheck")
 public class HealthcheckController {
 
     @GetMapping(path = UrlConstants.API_HEALTHCHECK, produces = MediaType.APPLICATION_JSON_VALUE)
