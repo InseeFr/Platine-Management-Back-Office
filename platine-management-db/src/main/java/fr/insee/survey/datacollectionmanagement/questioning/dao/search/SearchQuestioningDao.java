@@ -35,27 +35,31 @@ public class SearchQuestioningDao {
         sql.append(filterQuestionings.sqlFilter());
         sql.append(" ");
         sql.append("""
-            qc_ranked AS (
-              SELECT
-                qc.questioning_id,
-                qc.type,
-                qc.with_receipt,
-                qc.with_questionnaire,
-                ROW_NUMBER() OVER (PARTITION BY qc.questioning_id ORDER BY qc.date DESC) AS rn
-              FROM questioning_communication qc
-            ),
-            qc_last AS (
-              SELECT questioning_id, type, with_receipt, with_questionnaire
-              FROM qc_ranked
-              WHERE rn = 1
-            ),
             qlimited AS (
                 SELECT
                     q.id AS questioning_id,
                     p.campaign_id,
-                    qc_last.type AS last_communication_type,
-                    qc_last.with_receipt AS last_communication_receipt,
-                    qc_last.with_questionnaire AS last_communication_questionnaire,
+                 (
+                     SELECT qc.type
+                     FROM questioning_communication qc
+                     WHERE qc.questioning_id = q.id
+                     ORDER BY qc.date DESC
+                     LIMIT 1
+                 ) AS last_communication_type,
+                (
+                     SELECT qc.with_receipt
+                     FROM questioning_communication qc
+                     WHERE qc.questioning_id = q.id
+                     ORDER BY qc.date DESC
+                     LIMIT 1
+                 ) AS last_communication_receipt,
+                 (
+                     SELECT qc.with_questionnaire
+                     FROM questioning_communication qc
+                     WHERE qc.questioning_id = q.id
+                     ORDER BY qc.date DESC
+                     LIMIT 1
+                 ) AS last_communication_questionnaire ,
                     q.highest_event_type AS highest_event_type,
                     CASE
                        WHEN q.highest_event_type IN ('VALINT', 'VALPAP') THEN q.highest_event_date
@@ -71,14 +75,10 @@ public class SearchQuestioningDao {
         sql.append(" ");
         sql.append("""
             JOIN survey_unit su
-                ON q.survey_unit_id_su = su.id_su
+                 ON q.survey_unit_id_su = su.id_su
             JOIN partitioning p
                 ON q.id_partitioning = p.id
-            LEFT JOIN qc_last
-                ON qc_last.questioning_id = q.id
         """);
-        sql.append(" WHERE 1=1 ");
-        sql.append(" ");
         sql.append(filterCampaigns.sqlFilter());
         sql.append(" ");
         sql.append(filterTypes.sqlFilter());
@@ -110,7 +110,7 @@ public class SearchQuestioningDao {
                 qlimited.score
             FROM qlimited
             LEFT JOIN questioning_accreditation qa_all
-                ON qa_all.questioning_id = qlimited.questioning_id""");
+                ON qa_all.questioning_id = qlimited.questioning_id;""");
         var nativeQuery = entityManager.createNativeQuery(sql.toString());
         parameters.forEach(nativeQuery::setParameter);
         @SuppressWarnings("unchecked")
