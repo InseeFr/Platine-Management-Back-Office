@@ -140,6 +140,7 @@ class QuestioningDetailsDtoBuilderTest {
         comm2.setType("PHONE_CALL");
         comm2.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
         QuestioningCommunicationDto comm3 = new QuestioningCommunicationDto();
+        comm3.setWithReceipt(false);
         comm3.setType("RELANCE");
         comm3.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
         comm3.setWithQuestionnaire(true);
@@ -150,8 +151,9 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListCommunications()).hasSize(3);
-        assertThat(dto.getLastCommunication()).isEqualTo("PHONE_CALL");
-        assertThat(dto.getDateLastCommunication()).isEqualTo(comm2.getDate());
+        assertThat(dto.getLastCommunicationType()).isEqualTo("PHONE_CALL");
+        assertThat(dto.getLastCommunicationDate()).isEqualTo(comm2.getDate());
+        assertFalse(dto.isLastCommunicationReceipt());
         assertFalse(dto.getListCommunications().get(1).isWithReceipt());
         assertFalse(dto.getListCommunications().get(1).isWithReceipt());
         assertTrue(dto.getListCommunications().get(2).isWithQuestionnaire());
@@ -166,8 +168,8 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListCommunications()).isNull();
-        assertThat(dto.getLastCommunication()).isNull();
-        assertThat(dto.getDateLastCommunication()).isNull();
+        assertThat(dto.getLastCommunicationType()).isNull();
+        assertThat(dto.getLastCommunicationDate()).isNull();
     }
 
     @Test
@@ -177,8 +179,8 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListCommunications()).isEmpty();
-        assertThat(dto.getLastCommunication()).isNull();
-        assertThat(dto.getDateLastCommunication()).isNull();
+        assertThat(dto.getLastCommunicationType()).isNull();
+        assertThat(dto.getLastCommunicationDate()).isNull();
     }
 
     @Test
