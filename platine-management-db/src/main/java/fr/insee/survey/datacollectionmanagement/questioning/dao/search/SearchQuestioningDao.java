@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.dao.search;
 
+import fr.insee.survey.datacollectionmanagement.query.dto.LastCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
@@ -34,17 +35,27 @@ public class SearchQuestioningDao {
         sql.append(filterQuestionings.sqlFilter());
         sql.append(" ");
         sql.append("""
+            qc_ranked AS (
+              SELECT
+                qc.questioning_id,
+                qc.type,
+                qc.with_receipt,
+                qc.with_questionnaire,
+                ROW_NUMBER() OVER (PARTITION BY qc.questioning_id ORDER BY qc.date DESC) AS rn
+              FROM questioning_communication qc
+            ),
+            qc_last AS (
+              SELECT questioning_id, type, with_receipt, with_questionnaire
+              FROM qc_ranked
+              WHERE rn = 1
+            ),
             qlimited AS (
                 SELECT
                     q.id AS questioning_id,
                     p.campaign_id,
-                    (
-                        SELECT qc.type
-                        FROM questioning_communication qc
-                        WHERE qc.questioning_id = q.id
-                        ORDER BY qc.date DESC
-                        LIMIT 1
-                    ) AS last_communication_type,
+                    qc_last.type AS last_communication_type,
+                    qc_last.with_receipt AS last_communication_receipt,
+                    qc_last.with_questionnaire AS last_communication_questionnaire,
                     q.highest_event_type AS highest_event_type,
                     CASE
                        WHEN q.highest_event_type IN ('VALINT', 'VALPAP') THEN q.highest_event_date
@@ -52,15 +63,21 @@ public class SearchQuestioningDao {
                     END AS validation_date,
                     su.id_su AS survey_unit_id,
                     su.identification_code AS identification_code,
-                    q.score AS score""");
+                    q.score AS score
+            """);
+
         sql.append(" ");
         sql.append(joinQuestionings);
         sql.append(" ");
         sql.append("""
-                JOIN survey_unit su
-                    ON q.survey_unit_id_su = su.id_su
-                JOIN partitioning p
-                    ON q.id_partitioning = p.id""");
+            JOIN survey_unit su
+                ON q.survey_unit_id_su = su.id_su
+            JOIN partitioning p
+                ON q.id_partitioning = p.id
+            LEFT JOIN qc_last
+                ON qc_last.questioning_id = q.id
+        """);
+        sql.append(" WHERE 1=1 ");
         sql.append(" ");
         sql.append(filterCampaigns.sqlFilter());
         sql.append(" ");
@@ -83,6 +100,8 @@ public class SearchQuestioningDao {
                 qlimited.questioning_id,
                 qlimited.campaign_id,
                 qlimited.last_communication_type,
+                qlimited.last_communication_receipt,
+                qlimited.last_communication_questionnaire,
                 qlimited.validation_date,
                 qlimited.highest_event_type,
                 qlimited.survey_unit_id,
@@ -92,7 +111,8 @@ public class SearchQuestioningDao {
             FROM qlimited
             LEFT JOIN questioning_accreditation qa_all
                 ON qa_all.questioning_id = qlimited.questioning_id;""");
-
+        System.out.println("== SQL ==\n" + sql);
+        System.out.println("== Params ==\n" + parameters);
         var nativeQuery = entityManager.createNativeQuery(sql.toString());
         parameters.forEach(nativeQuery::setParameter);
         @SuppressWarnings("unchecked")
@@ -123,7 +143,7 @@ public class SearchQuestioningDao {
 
             SearchQuestioningDto result = optSearchQuestioningResult.get();
             // add contact id
-            result.addContactId((String)row[7]);
+            result.addContactId((String)row[9]);
         }
 
         // check if there is a next page
@@ -318,20 +338,23 @@ public class SearchQuestioningDao {
         UUID questioningId = buildQuestioningId(row[0]);
         String campaignId = (String) row[1];
         String lastCommunicationType = (String) row[2];
-        Date validationDate = (Date) row[3];
-        String highestEventType = (String) row[4];
-        String surveyUnitId = (String) row[5];
-        String identificationCode = (String) row[6];
-        String contactId = (String) row[7];
-        Integer score = (Integer) row[8];
+        boolean lastCommunicationReceipt = row[3] == null ? false: (boolean) row[3];
+        boolean lastCommunicationQuestionnaire = row[4] == null ? false: (boolean) row[4];
+        Date validationDate = (Date) row[5];
+        String highestEventType = (String) row[6];
+        String surveyUnitId = (String) row[7];
+        String identificationCode = (String) row[8];
+        String contactId = (String) row[9];
+        Integer score = (Integer) row[10];
 
         TypeCommunicationEvent typeCommunicationEvent = lastCommunicationType != null ? TypeCommunicationEvent.valueOf(lastCommunicationType) : null;
         TypeQuestioningEvent typeQuestioningEvent = highestEventType != null ? TypeQuestioningEvent.valueOf(highestEventType) : null;
 
+        LastCommunicationDto lastCommunicationDto = new LastCommunicationDto(typeCommunicationEvent, lastCommunicationReceipt, lastCommunicationQuestionnaire);
         return new SearchQuestioningDto(
                 questioningId,
                 campaignId,
-                typeCommunicationEvent,
+                lastCommunicationDto,
                 validationDate,
                 typeQuestioningEvent,
                 surveyUnitId,
