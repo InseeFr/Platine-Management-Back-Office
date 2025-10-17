@@ -6,6 +6,8 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.SortByValid;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.SortDirectionValid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,8 @@ public class SearchQuestioningController {
             @RequestBody(required = false) SearchQuestioningParams searchParams,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortDirection) {
+            @RequestParam(required = false) @SortByValid String sortBy,
+            @RequestParam(required = false) @SortDirectionValid String sortDirection) {
 
         log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
                 searchParams, page, pageSize, sortBy, sortDirection);
