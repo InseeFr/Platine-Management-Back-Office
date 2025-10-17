@@ -39,7 +39,6 @@ import java.util.Set;
 @Tag(name = "3 - Survey units", description = "Enpoints to create, update, delete and find survey units")
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class SearchSurveyUnitController {
 
 
