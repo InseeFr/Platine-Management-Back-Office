@@ -110,9 +110,7 @@ public class SearchQuestioningDao {
                 qlimited.score
             FROM qlimited
             LEFT JOIN questioning_accreditation qa_all
-                ON qa_all.questioning_id = qlimited.questioning_id;""");
-        System.out.println("== SQL ==\n" + sql);
-        System.out.println("== Params ==\n" + parameters);
+                ON qa_all.questioning_id = qlimited.questioning_id""");
         var nativeQuery = entityManager.createNativeQuery(sql.toString());
         parameters.forEach(nativeQuery::setParameter);
         @SuppressWarnings("unchecked")
@@ -255,7 +253,7 @@ public class SearchQuestioningDao {
                                                     List<TypeCommunicationEvent> typeCommunicationEvents) {
         Optional<SearchFilter> optionalEventsFilter = buildEventFilter(typeQuestioningEvents);
         Optional<SearchFilter> optionalCommFilter = buildCommunicationFilter(typeCommunicationEvents);
-        String whereClause = "WHERE ";
+        String whereClause = "AND ";
 
         if(optionalEventsFilter.isEmpty() && optionalCommFilter.isEmpty()) {
             return new SearchFilter("", Map.of());
