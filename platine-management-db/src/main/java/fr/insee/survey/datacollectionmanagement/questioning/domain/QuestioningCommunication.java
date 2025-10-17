@@ -33,6 +33,8 @@ public class QuestioningCommunication {
     private LocalDateTime date;
     @Enumerated(EnumType.STRING)
     private TypeCommunicationEvent type;
+    private boolean withQuestionnaire;
+    private boolean withReceipt;
 
     @ManyToOne
     @JoinColumn(name = "questioning_id")

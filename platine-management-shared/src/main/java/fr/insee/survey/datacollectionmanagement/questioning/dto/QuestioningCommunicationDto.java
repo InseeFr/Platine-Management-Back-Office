@@ -13,6 +13,8 @@ public class QuestioningCommunicationDto {
     private UUID questioningId;
     private LocalDateTime date;
     private String type;
+    private boolean withQuestionnaire;
+    private boolean withReceipt;
     private String status;
 
 }
