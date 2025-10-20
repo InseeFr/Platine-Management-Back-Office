@@ -12,7 +12,7 @@ import java.util.UUID;
 public class SearchQuestioningDto {
     private final UUID questioningId;
     private final String campaignId;
-    private final LastCommunicationDto lastCommunicationDto;
+    private final LastCommunicationDto lastCommunication;
     private final Date validationDate;
     private final TypeQuestioningEvent highestEventType;
     private final String surveyUnitId;
@@ -22,7 +22,7 @@ public class SearchQuestioningDto {
 
     public SearchQuestioningDto(UUID questioningId,
                                 String campaignId,
-                                LastCommunicationDto lastCommunicationDto,
+                                LastCommunicationDto lastCommunication,
                                 Date validationDate,
                                 TypeQuestioningEvent highestEventType,
                                 String surveyUnitId,
@@ -31,7 +31,7 @@ public class SearchQuestioningDto {
                                 Integer score) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
-        this.lastCommunicationDto = lastCommunicationDto;
+        this.lastCommunication = lastCommunication;
         this.validationDate = validationDate;
         this.highestEventType = highestEventType;
         this.surveyUnitId = surveyUnitId;
