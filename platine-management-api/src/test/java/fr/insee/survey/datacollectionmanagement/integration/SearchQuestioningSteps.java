@@ -177,7 +177,7 @@ public class SearchQuestioningSteps {
                         dto.getSurveyUnitId(),
                         dto.getValidationDate() == null ? null : sdf.format(dto.getValidationDate()),
                         dto.getHighestEventType() == null ? null : dto.getHighestEventType().name(),
-                        dto.getLastCommunicationDto().getTypeCommunicationEvent() == null ? null : dto.getLastCommunicationDto().getTypeCommunicationEvent().name()
+                        dto.getLastCommunication().getTypeCommunicationEvent() == null ? null : dto.getLastCommunication().getTypeCommunicationEvent().name()
                 ))
                 .toList();
 
