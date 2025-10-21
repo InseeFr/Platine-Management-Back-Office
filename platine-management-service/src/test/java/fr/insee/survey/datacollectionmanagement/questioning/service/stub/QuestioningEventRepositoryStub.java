@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
 public class QuestioningEventRepositoryStub implements QuestioningEventRepository {
@@ -122,6 +123,9 @@ public class QuestioningEventRepositoryStub implements QuestioningEventRepositor
         Set<QuestioningEvent> events = questioning.getQuestioningEvents();
         if (events == null) {
             events = new HashSet<>();
+        }
+        if(entity.getId() == null) {
+            entity.setId(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         }
         events.add(entity);
         questioning.setQuestioningEvents(events);

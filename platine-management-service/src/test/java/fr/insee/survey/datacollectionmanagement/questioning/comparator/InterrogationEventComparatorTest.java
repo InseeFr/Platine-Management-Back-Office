@@ -9,10 +9,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -213,6 +216,14 @@ class InterrogationEventComparatorTest {
                         TypeQuestioningEvent.HC),
 
                 scenario(
+                        List.of(eventWithFixedDate(1L, TypeQuestioningEvent.INITLA),
+                                eventWithFixedDate(2L, TypeQuestioningEvent.PARTIELINT),
+                                eventWithFixedDate(5L, TypeQuestioningEvent.VALINT),
+                                eventWithFixedDate(3L, TypeQuestioningEvent.PARTIELINT),
+                                eventWithFixedDate(4L, TypeQuestioningEvent.VALPAP)),
+                        TypeQuestioningEvent.VALINT),
+
+                scenario(
                         List.of(event(TypeQuestioningEvent.PARTIELINT,0),
                                 event(TypeQuestioningEvent.VALPAP,-1),
                                 event(TypeQuestioningEvent.VALINT,-2)),
@@ -251,7 +262,19 @@ class InterrogationEventComparatorTest {
     private static QuestioningEvent event(TypeQuestioningEvent type, int offsetDays) {
         LocalDate base = LocalDate.now().plusDays(offsetDays);
         Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return new QuestioningEvent(date, type, null);
+        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        qe.setId(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
+        return qe;
+    }
+
+    private static QuestioningEvent eventWithFixedDate(Long id, TypeQuestioningEvent type) {
+        Instant fixedInstant = Instant.ofEpochMilli(1747395350727L);
+        ZoneId zoneId = ZoneId.of("Europe/Paris");
+        LocalDate base = LocalDate.now(Clock.fixed(fixedInstant, zoneId));
+        Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        qe.setId(id);
+        return qe;
     }
 
     private static QuestioningEvent event(TypeQuestioningEvent type) {

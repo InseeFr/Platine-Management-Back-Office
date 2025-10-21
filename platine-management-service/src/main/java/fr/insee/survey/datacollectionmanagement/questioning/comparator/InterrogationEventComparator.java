@@ -23,7 +23,8 @@ public class InterrogationEventComparator implements Comparator<QuestioningEvent
                         InterrogationEventOrder::getEventOrder));
         this.delegate = Comparator
                 .comparing((QuestioningEvent e) -> eventOrderCache.getOrDefault(e.getType(), Integer.MAX_VALUE))
-                .thenComparing(QuestioningEvent::getDate);
+                .thenComparing(QuestioningEvent::getDate)
+                .thenComparing(QuestioningEvent::getId);
     }
 
     @Override
