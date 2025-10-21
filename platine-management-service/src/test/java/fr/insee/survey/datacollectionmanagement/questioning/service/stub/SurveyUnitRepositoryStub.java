@@ -60,6 +60,11 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	}
 
 	@Override
+	public List<String> findCampaignIdsBySurveyUnitId(String surveyUnitId) {
+		return List.of();
+	}
+
+	@Override
 	public void flush() {
 		//not used
 	}

@@ -29,7 +29,7 @@ import java.util.List;
 @CrossOrigin
 @Slf4j
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 @RequiredArgsConstructor
 @Validated
 public class SupportController {

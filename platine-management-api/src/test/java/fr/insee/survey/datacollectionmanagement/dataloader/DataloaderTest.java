@@ -315,6 +315,7 @@ public class DataloaderTest {
                         campaign.setSurvey(survey);
                         campaign.setPartitionings(setParts);
                         campaignRepository.save(campaign);
+                        log.info("Campaign created : {}", campaign.getId());
 
                     }
                     survey.setSource(source);
@@ -371,6 +372,7 @@ public class DataloaderTest {
             setQuestioning.add(qu);
             su.setQuestionings(setQuestioning);
             surveyUnitRepository.save(su);
+            log.info("survey unit {} created", su.getIdSu());
             qu.setSurveyUnit(su);
             questioningRepository.save(qu);
 

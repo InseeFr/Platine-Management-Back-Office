@@ -243,7 +243,8 @@ class QuestioningEventServiceImplTest {
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.EXPERT, 5, 5),
                 Arguments.of(TypeQuestioningEvent.NOQUAL, TypeQuestioningEvent.ENDEXPERT, 7, 7),
                 Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.ONGEXPERT, 5, 5),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.VALID, 9, 9)
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.VALID, 9, 9),
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL, 0, 0)
         );
     }
 
@@ -273,8 +274,7 @@ class QuestioningEventServiceImplTest {
                 Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ONGEXPERT),
                 Arguments.of(TypeQuestioningEvent.VALINT, TypeQuestioningEvent.ENDEXPERT),
                 Arguments.of(TypeQuestioningEvent.ONGEXPERT, TypeQuestioningEvent.EXPERT),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT),
-                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)
+                Arguments.of(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT)
         );
     }
 

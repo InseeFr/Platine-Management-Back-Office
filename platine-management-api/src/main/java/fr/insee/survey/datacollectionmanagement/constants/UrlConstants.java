@@ -13,7 +13,6 @@ public class UrlConstants {
     public static final String API_CONTACTS_ID = "/api/contacts/{id}";
     public static final String API_CONTACTS_ID_ADDRESS = "/api/contacts/{id}/address";
     public static final String API_CONTACTS_ID_CONTACTEVENTS = "/api/contacts/{id}/contact-events";
-    public static final String API_CONTACTEVENTS_ID = "/api/contacts/contact-events/{id}";
     public static final String API_CONTACT = "/api/contact/";
     public static final String API_CONTACT_CONTACTEVENTS = "/api/contact/contact-events";
     public static final String API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE = "/api/contact/contact-events/portal-privilege";
@@ -41,8 +40,10 @@ public class UrlConstants {
 
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
+    public static final String API_SURVEY_UNITS_ID_CAMPAIGNS = "/api/survey-units/{id}/campaigns";
     public static final String API_SURVEY_UNITS_ID_QUESTIONINGS = "/api/survey-units/{id}/questionings";
     public static final String API_SURVEY_UNITS_ID_COMMENT = "/api/survey-units/{id}/comment";
+    public static final String API_SURVEY_UNITS_ID_EVENTS = "/api/survey-units/{id}/events";
 
     public static final String API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS = "/api/questionings/{id}/questioning-accreditations";
     public static final String API_QUESTIONING_QUESTIONING_EVENTS = "/api/questionings/questioning-events";
@@ -118,6 +119,8 @@ public class UrlConstants {
     public static final String API_MY_QUESTIONNAIRES = "/api/contacts/questionnaires";
     public static final String API_SURVEY_UNITS_CONTACTS = "/api/survey-units/{id}/contacts";
     public static final String API_SURVEY_UNITS_PARTITIONINGS = "/api/survey-units/{id}/partitionings";
+    public static final String API_USER_ROLE = "/api/user/role";
+
 
     public static final String API_SURVEY_UNITS_SEARCH = "/api/survey-units/search";
 

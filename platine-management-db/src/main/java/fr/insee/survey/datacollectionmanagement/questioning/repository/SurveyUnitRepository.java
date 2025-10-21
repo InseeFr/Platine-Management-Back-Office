@@ -100,4 +100,12 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
                     qa.is_main
             """)
     List<ContactAccreditedToSurveyUnitDto> findContactsAccreditedToSurveyUnit(String surveyUnitId);
+
+    @Query(value = """
+        SELECT distinct p.campaign_id
+        FROM partitioning p
+        JOIN questioning q ON q.id_partitioning = p.id
+        WHERE q.survey_unit_id_su = :surveyUnitId
+        """, nativeQuery = true)
+    List<String> findCampaignIdsBySurveyUnitId(String surveyUnitId);
 }

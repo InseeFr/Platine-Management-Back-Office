@@ -22,6 +22,9 @@
     <include file="changelog/090_add_type_and_date_highest_status_event.sql" relativeToChangelogFile="true"/>
     <include file="changelog/091_fix_remove_datacollection_target_check.sql" relativeToChangelogFile="true"/>
     <include file="changelog/092_fix_null_gender.sql" relativeToChangelogFile="true"/>
-
+    <include file="changelog/100_add_rework_event_error.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/101_create_survey_unit_event.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/110_add_pnd_to_communications.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/120_add_display_faq_to_source.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

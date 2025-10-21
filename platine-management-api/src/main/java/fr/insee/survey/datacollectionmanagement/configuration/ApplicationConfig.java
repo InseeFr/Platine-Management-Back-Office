@@ -37,6 +37,9 @@ public class ApplicationConfig {
     @Value("#{'${fr.insee.datacollectionmanagement.roles.reader.role}'.split(',')}")
     private List<String> roleReader;
 
+    @Value("#{'${fr.insee.datacollectionmanagement.roles.support.role}'.split(',')}")
+    private List<String> roleSupport;
+
     @Value("${fr.insee.datacollectionmanagement.auth.mode}")
     private String authType;
 

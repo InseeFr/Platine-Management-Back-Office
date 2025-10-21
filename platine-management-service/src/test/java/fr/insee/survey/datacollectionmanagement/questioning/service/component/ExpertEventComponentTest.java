@@ -120,9 +120,9 @@ class ExpertEventComponentTest {
     }
 
     @Test
-    void transition_fromENDEXPERT_to_NOQUALorEXPERT_isNotAllowed_example() {
+    void transition_fromENDEXPERT_to_EXPERT_isNotAllowed_example() {
         assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.EXPERT)).isFalse();
-        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)).isFalse();
+        assertThat(component.isTransitionAllowed(TypeQuestioningEvent.ENDEXPERT, TypeQuestioningEvent.NOQUAL)).isTrue();
     }
 
     @Test
