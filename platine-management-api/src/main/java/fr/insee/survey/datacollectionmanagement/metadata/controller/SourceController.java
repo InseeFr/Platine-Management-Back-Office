@@ -8,10 +8,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Owner;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.OpenDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceOwnerSupportDto;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.service.*;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -173,6 +170,14 @@ public class SourceController {
     public List<ParamsDto> getParams(@PathVariable("id") String id) {
         Source source = sourceService.findById(StringUtils.upperCase(id));
         return source.getParams().stream().map(parametersService::convertToDto).toList();
+    }
+
+    @Operation(summary = "Get source support")
+    @GetMapping(value = UrlConstants.API_SOURCES_ID_SUPPPORT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
+    public SupportDto getSupportBySource(@PathVariable("id") String id) {
+        log.info("Get support for source {}", id);
+        return sourceService.getSupportBySource(id);
     }
 
 

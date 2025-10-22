@@ -32,14 +32,9 @@ public class QuestioningInformationsSteps {
 
     private QuestioningInformationsDto questioningInformationsDto;
 
-
-
-
     @Given("the user {string} is authenticated as {string}")
     public void theUserIsAuthenticatedAs(String contactId, String role) {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.valueOf(role)));
-
-
     }
 
     @Given("the user is authenticated as {string}")

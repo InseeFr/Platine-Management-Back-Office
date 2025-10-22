@@ -148,8 +148,9 @@ public class QuestioningUrlComponent {
                 yield builder.build().toUriString();
             }
             case UserRoles.INTERVIEWER -> {
-                String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
-                        context.sourceId(), context.questioningId(), context.surveyUnitId(), context.contactId());
+                String urlAssistanceRoot = context.isBusiness() ? "/assistance/faq-entreprise/contact" : "/assistance/faq-particulier/contact";
+                String urlAssistance = String.format("%s?interrogationId=%s&suId=%s&sourceId=%s",
+                        urlAssistanceRoot, context.questioningId(), context.surveyUnitId(), context.sourceId().toLowerCase());
                 String encodedAssistance = Base64.getUrlEncoder().withoutPadding().encodeToString(urlAssistance.getBytes());
                 UriComponentsBuilder builder = UriComponentsBuilder
                         .fromUriString(baseUrl)

@@ -69,6 +69,27 @@ class SourceControllerTest {
     }
 
     @Test
+    void getSupportBySourceOk() throws Exception {
+        String identifier = "SOURCE1";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value("SupportInsee"))
+                .andExpect(jsonPath("label").value("Support INSEE"))
+                .andExpect(jsonPath("mail").value("mail.test@test.fr"));
+
+    }
+
+    @Test
+    void getSupportBySourceNotFound() throws Exception {
+        String identifier = "SOURCENOTFOUND";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+
+    }
+
+    @Test
     void getSourcesOk() throws Exception {
         JSONArray jo = new JSONArray();
         Source source1 = sourceService.findById("SOURCE1");

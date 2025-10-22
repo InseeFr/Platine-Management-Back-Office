@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
@@ -50,10 +51,11 @@ public class ContextSteps {
     ViewRepository viewRepository;
 
     @Transactional
-    @Given("the source {string}")
-    public void createSource(String sourceId) {
+    @Given("the source {string} with type {string}")
+    public void createSource(String sourceId, String type) {
         Source source = new Source();
         source.setId(sourceId);
+        source.setType(SourceTypeEnum.valueOf(type));
         sourceRepository.save(source);
     }
 

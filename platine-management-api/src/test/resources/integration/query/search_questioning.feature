@@ -1,7 +1,7 @@
 Feature: Search for questionings
 
   Background: :
-    Given the source "TIC"
+    Given the source "TIC" with type "HOUSEHOLD"
     Given the survey "TIC2023" related to source "TIC"
     Given the survey "TIC2024" related to source "TIC"
     Given the campaign "TIC2023T01" related to survey "TIC2023"

@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactSource
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
@@ -245,6 +246,11 @@ public class DataloaderTest {
         ownerInsee.setLabel("Insee");
         Set<Source> setSourcesInsee = new HashSet<>();
 
+        Support supportInsee = new Support();
+        supportInsee.setId("SupportInsee");
+        supportInsee.setLabel("Support INSEE");
+        supportInsee.setMail("mail.test@test.fr");
+
         while (sourceRepository.count() < 2) {
 
             Source source = new Source();
@@ -255,6 +261,7 @@ public class DataloaderTest {
                 source.setLongWording("Long wording of " + sourceName + " ?");
                 source.setShortWording("Short wording of " + sourceName);
                 source.setPeriodicity(PeriodicityEnum.T);
+                source.setType(SourceTypeEnum.BUSINESS);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
@@ -325,6 +332,8 @@ public class DataloaderTest {
                 source.setSurveys(setSurveys);
                 ownerRepository.saveAll(List.of(ownerInsee));
                 source.setOwner(ownerInsee);
+                supportRepository.save(supportInsee);
+                source.setSupport(supportInsee);
                 sourceRepository.save(source);
                 log.info("Source created : " + source);
                 ownerInsee.setSources(setSourcesInsee);
