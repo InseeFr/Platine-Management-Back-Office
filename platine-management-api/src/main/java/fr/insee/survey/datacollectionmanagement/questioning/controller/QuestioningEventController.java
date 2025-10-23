@@ -8,6 +8,9 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
@@ -46,6 +49,8 @@ public class QuestioningEventController {
     private final QuestioningEventService questioningEventService;
 
     private final QuestioningService questioningService;
+
+    private final QuestioningCommunicationService questioningCommunicationService;
 
     private final UploadService uploadService;
 
@@ -109,11 +114,21 @@ public class QuestioningEventController {
                 .toList();
 
         Upload upload = questioningEvent.getUpload();
-
         questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEvent.getId(), questioningEvent.getType());
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);
         }
+
+        //TODO: remove when moog is out
+        if(questioningEvent.getType().equals(TypeQuestioningEvent.PND))
+        {
+            questioningCommunicationService.findQuestioningCommunicationsByQuestioningId(questioningEvent.getQuestioning().getId())
+                    .stream()
+                    .filter(comm -> comm.getType().equals(TypeCommunicationEvent.PND.name()))
+                    .forEach(comm ->questioningCommunicationService.deleteQuestioningCommunication(comm.getId()));
+
+        }
+
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Questioning event deleted");
     }
 

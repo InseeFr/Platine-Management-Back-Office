@@ -47,11 +47,10 @@ public class ExpertEventComponent {
             return false;
         }
 
-        boolean isTransitionAllowed = switch (to) {
-            case NOQUAL  -> from != TypeQuestioningEvent.ENDEXPERT;
-            case EXPERT  -> from == TypeQuestioningEvent.NOQUAL || from == TypeQuestioningEvent.VALID;
-            default      -> true;
-        };
+        boolean isTransitionAllowed = true;
+        if (to == TypeQuestioningEvent.EXPERT) {
+            isTransitionAllowed = from == TypeQuestioningEvent.NOQUAL || from == TypeQuestioningEvent.VALID;
+        }
         log.info("Transition allowed for {} and {}: {}", from, to,  isTransitionAllowed);
         return isTransitionAllowed;
     }

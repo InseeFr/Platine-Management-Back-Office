@@ -87,7 +87,7 @@ class CampaignControllerTest {
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
     }
 
     @Test

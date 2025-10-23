@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
-@Tag(name = "3 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
+@Tag(name = "4 - Metadata", description = "Enpoints to create, update, delete and find entities in metadata domain")
 public class PeriodPeriodicityController {
 
     @Operation(summary = "Search for periodicities")

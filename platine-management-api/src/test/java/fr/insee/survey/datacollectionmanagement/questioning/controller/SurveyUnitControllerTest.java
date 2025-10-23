@@ -12,7 +12,10 @@ import fr.insee.survey.datacollectionmanagement.util.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,8 +52,10 @@ class SurveyUnitControllerTest {
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
+                .getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
     }
+
     @Test
     void getSurveyUnitOk() throws Exception {
         String identifier = "100000000";
@@ -57,6 +63,29 @@ class SurveyUnitControllerTest {
         String json = createJson(surveyUnit);
         this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().json(json, false));
+    }
+
+    @Test
+    @DisplayName("Should return survey unit's campaigns")
+    void should_return_survey_unit_campaigns() throws Exception {
+        // given
+        String identifier = "100000000";
+
+        // when & then
+        String jsonResult = this.mockMvc
+               .perform(get(UrlConstants.API_SURVEY_UNITS_ID_CAMPAIGNS, identifier))
+               .andDo(print())
+               .andExpect(status().isOk())
+               .andReturn()
+               .getResponse()
+               .getContentAsString();
+
+        String expectedJson = """
+                [
+                    "SOURCE12023T01"
+                ]
+                """;
+        JSONAssert.assertEquals(expectedJson, jsonResult, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Test

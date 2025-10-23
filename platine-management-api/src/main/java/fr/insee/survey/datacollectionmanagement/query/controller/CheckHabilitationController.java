@@ -23,7 +23,7 @@ import java.util.UUID;
 
 
 @RestController
-@Tag(name = "4 - Cross domain")
+@Tag(name = "5 - Cross domain")
 @RequiredArgsConstructor
 public class CheckHabilitationController {
 

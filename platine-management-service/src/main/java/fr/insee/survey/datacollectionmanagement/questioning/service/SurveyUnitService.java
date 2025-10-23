@@ -35,4 +35,6 @@ public interface SurveyUnitService {
     List<SearchSurveyUnitContactDto> findContactsBySurveyUnitId(String id);
 
     SurveyUnitDetailsDto getDetailsById(String id);
+
+    List<String> getCampaignIds(String surveyUnitId);
 }

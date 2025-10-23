@@ -150,4 +150,8 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
         return surveyUnitMapper.toDto(surveyUnit);
     }
 
+    @Override
+    public List<String> getCampaignIds(String surveyUnitId) {
+        return surveyUnitRepository.findCampaignIdsBySurveyUnitId(surveyUnitId);
+    }
 }

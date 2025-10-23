@@ -1,6 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.security;
 
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.AuthorizationProfileFactory;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.ProfiledAuthenticationConverter;
 import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,7 +24,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
@@ -38,9 +42,20 @@ public class OpenIDConnectSecurityContext {
 
     private final ApplicationConfig config;
 
+
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+            PermissionEvaluator permissionEvaluator) {
+        var handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setPermissionEvaluator(permissionEvaluator);
+        return handler;
+    }
+
     @Bean
     @Order(2)
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain configure(HttpSecurity http,
+                                            ProfiledAuthenticationConverter jwtAuthenticationConverter) throws Exception {
+
         return http
                 .securityMatcher("/**")
                 .csrf(AbstractHttpConfigurer::disable)
@@ -64,7 +79,7 @@ public class OpenIDConnectSecurityContext {
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(config)))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                 )
                 .build();
 
@@ -81,14 +96,7 @@ public class OpenIDConnectSecurityContext {
     }
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter(ApplicationConfig applicationConfig) {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setPrincipalClaimName("preferred_username");
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter(applicationConfig));
-        return jwtAuthenticationConverter;
-    }
-
-    Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter(ApplicationConfig applicationConfig) {
-        return new GrantedAuthorityConverter(applicationConfig);
+    ProfiledAuthenticationConverter jwtAuthenticationConverter(ApplicationConfig applicationConfig, AuthorizationProfileFactory profileFactory) {
+        return new ProfiledAuthenticationConverter(applicationConfig, profileFactory, "preferred_username");
     }
 }
