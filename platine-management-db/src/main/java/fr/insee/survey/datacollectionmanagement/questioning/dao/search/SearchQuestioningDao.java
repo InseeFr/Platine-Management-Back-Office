@@ -65,16 +65,17 @@ public class SearchQuestioningDao {
         sql.append(filterCampaigns.sqlFilter());
         sql.append(" ");
         sql.append(filterTypes.sqlFilter());
-        sql.append(" ");
+        sql.append(" ORDER BY ");
         if (pageable.getSort().isSorted()) {
-            sql.append(" ORDER BY ");
             List<String> orderClauses = new ArrayList<>();
             for (Sort.Order order : pageable.getSort()) {
                 String direction = order.isAscending() ? "ASC" : "DESC";
                 orderClauses.add(order.getProperty() + " " + direction + " NULLS LAST");
             }
             sql.append(String.join(", ", orderClauses));
+            sql.append(", ");
         }
+        sql.append("q.id ASC");
         sql.append("""
                 LIMIT :size OFFSET :offset
             )
