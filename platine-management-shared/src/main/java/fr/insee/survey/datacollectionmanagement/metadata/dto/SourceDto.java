@@ -18,5 +18,6 @@ public class SourceDto {
     private String logo;
     private String storageTime;
     private String personalData;
+    private Boolean displayFaq;
 
 }
