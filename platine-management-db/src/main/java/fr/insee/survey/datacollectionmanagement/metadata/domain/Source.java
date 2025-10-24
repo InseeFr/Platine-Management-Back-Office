@@ -53,4 +53,7 @@ public class Source {
     @Enumerated(EnumType.STRING)
     private Set<Parameters> params;
 
+    @Column(name = "display_faq")
+    private Boolean displayFaq;
+
 }

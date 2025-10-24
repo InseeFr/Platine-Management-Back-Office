@@ -20,5 +20,6 @@ public class SourceOwnerSupportDto {
     private String personalData;
     private String ownerId;
     private String supportId;
+    private Boolean displayFaq;
 
 }
