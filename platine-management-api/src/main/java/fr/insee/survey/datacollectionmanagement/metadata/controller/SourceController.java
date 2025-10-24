@@ -191,11 +191,7 @@ public class SourceController {
     }
 
     private Source convertToEntity(SourceOwnerSupportDto sourceDto) {
-        Source source = modelmapper.map(sourceDto, Source.class);
-        if (source.getDisplayFaq() == null) {
-          source.setDisplayFaq(false);
-        }
-        return source;
+        return modelmapper.map(sourceDto, Source.class);
     }
 
     private SourceOwnerSupportDto convertToCompleteDto(Source source) {
