@@ -45,6 +45,11 @@ public class SourceServiceImpl implements SourceService {
 
     @Override
     public Source insertOrUpdateSource(Source source) {
+
+        if (source.getDisplayFaq() == null) {
+          source.setDisplayFaq(false);
+        }
+
         try {
             Source sourceBase = findById(source.getId());
             log.info("Update source with the id {}", source.getId());
