@@ -181,7 +181,7 @@ class QuestioningInformationsServiceImplTest {
         assertEquals("logo.png", result.getLogo());
         assertEquals("/mes-enquetes", result.getUrlLogout());
 
-        String expectedUrlAssistance = "/mes-enquetes/source123/contacter-assistance/auth?questioningId="+uuid+"&surveyUnitId=id789&contactId=cont123";
+        String expectedUrlAssistance = "/mes-enquetes/source123/contacter-assistance/auth?interrogationId="+uuid+"&surveyUnitId=id789&contactId=cont123";
         assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
 
         assertNotNull(result.getContactInformationsDto());
