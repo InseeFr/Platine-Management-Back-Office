@@ -72,7 +72,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         questioningInformationsDto.setReturnDate(infos.getReturnDate());
         questioningInformationsDto.setLogo(infos.getLogo());
         questioningInformationsDto.setUrlLogout("/mes-enquetes");
-        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?questioningId=%s&surveyUnitId=%s&contactId=%s",
+        String urlAssistance = String.format("/mes-enquetes/%s/contacter-assistance/auth?interrogationId=%s&surveyUnitId=%s&contactId=%s",
                 infos.getSourceId(), infos.getQuestioningId().toString(), infos.getIdentificationCode(), infos.getIdentifier());
         questioningInformationsDto.setUrlAssistance(URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8));
 
