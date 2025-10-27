@@ -70,8 +70,10 @@ public class QuestioningDetailsDtoBuilder {
             QuestioningCommunicationDto lastCommunication = communications.stream()
                     .max(Comparator.comparing(QuestioningCommunicationDto::getDate))
                     .orElse(new QuestioningCommunicationDto());
-            instance.setLastCommunication(lastCommunication.getType());
-            instance.setDateLastCommunication(lastCommunication.getDate());
+            instance.setLastCommunicationType(lastCommunication.getType());
+            instance.setLastCommunicationReceipt(lastCommunication.isWithReceipt());
+            instance.setLastCommunicationQuestionnaire(lastCommunication.isWithQuestionnaire());
+            instance.setLastCommunicationDate(lastCommunication.getDate());
         }
         return this;
     }

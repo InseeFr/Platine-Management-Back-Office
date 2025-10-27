@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.query.dto;
 
-import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import lombok.Getter;
 
@@ -13,7 +12,7 @@ import java.util.UUID;
 public class SearchQuestioningDto {
     private final UUID questioningId;
     private final String campaignId;
-    private final TypeCommunicationEvent lastCommunicationType;
+    private final LastCommunicationDto lastCommunication;
     private final Date validationDate;
     private final TypeQuestioningEvent highestEventType;
     private final String surveyUnitId;
@@ -22,17 +21,17 @@ public class SearchQuestioningDto {
     private final Integer score;
 
     public SearchQuestioningDto(UUID questioningId,
-                                   String campaignId,
-                                   TypeCommunicationEvent lastCommunicationType,
-                                   Date validationDate,
-                                   TypeQuestioningEvent highestEventType,
-                                   String surveyUnitId,
-                                   String identificationCode,
-                                   String contactId,
-                                   Integer score) {
+                                String campaignId,
+                                LastCommunicationDto lastCommunication,
+                                Date validationDate,
+                                TypeQuestioningEvent highestEventType,
+                                String surveyUnitId,
+                                String identificationCode,
+                                String contactId,
+                                Integer score) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
-        this.lastCommunicationType = lastCommunicationType;
+        this.lastCommunication = lastCommunication;
         this.validationDate = validationDate;
         this.highestEventType = highestEventType;
         this.surveyUnitId = surveyUnitId;

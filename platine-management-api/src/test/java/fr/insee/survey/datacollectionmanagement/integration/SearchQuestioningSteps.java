@@ -18,8 +18,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +25,8 @@ import org.springframework.data.domain.Slice;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -177,7 +177,7 @@ public class SearchQuestioningSteps {
                         dto.getSurveyUnitId(),
                         dto.getValidationDate() == null ? null : sdf.format(dto.getValidationDate()),
                         dto.getHighestEventType() == null ? null : dto.getHighestEventType().name(),
-                        dto.getLastCommunicationType() == null ? null : dto.getLastCommunicationType().name()
+                        dto.getLastCommunication().getTypeCommunicationEvent() == null ? null : dto.getLastCommunication().getTypeCommunicationEvent().name()
                 ))
                 .toList();
 
