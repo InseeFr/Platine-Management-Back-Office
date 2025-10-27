@@ -336,8 +336,8 @@ public class SearchQuestioningDao {
         UUID questioningId = buildQuestioningId(row[0]);
         String campaignId = (String) row[1];
         String lastCommunicationType = (String) row[2];
-        boolean lastCommunicationReceipt = row[3] == null ? false: (boolean) row[3];
-        boolean lastCommunicationQuestionnaire = row[4] == null ? false: (boolean) row[4];
+        boolean lastCommunicationReceipt = row[3] != null && (boolean) row[3];
+        boolean lastCommunicationQuestionnaire = row[4] != null && (boolean) row[4];
         Date validationDate = (Date) row[5];
         String highestEventType = (String) row[6];
         String surveyUnitId = (String) row[7];
