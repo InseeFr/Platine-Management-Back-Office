@@ -3,10 +3,10 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommentOutputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -26,8 +26,10 @@ public class QuestioningDetailsDto {
     private String lastEvent;
     private Date dateLastEvent;
     private List<QuestioningCommunicationDto> listCommunications;
-    private String lastCommunication;
-    private LocalDateTime dateLastCommunication;
+    private String lastCommunicationType;
+    private boolean lastCommunicationReceipt;
+    private boolean lastCommunicationQuestionnaire;
+    private LocalDateTime lastCommunicationDate;
     private List<QuestioningCommentOutputDto> listComments;
     private Date validationDate;
     private String readOnlyUrl;
