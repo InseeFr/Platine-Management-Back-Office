@@ -63,9 +63,4 @@ public class UserServiceStub implements UserService {
     public void deleteUserAndEvents(User user) {
         // Stub
     }
-
-    @Override
-    public List<String> findAccreditedSources(String identifier) {
-        return List.of();
-    }
 }

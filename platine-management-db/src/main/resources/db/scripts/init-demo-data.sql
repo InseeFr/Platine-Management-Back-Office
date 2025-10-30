@@ -357,12 +357,6 @@ SELECT setval(
 );
 
 SELECT setval(
-    'public.source_accreditation_seq',
-    COALESCE((SELECT MAX(id) FROM public.source_accreditation), 0) + 1,
-    false
-);
-
-SELECT setval(
     'public.su_comment_seq',
     COALESCE((SELECT MAX(id) FROM public.survey_unit_comment), 0) + 1,
     false
