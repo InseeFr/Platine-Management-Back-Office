@@ -2,13 +2,10 @@ package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
-import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +22,6 @@ public class UserServiceImpl implements UserService {
     private final UserEventService userEventService;
 
     private final UserRepository userRepository;
-
-    private final SourceAccreditationService sourceAccreditationService;
 
     @Override
     public Page<User> findAll(Pageable pageable) {
@@ -89,16 +84,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserAndEvents(User user) {
         deleteUser(user.getIdentifier());
-    }
-
-    @Override
-    public List<String> findAccreditedSources(String identifier){
-
-        List<String> accreditedSources = new ArrayList<>();
-        List<SourceAccreditation> accreditations = sourceAccreditationService.findByUserIdentifier(identifier);
-        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).toList();
-        accSource.forEach(acc -> accreditedSources.add(acc.getId()));
-
-        return accreditedSources;
     }
 }
