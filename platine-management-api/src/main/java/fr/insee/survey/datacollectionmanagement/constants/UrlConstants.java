@@ -30,8 +30,10 @@ public class UrlConstants {
     public static final String API_USEREVENTS_ID = "/api/users/user-events/{id}";
     public static final String API_SOURCE_ID_SOURCE_ACCREDITATIONS = "/api/source/{id}/source-accreditations";
     public static final String API_USERS_ID_SOURCES = "/api/users/{id}/accredited-sources";
+    public static final String API_SOURCE_ID_WALLET = "/api/source/{id}/wallet";
 
-    //API QUESTIONING DOMAIN
+
+  //API QUESTIONING DOMAIN
     public static final String API_QUESTIONINGS = "/api/questionings";
     public static final String API_QUESTIONINGS_ID = "/api/questionings/{id}";
     public static final String API_QUESTIONINGSID = "/api/questionings/id";

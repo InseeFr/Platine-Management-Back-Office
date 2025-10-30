@@ -33,7 +33,28 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    @Override
+  /**
+   * Trouve les identifiants d'utilisateurs qui sont
+   * demandés mais qui sont ABSENTS de la base de données.
+   * * Cette logique effectue une requête BDD unique (findExisting) puis calcule
+   * la différence en mémoire (Set Subtraction).
+   * * @param identifiers L'ensemble des identifiants à vérifier.
+   * @return Un ensemble contenant uniquement les identifiants manquants.
+   */
+  @Override
+  public Set<String> findMissingIdentifiers(Set<String> identifiers) {
+    if (identifiers == null || identifiers.isEmpty()) {
+      return Set.of();
+    }
+
+    Set<String> existingIdentifiers = userRepository.findExistingIdentifiers(identifiers);
+    Set<String> missingIdentifiers = new HashSet<>(identifiers);
+    existingIdentifiers.forEach(missingIdentifiers::remove);
+
+    return missingIdentifiers;
+  }
+
+  @Override
     public User findByIdentifier(String identifier) {
         return findOptionalByIdentifier(identifier)
                 .orElseThrow(()->

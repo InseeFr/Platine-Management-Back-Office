@@ -47,8 +47,32 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
         return surveyUnitRepository.findById(idSu);
     }
 
+  /**
+   * Trouve les identifiants d'unités d'enquête (UE) qui sont
+   * demandés mais qui sont ABSENTS de la base de données.
+   * Cette logique effectue une requête BDD unique (findExisting) puis calcule
+   * la différence en mémoire (Set Subtraction).
+   * @param identifiers L'ensemble des identifiants d'UE à vérifier.
+   * @return Un ensemble contenant uniquement les identifiants manquants.
+   */
+  @Override
+  public Set<String> findMissingIds(Set<String> identifiers) {
+    if (identifiers == null || identifiers.isEmpty()) {
+      return Set.of();
+    }
 
-    @Override
+    // 1. Appel en BDD optimisé (une seule requête IN) pour récupérer les identifiants qui EXISTENT.
+    Set<String> existingIdentifiers = surveyUnitRepository.findExistingIds(identifiers);
+
+    // 2. Calcul des MANQUANTS via soustraction d'ensembles.
+    Set<String> missingIdentifiers = new HashSet<>(identifiers);
+    existingIdentifiers.forEach(missingIdentifiers::remove);
+
+    return missingIdentifiers;
+  }
+
+
+  @Override
     public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
         return surveyUnitRepository.findByIdentifier(id, pageable);
     }

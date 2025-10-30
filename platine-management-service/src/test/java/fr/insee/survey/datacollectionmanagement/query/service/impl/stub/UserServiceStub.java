@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
+import java.util.Set;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,12 @@ public class UserServiceStub implements UserService {
         return List.of();
     }
 
-    @Override
+  @Override
+  public Set<String> findMissingIdentifiers(Set<String> uniqueUsers) {
+    return Set.of();
+  }
+
+  @Override
     public User findByIdentifier(String identifier) {
         return null;
     }
