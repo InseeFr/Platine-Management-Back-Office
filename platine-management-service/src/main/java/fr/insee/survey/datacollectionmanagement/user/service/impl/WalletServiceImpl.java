@@ -90,12 +90,12 @@ public class WalletServiceImpl implements WalletService {
       Map<String, String> userToGroup
   ) throws IOException {
 
-    CSVFormat format = CSVFormat.Builder.create()
+    CSVFormat format = CSVFormat.DEFAULT.builder()
         .setDelimiter(',')
         .setHeader(REQUIRED_HEADERS)
         .setSkipHeaderRecord(true)
         .setTrim(true)
-        .build();
+        .get();
 
     try (
         InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);

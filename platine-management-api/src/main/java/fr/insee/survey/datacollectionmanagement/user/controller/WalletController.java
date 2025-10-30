@@ -40,14 +40,14 @@ public class WalletController {
       @ApiResponse(responseCode = "400", description = "Invalid file or business rule violation"),
       @ApiResponse(responseCode = "500", description = "Unexpected error")
   })
-  public ResponseEntity<?> importWallets(
-      @PathVariable("sourceId") String sourceId,
+  public ResponseEntity<String> importWallets(
+      @PathVariable("id")  String source,
       @RequestParam("file") MultipartFile file) {
 
-    log.info("Importing wallets for sourceId {} from file {}", sourceId, file.getOriginalFilename());
+    log.info("Importing wallets for sourceId {} from file {}", source, file.getOriginalFilename());
 
     try {
-      walletService.importWallets(sourceId, file);
+      walletService.importWallets(source, file);
       return ResponseEntity.ok("File processed successfully");
     } catch (IllegalArgumentException e) {
       log.warn("Invalid file or data: {}", e.getMessage());
