@@ -174,6 +174,23 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.valueOf(e.getStatusCode().value()), request, ERROR_OCCURRED_LABEL);
     }
 
+    @ExceptionHandler(WalletBusinessRuleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleWalletBusinessRuleException(
+        WalletBusinessRuleException e, WebRequest request) {
+      log.warn("Wallet business rule violation: {}", e.getMessage(), e);
+      return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
+    }
+
+    @ExceptionHandler(WalletFileProcessingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleWalletFileProcessingException(
+        WalletFileProcessingException e, WebRequest request) {
+      log.error("Wallet file processing error: {}", e.getMessage(), e);
+      return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
+    }
+
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody

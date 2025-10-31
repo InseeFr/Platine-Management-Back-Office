@@ -2,10 +2,11 @@ package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.insee.survey.datacollectionmanagement.exception.WalletBusinessRuleException;
+import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.user.service.WalletService;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -58,26 +59,19 @@ public class WalletServiceImpl implements WalletService {
 
     log.info("Start import wallets, sourceId={}, file={}", sourceId, filename);
 
-    try {
-      Map<String, String> surveyUnitToInternalUser = new HashMap<>(); // Contrainte « UE -> un seul gestionnaire »
-      Map<String, String> internalUserToGroup = new HashMap<>();      // Contrainte « gestionnaire -> un seul groupe »
+    Map<String, String> surveyUnitToInternalUser = new HashMap<>();
+    Map<String, String> internalUserToGroup = new HashMap<>();
 
-      if (filename.endsWith(".csv")) {
-        processCsv(file, surveyUnitToInternalUser, internalUserToGroup);
-      } else if (filename.endsWith(".json")) {
-        processJson(file, surveyUnitToInternalUser, internalUserToGroup);
-      } else {
-        throw new IllegalArgumentException("Unsupported file type. Only CSV or JSON are allowed.");
-      }
-
-      // Validation de la cohérence BDD (performante) après le parsing complet du fichier
-      validateDatabaseConsistency(surveyUnitToInternalUser, internalUserToGroup);
-
-      log.info("Wallets import validated successfully for sourceId={}", sourceId);
-
-    } catch (IOException e) {
-      throw new RuntimeException("Error reading file: " + e.getMessage(), e);
+    if (filename.endsWith(".csv")) {
+      processCsv(file, surveyUnitToInternalUser, internalUserToGroup);
+    } else if (filename.endsWith(".json")) {
+      processJson(file, surveyUnitToInternalUser, internalUserToGroup);
+    } else {
+      throw new IllegalArgumentException("Unsupported file type. Only CSV or JSON are allowed.");
     }
+
+    validateDatabaseConsistency(surveyUnitToInternalUser, internalUserToGroup);
+    log.info("Wallets import validated successfully for sourceId={}", sourceId);
   }
 
   /* =============================
@@ -88,24 +82,22 @@ public class WalletServiceImpl implements WalletService {
       MultipartFile file,
       Map<String, String> surveyToUser,
       Map<String, String> userToGroup
-  ) throws IOException {
-
-    CSVFormat format = CSVFormat.DEFAULT.builder()
-        .setDelimiter(',')
-        .setHeader(REQUIRED_HEADERS)
-        .setSkipHeaderRecord(true)
-        .setTrim(true)
-        .get();
-
+  ) {
     try (
         InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
-        CSVParser csvParser = format.parse(reader)
+        CSVParser csvParser = CSVFormat.DEFAULT.builder()
+            .setDelimiter(',')
+            .setHeader(REQUIRED_HEADERS)
+            .setSkipHeaderRecord(true)
+            .setTrim(true)
+            .get()
+            .parse(reader)
     ) {
-
       List<String> headerNames = csvParser.getHeaderNames();
       if (headerNames == null || headerNames.isEmpty()) {
         throw new IllegalArgumentException("CSV header is missing or empty.");
       }
+
       Set<String> headerNameSet = new HashSet<>(headerNames);
       if (!headerNameSet.containsAll(List.of(REQUIRED_HEADERS))) {
         throw new IllegalArgumentException("CSV header must contain: "
@@ -117,7 +109,6 @@ public class WalletServiceImpl implements WalletService {
       int lineNo = 1;
       for (CSVRecord csvRecord : csvParser) {
         lineNo++;
-
         String surveyUnit = trimOrEmpty(csvRecord.get(HEADER_SURVEY_UNIT));
         String internalUser = trimOrEmpty(csvRecord.get(HEADER_INTERNAL_USER));
         String group = trimOrEmpty(csvRecord.get(HEADER_GROUP));
@@ -129,35 +120,44 @@ public class WalletServiceImpl implements WalletService {
       if (lineNo == 1) {
         throw new IllegalArgumentException("CSV is empty");
       }
+
+    } catch (Exception e) {
+      throw new WalletFileProcessingException("Error processing CSV file: " + e.getMessage(), e);
     }
   }
+
 
   private void processJson(
       MultipartFile file,
       Map<String, String> surveyToUser,
       Map<String, String> userToGroup
-  ) throws IOException {
+  ) {
+    try {
+      List<Map<String, String>> rows = objectMapper.readValue(
+          file.getInputStream(),
+          new TypeReference<>() {}
+      );
 
-    List<Map<String, String>> rows = objectMapper.readValue(
-        file.getInputStream(),
-        new TypeReference<>() {}
-    );
+      if (rows == null || rows.isEmpty()) {
+        throw new IllegalArgumentException("JSON array is empty");
+      }
 
-    if (rows == null || rows.isEmpty()) {
-      throw new IllegalArgumentException("JSON array is empty");
-    }
+      int idx = 0;
+      for (Map<String, String> row : rows) {
+        idx++;
+        String surveyUnit = trimOrEmpty(row.get(HEADER_SURVEY_UNIT));
+        String internalUser = trimOrEmpty(row.get(HEADER_INTERNAL_USER));
+        String group = trimOrEmpty(row.get(HEADER_GROUP));
 
-    int idx = 0;
-    for (Map<String, String> row : rows) {
-      idx++;
-      String surveyUnit = trimOrEmpty(row.get(HEADER_SURVEY_UNIT));
-      String internalUser = trimOrEmpty(row.get(HEADER_INTERNAL_USER));
-      String group = trimOrEmpty(row.get(HEADER_GROUP));
+        validateFields(surveyUnit, internalUser, group, idx);
+        validateInFileBusinessRules(surveyUnit, internalUser, group, surveyToUser, userToGroup, "item " + idx);
+      }
 
-      validateFields(surveyUnit, internalUser, group, idx);
-      validateInFileBusinessRules(surveyUnit, internalUser, group, surveyToUser, userToGroup, "item " + idx);
+    } catch (Exception e) {
+      throw new WalletFileProcessingException("Error processing JSON file: " + e.getMessage(), e);
     }
   }
+
 
   /* =============================
      ==       VALIDATIONS       ==
@@ -192,7 +192,7 @@ public class WalletServiceImpl implements WalletService {
     // 3) UE -> un seul gestionnaire
     String alreadyUser = surveyToUser.putIfAbsent(surveyUnit, internalUser);
     if (alreadyUser != null && !alreadyUser.equals(internalUser)) {
-      throw new IllegalArgumentException(
+      throw new WalletBusinessRuleException(
           "surveyUnit '" + surveyUnit + "' already assigned to '" + alreadyUser + "' (conflict at " + where + ")"
       );
     }
@@ -200,7 +200,7 @@ public class WalletServiceImpl implements WalletService {
     // 4) gestionnaire -> un seul groupe
     String alreadyGroup = userToGroup.putIfAbsent(internalUser, group);
     if (alreadyGroup != null && !alreadyGroup.equalsIgnoreCase(group)) {
-      throw new IllegalArgumentException(
+      throw new WalletBusinessRuleException(
           "internalUser '" + internalUser + "' already bound to group '" + alreadyGroup +
               "' (conflict with '" + group + "' at " + where + ")"
       );
@@ -242,7 +242,7 @@ public class WalletServiceImpl implements WalletService {
       if (!missingSurveyUnits.isEmpty()) {
         message.append("Missing Survey Units: ").append(String.join(", ", missingSurveyUnits)).append("\n");
       }
-      throw new IllegalArgumentException(message.toString());
+      throw new WalletBusinessRuleException(message.toString());
     }
 
     log.info("Database consistency validated.");

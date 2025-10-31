@@ -4,12 +4,14 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.user.Authorit
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.user.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,26 +38,23 @@ public class WalletController {
       consumes = { MediaType.MULTIPART_FORM_DATA_VALUE },
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "File processed successfully"),
-      @ApiResponse(responseCode = "400", description = "Invalid file or business rule violation"),
-      @ApiResponse(responseCode = "500", description = "Unexpected error")
+      @ApiResponse(responseCode = "200", description = "File processed successfully",
+          content = @Content(schema = @Schema(example = "{\"message\": \"File processed successfully\"}"))),
+      @ApiResponse(responseCode = "400", description = "Invalid file or business rule violation",
+          content = @Content(schema = @Schema(example = "{\"error\": \"Invalid file or data\"}"))),
+      @ApiResponse(responseCode = "500", description = "Unexpected error",
+          content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
   })
-  public ResponseEntity<String> importWallets(
-      @PathVariable("id")  String source,
+  public ResponseEntity<Map<String, String>> importWallets(
+      @PathVariable("id") String source,
       @RequestParam("file") MultipartFile file) {
 
     log.info("Importing wallets for sourceId {} from file {}", source, file.getOriginalFilename());
+    walletService.importWallets(source, file);
 
-    try {
-      walletService.importWallets(source, file);
-      return ResponseEntity.ok("File processed successfully");
-    } catch (IllegalArgumentException e) {
-      log.warn("Invalid file or data: {}", e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    } catch (Exception e) {
-      log.error("Unexpected error while processing wallet file", e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An unexpected error occurred while processing the file.");
-    }
+    return ResponseEntity.ok(Map.of("message", "File processed successfully"));
   }
+
+
+
 }
