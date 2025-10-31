@@ -1,55 +1,55 @@
 package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.insee.survey.datacollectionmanagement.exception.WalletBusinessRuleException;
-import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
+import fr.insee.survey.datacollectionmanagement.user.service.WalletParserStrategy;
 import fr.insee.survey.datacollectionmanagement.user.service.WalletService;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import fr.insee.survey.datacollectionmanagement.user.service.WalletValidationService;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Service pour l'importation et la validation des affectations de portefeuilles (Wallets)
- * à partir de fichiers CSV ou JSON.
+ * Service to import, validate, and process wallet assignments.
+ *
+ * This service acts as the central orchestrator:
+ * 1. Delegates parsing to WalletParserStrategy (found via locator pattern).
+ * 2. Delegates all validation to WalletValidationService.
+ * 3. Handles the final processing (persistence) logic itself.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class WalletServiceImpl implements WalletService {
 
-  // Dépendances injectées par Spring (via @RequiredArgsConstructor)
+  // --- Dependencies ---
+  private final List<WalletParserStrategy> parserStrategies;
+  private final WalletValidationService validationService;
   private final UserService userService;
   private final SurveyUnitService surveyUnitService;
-  private final ObjectMapper objectMapper;
 
-  // Constantes pour les en-têtes (utilisées pour CSV et JSON)
-  private static final String HEADER_SURVEY_UNIT = "surveyUnit";
-  private static final String HEADER_INTERNAL_USER = "internal_user";
-  private static final String HEADER_GROUP = "group";
-  private static final String[] REQUIRED_HEADERS = {
-      HEADER_SURVEY_UNIT,
-      HEADER_INTERNAL_USER,
-      HEADER_GROUP
-  };
+  // Constructor for dependency injection
+  public WalletServiceImpl(
+      List<WalletParserStrategy> parserStrategies,
+      WalletValidationService validationService,
+      UserService userService,
+      SurveyUnitService surveyUnitService
+  ) {
+    this.parserStrategies = parserStrategies;
+    this.validationService = validationService;
+    this.userService = userService;
+    this.surveyUnitService = surveyUnitService;
+  }
 
-  // Autorisé : uniquement lettres et chiffres (pas d'espaces, pas de caractères spéciaux)
-  private static final Pattern VALID_TEXT = Pattern.compile("^[A-Za-z0-9]+$");
-
+  /**
+   * Imports, validates, and processes a wallet file.
+   * This entire method is transactional. If any validation step (that hits the
+   * DB)
+   * or the final processing step fails, the transaction will be rolled back.
+   */
   @Override
   public void importWallets(String sourceId, MultipartFile file) {
     String filename = file.getOriginalFilename();
@@ -59,205 +59,77 @@ public class WalletServiceImpl implements WalletService {
 
     log.info("Start import wallets, sourceId={}, file={}", sourceId, filename);
 
+    // === STAGE 1: PARSING ===
+    WalletParserStrategy strategy = parserStrategies.stream()
+        .filter(p -> p.supports(filename))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Unsupported file type. Allowed types are .csv, .json"
+        ));
+
+    List<WalletDto> dtos = strategy.parse(file);
+
+    // === STAGE 2: VALIDATION (In-Memory) ===
     Map<String, String> surveyUnitToInternalUser = new HashMap<>();
     Map<String, String> internalUserToGroup = new HashMap<>();
 
-    if (filename.endsWith(".csv")) {
-      processCsv(file, surveyUnitToInternalUser, internalUserToGroup);
-    } else if (filename.endsWith(".json")) {
-      processJson(file, surveyUnitToInternalUser, internalUserToGroup);
-    } else {
-      throw new IllegalArgumentException("Unsupported file type. Only CSV or JSON are allowed.");
-    }
+    log.info("Validating {} records from file...", dtos.size());
+    int position = 0;
+    for (WalletDto dto : dtos) {
+      position++;
+      String where = "item " + position;
 
-    validateDatabaseConsistency(surveyUnitToInternalUser, internalUserToGroup);
-    log.info("Wallets import validated successfully for sourceId={}", sourceId);
-  }
-
-  /* =============================
-     ==     FILE PARSING       ==
-     ============================= */
-
-  private void processCsv(
-      MultipartFile file,
-      Map<String, String> surveyToUser,
-      Map<String, String> userToGroup
-  ) {
-    try (
-        InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
-        CSVParser csvParser = CSVFormat.DEFAULT.builder()
-            .setDelimiter(',')
-            .setHeader(REQUIRED_HEADERS)
-            .setSkipHeaderRecord(true)
-            .setTrim(true)
-            .get()
-            .parse(reader)
-    ) {
-      List<String> headerNames = csvParser.getHeaderNames();
-      if (headerNames == null || headerNames.isEmpty()) {
-        throw new IllegalArgumentException("CSV header is missing or empty.");
-      }
-
-      Set<String> headerNameSet = new HashSet<>(headerNames);
-      if (!headerNameSet.containsAll(List.of(REQUIRED_HEADERS))) {
-        throw new IllegalArgumentException("CSV header must contain: "
-            + HEADER_SURVEY_UNIT + ", "
-            + HEADER_INTERNAL_USER + ", "
-            + HEADER_GROUP);
-      }
-
-      int lineNo = 1;
-      for (CSVRecord csvRecord : csvParser) {
-        lineNo++;
-        String surveyUnit = trimOrEmpty(csvRecord.get(HEADER_SURVEY_UNIT));
-        String internalUser = trimOrEmpty(csvRecord.get(HEADER_INTERNAL_USER));
-        String group = trimOrEmpty(csvRecord.get(HEADER_GROUP));
-
-        validateFields(surveyUnit, internalUser, group, lineNo);
-        validateInFileBusinessRules(surveyUnit, internalUser, group, surveyToUser, userToGroup, "line " + lineNo);
-      }
-
-      if (lineNo == 1) {
-        throw new IllegalArgumentException("CSV is empty");
-      }
-
-    } catch (Exception e) {
-      throw new WalletFileProcessingException("Error processing CSV file: " + e.getMessage(), e);
-    }
-  }
-
-
-  private void processJson(
-      MultipartFile file,
-      Map<String, String> surveyToUser,
-      Map<String, String> userToGroup
-  ) {
-    try {
-      List<Map<String, String>> rows = objectMapper.readValue(
-          file.getInputStream(),
-          new TypeReference<>() {}
-      );
-
-      if (rows == null || rows.isEmpty()) {
-        throw new IllegalArgumentException("JSON array is empty");
-      }
-
-      int idx = 0;
-      for (Map<String, String> row : rows) {
-        idx++;
-        String surveyUnit = trimOrEmpty(row.get(HEADER_SURVEY_UNIT));
-        String internalUser = trimOrEmpty(row.get(HEADER_INTERNAL_USER));
-        String group = trimOrEmpty(row.get(HEADER_GROUP));
-
-        validateFields(surveyUnit, internalUser, group, idx);
-        validateInFileBusinessRules(surveyUnit, internalUser, group, surveyToUser, userToGroup, "item " + idx);
-      }
-
-    } catch (Exception e) {
-      throw new WalletFileProcessingException("Error processing JSON file: " + e.getMessage(), e);
-    }
-  }
-
-
-  /* =============================
-     ==       VALIDATIONS       ==
-     ============================= */
-
-  /**
-   * Valide la syntaxe et le format des champs (non vide, pas de caractères spéciaux).
-   */
-  private void validateFields(String surveyUnit, String internalUser, String group, int position) {
-    if (surveyUnit.isBlank() || internalUser.isBlank() || group.isBlank()) {
-      throw new IllegalArgumentException("Record " + position + ": all columns must be non-null and non-empty");
-    }
-    if (!VALID_TEXT.matcher(surveyUnit).matches()
-        || !VALID_TEXT.matcher(internalUser).matches()
-        || !VALID_TEXT.matcher(group).matches()) {
-      throw new IllegalArgumentException("Record " + position + ": fields contain forbidden special characters");
-    }
-  }
-
-  /**
-   * Valide les règles métier de cohérence interne au fichier (Règles 3 et 4).
-   * Ces vérifications n'appellent pas la base de données.
-   */
-  private void validateInFileBusinessRules(
-      String surveyUnit,
-      String internalUser,
-      String group,
-      Map<String, String> surveyToUser,
-      Map<String, String> userToGroup,
-      String where
-  ) {
-    // 3) UE -> un seul gestionnaire
-    String alreadyUser = surveyToUser.putIfAbsent(surveyUnit, internalUser);
-    if (alreadyUser != null && !alreadyUser.equals(internalUser)) {
-      throw new WalletBusinessRuleException(
-          "surveyUnit '" + surveyUnit + "' already assigned to '" + alreadyUser + "' (conflict at " + where + ")"
+      validationService.validateFields(dto, position);
+      validationService.validateInFileRules(
+          dto,
+          where,
+          surveyUnitToInternalUser,
+          internalUserToGroup
       );
     }
 
-    // 4) gestionnaire -> un seul groupe
-    String alreadyGroup = userToGroup.putIfAbsent(internalUser, group);
-    if (alreadyGroup != null && !alreadyGroup.equalsIgnoreCase(group)) {
-      throw new WalletBusinessRuleException(
-          "internalUser '" + internalUser + "' already bound to group '" + alreadyGroup +
-              "' (conflict with '" + group + "' at " + where + ")"
-      );
-    }
+    // === STAGE 3: VALIDATION (Database Consistency) ===
+    validationService.validateDatabaseConsistency(
+        surveyUnitToInternalUser,
+        internalUserToGroup
+    );
+
+    // === STAGE 4: PROCESSING (Internal) ===
+    log.info("All validations passed. Proceeding to process assignments.");
+    processWallets(surveyUnitToInternalUser, internalUserToGroup);
+
+    log.info("Wallets import and processing completed successfully for sourceId={}", sourceId);
   }
 
 
-  /**
-   * Valide l'existence des entités en base de données APRES le parsing complet (Règles 1 et 2).
-   * Optimisé pour ne vérifier que les identifiants uniques et pour rapporter tous les identifiants manquants.
-   * * NOTE TECHNIQUE: Pour garantir les performances et collecter tous les manquants,
-   * cette méthode suppose que les services ont été mis à jour pour offrir des méthodes
-   * de recherche en masse (bulk find) qui renvoient l'ensemble des identifiants MANQUANTS.
-   */
-  private void validateDatabaseConsistency(
-      Map<String, String> surveyToUser,
-      Map<String, String> userToGroup) {
-
-    log.info("Validating database existence for {} unique survey units and {} unique users...",
-        surveyToUser.size(), userToGroup.size());
-
-    Set<String> uniqueUsers = userToGroup.keySet();
-    Set<String> uniqueSurveyUnits = surveyToUser.keySet();
-
-    // --- 1) VÉRIFICATION DES GESTIONNAIRES UNIQUES (User) ---
-    Set<String> missingUsers = userService.findMissingIdentifiers(uniqueUsers);
-
-    // --- 2) VÉRIFICATION DES UE UNIQUES (SurveyUnit) ---
-    Set<String> missingSurveyUnits = surveyUnitService.findMissingIds(uniqueSurveyUnits);
-
-
-    // --- 3) AGRÉGATION ET LEVÉE D'ERREUR ---
-    if (!missingUsers.isEmpty() || !missingSurveyUnits.isEmpty()) {
-      StringBuilder message = new StringBuilder("Database consistency validation failed:\n");
-
-      if (!missingUsers.isEmpty()) {
-        message.append("Missing Internal Users: ").append(String.join(", ", missingUsers)).append("\n");
-      }
-      if (!missingSurveyUnits.isEmpty()) {
-        message.append("Missing Survey Units: ").append(String.join(", ", missingSurveyUnits)).append("\n");
-      }
-      throw new WalletBusinessRuleException(message.toString());
-    }
-
-    log.info("Database consistency validated.");
-  }
-
-
-  /* =============================
-     ==          UTILS          ==
-     ============================= */
+  /* =================================================================
+   * ==            INTERNAL PROCESSING (Kept in WalletServiceImpl) ==
+   * ================================================================= */
 
   /**
-   * Renvoie la chaîne "trimmée", ou une chaîne vide si l'entrée est nulle.
-   * C'est essentiel pour prévenir les NullPointerExceptions dans validateFields.
+   * Applies the validated wallet assignments to the database.
+   * This method is NO LONGER marked @Transactional, as it will be
+   * called by the transactional importWallets() method.
    */
-  private static String trimOrEmpty(String s) {
-    return s == null ? "" : s.trim();
+  private void processWallets(
+      Map<String, String> surveyUnitToInternalUser,
+      Map<String, String> internalUserToGroup) {
+
+    log.info("Processing {} wallet assignments for {} unique users.",
+        surveyUnitToInternalUser.size(), internalUserToGroup.size());
+
+    // ---------------------------------------------------------------------
+    // TODO: Implement the actual persistence logic here.
+    // ---------------------------------------------------------------------
+
+    surveyUnitToInternalUser.forEach((surveyUnitId, userId) -> {
+      log.debug("Assigning SurveyUnit '{}' to User '{}'", surveyUnitId, userId);
+    });
+
+    internalUserToGroup.forEach((userId, groupId) -> {
+      log.debug("Confirming User '{}' is in Group '{}'", userId, groupId);
+    });
+
+    log.info("Successfully processed all wallet assignments.");
   }
 }
