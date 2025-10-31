@@ -50,7 +50,7 @@ public class WalletController {
       @RequestParam("file") MultipartFile file) {
 
     log.info("Importing wallets for sourceId {} from file {}", source, file.getOriginalFilename());
-    walletService.importWallets(source, file);
+    walletService.parseAndValidateFile(file);
 
     return ResponseEntity.ok(Map.of("message", "File processed successfully"));
   }
