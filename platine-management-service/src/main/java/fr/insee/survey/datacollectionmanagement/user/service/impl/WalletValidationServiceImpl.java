@@ -98,17 +98,18 @@ public class WalletValidationServiceImpl implements WalletValidationService {
 
     // AGGREGATE AND THROW ERROR
     if (!missingUsers.isEmpty() || !missingSurveyUnits.isEmpty()) {
-      StringBuilder message = new StringBuilder("Database consistency validation failed:\n");
+      // Utilisez un point-virgule ou un point comme séparateur
+      StringBuilder message = new StringBuilder("Database consistency validation failed. ");
 
       if (!missingUsers.isEmpty()) {
-        message.append("Missing Internal Users: ").append(String.join(", ", missingUsers))
-            .append("\n");
+        message.append("Missing Internal Users: ").append(String.join(", ", missingUsers)).append(". ");
       }
       if (!missingSurveyUnits.isEmpty()) {
-        message.append("Missing Survey Units: ").append(String.join(", ", missingSurveyUnits))
-            .append("\n");
+        message.append("Missing Survey Units: ").append(String.join(", ", missingSurveyUnits)).append(".");
       }
-      throw new WalletBusinessRuleException(message.toString());
+
+      // Enlever le dernier espace s'il y en a un
+      throw new WalletBusinessRuleException(message.toString().trim());
     }
 
     log.info("Database consistency validated.");
