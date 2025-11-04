@@ -5,7 +5,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
@@ -17,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -38,6 +36,9 @@ public class QuestioningUrlComponent {
 
     private static final String PATH_ASSISTANCE = "pathAssistance";
     private static final String SURVEY_UNIT_LABEL = "surveyUnitLabel";
+    private static final String SURVEY_UNIT_COMPOSITE_NAME = "surveyUnitCompositeName";
+
+    private static  final  String DEPOSIT_PROOF_QUEEN_ENDPOINT_PATH = "/api/interrogations/{questioningId}/deposit-proof";
 
     /**
      * Generates an access URL based on the provided parameters.
@@ -169,22 +170,33 @@ public class QuestioningUrlComponent {
 
     /**
      * Builds deposit proof based on the provided parameters
-     * @param questioningId questioning id
-     * @param dataCollection data collection enum type
-     * @return the deosit proof url for the associated questioning
+     * @param ctx context for building url
+     * @return the deposit proof url for the associated questioning
      */
-    public String buildDepositProofUrl(UUID questioningId, DataCollectionEnum dataCollection) {
-        String path = String.format("/api/interrogations/%s/deposit-proof", questioningId);
+    public String buildDepositProofUrl(QuestioningUrlContext ctx) {
+        String baseUrl = switch (ctx.dataCollection()) {
+            case LUNATIC_NORMAL -> questionnaireApiUrl;
+            case LUNATIC_SENSITIVE -> questionnaireApiSensitiveUrl;
+            default -> null;
+        };
 
-        if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollection)) {
-            return questionnaireApiUrl + path;
+        if (baseUrl == null) {
+            return null;
         }
 
-        if (DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollection)) {
-            return questionnaireApiSensitiveUrl + path;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .path(DEPOSIT_PROOF_QUEEN_ENDPOINT_PATH);
+
+        if (ctx.isBusiness()) {
+            String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
+                    ctx.surveyUnitLabel(),
+                    ctx.surveyUnitIdentificationName(),
+                    ctx.surveyUnitId()
+            );
+            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, surveyUnitLabelDetails);
         }
 
-        return null;
+        return builder.buildAndExpand(ctx.questioningId()).toUriString();
     }
 
     /**

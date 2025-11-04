@@ -125,7 +125,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic")
     void getListMyQuestionnairesTest3() {
-        when(questioningUrlComponent.buildDepositProofUrl(any(),any())).thenReturn("http://depositProof-url");
+        when(questioningUrlComponent.buildDepositProofUrl(any())).thenReturn("http://depositProof-url");
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);
@@ -164,7 +164,7 @@ class MySurveyServiceImplTest {
     @Test
     @DisplayName("Should return questionnaire list when status is RECEIVED with Lunatic Sensitive")
     void getListMyQuestionnairesTest5() {
-        when(questioningUrlComponent.buildDepositProofUrl(any(),any())).thenReturn("http://depositProof-url");
+        when(questioningUrlComponent.buildDepositProofUrl(any())).thenReturn("http://depositProof-url");
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_SENSITIVE.toString());
 
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.RECEIVED);

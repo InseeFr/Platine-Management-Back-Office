@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,6 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -322,6 +324,208 @@ class QuestioningUrlComponentTest {
     }
 
     @Test
+    void testDepositProofUrl_lunaticNormal() {
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                "surveyUnit123",
+                questioningId,
+                false,
+                null,
+                null,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_NORMAL,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        String expected = questionnaireApiUrl
+                + "/api/interrogations/" + questioningId + "/deposit-proof";
+
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testDepositProofUrl_lunaticSensitive() {
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                "surveyUnit123",
+                questioningId,
+                false,
+                null,
+                null,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_SENSITIVE,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        String expected = questionnaireApiSensitiveUrl
+                + "/api/interrogations/" + questioningId + "/deposit-proof";
+
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testDepositProofUrl_otherDataCollection_returnsNull() {
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                "surveyUnit123",
+                questioningId,
+                false,
+                null,
+                null,
+                "campaign123",
+                DataCollectionEnum.XFORM2,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        assertThat(url).isNull();
+    }
+
+    @Test
+    void testDepositProofUrl_lunaticNormal_withBusinessContext() {
+        String surveyUnitLabel = "company";
+        String identificationName = "TestCompanyName";
+        String surveyUnitId = "12345678901234";
+
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                surveyUnitId,
+                questioningId,
+                true,
+                surveyUnitLabel,
+                identificationName,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_NORMAL,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
+        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s %s (%s)",
+                StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
+    }
+
+    @Test
+    void testDepositProofUrl_lunaticSensitive_withBusinessContext() {
+        String surveyUnitLabel = "corporation";
+        String identificationName = "Test Name";
+        String surveyUnitId = "987654321";
+
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                surveyUnitId,
+                questioningId,
+                true,
+                surveyUnitLabel,
+                identificationName,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_SENSITIVE,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
+        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s %s (%s)",
+                StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
+    }
+
+    @Test
+    void testDepositProofUrl_businessContext_withBlankLabel() {
+        String surveyUnitLabel = "";
+        String identificationName = "Company Name Test";
+        String surveyUnitId = "12345678901234";
+
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                surveyUnitId,
+                questioningId,
+                true,
+                surveyUnitLabel,
+                identificationName,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_NORMAL,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
+        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+    }
+
+    @Test
+    void testDepositProofUrl_businessContext_withNullLabel() {
+        String identificationName = "Company Name Test";
+        String surveyUnitId = "987654321";
+
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                surveyUnitId,
+                questioningId,
+                true,
+                null,
+                identificationName,
+                "campaign123",
+                DataCollectionEnum.LUNATIC_SENSITIVE,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
+        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+    }
+
+    @Test
+    void testDepositProofUrl_businessContext_returnsNullWhenDataCollectionNotSupported() {
+        QuestioningUrlContext ctx = new QuestioningUrlContext(
+                "surveyUnit123",
+                questioningId,
+                true,
+                "Company ABC",
+                "SIRET",
+                "campaign123",
+                DataCollectionEnum.FILE_UPLOAD,
+                "source123",
+                2024,
+                "Q1",
+                "upload123",
+                "contact123"
+        );
+
+        String url = component.buildDepositProofUrl(ctx);
+
+        assertThat(url).isNull();
+    }
+
+    @Test
     void testLunaticNormalReviewer_defaultAccessUrl() {
         String url = component.getAccessUrl(UserRoles.REVIEWER, createQuestioning(), mockPartitioning(DataCollectionEnum.LUNATIC_NORMAL));
         String expected = "https://lunatic-normal/v3/review/interrogations/" + questioningId;
@@ -361,32 +565,6 @@ class QuestioningUrlComponentTest {
         assertThat(url).isEmpty();
     }
 
-    @Test
-    void testDepositProofUrl_lunaticNormal() {
-        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.LUNATIC_NORMAL);
-
-        String expected = questionnaireApiUrl
-                + "/api/interrogations/" + questioningId + "/deposit-proof";
-
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    void testDepositProofUrl_lunaticSensitive() {
-        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.LUNATIC_SENSITIVE);
-
-        String expected = questionnaireApiSensitiveUrl
-                + "/api/interrogations/" + questioningId + "/deposit-proof";
-
-        assertThat(url).isEqualTo(expected);
-    }
-
-    @Test
-    void testDepositProofUrl_otherDataCollection_returnsNull() {
-        String url = component.buildDepositProofUrl(questioningId, DataCollectionEnum.XFORM1);
-
-        assertThat(url).isNull();
-    }
 
     @Test
     void testDownloadUrl_ofats() {
