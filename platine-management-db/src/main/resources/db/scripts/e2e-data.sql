@@ -1,3 +1,5 @@
+-- TODO : use clearer naming pattern for SU/Interrogation/Campaign/Source/Contacts
+
                                 -- E2E tests sources --
 
 INSERT INTO public."source"
@@ -143,9 +145,7 @@ VALUES
 ('00000000-0000-0000-0000-000000000013', 13, 'PART3', 'Interrogation 13', 'E2E_SU_9'),
 ('00000000-0000-0000-0000-000000000014', 14, 'PART3', 'Interrogation 14', 'E2E_SU_10'),
 ('00000000-0000-0000-0000-000000000015', 15, 'PART4', 'Interrogation 15', 'E2E_SU_11');
-
-
-
+('00000000-0000-0000-0000-000000000016', 16, 'PART2', 'Interrogation 16', 'E2E_SU_2');
 
                                 -- E2E tests questioning accreditation --
 
@@ -167,9 +167,7 @@ VALUES
 ('00000000-0000-0000-0000-000000000013', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 13),
 ('00000000-0000-0000-0000-000000000014', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 14),
 ('00000000-0000-0000-0000-000000000015', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 15);
-
-
-
+('00000000-0000-0000-0000-000000000016', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_2', true, 15);
 
                                 -- E2E tests questioning event --
 
@@ -191,6 +189,8 @@ VALUES
 (13, '2025-01-11 11:05:07.380', 'INITLA', '00000000-0000-0000-0000-000000000013', '{}'::jsonb, NULL),
 (14, '2025-01-11 11:05:07.380', 'WASTE', '00000000-0000-0000-0000-000000000014', '{}'::jsonb, NULL),
 (15, '2025-01-11 11:05:07.380', 'PARTIELINT', '00000000-0000-0000-0000-000000000015', '{}'::jsonb, NULL);
+(16, '2025-01-11 11:05:07.380', 'VALINT', '00000000-0000-0000-0000-000000000016', '{}'::jsonb, NULL);
+
 
 
 
@@ -212,3 +212,6 @@ VALUES
 (11, 'E2E_CAMPAIGN_3', 'E2E_SU_9', 'E2E_RESPON_4'),
 (12, 'E2E_CAMPAIGN_3', 'E2E_SU_10', 'E2E_RESPON_4'),
 (13, 'E2E_CAMPAIGN_4', 'E2E_SU_11', 'E2E_RESPON_4');
+(14, 'E2E_CAMPAIGN_2', 'E2E_SU_6', 'E2E_RESPON_2');
+
+

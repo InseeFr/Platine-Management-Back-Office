@@ -27,7 +27,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,9 +40,13 @@ class QuestioningUrlComponentTest {
     private final String questionnaireApiSensitiveUrl = "https://questionnaire-api-sensitive";
     private final String xform1Url = "https://xform1";
     private final String xform2Url = "https://xform2";
+    private final String depositProofApiEndpoint = "/api/interrogations/{questioningId}/deposit-proof";
+
 
     private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
+    private final String identificationName = "Test Company";
+
     private final UUID questioningId = UUID.randomUUID();
     private final String sourceId = "SOURCEID";
     private final String contactId = "TOTO";
@@ -51,7 +54,7 @@ class QuestioningUrlComponentTest {
 
     @BeforeEach
     void setUp() {
-        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url);
+        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url, depositProofApiEndpoint);
     }
 
     private QuestioningUrlContext createQuestioningUrlContext(
@@ -398,9 +401,6 @@ class QuestioningUrlComponentTest {
     @Test
     void testDepositProofUrl_lunaticNormal_withBusinessContext() {
         String surveyUnitLabel = "company";
-        String identificationName = "TestCompanyName";
-        String surveyUnitId = "12345678901234";
-
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
@@ -418,17 +418,14 @@ class QuestioningUrlComponentTest {
 
         String url = component.buildDepositProofUrl(ctx);
 
-        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
-        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s %s (%s)",
+        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
+                .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
                 StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
     }
 
     @Test
     void testDepositProofUrl_lunaticSensitive_withBusinessContext() {
         String surveyUnitLabel = "corporation";
-        String identificationName = "Test Name";
-        String surveyUnitId = "987654321";
-
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
@@ -446,17 +443,14 @@ class QuestioningUrlComponentTest {
 
         String url = component.buildDepositProofUrl(ctx);
 
-        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
-        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s %s (%s)",
-                StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
+        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
+                .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
+                        StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
     }
 
     @Test
     void testDepositProofUrl_businessContext_withBlankLabel() {
         String surveyUnitLabel = "";
-        String identificationName = "Company Name Test";
-        String surveyUnitId = "12345678901234";
-
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
@@ -474,15 +468,12 @@ class QuestioningUrlComponentTest {
 
         String url = component.buildDepositProofUrl(ctx);
 
-        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
-        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+        assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
+                .endsWith(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
     }
 
     @Test
     void testDepositProofUrl_businessContext_withNullLabel() {
-        String identificationName = "Company Name Test";
-        String surveyUnitId = "987654321";
-
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
@@ -499,8 +490,8 @@ class QuestioningUrlComponentTest {
         );
 
         String url = component.buildDepositProofUrl(ctx);
-        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof");
-        assertThat(url).contains(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+        assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
+                .endsWith(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
     }
 
     @Test
