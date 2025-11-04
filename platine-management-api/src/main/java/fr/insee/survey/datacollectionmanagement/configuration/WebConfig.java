@@ -54,9 +54,4 @@ public class WebConfig implements WebMvcConfigurer {
     public String questionnaireApiSensitiveUrl() {
         return applicationConfig.getQuestionnaireApiSensitiveUrl();
     }
-
-    @Bean
-    public String depositProofApiEndpoint() {
-        return "/api/interrogations/{questioningId}/deposit-proof";
-    }
 }

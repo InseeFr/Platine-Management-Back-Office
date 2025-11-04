@@ -33,8 +33,6 @@ public class QuestioningUrlComponent {
 
     private final String xform2Url;
 
-    private final  String depositProofApiEndpoint;
-
     private static final String PATH_ASSISTANCE = "pathAssistance";
     private static final String SURVEY_UNIT_LABEL = "surveyUnitLabel";
     private static final String SURVEY_UNIT_COMPOSITE_NAME = "surveyUnitCompositeName";
@@ -185,7 +183,7 @@ public class QuestioningUrlComponent {
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
-                .path(depositProofApiEndpoint);
+                .path("/api/interrogations/{questioningId}/deposit-proof");
 
         if (ctx.isBusiness()) {
             String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
