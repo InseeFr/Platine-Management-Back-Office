@@ -127,7 +127,7 @@ public class QuestioningUrlComponent {
         String encodedLabel = "";
 
         if (context.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
+            String surveyUnitLabelDetails = buildSurveyUnitCompositeName(
                     context.surveyUnitLabel(),
                     context.surveyUnitIdentificationName(),
                     context.surveyUnitId());
@@ -186,7 +186,7 @@ public class QuestioningUrlComponent {
                 .path("/api/interrogations/{questioningId}/deposit-proof");
 
         if (ctx.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
+            String surveyUnitLabelDetails = buildSurveyUnitCompositeName(
                     ctx.surveyUnitLabel(),
                     ctx.surveyUnitIdentificationName(),
                     ctx.surveyUnitId()
@@ -209,7 +209,7 @@ public class QuestioningUrlComponent {
         };
     }
 
-    public String buildSurveyUnitLabelDetails(String label, String identificationName, String surveyUnitId) {
+    public String buildSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
         if (StringUtils.isBlank(label)) {
             return String.format("%s (%s)", identificationName, surveyUnitId);
         }

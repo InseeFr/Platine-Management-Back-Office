@@ -280,7 +280,7 @@ class QuestioningUrlComponentTest {
                 DataCollectionEnum.LUNATIC_NORMAL, null, true, null, "Test"
         );
 
-        String expectedLabel = component.buildSurveyUnitLabelDetails(null, "Test", surveyUnitId);
+        String expectedLabel = component.buildSurveyUnitCompositeName(null, "Test", surveyUnitId);
 
         // when
         String url = component.buildAccessUrl(UserRoles.REVIEWER, ctx);
@@ -584,13 +584,13 @@ class QuestioningUrlComponentTest {
     @EmptySource
     @ValueSource(strings = { "   " })
     void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankish(String label) {
-        String result = component.buildSurveyUnitLabelDetails(label, identificationName, surveyUnitId);
+        String result = component.buildSurveyUnitCompositeName(label, identificationName, surveyUnitId);
         assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
     }
 
     @Test
-    void buildSurveyUnitLabelDetails_capitalizesFirstLetter_only() {
-        String result = component.buildSurveyUnitLabelDetails("entreprise", identificationName, surveyUnitId);
+    void buildSurveyUnitCompositeName_capitalizesFirstLetter_only() {
+        String result = component.buildSurveyUnitCompositeName("entreprise", identificationName, surveyUnitId);
         assertThat(result).isEqualTo("Entreprise " + identificationName + " (" + surveyUnitId + ")");
     }
 }
