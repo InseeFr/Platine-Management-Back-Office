@@ -40,8 +40,6 @@ class QuestioningUrlComponentTest {
     private final String questionnaireApiSensitiveUrl = "https://questionnaire-api-sensitive";
     private final String xform1Url = "https://xform1";
     private final String xform2Url = "https://xform2";
-    private final String depositProofApiEndpoint = "/api/interrogations/{questioningId}/deposit-proof";
-
 
     private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
@@ -54,7 +52,7 @@ class QuestioningUrlComponentTest {
 
     @BeforeEach
     void setUp() {
-        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url, depositProofApiEndpoint);
+        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url);
     }
 
     private QuestioningUrlContext createQuestioningUrlContext(
@@ -586,19 +584,13 @@ class QuestioningUrlComponentTest {
     @EmptySource
     @ValueSource(strings = { "   " })
     void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankish(String label) {
-        String identificationName = "Alpha";
-
         String result = component.buildSurveyUnitLabelDetails(label, identificationName, surveyUnitId);
-
         assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
     }
 
     @Test
     void buildSurveyUnitLabelDetails_capitalizesFirstLetter_only() {
-        String identificationName = "Alpha";
-
         String result = component.buildSurveyUnitLabelDetails("entreprise", identificationName, surveyUnitId);
-
         assertThat(result).isEqualTo("Entreprise " + identificationName + " (" + surveyUnitId + ")");
     }
 }

@@ -109,10 +109,10 @@ VALUES
                                  -- E2E tests survey unit --
 
 INSERT INTO public.survey_unit
-(id_su, identification_name, identification_code, survey_unit_address_id, "label")
+(id_su, identification_name, identification_code, survey_unit_address_id, label)
 VALUES
 ('E2E_SU_1', '', '', NULL, NULL),
-('E2E_SU_2', 'Def Jam Records', '1', NULL, NULL),
+('E2E_SU_2', 'Def Jam Records', '1', NULL, 'company'),
 ('E2E_SU_3', 'Ghetty Green Inc.', '2', NULL, NULL),
 ('E2E_SU_4', 'G59', '3', NULL, NULL),
 ('E2E_SU_5', 'Don Dada Records', '4', NULL, NULL),
@@ -144,7 +144,7 @@ VALUES
 ('00000000-0000-0000-0000-000000000012', 12, 'PART3', 'Interrogation 12', 'E2E_SU_8'),
 ('00000000-0000-0000-0000-000000000013', 13, 'PART3', 'Interrogation 13', 'E2E_SU_9'),
 ('00000000-0000-0000-0000-000000000014', 14, 'PART3', 'Interrogation 14', 'E2E_SU_10'),
-('00000000-0000-0000-0000-000000000015', 15, 'PART4', 'Interrogation 15', 'E2E_SU_11');
+('00000000-0000-0000-0000-000000000015', 15, 'PART4', 'Interrogation 15', 'E2E_SU_11'),
 ('00000000-0000-0000-0000-000000000016', 16, 'PART2', 'Interrogation 16', 'E2E_SU_2');
 
                                 -- E2E tests questioning accreditation --
@@ -166,8 +166,8 @@ VALUES
 ('00000000-0000-0000-0000-000000000012', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 12),
 ('00000000-0000-0000-0000-000000000013', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 13),
 ('00000000-0000-0000-0000-000000000014', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 14),
-('00000000-0000-0000-0000-000000000015', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 15);
-('00000000-0000-0000-0000-000000000016', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_2', true, 15);
+('00000000-0000-0000-0000-000000000015', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_4', true, 15),
+('00000000-0000-0000-0000-000000000016', 'platine-batch', '2025-03-08 15:49:51.670', 'E2E_RESPON_2', true, 16);
 
                                 -- E2E tests questioning event --
 
@@ -188,7 +188,7 @@ VALUES
 (12, '2025-01-11 11:05:07.380', 'PARTIELINT', '00000000-0000-0000-0000-000000000012', '{}'::jsonb, NULL),
 (13, '2025-01-11 11:05:07.380', 'INITLA', '00000000-0000-0000-0000-000000000013', '{}'::jsonb, NULL),
 (14, '2025-01-11 11:05:07.380', 'WASTE', '00000000-0000-0000-0000-000000000014', '{}'::jsonb, NULL),
-(15, '2025-01-11 11:05:07.380', 'PARTIELINT', '00000000-0000-0000-0000-000000000015', '{}'::jsonb, NULL);
+(15, '2025-01-11 11:05:07.380', 'PARTIELINT', '00000000-0000-0000-0000-000000000015', '{}'::jsonb, NULL),
 (16, '2025-01-11 11:05:07.380', 'VALINT', '00000000-0000-0000-0000-000000000016', '{}'::jsonb, NULL);
 
 
@@ -212,6 +212,3 @@ VALUES
 (11, 'E2E_CAMPAIGN_3', 'E2E_SU_9', 'E2E_RESPON_4'),
 (12, 'E2E_CAMPAIGN_3', 'E2E_SU_10', 'E2E_RESPON_4'),
 (13, 'E2E_CAMPAIGN_4', 'E2E_SU_11', 'E2E_RESPON_4');
-(14, 'E2E_CAMPAIGN_2', 'E2E_SU_6', 'E2E_RESPON_2');
-
-
