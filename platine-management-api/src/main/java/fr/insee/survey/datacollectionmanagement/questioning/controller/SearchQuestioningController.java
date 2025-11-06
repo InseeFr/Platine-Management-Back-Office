@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
@@ -44,6 +45,17 @@ public class SearchQuestioningController {
 
         log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
                 searchParams, page, pageSize, sortBy, sortDirection);
+
+        if (!Pattern.matches("[A-Za-z0-9_\\-]+", sortBy)) {
+            log.error("Invalid sort parameter");
+            throw new IllegalArgumentException("Invalid sort parameter");
+        }
+
+        if (sortDirection != null && !sortDirection.equalsIgnoreCase("asc")
+                && !sortDirection.equalsIgnoreCase("desc")) {
+            log.error("Invalid sort parameter");
+            throw new IllegalArgumentException("Invalid sort parameter");
+        }
 
         Sort sort = Sort.unsorted();
         if (sortBy != null && sortDirection != null) {
