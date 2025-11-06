@@ -1,15 +1,20 @@
 package fr.insee.survey.datacollectionmanagement.metadata.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Represents a single wallet assignment row.
  * This record handles JSON mapping and field trimming/cleaning.
  */
 public record WalletDto(
-    @JsonProperty("surveyUnit") String surveyUnit,
-    @JsonProperty("internal_user") String internalUser,
-    @JsonProperty("group") String group
+    @NotBlank
+    @JsonProperty("surveyUnit")
+    String surveyUnit,
+    @JsonProperty("internal_user")
+    String internalUser,
+    @JsonProperty("group")
+    String group
 ) {
 
   /**

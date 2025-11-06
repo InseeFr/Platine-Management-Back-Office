@@ -13,12 +13,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class GroupWalletId implements Serializable {
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "sourceId", column = @Column(name = "source_id")),
-            @AttributeOverride(name = "groupId",  column = @Column(name = "group_id"))
-    })
-    private GroupeId groupId;
+    @Column(name = "group_id")
+    private UUID groupId;
+
+    @Column(name = "survey_unit_id")
     private String surveyUnitId;
 }
 

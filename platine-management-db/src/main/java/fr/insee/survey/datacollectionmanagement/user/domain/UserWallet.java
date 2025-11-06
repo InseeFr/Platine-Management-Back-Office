@@ -8,44 +8,36 @@ import lombok.*;
 @Entity
 @Table(
         name = "user_wallet",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_user_wallet_su_source",
-                        columnNames = {"survey_unit_id", "source_id"}
-                )
+        indexes = {
+                @Index(name = "idx_user_wallet_su", columnList = "survey_unit_id"),
+                @Index(name = "idx_user_wallet_source", columnList = "source_id"),
+                @Index(name = "idx_user_wallet_user_source", columnList = "user_id,source_id"),
+                @Index(name = "idx_user_wallet_source_su", columnList = "source_id,survey_unit_id")
         }
 )
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class UserWallet {
 
     @EmbeddedId
     private UserWalletId id;
 
-    @MapsId("surveyUnitId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_unit_id", referencedColumnName = "idSu",
-            insertable = false, updatable = false)
-    private SurveyUnit surveyUnit;
-
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "identifier",
-            insertable = false, updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "identifier", nullable = false, insertable = false, updatable = false)
     private User user;
 
+    @MapsId("surveyUnitId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id", referencedColumnName = "id",
-            insertable = false, updatable = false)
-    private Source source;
+    @JoinColumn(name = "survey_unit_id", referencedColumnName = "idSu", nullable = false, insertable = false, updatable = false)
+    private SurveyUnit surveyUnit;
 
+    @MapsId("sourceId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id", referencedColumnName = "source_id",
-            insertable = false, updatable = false)
-    @JoinColumn(name = "group_id", referencedColumnName = "group_id",
-            insertable = false, updatable = false)
-    private Groupe groupe;
+    @JoinColumn(name = "source_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    private Source source;
 }
 

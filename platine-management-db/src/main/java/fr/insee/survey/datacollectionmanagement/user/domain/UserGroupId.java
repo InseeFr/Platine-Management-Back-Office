@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 @Getter
@@ -13,12 +14,10 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class UserGroupId implements Serializable {
 
+    @Column(name = "user_id")
     private String userId;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "sourceId", column = @Column(name = "source_id")),
-            @AttributeOverride(name = "groupId",  column = @Column(name = "group_id"))
-    })
-    private GroupeId groupId;
+
+    @Column(name = "group_id")
+    private UUID groupId;
 }
 

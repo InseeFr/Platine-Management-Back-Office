@@ -1,12 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.user.domain;
 
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "group_wallet")
+@Table(
+        name = "group_wallet",
+        indexes = {
+                @Index(name = "idx_group_wallet_su", columnList = "survey_unit_id")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,21 +21,13 @@ public class GroupWallet {
     private GroupWalletId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id", referencedColumnName = "id",
-            insertable = false, updatable = false)
-    private Source source;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_id", referencedColumnName = "source_id",
-            insertable = false, updatable = false)
-    @JoinColumn(name = "group_id", referencedColumnName = "group_id",
-            insertable = false, updatable = false)
-    private Groupe groupe;
+    @MapsId("groupId")
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id", nullable = false)
+    private GroupEntity group;
 
     @MapsId("surveyUnitId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_unit_id", referencedColumnName = "idSu",
-            insertable = false, updatable = false)
+    @JoinColumn(name = "survey_unit_id", referencedColumnName = "idSu", nullable = false, insertable = false, updatable = false)
     private SurveyUnit surveyUnit;
 }
 

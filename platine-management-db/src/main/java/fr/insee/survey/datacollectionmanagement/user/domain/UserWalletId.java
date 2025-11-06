@@ -13,8 +13,13 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class UserWalletId implements Serializable {
-    private String surveyUnitId;
-    private GroupeId groupId;
+    @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "survey_unit_id")
+    private String surveyUnitId;
+
+    @Column(name = "source_id")
+    private String sourceId;
 }
 
