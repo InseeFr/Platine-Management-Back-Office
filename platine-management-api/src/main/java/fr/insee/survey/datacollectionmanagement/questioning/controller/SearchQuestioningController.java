@@ -46,7 +46,7 @@ public class SearchQuestioningController {
         log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
                 searchParams, page, pageSize, sortBy, sortDirection);
 
-        if (!Pattern.matches("[A-Za-z0-9_\\-]+", sortBy)) {
+        if (sortBy != null && !Pattern.matches("[A-Za-z0-9_\\-]+", sortBy)) {
             log.error("Invalid sort parameter");
             throw new IllegalArgumentException("Invalid sort parameter");
         }
