@@ -7,15 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserGroupRepository extends JpaRepository<UserGroup, UserGroupId> {
 
     List<UserGroup> findByIdGroupId(UUID groupId);
     List<UserGroup> findByIdUserId(String userId);
-    boolean existsByIdUserIdAndIdGroupId(String userId, UUID groupId);
-
     void deleteAllByGroupIn(Collection<GroupEntity> groups);
 }
 

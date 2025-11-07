@@ -45,7 +45,7 @@ public class JsonWalletParserStrategy implements WalletParserStrategy {
         try {
             List<WalletDto> dtos = objectMapper.readValue(
                     file.getInputStream(),
-                    new TypeReference<List<WalletDto>>() {
+                    new TypeReference<>() {
                     }
             );
 

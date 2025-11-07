@@ -4,7 +4,6 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContac
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
-import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
