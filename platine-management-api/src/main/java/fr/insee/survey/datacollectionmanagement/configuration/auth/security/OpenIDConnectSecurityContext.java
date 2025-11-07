@@ -67,7 +67,6 @@ public class OpenIDConnectSecurityContext {
                 .authorizeHttpRequests(configurer -> configurer
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, UrlConstants.API_HEALTHCHECK).permitAll()
-                        // actuator (actuator metrics are disabled by default)
                         .anyRequest()
                         .authenticated()
                 )
