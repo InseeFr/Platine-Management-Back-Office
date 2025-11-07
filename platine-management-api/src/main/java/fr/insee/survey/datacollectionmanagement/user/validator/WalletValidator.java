@@ -17,7 +17,7 @@ public class WalletValidator {
 
     private final WalletValidationService walletValidationService;
 
-    private static final Pattern VALID_TEXT = Pattern.compile("^[A-Za-z0-9]+$");
+    private static final Pattern VALID_TEXT = Pattern.compile("^[A-Za-z0-9_\\s\\-]+$");
     private static final String FORBIDDEN_CHARACTERS = "Parameter contain forbidden special characters";
 
     public List<ValidationWalletError> validate(List<WalletDto> wallets) {

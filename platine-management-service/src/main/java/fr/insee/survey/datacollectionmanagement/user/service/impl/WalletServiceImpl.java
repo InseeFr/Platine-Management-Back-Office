@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.user.dao.WalletDao;
@@ -30,7 +31,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Filename is missing");
         }
 
-        log.info("Parsing and validating syntax for file: {}", filename);
+        log.info("Parsing for file: {}", filename);
 
         // 1. Find parsing strategy
         WalletParserStrategy strategy = parserStrategies.stream()
@@ -47,7 +48,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public void integrateWallets(String sourceId, List<WalletDto> wallets) {
         Source source = sourceRepository.findById(sourceId)
-                .orElseThrow(() -> new EntityNotFoundException("Source not found: " + sourceId));
+                .orElseThrow(() -> new NotFoundException("Source not found: " + sourceId));
         if (wallets == null || wallets.isEmpty()) {
             log.info("No wallets provided for source {} — cleaning existing data", sourceId);
             walletDao.cleanData(source.getId());

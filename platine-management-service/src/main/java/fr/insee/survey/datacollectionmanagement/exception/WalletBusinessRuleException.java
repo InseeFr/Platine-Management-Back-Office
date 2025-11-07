@@ -1,10 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
-import jakarta.validation.ValidationException;
+import lombok.Getter;
 
 import java.util.List;
 
-public class WalletBusinessRuleException extends ValidationException {
+@Getter
+public class WalletBusinessRuleException extends RuntimeException {
 
     private final List<String> errors;
 
@@ -13,11 +14,4 @@ public class WalletBusinessRuleException extends ValidationException {
         this.errors = errors;
     }
 
-    public WalletBusinessRuleException(List<String> errors) {
-        this.errors = errors;
-    }
-
-    public List<String> getErrors() {
-        return this.errors;
-    }
 }

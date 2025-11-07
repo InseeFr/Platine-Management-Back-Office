@@ -45,7 +45,7 @@ public class ApiExceptionComponent {
     public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage, List<String> errors) {
         String path = getPath(request);
         Date timestamp = getTimeStamp(request);
-        return new ApiError(status, path, timestamp, errorMessage);
+        return new ApiError(status, path, timestamp, errorMessage, errors);
     }
 
     /**

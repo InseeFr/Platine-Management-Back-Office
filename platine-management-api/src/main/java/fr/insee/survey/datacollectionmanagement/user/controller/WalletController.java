@@ -57,10 +57,10 @@ public class WalletController {
             @PathVariable("id") String source,
             @RequestParam("file") MultipartFile file) {
 
-        log.info("Importing wallets for sourceId {} from file {}", source, file.getOriginalFilename());
+        log.info("Importing wallets for source {} from file {}", source, file.getOriginalFilename());
         List<WalletDto> wallets = walletService.parse(file);
 
-        log.info("Validating wallets for sourceId {}", source);
+        log.info("Validating wallets for source {}", source);
         List<ValidationWalletError> validationErrors = walletValidator.validate(wallets);
         if (!validationErrors.isEmpty()) {
             List<String> errorMessages = validationErrors.stream()
@@ -69,7 +69,7 @@ public class WalletController {
             errorMessages.forEach(log::error);
             throw new WalletBusinessRuleException("Invalid Data", errorMessages);
         }
-
+        log.info("Integrate data for source {}", source);
         walletService.integrateWallets(source, wallets);
 
         return ResponseEntity.ok(Map.of("message", "File processed successfully"));

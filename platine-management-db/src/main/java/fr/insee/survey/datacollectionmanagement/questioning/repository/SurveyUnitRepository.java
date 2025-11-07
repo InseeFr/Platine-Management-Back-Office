@@ -112,6 +112,7 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
         """, nativeQuery = true)
     List<String> findCampaignIdsBySurveyUnitId(String surveyUnitId);
 
+    @Query("select distinct s.idSu from SurveyUnit s where s.idSu in :ids")
     Set<String> findDistinctIdSuByIdSuIn(Collection<String> ids);
 
 

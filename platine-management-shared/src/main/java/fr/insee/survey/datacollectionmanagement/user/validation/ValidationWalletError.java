@@ -9,8 +9,8 @@ public record ValidationWalletError(Integer line, String field, String message) 
     @Override
     public String toString() {
         if (line == null) {
-            return String.format("Record: on field %s, %s%n", field, message);
+            return String.format("Record: on field '%s', %s", field, message);
         }
-        return String.format("Record %d: on field %s, %s%n", line, field, message);
+        return String.format("Record %d: on field '%s', %s", line, field, message);
     }
 }
