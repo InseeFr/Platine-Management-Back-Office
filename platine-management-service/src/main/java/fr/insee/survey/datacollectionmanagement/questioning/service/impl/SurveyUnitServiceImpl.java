@@ -61,12 +61,10 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
       return Set.of();
     }
 
-    // 1. Appel en BDD optimisé (une seule requête IN) pour récupérer les identifiants qui EXISTENT.
-    Set<String> existingIdentifiers = surveyUnitRepository.findExistingIds(identifiers);
+    Set<String> existingIdentifiers = surveyUnitRepository.findDistinctIdSuByIdSuIn(identifiers);
 
-    // 2. Calcul des MANQUANTS via soustraction d'ensembles.
     Set<String> missingIdentifiers = new HashSet<>(identifiers);
-    existingIdentifiers.forEach(missingIdentifiers::remove);
+    missingIdentifiers.removeAll(existingIdentifiers);
 
     return missingIdentifiers;
   }

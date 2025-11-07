@@ -8,6 +8,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -30,6 +31,18 @@ public class ApiExceptionComponent {
      * @return error object used for JSON response
      */
     public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage) {
+        String path = getPath(request);
+        Date timestamp = getTimeStamp(request);
+        return new ApiError(status, path, timestamp, errorMessage);
+    }
+
+    /**
+     * @param request      origin request
+     * @param status       status from exception
+     * @param errorMessage error message
+     * @return error object used for JSON response
+     */
+    public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage, List<String> errors) {
         String path = getPath(request);
         Date timestamp = getTimeStamp(request);
         return new ApiError(status, path, timestamp, errorMessage);

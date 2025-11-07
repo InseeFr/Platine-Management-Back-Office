@@ -1,23 +1,21 @@
 package fr.insee.survey.datacollectionmanagement.user.dao;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
-import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
+import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.user.domain.*;
 import fr.insee.survey.datacollectionmanagement.user.repository.*;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,122 +23,205 @@ import java.util.Optional;
 public class WalletDao {
 
     private final UserRepository userRepository;
-    private final SourceRepository sourceRepository;
+
     private final SurveyUnitRepository surveyUnitRepository;
     private final GroupRepository groupRepository;
     private final GroupWalletRepository groupWalletRepository;
     private final UserWalletRepository userWalletRepository;
     private final UserGroupRepository userGroupRepository;
 
-    @PersistenceContext
-    private final EntityManager em;
-
     @Transactional
-    public void upsertWallets(String sourceId, List<WalletDto> wallets) {
-        Source source = sourceRepository.findById(sourceId)
-                .orElseThrow(() -> new EntityNotFoundException("Source not found: " + sourceId));
+    public void upsertWallets(Source source, List<WalletDto> wallets) {
 
-        if (wallets == null) wallets = List.of();
+        cleanData(source.getId());
 
-        cleanData(sourceId);
+        Set<String> userIds = wallets.stream()
+                .filter(Objects::nonNull)
+                .map(WalletDto::internalUser)
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .collect(Collectors.toSet());
 
-        if (wallets.isEmpty()) return;
+        Set<String> groupLabels = wallets.stream()
+                .filter(Objects::nonNull)
+                .map(WalletDto::group)
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .collect(Collectors.toSet());
 
-        for (WalletDto wallet : wallets) {
-            insertOneWallet(source, wallet);
-        }
+        Set<String> suIds = wallets.stream()
+                .filter(Objects::nonNull)
+                .map(WalletDto::surveyUnit)
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
+        Map<String, User> usersByKey = loadUsersByKey(userIds);
+        Map<String, SurveyUnit> susById = loadSurveyUnitsById(suIds);
+        Map<String, GroupEntity> groupsByLabel = loadGroupsByLabel(source.getId(), groupLabels);
+
+        createMissingGroups(source, groupLabels, groupsByLabel);
+
+        buildAndPersistBuffers(wallets, source, usersByKey, susById, groupsByLabel);
     }
 
-
-    private void cleanData(String sourceId) {
+    public void cleanData(String sourceId) {
         List<GroupEntity> groups = groupRepository.findAllBySourceId(sourceId);
         userWalletRepository.deleteAllByIdSourceId(sourceId);
         groupWalletRepository.deleteAllByGroupIn(groups);
         userGroupRepository.deleteAllByGroupIn(groups);
         groupRepository.deleteAllBySourceId(sourceId);
-        em.flush();
-        em.clear();
     }
 
-    private void insertOneWallet(Source source, WalletDto wallet) {
-        if (StringUtils.isBlank(wallet.group()) && StringUtils.isBlank(wallet.internalUser())) {
-            throw new IllegalArgumentException("At least one of the parameters 'group' or 'internaluser' must be provided.");
+    private Map<String, User> loadUsersByKey(Set<String> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new HashMap<>();
         }
+        return userRepository.findAllByIdentifierInIgnoreCase(userIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        u -> u.getIdentifier().toLowerCase(),
+                        Function.identity()
+                ));
+    }
 
-        SurveyUnit surveyUnit = surveyUnitRepository.findById(wallet.surveyUnit())
-                .orElseThrow(() -> new EntityNotFoundException("SurveyUnit not found: " + wallet.surveyUnit()));
-
-        User user = null;
-        GroupEntity group = null;
-
-        if (StringUtils.isNotBlank(wallet.internalUser())) {
-            user = userRepository.findByIdentifierIgnoreCase(wallet.internalUser())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found: " + wallet.internalUser()));
-            UserWallet userWallet = getOrCreateUserWallet(user,surveyUnit,source);
+    private Map<String, SurveyUnit> loadSurveyUnitsById(Set<String> suIds) {
+        if (suIds == null || suIds.isEmpty()) {
+            return new HashMap<>();
         }
+        return surveyUnitRepository.findAllByIdSuIn(suIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        SurveyUnit::getIdSu,
+                        Function.identity()
+                ));
+    }
 
-        if (StringUtils.isNotBlank(wallet.group())) {
-            group = getOrCreateGroup(source, wallet.group());
-            GroupWallet groupWallet = getOrCreateGroupWallet(group,surveyUnit);
+    private Map<String, GroupEntity> loadGroupsByLabel(String sourceId, Set<String> groupLabels) {
+        if (groupLabels == null || groupLabels.isEmpty()) {
+            return new HashMap<>();
         }
+        return groupRepository.findAllBySource_IdAndLabelIn(sourceId, groupLabels)
+                .stream()
+                .collect(Collectors.toMap(
+                        GroupEntity::getLabel,
+                        Function.identity()
+                ));
+    }
 
-        if (StringUtils.isNotBlank(wallet.internalUser()) && StringUtils.isNotBlank(wallet.group())) {
-            UserGroup userGroup = getOrCreateUserGroup(user,group);
+    private void createMissingGroups(
+            Source source,
+            Set<String> groupLabels,
+            Map<String, GroupEntity> groupsByLabel
+    ) {
+        List<GroupEntity> groupsToCreate = new ArrayList<>();
+        for (String label : groupLabels) {
+            if (!groupsByLabel.containsKey(label)) {
+                GroupEntity g = new GroupEntity();
+                g.setSource(source);
+                g.setLabel(label);
+                groupsToCreate.add(g);
+            }
+        }
+        if (!groupsToCreate.isEmpty()) {
+            List<GroupEntity> saved = groupRepository.saveAll(groupsToCreate);
+            for (GroupEntity g : saved) {
+                groupsByLabel.put(g.getLabel(), g);
+            }
         }
     }
 
-    private UserGroup getOrCreateUserGroup(User user, GroupEntity group) {
-        UserGroupId userGroupId = new UserGroupId(user.getIdentifier(), group.getGroupId());
-        Optional<UserGroup> userGroup = userGroupRepository.findById(userGroupId);
-        if (userGroup.isPresent()) {
-            return userGroup.get();
+    private void buildAndPersistBuffers(
+            List<WalletDto> wallets,
+            Source source,
+            Map<String, User> usersByKey,
+            Map<String, SurveyUnit> susById,
+            Map<String, GroupEntity> groupsByLabel
+    ) {
+        final int BATCH = 1000;
+        List<UserWallet> userWalletBuffer = new ArrayList<>(BATCH);
+        List<GroupWallet> groupWalletBuffer = new ArrayList<>(BATCH);
+        List<UserGroup> userGroupBuffer = new ArrayList<>(BATCH);
+
+        Set<UserWalletId> seenUW = new HashSet<>();
+        Set<GroupWalletId> seenGW = new HashSet<>();
+        Set<UserGroupId> seenUG = new HashSet<>();
+
+        for (WalletDto w : wallets) {
+            if (w == null) continue;
+
+            SurveyUnit su = susById.get(w.surveyUnit());
+
+            User user = null;
+            GroupEntity group = null;
+
+            if (StringUtils.isNotBlank(w.internalUser())) {
+                String key = w.internalUser().toLowerCase();
+                user = usersByKey.get(key);
+                if (user == null) {
+                    throw new EntityNotFoundException("User not found: " + w.internalUser());
+                }
+                UserWalletId uwId = new UserWalletId(user.getIdentifier(), su.getIdSu(), source.getId());
+                if (seenUW.add(uwId)) {
+                    UserWallet uw = new UserWallet();
+                    uw.setId(uwId);
+                    uw.setUser(user);
+                    uw.setSurveyUnit(su);
+                    uw.setSource(source);
+                    userWalletBuffer.add(uw);
+                }
+            }
+
+            if (StringUtils.isNotBlank(w.group())) {
+                group = groupsByLabel.get(w.group());
+                if (group == null) {
+                    throw new EntityNotFoundException("Group not found after creation: " + w.group());
+                }
+                GroupWalletId gwId = new GroupWalletId(group.getGroupId(), su.getIdSu());
+                if (seenGW.add(gwId)) {
+                    GroupWallet gw = new GroupWallet();
+                    gw.setId(gwId);
+                    gw.setGroup(group);
+                    gw.setSurveyUnit(su);
+                    groupWalletBuffer.add(gw);
+                }
+            }
+
+            if (user != null && group != null) {
+                UserGroupId ugId = new UserGroupId(user.getIdentifier(), group.getGroupId());
+                if (seenUG.add(ugId)) {
+                    UserGroup ug = new UserGroup();
+                    ug.setId(ugId);
+                    ug.setUser(user);
+                    ug.setGroup(group);
+                    userGroupBuffer.add(ug);
+                }
+            }
+
+            if (userWalletBuffer.size() >= BATCH) {
+                userWalletRepository.saveAll(userWalletBuffer);
+                userWalletBuffer.clear();
+            }
+            if (groupWalletBuffer.size() >= BATCH) {
+                groupWalletRepository.saveAll(groupWalletBuffer);
+                groupWalletBuffer.clear();
+            }
+            if (userGroupBuffer.size() >= BATCH) {
+                userGroupRepository.saveAll(userGroupBuffer);
+                userGroupBuffer.clear();
+            }
         }
-        UserGroup newUserGroup = new UserGroup();
-        newUserGroup.setId(userGroupId);
-        newUserGroup.setUser(user);
-        newUserGroup.setGroup(group);
-        return userGroupRepository.save(newUserGroup);
-    }
 
-    private GroupWallet getOrCreateGroupWallet(GroupEntity group, SurveyUnit surveyUnit) {
-        GroupWalletId groupWalletId = new GroupWalletId(group.getGroupId(), surveyUnit.getIdSu());
-        Optional<GroupWallet> groupWallet = groupWalletRepository.findById(groupWalletId);
-        if  (groupWallet.isPresent()) {
-            return groupWallet.get();
+        if (!userWalletBuffer.isEmpty()) {
+            userWalletRepository.saveAll(userWalletBuffer);
         }
-        GroupWallet newGroupWallet = new GroupWallet();
-        newGroupWallet.setId(groupWalletId);
-        newGroupWallet.setGroup(group);
-        newGroupWallet.setSurveyUnit(surveyUnit);
-        return groupWalletRepository.save(newGroupWallet);
-    }
-
-    private UserWallet getOrCreateUserWallet(User user, SurveyUnit surveyUnit, Source source) {
-        UserWalletId userWalletId = new UserWalletId(user.getIdentifier(), surveyUnit.getIdSu(), source.getId());
-        Optional<UserWallet> userWallet = userWalletRepository.findById(userWalletId);
-        if (userWallet.isPresent()) {
-            return userWallet.get();
+        if (!groupWalletBuffer.isEmpty()) {
+            groupWalletRepository.saveAll(groupWalletBuffer);
         }
-        UserWallet newUserWallet = new UserWallet();
-        newUserWallet.setId(userWalletId);
-        newUserWallet.setUser(user);
-        newUserWallet.setSurveyUnit(surveyUnit);
-        newUserWallet.setSource(source);
-        return userWalletRepository.save(newUserWallet);
-    }
-
-    private GroupEntity getOrCreateGroup(Source source, String groupLabel) {
-
-        Optional<GroupEntity> existing = groupRepository.findBySource_IdAndLabel(source.getId(), groupLabel);
-        if (existing.isPresent()) {
-            return existing.get();
+        if (!userGroupBuffer.isEmpty()) {
+            userGroupRepository.saveAll(userGroupBuffer);
         }
-
-        GroupEntity g = new GroupEntity();
-        g.setSource(source);
-        g.setLabel(groupLabel);
-        return groupRepository.save(g);
     }
-
 
 }

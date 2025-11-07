@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.service;
 
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
+import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

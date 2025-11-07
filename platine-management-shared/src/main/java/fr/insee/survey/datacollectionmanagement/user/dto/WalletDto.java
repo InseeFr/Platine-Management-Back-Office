@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.metadata.dto;
+package fr.insee.survey.datacollectionmanagement.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

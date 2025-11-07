@@ -2,7 +2,7 @@ package fr.insee.survey.datacollectionmanagement.user.dao;
 
 import fr.insee.survey.datacollectionmanagement.TestConfig;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
+import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -57,12 +57,15 @@ class WalletDaoIT {
     private static final String GROUP_LABEL_1 = "Groupe 1";
     private static final String GROUP_LABEL_2 = "Groupe 2";
 
+    private Source src;
+    private Source src2;
+
     @BeforeEach
     void setUp() {
-        var src = new Source();
+        src = new Source();
         src.setId(SOURCE_ID);
         sourceRepository.save(src);
-        var src2 = new Source();
+        src2 = new Source();
         src2.setId(SOURCE_ID_2);
         sourceRepository.save(src2);
 
@@ -82,20 +85,10 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_throws_when_source_does_not_exist() {
-        WalletDto w = new WalletDto(GROUP_LABEL_1, USER_ID, SURVEY_UNIT_ID);
-        List<WalletDto> wallets = List.of(w);
-        assertThatThrownBy(() ->
-                walletDao.upsertWallets("UNKNOWN", wallets)
-        ).isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Source not found");
-    }
-
-    @Test
     void upsertWallets_creates_wallets_with_all_fields() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(SOURCE_ID, List.of(w));
+        walletDao.upsertWallets(src, List.of(w));
 
         Optional<GroupEntity> g = groupRepository.findBySource_IdAndLabel(SOURCE_ID, GROUP_LABEL_1);
         assertThat(g).isPresent();
@@ -114,7 +107,7 @@ class WalletDaoIT {
     void upsertWallets_creates_wallets_without_group() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, "");
 
-        walletDao.upsertWallets(SOURCE_ID, List.of(w));
+        walletDao.upsertWallets(src, List.of(w));
 
         List<GroupEntity> groups = groupRepository.findAll();
         assertThat(groups).isEmpty();
@@ -133,7 +126,7 @@ class WalletDaoIT {
     void upsertWallets_creates_wallets_without_user() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, "", GROUP_LABEL_1);
 
-        walletDao.upsertWallets(SOURCE_ID, List.of(w));
+        walletDao.upsertWallets(src, List.of(w));
 
         Optional<GroupEntity> g = groupRepository.findBySource_IdAndLabel(SOURCE_ID, GROUP_LABEL_1);
         assertThat(g).isPresent();
@@ -149,36 +142,11 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_throws_when_without_user_and_group() {
-        WalletDto w = new WalletDto(SURVEY_UNIT_ID, "", "");
-
-        assertThatThrownBy(() ->
-            walletDao.upsertWallets(SOURCE_ID, List.of(w))
-        ).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("At least one of the parameters 'group' or 'internaluser' must be provided.");
-
-    }
-
-
-
-
-    @Test
-    void upsertWallets_throws_when_su_missing() {
-        WalletDto w = new WalletDto(GROUP_LABEL_1, USER_ID,"MISSING-SU");
-
-        assertThatThrownBy(() ->
-                walletDao.upsertWallets(SOURCE_ID, List.of(w))
-        ).isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("SurveyUnit not found");
-    }
-
-
-    @Test
     void upsertWallets_is_idempotent_on_same_input() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(SOURCE_ID, List.of(w));
-        walletDao.upsertWallets(SOURCE_ID, List.of(w));
+        walletDao.upsertWallets(src, List.of(w));
+        walletDao.upsertWallets(src, List.of(w));
 
         assertThat(userWalletRepository.count()).isEqualTo(1);
         assertThat(groupRepository.count()).isEqualTo(1);
@@ -191,13 +159,13 @@ class WalletDaoIT {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
         WalletDto w2 = new WalletDto(SURVEY_UNIT_ID, USER_ID_2, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(SOURCE_ID, List.of(w,w2));
+        walletDao.upsertWallets(src, List.of(w,w2));
         assertThat(userWalletRepository.count()).isEqualTo(2);
         assertThat(groupRepository.count()).isEqualTo(1);
         assertThat(groupWalletRepository.count()).isEqualTo(1);
         assertThat(userGroupRepository.count()).isEqualTo(2);
 
-        walletDao.upsertWallets(SOURCE_ID, List.of());
+        walletDao.upsertWallets(src, List.of());
         assertThat(userWalletRepository.count()).isZero();
         assertThat(groupRepository.count()).isZero();
         assertThat(groupWalletRepository.count()).isZero();
@@ -227,7 +195,7 @@ class WalletDaoIT {
         WalletDto w16 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_2);
 
         walletDao.upsertWallets(
-                SOURCE_ID,
+                src,
                 List.of(w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,w16)
         );
 
@@ -251,7 +219,7 @@ class WalletDaoIT {
         WalletDto w32 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_2);
 
         walletDao.upsertWallets(
-                SOURCE_ID_2,
+                src2,
                 List.of(w17,w18,w19,w20,w21,w22,w23,w24,w25,w26,w27,w28,w29,w30,w31,w32)
         );
 

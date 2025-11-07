@@ -1,11 +1,23 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
-/**
- * Exception levée lorsqu'une règle métier de portefeuille (wallet) est violée.
- */
-public class WalletBusinessRuleException extends RuntimeException {
+import jakarta.validation.ValidationException;
 
-  public WalletBusinessRuleException(String message) {
-    super(message);
-  }
+import java.util.List;
+
+public class WalletBusinessRuleException extends ValidationException {
+
+    private final List<String> errors;
+
+    public WalletBusinessRuleException(String message,  List<String> errors) {
+        super(message);
+        this.errors = errors;
+    }
+
+    public WalletBusinessRuleException(List<String> errors) {
+        this.errors = errors;
+    }
+
+    public List<String> getErrors() {
+        return this.errors;
+    }
 }

@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.user.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
-import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
+import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

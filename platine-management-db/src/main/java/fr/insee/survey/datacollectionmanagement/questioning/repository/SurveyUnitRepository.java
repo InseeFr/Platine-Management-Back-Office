@@ -3,6 +3,8 @@ package fr.insee.survey.datacollectionmanagement.questioning.repository;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
+
+import java.util.Collection;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -110,13 +112,10 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
         """, nativeQuery = true)
     List<String> findCampaignIdsBySurveyUnitId(String surveyUnitId);
 
-  /**
-   * Effectue une recherche en masse pour trouver les identifiants d'UE qui EXISTENT
-   * dans la base de données parmi l'ensemble fourni.
-   * Cette méthode est utilisée par le service pour calculer les identifiants manquants (Set Subtraction).
-   * @param ids L'ensemble des identifiants d'UE à vérifier.
-   * @return Un ensemble (Set) des identifiants (String) qui existent en base de données.
-   */
-  @Query("SELECT su.idSu FROM SurveyUnit su WHERE su.idSu IN :ids")
-  Set<String> findExistingIds(Set<String> ids);
+    Set<String> findDistinctIdSuByIdSuIn(Collection<String> ids);
+
+
+
+    List<SurveyUnit> findAllByIdSuIn(Collection<String> ids);
+
 }

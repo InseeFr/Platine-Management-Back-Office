@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.service;
 
-import fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto;
+import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +21,7 @@ public interface WalletParserStrategy {
    * Parses the provided file and transforms it into a list of DTOs.
    *
    * @param file The file to parse.
-   * @return A list of {@link fr.insee.survey.datacollectionmanagement.metadata.dto.WalletDto}.
+   * @return A list of {@link WalletDto}.
    * @throws fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException for file processing errors.
    * @throws IllegalArgumentException for format issues (e.g., missing header, empty file).
    */
