@@ -6,6 +6,8 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.SortByValid;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.SortDirectionValid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +18,18 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
 @Slf4j
 @Tag(name = "2 - Questioning", description = "Enpoints to create, update, delete and find entities around the questionings")
 @RequiredArgsConstructor
+@Validated
 public class SearchQuestioningController {
 
     private final QuestioningService questioningService;
@@ -35,8 +40,8 @@ public class SearchQuestioningController {
             @RequestBody(required = false) SearchQuestioningParams searchParams,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortDirection) {
+            @RequestParam(required = false) @SortByValid String sortBy,
+            @RequestParam(required = false) @SortDirectionValid String sortDirection) {
 
         log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
                 searchParams, page, pageSize, sortBy, sortDirection);
