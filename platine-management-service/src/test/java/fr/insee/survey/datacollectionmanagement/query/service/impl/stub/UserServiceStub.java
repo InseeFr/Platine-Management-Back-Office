@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class UserServiceStub implements UserService {
 
@@ -28,12 +27,18 @@ public class UserServiceStub implements UserService {
         return List.of();
     }
 
-  @Override
-  public Set<String> findMissingIdentifiers(Set<String> uniqueUsers) {
-    return Set.of();
-  }
+    @Override
+    public Set<String> findMissingIdentifiers(Set<String> uniqueUsers) {
+        if (uniqueUsers == null || uniqueUsers.isEmpty()) {
+            return Set.of();
+        }
+        Set<String> existingUsers = users.stream().map(User::getIdentifier).collect(Collectors.toSet());
+        Set<String> missingIdentifiers = new HashSet<>(uniqueUsers);
+        missingIdentifiers.removeAll(existingUsers);
+        return missingIdentifiers;
+    }
 
-  @Override
+    @Override
     public User findByIdentifier(String identifier) {
         return null;
     }
