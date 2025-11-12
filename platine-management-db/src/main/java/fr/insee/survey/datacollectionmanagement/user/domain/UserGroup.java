@@ -4,13 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(
-        name = "user_group",
-        indexes = {
-                @Index(name = "idx_user_group_group_id", columnList = "group_id"),
-                @Index(name = "idx_user_group_user_id", columnList = "user_id")
-        }
-)
+@Table(name = "user_group")
 @Getter
 @Setter
 @NoArgsConstructor

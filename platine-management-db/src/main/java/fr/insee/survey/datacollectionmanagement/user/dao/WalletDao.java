@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
 public class WalletDao {
 
@@ -30,38 +31,31 @@ public class WalletDao {
     private final UserWalletRepository userWalletRepository;
     private final UserGroupRepository userGroupRepository;
 
-    @Transactional
-    public void upsertWallets(Source source, List<WalletDto> wallets) {
-
-        cleanData(source.getId());
+    public void insertWallets(Source source, List<WalletDto> wallets) {
 
         Set<String> userIds = wallets.stream()
                 .filter(Objects::nonNull)
                 .map(WalletDto::internalUser)
                 .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(String::toUpperCase)
                 .collect(Collectors.toSet());
 
         Set<String> groupLabels = wallets.stream()
                 .filter(Objects::nonNull)
                 .map(WalletDto::group)
                 .filter(StringUtils::isNotBlank)
-                .map(String::trim)
                 .collect(Collectors.toSet());
 
         Set<String> suIds = wallets.stream()
                 .filter(Objects::nonNull)
                 .map(WalletDto::surveyUnit)
                 .filter(StringUtils::isNotBlank)
-                .map(String::trim)
                 .collect(Collectors.toSet());
 
         Map<String, User> usersByKey = loadUsersByKey(userIds);
         Map<String, SurveyUnit> susById = loadSurveyUnitsById(suIds);
         Map<String, GroupEntity> groupsByLabel = loadGroupsByLabel(source.getId(), groupLabels);
 
-        createMissingGroups(source, groupLabels, groupsByLabel);
+        createGroups(source, groupLabels, groupsByLabel);
 
         buildAndPersistBuffers(wallets, source, usersByKey, susById, groupsByLabel);
     }
@@ -110,7 +104,7 @@ public class WalletDao {
                 ));
     }
 
-    private void createMissingGroups(
+    private void createGroups(
             Source source,
             Set<String> groupLabels,
             Map<String, GroupEntity> groupsByLabel

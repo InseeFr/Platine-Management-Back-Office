@@ -5,12 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(
-        name = "group_wallet",
-        indexes = {
-                @Index(name = "idx_group_wallet_su", columnList = "survey_unit_id")
-        }
-)
+@Table(name = "group_wallet")
 @Getter
 @Setter
 @NoArgsConstructor

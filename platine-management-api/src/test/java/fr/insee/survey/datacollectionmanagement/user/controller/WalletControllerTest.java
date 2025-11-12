@@ -47,7 +47,7 @@ class WalletControllerTest {
     void postWithAdmin_returns200_csv() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN));
 
-        MockMultipartFile csv = new MockMultipartFile("file", "wallets.csv", "text/csv", "surveyUnit,internal_user,group\n100000007,USER1,G1".getBytes());
+        MockMultipartFile csv = new MockMultipartFile("file", "wallets.csv", "text/csv", "id_su,idep,id_group\n100000007,USER1,G1".getBytes());
 
         mockMvc.perform(multipart(API_SOURCE_ID_WALLET, "SOURCE1")
                         .file(csv)
@@ -62,17 +62,17 @@ class WalletControllerTest {
         String json = """
             [
               {
-                "surveyUnit": "100000007",
-                "internal_user": "USER1",
-                "group": "G1"
+                "id_su": "100000007",
+                "idep": "USER1",
+                "id_group": "G1"
               }
             ]
             """;
 
         MockMultipartFile jsonFile = new MockMultipartFile(
-                "file",                 // nom du champ attendu par le controller
-                "wallets.json",         // nom du fichier
-                "application/json",     // content type du fichier
+                "file",
+                "wallets.json",
+                "application/json",
                 json.getBytes()
         );
 
@@ -88,9 +88,9 @@ class WalletControllerTest {
         String invalidJson = """
                 [
                   {
-                    "surveyUnit": "",
-                    "internal_user": "",
-                    "group": ""
+                    "su_id": "",
+                    "idep": "",
+                    "id_group": ""
                   }
                 ]
                 """;

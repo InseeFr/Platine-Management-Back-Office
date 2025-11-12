@@ -6,15 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(
-        name = "user_wallet",
-        indexes = {
-                @Index(name = "idx_user_wallet_su", columnList = "survey_unit_id"),
-                @Index(name = "idx_user_wallet_source", columnList = "source_id"),
-                @Index(name = "idx_user_wallet_user_source", columnList = "user_id,source_id"),
-                @Index(name = "idx_user_wallet_source_su", columnList = "source_id,survey_unit_id")
-        }
-)
+@Table(name = "user_wallet")
 @Getter
 @Setter
 @NoArgsConstructor

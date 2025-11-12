@@ -31,9 +31,9 @@ public class WalletValidationServiceImpl implements WalletValidationService {
         List<ValidationWalletError> errors = new ArrayList<>();
 
         Set<String> userIds = wallets.stream()
+                .filter(Objects::nonNull)
                 .map(WalletDto::internalUser)
                 .filter(StringUtils::isNotBlank)
-                .map(String::trim)
                 .collect(Collectors.toSet());
 
         Set<String> missingUsers = userService.findMissingIdentifiers(userIds);

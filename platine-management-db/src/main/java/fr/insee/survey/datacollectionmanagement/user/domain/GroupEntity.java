@@ -12,9 +12,6 @@ import java.util.UUID;
         name = "groups",
         uniqueConstraints = {
                 @UniqueConstraint(name = "unik_source_group_label", columnNames = {"source_id","label"})
-        },
-        indexes = {
-                @Index(name = "idx_groupe_source", columnList = "source_id")
         }
 )
 @Getter

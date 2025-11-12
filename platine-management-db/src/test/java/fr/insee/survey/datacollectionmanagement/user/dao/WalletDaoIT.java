@@ -84,10 +84,10 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_creates_wallets_with_all_fields() {
+    void insertWallets_creates_wallets_with_all_fields() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(src, List.of(w));
+        walletDao.insertWallets(src, List.of(w));
 
         Optional<GroupEntity> g = groupRepository.findBySource_IdAndLabel(SOURCE_ID, GROUP_LABEL_1);
         assertThat(g).isPresent();
@@ -103,10 +103,10 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_creates_wallets_without_group() {
+    void insertWallets_creates_wallets_without_group() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, "");
 
-        walletDao.upsertWallets(src, List.of(w));
+        walletDao.insertWallets(src, List.of(w));
 
         List<GroupEntity> groups = groupRepository.findAll();
         assertThat(groups).isEmpty();
@@ -122,10 +122,10 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_creates_wallets_without_user() {
+    void insertWallets_creates_wallets_without_user() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, "", GROUP_LABEL_1);
 
-        walletDao.upsertWallets(src, List.of(w));
+        walletDao.insertWallets(src, List.of(w));
 
         Optional<GroupEntity> g = groupRepository.findBySource_IdAndLabel(SOURCE_ID, GROUP_LABEL_1);
         assertThat(g).isPresent();
@@ -141,11 +141,11 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_is_idempotent_on_same_input() {
+    void insertWallets_is_idempotent_on_same_input() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(src, List.of(w));
-        walletDao.upsertWallets(src, List.of(w));
+        walletDao.insertWallets(src, List.of(w));
+        walletDao.insertWallets(src, List.of(w));
 
         assertThat(userWalletRepository.count()).isEqualTo(1);
         assertThat(groupRepository.count()).isEqualTo(1);
@@ -154,17 +154,17 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_deleteAll() {
+    void cleanDataTest() {
         WalletDto w = new WalletDto(SURVEY_UNIT_ID, USER_ID, GROUP_LABEL_1);
         WalletDto w2 = new WalletDto(SURVEY_UNIT_ID, USER_ID_2, GROUP_LABEL_1);
 
-        walletDao.upsertWallets(src, List.of(w,w2));
+        walletDao.insertWallets(src, List.of(w,w2));
         assertThat(userWalletRepository.count()).isEqualTo(2);
         assertThat(groupRepository.count()).isEqualTo(1);
         assertThat(groupWalletRepository.count()).isEqualTo(1);
         assertThat(userGroupRepository.count()).isEqualTo(2);
 
-        walletDao.upsertWallets(src, List.of());
+        walletDao.cleanData(SOURCE_ID);
         assertThat(userWalletRepository.count()).isZero();
         assertThat(groupRepository.count()).isZero();
         assertThat(groupWalletRepository.count()).isZero();
@@ -172,7 +172,7 @@ class WalletDaoIT {
     }
 
     @Test
-    void upsertWallets_create_many_wallets() {
+    void insertWallets_create_many_wallets() {
 
         WalletDto w1  = new WalletDto(SURVEY_UNIT_ID,     USER_ID,    null);
         WalletDto w2  = new WalletDto(SURVEY_UNIT_ID,     USER_ID_2,  null);
@@ -193,7 +193,7 @@ class WalletDaoIT {
         WalletDto w15 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_1);
         WalletDto w16 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_2);
 
-        walletDao.upsertWallets(
+        walletDao.insertWallets(
                 src,
                 List.of(w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,w13,w14,w15,w16)
         );
@@ -217,7 +217,7 @@ class WalletDaoIT {
         WalletDto w31 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_1);
         WalletDto w32 = new WalletDto(SURVEY_UNIT_ID_2,   USER_ID_2,  GROUP_LABEL_2);
 
-        walletDao.upsertWallets(
+        walletDao.insertWallets(
                 src2,
                 List.of(w17,w18,w19,w20,w21,w22,w23,w24,w25,w26,w27,w28,w29,w30,w31,w32)
         );

@@ -9,11 +9,11 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record WalletDto(
     @NotBlank
-    @JsonProperty("surveyUnit")
+    @JsonProperty("id_su")
     String surveyUnit,
-    @JsonProperty("internal_user")
+    @JsonProperty("idep")
     String internalUser,
-    @JsonProperty("group")
+    @JsonProperty("id_group")
     String group
 ) {
 
@@ -23,7 +23,7 @@ public record WalletDto(
    */
   public WalletDto(String surveyUnit, String internalUser, String group) {
     this.surveyUnit = (surveyUnit == null) ? "" : surveyUnit.trim();
-    this.internalUser = (internalUser == null) ? "" : internalUser.trim();
+    this.internalUser = (internalUser == null) ? "" : internalUser.trim().toUpperCase();
     this.group = (group == null) ? "" : group.trim();
   }
 }

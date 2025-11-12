@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.user.service;
+package fr.insee.survey.datacollectionmanagement.user.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

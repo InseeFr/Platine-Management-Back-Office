@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.user.service;
+package fr.insee.survey.datacollectionmanagement.user.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
@@ -29,8 +29,8 @@ class JsonWalletParserStrategyTest {
     void parse_shouldReturnDtos_whenJsonIsValid() {
         String json = """
         [
-          {"surveyUnit": "su-1", "internal_user": "user-1", "group": "group-a"},
-          {"surveyUnit": "su-2", "internal_user": "user-2", "group": "group-b"}
+          {"id_su": "su-1", "idep": "user-1", "id_group": "group-a"},
+          {"id_su": "su-2", "idep": "user-2", "id_group": "group-b"}
         ]
         """;
         MockMultipartFile file = new MockMultipartFile(
@@ -48,12 +48,12 @@ class JsonWalletParserStrategyTest {
         WalletDto first = dtos.get(0);
 
         assertEquals("su-1", first.surveyUnit());
-        assertEquals("user-1", first.internalUser());
+        assertEquals("USER-1", first.internalUser());
         assertEquals("group-a", first.group());
 
         WalletDto second = dtos.get(1);
         assertEquals("su-2", second.surveyUnit());
-        assertEquals("user-2", second.internalUser());
+        assertEquals("USER-2", second.internalUser());
         assertEquals("group-b", second.group());
     }
 

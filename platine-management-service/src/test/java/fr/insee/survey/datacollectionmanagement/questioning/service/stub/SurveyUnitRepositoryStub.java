@@ -68,7 +68,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	}
 
     @Override
-    public Set<String> findDistinctIdSuByIdSuIn(Collection<String> ids) {
+    public Set<String> findExistingSurveyUnitIds(Collection<String> ids) {
         return Set.of();
     }
 

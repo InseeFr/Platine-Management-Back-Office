@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.user.service;
+package fr.insee.survey.datacollectionmanagement.user.utils;
 
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
@@ -27,7 +27,7 @@ class CsvWalletParserStrategyTest {
     @Test
     void parse_shouldReturnDtos_whenCsvIsValid() {
         String csv = """
-                 surveyUnit,internal_user,group
+                 id_su,idep,id_group
                  su-1,user-1,group-a
                  su-2,user-2,group-b
                 
@@ -46,12 +46,12 @@ class CsvWalletParserStrategyTest {
 
         WalletDto first = dtos.getFirst();
         assertEquals("su-1", first.surveyUnit());
-        assertEquals("user-1", first.internalUser());
+        assertEquals("USER-1", first.internalUser());
         assertEquals("group-a", first.group());
 
         WalletDto second = dtos.get(1);
         assertEquals("su-2", second.surveyUnit());
-        assertEquals("user-2", second.internalUser());
+        assertEquals("USER-2", second.internalUser());
         assertEquals("group-b", second.group());
     }
 
@@ -59,7 +59,7 @@ class CsvWalletParserStrategyTest {
     void parse_shouldThrow_whenHeaderIsMissing() {
 
         String csv = """
-                        surveyUnit,internal_user
+                        id_su,idep
                         su-1,user-1
                      """;
         MockMultipartFile file = new MockMultipartFile(
@@ -78,7 +78,7 @@ class CsvWalletParserStrategyTest {
     @Test
     void parse_shouldThrow_whenNoDataRows() {
 
-        String csv = "surveyUnit,internal_user,group";
+        String csv = "id_su,idep,id_group";
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "wallet.csv",

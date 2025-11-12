@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
             return Set.of();
         }
 
-        Set<String> existingIdentifiers = userRepository.findDistinctIdentifierByIdentifierInIgnoreCase(identifiers);
+        Set<String> existingIdentifiers = userRepository.findExistingUserIdentifiers(identifiers);
         Set<String> missingIdentifiers = new HashSet<>(identifiers);
         missingIdentifiers.removeAll(existingIdentifiers);
 

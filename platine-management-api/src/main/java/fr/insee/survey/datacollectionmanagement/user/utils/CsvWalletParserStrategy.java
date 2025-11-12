@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.user.service;
+package fr.insee.survey.datacollectionmanagement.user.utils;
 
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
@@ -20,9 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class CsvWalletParserStrategy implements
         WalletParserStrategy {
 
-    private static final String HEADER_SURVEY_UNIT = "surveyUnit";
-    private static final String HEADER_INTERNAL_USER = "internal_user";
-    private static final String HEADER_GROUP = "group";
+    private static final String HEADER_SURVEY_UNIT = "id_su";
+    private static final String HEADER_INTERNAL_USER = "idep";
+    private static final String HEADER_GROUP = "id_group";
     private static final String[] REQUIRED_HEADERS = {
             HEADER_SURVEY_UNIT,
             HEADER_INTERNAL_USER,
@@ -53,16 +53,16 @@ public class CsvWalletParserStrategy implements
     public List<WalletDto> parse(MultipartFile file) {
         List<WalletDto> dtos = new ArrayList<>();
         try (
-            InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
-            CSVParser csvParser = CSVFormat.DEFAULT.builder()
-                    .setDelimiter(',')
-                    .setHeader()
-                    .setSkipHeaderRecord(true)
-                    .setTrim(true)
-                    .get()
-                    .parse(reader)
+                InputStreamReader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
+                CSVParser csvParser = CSVFormat.DEFAULT.builder()
+                        .setDelimiter(',')
+                        .setHeader()
+                        .setSkipHeaderRecord(true)
+                        .setTrim(true)
+                        .get()
+                        .parse(reader)
         ) {
-            Map<String,Integer> headerMap = csvParser.getHeaderMap();
+            Map<String, Integer> headerMap = csvParser.getHeaderMap();
             validateHeader(headerMap);
 
             for (CSVRecord csvRecord : csvParser) {
@@ -87,7 +87,7 @@ public class CsvWalletParserStrategy implements
     /**
      * Validates that the CSV file contains all required headers.
      */
-    private void validateHeader(Map<String,Integer> headerMap) {
+    private void validateHeader(Map<String, Integer> headerMap) {
         if (headerMap == null || headerMap.isEmpty()) {
             throw new IllegalArgumentException("CSV header is missing or empty.");
         }
