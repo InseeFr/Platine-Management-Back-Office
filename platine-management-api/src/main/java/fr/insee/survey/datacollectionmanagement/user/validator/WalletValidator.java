@@ -16,60 +16,53 @@ public class WalletValidator {
     private static final String FORBIDDEN_CHARACTERS = "Parameter contain forbidden special characters";
 
     public List<ValidationWalletError> getWalletInputErrors(List<WalletDto> wallets) {
-        List<ValidationWalletError> errors = new ArrayList<>();
-
         if (wallets == null || wallets.isEmpty()) {
             return List.of();
         }
 
+        List<ValidationWalletError> errors = new ArrayList<>();
         for (int i = 0; i < wallets.size(); i++) {
-            WalletDto w = wallets.get(i);
-            int line = i + 1;
-
-            if (StringUtils.isBlank(w.group()) && StringUtils.isBlank(w.internalUser())) {
-                errors.add(new ValidationWalletError(
-                        line,
-                        "group|internal_user",
-                        "At least one of the parameters must be provided."
-                ));
-            }
-
-            if (StringUtils.isBlank(w.surveyUnit())) {
-                errors.add(new ValidationWalletError(
-                        line,
-                        "surveyUnit",
-                        "Parameter must be provided."
-                ));
-            }
-
-            if (StringUtils.isNotBlank(w.group()) && !VALID_TEXT.matcher(w.group()).matches()) {
-                errors.add(new ValidationWalletError(
-                        line,
-                        "group",
-                        FORBIDDEN_CHARACTERS
-                ));
-            }
-
-
-            if (StringUtils.isNotBlank(w.surveyUnit()) && !VALID_TEXT.matcher(w.surveyUnit()).matches()) {
-                errors.add(new ValidationWalletError(
-                        line,
-                        "survey_unit",
-                        FORBIDDEN_CHARACTERS
-                ));
-            }
-
-
-            if (StringUtils.isNotBlank(w.internalUser()) && !VALID_TEXT.matcher(w.internalUser()).matches()) {
-                errors.add(new ValidationWalletError(
-                        line,
-                        "internal_user",
-                        FORBIDDEN_CHARACTERS
-                ));
-            }
-
+            validateSingleWallet(wallets.get(i), i + 1, errors);
         }
-
         return errors;
+    }
+
+    private void validateSingleWallet(WalletDto w, int line, List<ValidationWalletError> errors) {
+        checkAtLeastOneProvided(w, line, errors);
+        checkRequiredSurveyUnit(w, line, errors);
+
+        validateFieldIfPresent(w.group(), line, "group", errors);
+        validateFieldIfPresent(w.surveyUnit(), line, "survey_unit", errors);
+        validateFieldIfPresent(w.internalUser(), line, "internal_user", errors);
+    }
+
+    private void checkAtLeastOneProvided(WalletDto w, int line, List<ValidationWalletError> errors) {
+        if (StringUtils.isBlank(w.group()) && StringUtils.isBlank(w.internalUser())) {
+            errors.add(new ValidationWalletError(
+                    line,
+                    "group|internal_user",
+                    "At least one of the parameters must be provided."
+            ));
+        }
+    }
+
+    private void checkRequiredSurveyUnit(WalletDto w, int line, List<ValidationWalletError> errors) {
+        if (StringUtils.isBlank(w.surveyUnit())) {
+            errors.add(new ValidationWalletError(
+                    line,
+                    "surveyUnit",
+                    "Parameter must be provided."
+            ));
+        }
+    }
+
+    private void validateFieldIfPresent(String value, int line, String fieldName, List<ValidationWalletError> errors) {
+        if (StringUtils.isNotBlank(value) && !isValidText(value)) {
+            errors.add(new ValidationWalletError(line, fieldName, FORBIDDEN_CHARACTERS));
+        }
+    }
+
+    private boolean isValidText(String s) {
+        return VALID_TEXT.matcher(s).matches();
     }
 }

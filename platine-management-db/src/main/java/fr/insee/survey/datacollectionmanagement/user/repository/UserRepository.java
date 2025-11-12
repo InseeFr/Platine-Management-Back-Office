@@ -19,7 +19,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, String>
 
     Optional<User> findByIdentifierIgnoreCase(String identifier);
 
-    @Query("select distinct u.identifier from User u where u.identifier in :identifiers")
+    @Query("select distinct u.identifier from User u where upper(u.identifier) in :identifiers")
     Set<String> findExistingUserIdentifiers(Collection<String> identifiers);
 
     List<User> findAllByIdentifierInIgnoreCase(Collection<String> identifiers);
