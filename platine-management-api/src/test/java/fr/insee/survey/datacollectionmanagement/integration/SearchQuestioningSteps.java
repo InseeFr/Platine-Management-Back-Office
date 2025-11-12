@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -103,10 +104,9 @@ public class SearchQuestioningSteps {
 
     @When("I search for Questioning with {string} and page {int} with size {int}")
     public void iSearchForQuestioningWithSurveyUnitId(String surveyUnitId, int page, int size) {
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null);
-
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null, WalletFilterEnum.ALL);
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(page, size)
+                searchQuestioningParams, PageRequest.of(page, size), null
         );
     }
 
@@ -115,7 +115,7 @@ public class SearchQuestioningSteps {
         List<TypeQuestioningEvent> types = stringTypes.stream()
                 .map(TypeQuestioningEvent::valueOf)
                 .toList();
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), types, null);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), types, null, WalletFilterEnum.ALL);
         searchQuestionings(searchQuestioningParams);
     }
 
@@ -124,7 +124,7 @@ public class SearchQuestioningSteps {
         List<TypeCommunicationEvent> types = stringTypes.stream()
                 .map(TypeCommunicationEvent::valueOf)
                 .toList();
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), null, types);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), null, types, WalletFilterEnum.ALL);
         searchQuestionings(searchQuestioningParams);
     }
 
@@ -132,22 +132,22 @@ public class SearchQuestioningSteps {
     public void i_search_questionings_for_campaign_and_highest_event_type_and_last_communication_type(String campaignId, String highestEventType, String lastCommunicationType) {
         TypeQuestioningEvent highestEventTypeEnum = TypeQuestioningEvent.valueOf(highestEventType);
         TypeCommunicationEvent lastCommunicationTypeEnum = TypeCommunicationEvent.valueOf(lastCommunicationType);
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), List.of(highestEventTypeEnum), List.of(lastCommunicationTypeEnum));
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), List.of(highestEventTypeEnum), List.of(lastCommunicationTypeEnum), WalletFilterEnum.ALL);
         searchQuestionings(searchQuestioningParams);
     }
 
     private void searchQuestionings(SearchQuestioningParams searchQuestioningParams) {
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(0, 20)
+                searchQuestioningParams, PageRequest.of(0, 20), null
         );
     }
 
     @When("I search for all Questioning with page {int} and size {int}")
     public void iSearchForAllQuestioningWithPageAndSize(int page, int size) {
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null, WalletFilterEnum.ALL);
 
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(page, size)
+                searchQuestioningParams, PageRequest.of(page, size), null
         );
     }
 

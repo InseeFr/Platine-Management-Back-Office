@@ -84,7 +84,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable, String userId) {
         return null;
     }
 
