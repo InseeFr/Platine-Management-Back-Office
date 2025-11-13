@@ -24,8 +24,8 @@ class WalletValidatorTest {
         WalletDto w1 = new WalletDto(null, null, null);
         List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w1));
         assertEquals(2, errors.size());
-        assertTrue(errors.stream().anyMatch(e -> "surveyUnit".equals(e.field())));
-        assertTrue(errors.stream().anyMatch(e -> "group|internal_user".equals(e.field())));
+        assertTrue(errors.stream().anyMatch(e -> "id_su".equals(e.field())));
+        assertTrue(errors.stream().anyMatch(e -> "id_group|idep".equals(e.field())));
     }
 
     @Test
@@ -34,7 +34,7 @@ class WalletValidatorTest {
         List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w));
         assertEquals(1, errors.size());
         ValidationWalletError e = errors.getFirst();
-        assertEquals("group", e.field());
+        assertEquals("id_group", e.field());
         assertEquals("Parameter contain forbidden special characters", e.message());
     }
 
@@ -44,7 +44,7 @@ class WalletValidatorTest {
         List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w));
         assertEquals(1, errors.size());
         ValidationWalletError e = errors.get(0);
-        assertEquals("survey_unit", e.field());
+        assertEquals("id_su", e.field());
         assertEquals("Parameter contain forbidden special characters", e.message());
     }
 
@@ -54,7 +54,7 @@ class WalletValidatorTest {
         List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w));
         assertEquals(1, errors.size());
         ValidationWalletError e = errors.getFirst();
-        assertEquals("internal_user", e.field());
+        assertEquals("idep", e.field());
         assertEquals("Parameter contain forbidden special characters", e.message());
     }
 

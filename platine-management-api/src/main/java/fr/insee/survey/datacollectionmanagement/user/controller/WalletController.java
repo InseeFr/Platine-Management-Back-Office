@@ -56,7 +56,7 @@ public class WalletController {
             @ApiResponse(responseCode = "500", description = "Unexpected error",
                     content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
     })
-    public ResponseEntity<Void> importWallets(
+    public void importWallets(
             @PathVariable("id") String source,
             @RequestParam("file") MultipartFile file) {
 
@@ -80,8 +80,7 @@ public class WalletController {
 
         log.info("Integrate data for source {}", source);
         walletService.integrateWallets(source, wallets);
-
-        return ResponseEntity.ok().build();
+        log.info("Successfully integrated wallets for source {}", source);
     }
 
 }

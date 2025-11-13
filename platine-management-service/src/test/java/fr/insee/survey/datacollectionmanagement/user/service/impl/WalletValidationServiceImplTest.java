@@ -49,7 +49,7 @@ class WalletValidationServiceImplTest {
         List<ValidationWalletError> errors = walletValidationService.validateDatabaseRules(List.of(w));
         assertEquals(1, errors.size());
         ValidationWalletError e = errors.getFirst();
-        assertEquals("internal_user", e.field());
+        assertEquals("idep", e.field());
         assertEquals("Unknown Internal Users: ZZZZZZ.", e.message());
     }
 
@@ -59,7 +59,7 @@ class WalletValidationServiceImplTest {
         List<ValidationWalletError> errors = walletValidationService.validateDatabaseRules(List.of(w));
         assertEquals(1, errors.size());
         ValidationWalletError e = errors.getFirst();
-        assertEquals("survey_unit", e.field());
+        assertEquals("id_su", e.field());
         assertEquals("Unknown Survey Units: SU-ZZZ.", e.message());
     }
 
@@ -69,8 +69,8 @@ class WalletValidationServiceImplTest {
         List<ValidationWalletError> errors = walletValidationService.validateDatabaseRules(List.of(w));
         assertEquals(2, errors.size());
         List<String> fields = errors.stream().map(ValidationWalletError::field).toList();
-        assertTrue(fields.contains("internal_user"));
-        assertTrue(fields.contains("survey_unit"));
+        assertTrue(fields.contains("idep"));
+        assertTrue(fields.contains("id_su"));
         assertTrue(errors.stream().anyMatch(e -> e.message().contains("ZZZZZZ")));
         assertTrue(errors.stream().anyMatch(e -> e.message().contains("SU-ZZZ")));
     }

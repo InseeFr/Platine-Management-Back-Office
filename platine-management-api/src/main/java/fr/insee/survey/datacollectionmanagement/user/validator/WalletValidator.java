@@ -31,16 +31,16 @@ public class WalletValidator {
         checkAtLeastOneProvided(w, line, errors);
         checkRequiredSurveyUnit(w, line, errors);
 
-        validateFieldIfPresent(w.group(), line, "group", errors);
-        validateFieldIfPresent(w.surveyUnit(), line, "survey_unit", errors);
-        validateFieldIfPresent(w.internalUser(), line, "internal_user", errors);
+        validateFieldIfPresent(w.group(), line, "id_group", errors);
+        validateFieldIfPresent(w.surveyUnit(), line, "id_su", errors);
+        validateFieldIfPresent(w.internalUser(), line, "idep", errors);
     }
 
     private void checkAtLeastOneProvided(WalletDto w, int line, List<ValidationWalletError> errors) {
         if (StringUtils.isBlank(w.group()) && StringUtils.isBlank(w.internalUser())) {
             errors.add(new ValidationWalletError(
                     line,
-                    "group|internal_user",
+                    "id_group|idep",
                     "At least one of the parameters must be provided."
             ));
         }
@@ -50,7 +50,7 @@ public class WalletValidator {
         if (StringUtils.isBlank(w.surveyUnit())) {
             errors.add(new ValidationWalletError(
                     line,
-                    "surveyUnit",
+                    "id_su",
                     "Parameter must be provided."
             ));
         }

@@ -39,7 +39,7 @@ public class WalletValidationServiceImpl implements WalletValidationService {
         Set<String> missingUsers = userService.findMissingIdentifiers(userIds);
         if (!missingUsers.isEmpty()) {
             String error = String.format("Unknown Internal Users: %s.", String.join(", ", missingUsers));
-            errors.add(new ValidationWalletError("internal_user", error));
+            errors.add(new ValidationWalletError("idep", error));
         }
 
         Set<String> suIds = wallets.stream()
@@ -50,7 +50,7 @@ public class WalletValidationServiceImpl implements WalletValidationService {
         Set<String> missingSurveyUnits = surveyUnitService.findMissingIds(suIds);
         if (!missingSurveyUnits.isEmpty()) {
             String error = String.format("Unknown Survey Units: %s.", String.join(", ", missingSurveyUnits));
-            errors.add(new ValidationWalletError("survey_unit", error));
+            errors.add(new ValidationWalletError("id_su", error));
         }
         return errors;
     }
