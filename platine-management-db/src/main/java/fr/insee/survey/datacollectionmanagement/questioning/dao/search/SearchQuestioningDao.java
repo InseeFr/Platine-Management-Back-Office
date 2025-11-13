@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,19 +18,23 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum.GROUPS;
+import static fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum.MY_WALLET;
+
 @Repository
 @RequiredArgsConstructor
 public class SearchQuestioningDao {
     private final EntityManager entityManager;
 
-    public Slice<SearchQuestioningDto> search(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+    public Slice<SearchQuestioningDto> search(SearchQuestioningParams searchQuestioningParams, Pageable pageable, String userId) {
         SearchFilter filterQuestionings = buildQuestioningsFilter(searchQuestioningParams.userOrSurveyUnitId());
         String joinQuestionings = buildQuestioningsJoin(searchQuestioningParams.userOrSurveyUnitId());
         SearchFilter filterCampaigns = buildCampaignFilter(searchQuestioningParams.campaignIds());
         SearchFilter filterTypes = buildTypesFilter(searchQuestioningParams.typeQuestioningEvents(),
                 searchQuestioningParams.typeCommunicationEvents());
+        SearchFilter filterWallet = buildWalletFilter(searchQuestioningParams.walletFilter(), userId);
         StringBuilder sql = new StringBuilder("WITH ");
-        Map<String, Object> parameters = buildParameters(List.of(filterQuestionings, filterCampaigns, filterTypes), pageable);
+        Map<String, Object> parameters = buildParameters(List.of(filterQuestionings, filterCampaigns, filterTypes, filterWallet), pageable);
 
         // filter questioning ids by searching on identification, id_su or id_contact
         sql.append(filterQuestionings.sqlFilter());
@@ -78,7 +83,16 @@ public class SearchQuestioningDao {
                  ON q.survey_unit_id_su = su.id_su
             JOIN partitioning p
                 ON q.id_partitioning = p.id
+            JOIN campaign c
+                ON c.id=p.campaign_id
+            JOIN survey sv
+                ON sv.id =c.survey_id
+            JOIN source sc
+                ON sc.id=sv.source_id
         """);
+        sql.append(" ");
+        sql.append(filterWallet.sqlFilter());
+        sql.append(" ");
         sql.append(filterCampaigns.sqlFilter());
         sql.append(" ");
         sql.append(filterTypes.sqlFilter());
@@ -118,6 +132,7 @@ public class SearchQuestioningDao {
 
         return buildResult(rows, pageable);
     }
+
 
     private Slice<SearchQuestioningDto> buildResult(List<Object[]> rows, Pageable pageable) {
 
@@ -280,6 +295,42 @@ public class SearchQuestioningDao {
         mergedProperties.putAll(commResult.parameters());
         return new SearchFilter(mergedSql, mergedProperties);
     }
+
+    private SearchFilter buildWalletFilter(WalletFilterEnum walletType, String userId) {
+
+        if (walletType.equals(MY_WALLET)){
+            Map<String, Object> parameters = new LinkedHashMap<>();
+            parameters.put("user_id", userId);
+
+            String sqlFilter = """
+            JOIN user_wallet uw
+                ON uw.survey_unit_id = su.id_su
+                AND uw.source_id = sc.id
+                AND UPPER(uw.user_id) = :user_id
+            """;
+            return new SearchFilter(sqlFilter, parameters);
+        }
+        if (walletType.equals(GROUPS)) {
+            Map<String, Object> parameters = new LinkedHashMap<>();
+            parameters.put("user_id", userId);
+
+            String sqlFilter = """
+            JOIN group_wallet gw
+                ON gw.survey_unit_id = su.id_su
+            JOIN groups g
+                ON g.group_id = gw.group_id
+                AND g.source_id = sc.id
+            JOIN user_group ug
+                ON ug.group_id = g.group_id
+                AND UPPER(ug.user_id) = :user_id
+            """;
+            return new SearchFilter(sqlFilter, parameters);
+
+        }
+        return new SearchFilter("", Map.of());
+
+    }
+
 
     private Optional<SearchFilter> buildCommunicationFilter(List<TypeCommunicationEvent> typeCommunicationEvents) {
         if (typeCommunicationEvents == null || typeCommunicationEvents.isEmpty()) {

@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -85,5 +84,7 @@ public class CampaignSteps {
     @Then("I found the following campaign:")
     public void iFoundTheFollowingCampaign(io.cucumber.datatable.DataTable dataTable) {
     }
+
+
 }
 
