@@ -30,6 +30,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.questioning.controller.QuestioningController;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,9 +78,6 @@ class CampaignControllerTest {
 
     @MockitoBean
     private QuestioningService questioningService;
-
-    @InjectMocks
-    private QuestioningController questioningController;
 
     private static final String CAMPAIGN_ID = "campaign-2024";
     private static final UUID INTERROGATION_ID_1 = UUID.randomUUID();
@@ -412,119 +411,141 @@ class CampaignControllerTest {
 
     @Test
     void downloadQuestioningsCsv_shouldReturnValidCsv_whenDataExists() throws Exception {
-      // Given
-      List<QuestioningCsvDto> mockData = createStandardTestData();
+        // Given
+        List<QuestioningCsvDto> mockData = createStandardTestData();
 
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(mockData);
+        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
+                .thenReturn(mockData);
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(header().string(
-              HttpHeaders.CONTENT_DISPOSITION,
-              "attachment; filename=\"" + CAMPAIGN_ID + ".csv\""
-          ))
-          .andExpect(result -> verifyCsvContent(result, mockData));
+        // When/Then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + CAMPAIGN_ID + ".csv\""
+                ))
+                .andExpect(result -> verifyCsvContent(result, mockData));
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
+        verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
     }
 
     @Test
     void downloadQuestioningsCsv_shouldReturnEmptyCsv_whenNoData() throws Exception {
-      // Given
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(Collections.emptyList());
+        // Given
+        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
+                .thenReturn(Collections.emptyList());
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(result -> {
-            String content = result.getResponse().getContentAsString();
-            String[] lines = content.split("\n");
-            assertEquals(1, lines.length, "Doit contenir uniquement l'en-tête");
-            assertTrue(lines[0].contains("partitioningId"), "En-tête manquant");
-          });
+        // When/Then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    String content = result.getResponse().getContentAsString();
+                    String[] lines = content.split("\n");
+                    assertEquals(1, lines.length, "Doit contenir uniquement l'en-tête");
+                    assertTrue(lines[0].contains("partitioningId"), "En-tête manquant");
+                });
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
+        verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
     }
 
     @Test
     void downloadQuestioningsCsv_shouldReturn404_whenCampaignNotFound() throws Exception {
-      // Given
-      String unknownCampaignId = "unknown-campaign";
-      when(questioningService.getQuestioningsByCampaignIdForCsv(unknownCampaignId))
-          .thenThrow(new NotFoundException(unknownCampaignId));
+        // Given
+        String unknownCampaignId = "unknown-campaign";
+        when(questioningService.getQuestioningsByCampaignIdForCsv(unknownCampaignId))
+                .thenThrow(new NotFoundException(unknownCampaignId));
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, unknownCampaignId))
-          .andExpect(status().isNotFound())
-          .andExpect(jsonPath("$.message").value(unknownCampaignId));
+        // When/Then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, unknownCampaignId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(unknownCampaignId));
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(unknownCampaignId);
+        verify(questioningService).getQuestioningsByCampaignIdForCsv(unknownCampaignId);
     }
 
     @Test
     void downloadQuestioningsCsv_shouldHandleLargeDataset() throws Exception {
-      // Given
-      List<QuestioningCsvDto> largeDataset = new ArrayList<>();
-      for (int i = 0; i < 1000; i++) {
-        largeDataset.add(new QuestioningCsvDto(
-            UUID.randomUUID(),
-            "partition-" + i,
-            "unit-" + i,
-            TypeQuestioningEvent.HC,
-            FIXED_DATE
-        ));
-      }
+        // Given
+        List<QuestioningCsvDto> largeDataset = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            largeDataset.add(new QuestioningCsvDto(
+                    UUID.randomUUID(),
+                    "partition-" + i,
+                    "unit-" + i,
+                    TypeQuestioningEvent.HC,
+                    FIXED_DATE
+            ));
+        }
 
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(largeDataset);
+        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
+                .thenReturn(largeDataset);
 
-      // When/Then
-      MvcResult result = mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
-              containsString("filename=\"" + CAMPAIGN_ID + ".csv\"")))
-          .andReturn();
+        // When/Then
+        MvcResult result = mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
+                        containsString("filename=\"" + CAMPAIGN_ID + ".csv\"")))
+                .andReturn();
 
-      // Vérification que le contenu est généré (sans vérifier chaque ligne)
-      String content = result.getResponse().getContentAsString();
-      String[] lines = content.split("\n");
-      assertEquals(1001, lines.length, "Doit contenir 1 en-tête + 1000 lignes");
+        // Vérification que le contenu est généré (sans vérifier chaque ligne)
+        String content = result.getResponse().getContentAsString();
+        String[] lines = content.split("\n");
+        assertEquals(1001, lines.length, "Doit contenir 1 en-tête + 1000 lignes");
     }
 
     private List<QuestioningCsvDto> createStandardTestData() {
-      return Arrays.asList(
-          new QuestioningCsvDto(INTERROGATION_ID_1, "partition-1", "unit-1001", TypeQuestioningEvent.HC, FIXED_DATE),
-          new QuestioningCsvDto(INTERROGATION_ID_2, "partition-2", "unit-1002", TypeQuestioningEvent.EXPERT, FIXED_DATE)
-      );
+        return Arrays.asList(
+                new QuestioningCsvDto(INTERROGATION_ID_1, "partition-1", "unit-1001", TypeQuestioningEvent.HC, FIXED_DATE),
+                new QuestioningCsvDto(INTERROGATION_ID_2, "partition-2", "unit-1002", TypeQuestioningEvent.EXPERT, FIXED_DATE)
+        );
     }
 
     private void verifyCsvContent(MvcResult result, List<QuestioningCsvDto> expectedData) throws Exception {
-      String csvContent = result.getResponse().getContentAsString();
-      String[] lines = csvContent.split("\n");
+        String csvContent = result.getResponse().getContentAsString();
+        String[] lines = csvContent.split("\n");
 
-      // Vérification de la structure
-      assertEquals(expectedData.size() + 1, lines.length, "Nombre de lignes incorrect");
+        // Vérification de la structure
+        assertEquals(expectedData.size() + 1, lines.length, "Nombre de lignes incorrect");
 
-      // Vérification de l'en-tête
-      assertThat(lines[0]).contains(
-          "partitioningId", "surveyUnitId", "interrogationId",
-          "highestEventType", "highestEventDate"
-      );
+        // Vérification de l'en-tête
+        assertThat(lines[0]).contains(
+                "partitioningId", "surveyUnitId", "interrogationId",
+                "highestEventType", "highestEventDate"
+        );
 
-      // Vérification des données
-      for (int i = 0; i < expectedData.size(); i++) {
-        QuestioningCsvDto dto = expectedData.get(i);
-        String line = lines[i + 1];
+        // Vérification des données
+        for (int i = 0; i < expectedData.size(); i++) {
+            QuestioningCsvDto dto = expectedData.get(i);
+            String line = lines[i + 1];
 
-        assertThat(line)
-            .contains(dto.getPartitioningId())
-            .contains(dto.getSurveyUnitId())
-            .contains(dto.getInterrogationId().toString())
-            .contains(dto.getHighestEventType().name());
-      }
+            assertThat(line)
+                    .contains(dto.getPartitioningId())
+                    .contains(dto.getSurveyUnitId())
+                    .contains(dto.getInterrogationId().toString())
+                    .contains(dto.getHighestEventType().name());
+        }
+    }
+
+    @Test
+    void should_return_ongoing_campaigns_with_filter_all() throws Exception {
+        // Given
+        Campaign campaign1 = initOpenedCampaign("CAMP1");
+        initCampaignAndPartitionings("CAMP1", campaign1);
+        Campaign campaign2 = initOpenedCampaign("CAMP2");
+        initCampaignAndPartitionings("CAMP2", campaign2);
+        Campaign campaign3 = initFutureCampaign("CAMP3");
+        initCampaignAndPartitionings("CAMP3", campaign3);
+
+        String idep = "user-all";
+
+        // When / Then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING)
+                        .param("walletFilter", "ALL"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("CAMP1"))
+                .andExpect(jsonPath("$[1].id").value("CAMP2"));
     }
 
 }
