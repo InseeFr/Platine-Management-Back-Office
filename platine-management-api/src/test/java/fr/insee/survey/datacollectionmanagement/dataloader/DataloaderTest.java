@@ -20,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
+import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
@@ -93,6 +94,9 @@ public class DataloaderTest {
 
     @Autowired
     private ContactSourceRepository contactSourceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @PostConstruct
