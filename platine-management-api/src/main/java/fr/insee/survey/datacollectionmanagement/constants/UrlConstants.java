@@ -138,6 +138,5 @@ public class UrlConstants {
 
 
     public static final String API_HEALTHCHECK = "/api/healthcheck";
-    public static final String ACTUATOR = "/actuator/**";
 
 }
