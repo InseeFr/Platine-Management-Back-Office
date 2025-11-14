@@ -97,7 +97,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, String>,Pagi
             ON s.id = c.survey_id
         JOIN source src
             ON src.id = s.source_id
-        JOIN "groups" g
+        JOIN groups g
             ON g.source_id = src.id
         JOIN user_group ug
             ON ug.group_id = g.group_id

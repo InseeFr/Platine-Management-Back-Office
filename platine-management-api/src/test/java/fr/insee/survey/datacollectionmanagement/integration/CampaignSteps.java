@@ -5,7 +5,10 @@ import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUser
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignOngoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
+import fr.insee.survey.datacollectionmanagement.metadata.service.impl.CampaignServiceImpl;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +43,12 @@ public class CampaignSteps {
 
     private final CampaignRepository campaignRepository;
 
+    @Autowired
+    CampaignServiceImpl campaignService;
+
     private String role;
+
+    List<CampaignOngoingDto> listCampaignOngoingDto;
 
     @Given("the following campaign exist:")
     public void the_following_campaign_exist(io.cucumber.datatable.DataTable dataTable) {
@@ -81,8 +90,31 @@ public class CampaignSteps {
                 .andExpect(status().isOk());
     }
 
-    @Then("I found the following campaign:")
+    @Then("I found the following campaign")
     public void iFoundTheFollowingCampaign(io.cucumber.datatable.DataTable dataTable) {
+    }
+
+
+    @When("I search all opening campaigns for user {string}")
+    public void iSearchAllOpeningCampaignsForUser(String userId) {
+         listCampaignOngoingDto = campaignService.getCampaignOngoingDtos(userId, WalletFilterEnum.ALL);
+    }
+
+    @When("I search campaigns by wallet for user {string}")
+    public void iSearchCampaignsByWalletForUser(String userId) {
+        listCampaignOngoingDto = campaignService.getCampaignOngoingDtos(userId, WalletFilterEnum.MY_WALLET);
+    }
+
+    @When("I search campaigns by groups for user {string}")
+    public void iSearchCampaignsByGroupsForUser(String userId) {
+        listCampaignOngoingDto = campaignService.getCampaignOngoingDtos(userId, WalletFilterEnum.GROUPS);
+    }
+
+    @Then("the result should contain the following campaigns")
+    public void theResultShouldContainTheFollowingCampaigns(List<String> expectedCampaignIds) {
+        assertThat(listCampaignOngoingDto).hasSize(expectedCampaignIds.size());
+        List<String> campaignIds = listCampaignOngoingDto.stream().map(CampaignOngoingDto::getId).toList();
+        assertThat(campaignIds).containsExactlyInAnyOrderElementsOf(expectedCampaignIds);
     }
 
 
