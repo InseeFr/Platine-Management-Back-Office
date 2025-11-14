@@ -9,12 +9,12 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestionin
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningEventServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

@@ -7,7 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -48,4 +50,62 @@ public interface CampaignRepository extends JpaRepository<Campaign, String>,Pagi
     Page<Campaign> findBySource(String source, Pageable pageable);
 
     List<Campaign> findByDataCollectionTargetIsNot(DataCollectionEnum dataCollectionTarget);
+
+    @Query(value = """
+        SELECT DISTINCT ON (c.id)
+            c.*
+        FROM campaign c
+        JOIN partitioning p
+            ON p.campaign_id = c.id
+        JOIN survey s
+            ON s.id = c.survey_id
+        JOIN source src
+            ON src.id = s.source_id
+        WHERE p.opening_date <= :instant
+          AND p.closing_date >= :instant
+        """,
+            nativeQuery = true)
+    List<Campaign> findOpenedCampaigns(@Param("instant") Instant instant);
+
+    @Query(value = """
+        SELECT DISTINCT ON (c.id)
+            c.*
+        FROM campaign c
+        JOIN partitioning p
+            ON p.campaign_id = c.id
+        JOIN survey s
+            ON s.id = c.survey_id
+        JOIN source src
+            ON src.id = s.source_id
+        JOIN user_wallet uw
+            ON uw.source_id = src.id
+        WHERE p.opening_date <= :instant
+          AND p.closing_date >= :instant
+          AND UPPER(uw.user_id) = UPPER(:userId)
+        """,
+            nativeQuery = true)
+    List<Campaign> findOpenedCampaignsForUser(@Param("userId") String userId,
+                                              @Param("instant") Instant instant);
+
+    @Query(value = """
+        SELECT DISTINCT ON (c.id)
+            c.*
+        FROM campaign c
+        JOIN partitioning p
+            ON p.campaign_id = c.id
+        JOIN survey s
+            ON s.id = c.survey_id
+        JOIN source src
+            ON src.id = s.source_id
+        JOIN groups g
+            ON g.source_id = src.id
+        JOIN user_group ug
+            ON ug.group_id = g.group_id
+        WHERE p.opening_date <= :instant
+          AND p.closing_date >= :instant
+          AND UPPER(ug.user_id) = UPPER(:userId)
+        """,
+            nativeQuery = true)
+    List<Campaign> findOpenedCampaignsForUserGroups(@Param("userId") String userId,
+                                                    @Param("instant") Instant instant);
 }

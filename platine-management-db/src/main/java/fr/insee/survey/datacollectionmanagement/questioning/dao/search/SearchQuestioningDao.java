@@ -5,7 +5,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +18,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum.GROUPS;
-import static fr.insee.survey.datacollectionmanagement.questioning.enums.WalletFilterEnum.MY_WALLET;
+import static fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum.GROUPS;
+import static fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum.MY_WALLET;
 
 @Repository
 @RequiredArgsConstructor
