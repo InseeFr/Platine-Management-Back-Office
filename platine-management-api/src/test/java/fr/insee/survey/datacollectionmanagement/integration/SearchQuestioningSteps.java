@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.Questioni
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningEventServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -103,10 +104,9 @@ public class SearchQuestioningSteps {
 
     @When("I search for Questioning with {string} and page {int} with size {int}")
     public void iSearchForQuestioningWithSurveyUnitId(String surveyUnitId, int page, int size) {
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null);
-
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null, WalletFilterEnum.ALL);
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(page, size)
+                searchQuestioningParams, PageRequest.of(page, size), null
         );
     }
 
@@ -115,8 +115,8 @@ public class SearchQuestioningSteps {
         List<TypeQuestioningEvent> types = stringTypes.stream()
                 .map(TypeQuestioningEvent::valueOf)
                 .toList();
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), types, null);
-        searchQuestionings(searchQuestioningParams);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), types, null, WalletFilterEnum.ALL);
+        searchQuestionings(searchQuestioningParams, null);
     }
 
     @When("I search questionings for campaign {string} and last communication types")
@@ -124,40 +124,51 @@ public class SearchQuestioningSteps {
         List<TypeCommunicationEvent> types = stringTypes.stream()
                 .map(TypeCommunicationEvent::valueOf)
                 .toList();
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), null, types);
-        searchQuestionings(searchQuestioningParams);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), null, types, WalletFilterEnum.ALL);
+        searchQuestionings(searchQuestioningParams, null);
     }
 
     @When("I search questionings for campaign {string} and highest event type {string} and last communication type {string}")
     public void i_search_questionings_for_campaign_and_highest_event_type_and_last_communication_type(String campaignId, String highestEventType, String lastCommunicationType) {
         TypeQuestioningEvent highestEventTypeEnum = TypeQuestioningEvent.valueOf(highestEventType);
         TypeCommunicationEvent lastCommunicationTypeEnum = TypeCommunicationEvent.valueOf(lastCommunicationType);
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), List.of(highestEventTypeEnum), List.of(lastCommunicationTypeEnum));
-        searchQuestionings(searchQuestioningParams);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, List.of(campaignId), List.of(highestEventTypeEnum), List.of(lastCommunicationTypeEnum), WalletFilterEnum.ALL);
+        searchQuestionings(searchQuestioningParams, null);
     }
 
-    private void searchQuestionings(SearchQuestioningParams searchQuestioningParams) {
+    @When("I search questionings by wallet for user {string}")
+    public void iSearchQuestioningsByWalletForUser(String userId) {
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null,null,null, null, WalletFilterEnum.MY_WALLET);
+        searchQuestionings(searchQuestioningParams, userId);
+    }
+
+    @When("I search questionings by groups for user {string}")
+    public void iSearchQuestioningsByGroupsForUser(String userId) {
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null,null,null, null, WalletFilterEnum.GROUPS);
+        searchQuestionings(searchQuestioningParams, userId);
+    }
+
+    private void searchQuestionings(SearchQuestioningParams searchQuestioningParams, String userId) {
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(0, 20)
-        );
+                searchQuestioningParams, PageRequest.of(0, 20), userId);
     }
 
     @When("I search for all Questioning with page {int} and size {int}")
     public void iSearchForAllQuestioningWithPageAndSize(int page, int size) {
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null);
+        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null, WalletFilterEnum.ALL);
 
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(page, size)
+                searchQuestioningParams, PageRequest.of(page, size), null
         );
     }
 
-    @Then("the result should contain the following Questioning related to surveyUnit:")
+    @Then("the result should contain the following Questioning related to surveyUnit")
     public void theResultShouldContainTheFollowingQuestioningRecords(List<Map<String, String>> expectedRecords) {
         assertThat(expectedRecords).hasSize(resultPage.getContent().size());
         for(SearchQuestioningDto searchQuestioningDto : resultPage.getContent()) {
             Optional<Map<String, String>> expectedRecord = expectedRecords
                     .stream()
-                    .filter(map -> map.get("id").equals(searchQuestioningDto.getSurveyUnitId()))
+                    .filter(map -> map.get("surveyUnitId").equals(searchQuestioningDto.getSurveyUnitId()))
                     .findFirst();
             assertThat(expectedRecord).isPresent();
             String[] expectedContactIds = expectedRecord
@@ -186,6 +197,18 @@ public class SearchQuestioningSteps {
                 .containsExactlyInAnyOrderElementsOf(expected);
     }
 
+    @Then("the result should contain the following questionings for survey units")
+    public void theResultShouldContainTheFollowingQuestioningsForSurveyUnits(List<Map<String, String>> expectedRecords) {
+            assertThat(expectedRecords).hasSize(resultPage.getContent().size());
+            for(SearchQuestioningDto searchQuestioningDto : resultPage.getContent()) {
+                Optional<Map<String, String>> expectedRecord = expectedRecords
+                        .stream()
+                        .filter(map -> map.get("surveyUnitId").equals(searchQuestioningDto.getSurveyUnitId()))
+                        .findFirst();
+                assertThat(expectedRecord).isPresent();
+            }
+    }
+
     @Then("the total number of results should be {int}")
     public void theTotalNumberOfResultsShouldBe(int totalResults) {
         Assertions.assertEquals(totalResults, resultPage.getNumberOfElements());
@@ -196,4 +219,7 @@ public class SearchQuestioningSteps {
     public void theResultSizeIs(int size) {
         Assertions.assertEquals(size, resultPage.getNumberOfElements());
     }
+
+
+
 }

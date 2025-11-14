@@ -3,6 +3,9 @@ package fr.insee.survey.datacollectionmanagement.questioning.repository;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
+
+import java.util.Collection;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -108,4 +111,12 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
         WHERE q.survey_unit_id_su = :surveyUnitId
         """, nativeQuery = true)
     List<String> findCampaignIdsBySurveyUnitId(String surveyUnitId);
+
+    @Query("select distinct s.idSu from SurveyUnit s where s.idSu in :ids")
+    Set<String> findExistingSurveyUnitIds(Collection<String> ids);
+
+
+
+    List<SurveyUnit> findAllByIdSuIn(Collection<String> ids);
+
 }

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.FluentQuery;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -51,6 +52,21 @@ public class CampaignRepositoryStub implements CampaignRepository {
     @Override
     public List<Campaign> findByDataCollectionTargetIsNot(DataCollectionEnum dataCollectionTarget) {
         return campaigns.stream().filter(c -> c.getDataCollectionTarget() != dataCollectionTarget).toList();
+    }
+
+    @Override
+    public List<Campaign> findOpenedCampaigns(Instant now) {
+        return List.of();
+    }
+
+    @Override
+    public List<Campaign> findOpenedCampaignsForUser(String userId, Instant instant) {
+        return List.of();
+    }
+
+    @Override
+    public List<Campaign> findOpenedCampaignsForUserGroups(String userId, Instant instant) {
+        return List.of();
     }
 
     @Override

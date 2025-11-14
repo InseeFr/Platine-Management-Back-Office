@@ -128,8 +128,8 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
-        return searchQuestioningDao.search(searchQuestioningParams, pageable);
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable, String userId) {
+        return searchQuestioningDao.search(searchQuestioningParams, pageable, userId);
     }
 
     @Override

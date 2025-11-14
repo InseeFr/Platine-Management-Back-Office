@@ -27,4 +27,6 @@
     <include file="changelog/110_add_pnd_to_communications.sql" relativeToChangelogFile="true"/>
     <include file="changelog/120_add_display_faq_to_source.sql" relativeToChangelogFile="true"/>
     <include file="changelog/121_update_questioning_communications.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/130_delete_source_accreditation.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/140_add_wallet_management.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

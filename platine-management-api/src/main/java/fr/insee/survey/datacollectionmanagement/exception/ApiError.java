@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Default API Error object returned as JSON response to client
@@ -20,6 +21,8 @@ public class ApiError {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy hh:mm:ss")
     private Date timestamp;
 
+    private List<String> details;
+
     /**
      * @param status       http status for this error
      * @param path         origin request path
@@ -30,13 +33,28 @@ public class ApiError {
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = status.getReasonPhrase();
         }
-        createApiError(status.value(), path, timestamp, errorMessage);
+        createApiError(status.value(), path, timestamp, errorMessage ,null);
     }
 
-    private void createApiError(int code, String path, Date timestamp, String errorMessage) {
+    /**
+     * @param status       http status for this error
+     * @param path         origin request path
+     * @param timestamp    timestamp of the generated error
+     * @param errorMessage error message
+     *
+     */
+    public ApiError(HttpStatus status, String path, Date timestamp, String errorMessage,  List<String> details) {
+        if (errorMessage == null || errorMessage.isEmpty()) {
+            errorMessage = status.getReasonPhrase();
+        }
+        createApiError(status.value(), path, timestamp, errorMessage, details);
+    }
+
+    private void createApiError(int code, String path, Date timestamp, String errorMessage,  List<String> details) {
         this.code = code;
         this.path = path;
         this.message = errorMessage;
         this.timestamp = timestamp;
+        this.details = details;
     }
 }

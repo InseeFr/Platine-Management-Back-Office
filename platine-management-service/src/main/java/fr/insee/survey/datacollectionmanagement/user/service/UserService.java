@@ -4,6 +4,7 @@ package fr.insee.survey.datacollectionmanagement.user.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,11 @@ public interface UserService {
      * @param pageable
      * @return user Page
      */
-    public Page<User> findAll(Pageable pageable);
+    Page<User> findAll(Pageable pageable);
 
-    public List<User> findAll();
+    List<User> findAll();
+
+    Set<String> findMissingIdentifiers(Set<String> uniqueUsers);
 
     /**
      * Find a user by its identifier.
@@ -30,7 +33,7 @@ public interface UserService {
      * @param identifier
      * @return Optional user found
      */
-    public User findByIdentifier(String identifier) ;
+    User findByIdentifier(String identifier) ;
 
     /**
      * Find a user by its identifier.
@@ -46,19 +49,17 @@ public interface UserService {
      * @param user
      * @return user updated
      */
-    public User saveUser(User user);
+    User saveUser(User user);
 
     /**
      * Delete a user.
      * @param identifier
      */
-    public void deleteUser(String identifier);
+    void deleteUser(String identifier);
 
-    public User createUser(User user, JsonNode payload);
+    User createUser(User user, JsonNode payload);
 
-    public User updateUser(User user, JsonNode payload) throws NotFoundException;
+    User updateUser(User user, JsonNode payload) throws NotFoundException;
 
-    public void deleteUserAndEvents(User user);
-
-    List<String> findAccreditedSources(String identifier);
+    void deleteUserAndEvents(User user);
 }

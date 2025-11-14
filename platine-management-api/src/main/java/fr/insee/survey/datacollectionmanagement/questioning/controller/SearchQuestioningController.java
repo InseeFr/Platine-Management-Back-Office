@@ -19,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -41,10 +43,13 @@ public class SearchQuestioningController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer pageSize,
             @RequestParam(required = false) @SortByValid String sortBy,
-            @RequestParam(required = false) @SortDirectionValid String sortDirection) {
+            @RequestParam(required = false) @SortDirectionValid String sortDirection,
+            @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
 
         log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
                 searchParams, page, pageSize, sortBy, sortDirection);
+
+        String userId = authentication.getName().toUpperCase();
 
         Sort sort = Sort.unsorted();
         if (sortBy != null && sortDirection != null) {
@@ -52,7 +57,7 @@ public class SearchQuestioningController {
         }
         Pageable pageable = PageRequest.of(page, pageSize, sort);
 
-        return questioningService.searchQuestionings(searchParams, pageable);
+        return questioningService.searchQuestionings(searchParams, pageable, userId);
     }
 
     @Operation(summary = "Get questioning details")

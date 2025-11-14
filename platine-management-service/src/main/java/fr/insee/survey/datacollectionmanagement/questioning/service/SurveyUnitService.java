@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchSurveyUnitContac
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SurveyUnitDetailsDto;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,6 +16,8 @@ public interface SurveyUnitService {
     SurveyUnit findbyId(String idSu);
 
     Optional<SurveyUnit> findOptionalById(String idSu);
+
+    Set<String> findMissingIds(Set<String> identifiers);
 
     Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable);
 

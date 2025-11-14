@@ -2,13 +2,10 @@ package fr.insee.survey.datacollectionmanagement.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.domain.UserEvent;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
-import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserEventService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +23,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final SourceAccreditationService sourceAccreditationService;
-
     @Override
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -39,9 +34,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Set<String> findMissingIdentifiers(Set<String> identifiers) {
+        if (identifiers == null || identifiers.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<String> existingIdentifiers = userRepository.findExistingUserIdentifiers(identifiers);
+        Set<String> missingIdentifiers = new HashSet<>(identifiers);
+        missingIdentifiers.removeAll(existingIdentifiers);
+
+        return missingIdentifiers;
+    }
+
+    @Override
     public User findByIdentifier(String identifier) {
         return findOptionalByIdentifier(identifier)
-                .orElseThrow(()->
+                .orElseThrow(() ->
                         new NotFoundException(
                                 String.format("User %s not found", identifier)
                         )
@@ -89,16 +97,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserAndEvents(User user) {
         deleteUser(user.getIdentifier());
-    }
-
-    @Override
-    public List<String> findAccreditedSources(String identifier){
-
-        List<String> accreditedSources = new ArrayList<>();
-        List<SourceAccreditation> accreditations = sourceAccreditationService.findByUserIdentifier(identifier);
-        List<Source> accSource = accreditations.stream().map(SourceAccreditation::getSource).toList();
-        accSource.forEach(acc -> accreditedSources.add(acc.getId()));
-
-        return accreditedSources;
     }
 }

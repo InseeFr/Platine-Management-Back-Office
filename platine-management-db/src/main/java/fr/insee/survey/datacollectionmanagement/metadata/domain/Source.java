@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.metadata.domain;
 
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
-import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,9 +34,6 @@ public class Source {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "source")
     private Set<Survey> surveys;
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "source")
-    private Set<SourceAccreditation> sourceAccreditations;
 
     @ManyToOne
     @NonNull

@@ -4,6 +4,9 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
+
+import java.util.Collection;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.*;
@@ -64,7 +67,18 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 		return List.of();
 	}
 
-	@Override
+    @Override
+    public Set<String> findExistingSurveyUnitIds(Collection<String> ids) {
+        return Set.of();
+    }
+
+    @Override
+    public List<SurveyUnit> findAllByIdSuIn(Collection<String> ids) {
+        return List.of();
+    }
+
+
+    @Override
 	public void flush() {
 		//not used
 	}
