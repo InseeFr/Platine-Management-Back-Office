@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
@@ -33,13 +32,6 @@ public class PartitioningServiceImpl implements PartitioningService {
 
     @Override
     public Partitioning insertOrUpdatePartitioning(Partitioning partitioning) {
-        Optional<Partitioning> partitioningOptional = findById(partitioning.getId());
-        if (partitioningOptional.isPresent()) {
-            partitioning.setTechnicalId(partitioningOptional.get().getTechnicalId());
-        } else {
-            partitioning.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
-        }
-
         return partitioningRepository.save(partitioning);
     }
 

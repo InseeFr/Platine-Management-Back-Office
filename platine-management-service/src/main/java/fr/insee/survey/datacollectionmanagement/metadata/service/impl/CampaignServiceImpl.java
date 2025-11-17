@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
@@ -89,13 +88,6 @@ public class CampaignServiceImpl implements CampaignService {
 
     @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
-        Optional<Campaign> campaignOptional = findById(campaign.getId());
-        if (campaignOptional.isPresent()) {
-            campaign.setTechnicalId(campaignOptional.get().getTechnicalId());
-        } else {
-            campaign.setTechnicalId(UuidCreator.getTimeOrderedEpoch());
-        }
-
         if (campaign.getDataCollectionTarget() == null)
             campaign.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL);
         return campaignRepository.save(campaign);
