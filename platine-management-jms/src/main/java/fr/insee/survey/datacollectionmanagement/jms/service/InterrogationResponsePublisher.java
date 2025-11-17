@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler;
+package fr.insee.survey.datacollectionmanagement.jms.service;
 
 import fr.insee.survey.datacollectionmanagement.jms.model.JMSOutputMessage;
 

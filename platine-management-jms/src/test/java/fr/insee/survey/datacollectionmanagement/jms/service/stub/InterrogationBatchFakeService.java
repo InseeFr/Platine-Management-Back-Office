@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler.stub;
+package fr.insee.survey.datacollectionmanagement.jms.service.stub;
 
 
 import fr.insee.survey.datacollectionmanagement.batch.model.Interrogation;
@@ -26,7 +26,7 @@ public class InterrogationBatchFakeService implements InterrogationBatchService 
 
 
     @Override
-    public void saveInterrogations(List<Interrogation> interrogations) throws InterrogationBatchException {
+    public void saveInterrogations(List<Interrogation> interrogations) {
         // not used at this moment
     }
 

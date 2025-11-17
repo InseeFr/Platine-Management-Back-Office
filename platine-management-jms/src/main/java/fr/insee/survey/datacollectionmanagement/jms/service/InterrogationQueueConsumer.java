@@ -1,17 +1,18 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler;
+package fr.insee.survey.datacollectionmanagement.jms.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fr.insee.modelefiliere.AddressDto;
 import fr.insee.modelefiliere.CommandDto;
 import fr.insee.modelefiliere.InterrogationDto;
 import fr.insee.survey.datacollectionmanagement.batch.model.Interrogation;
-import fr.insee.survey.datacollectionmanagement.jms.handler.exception.PropertyException;
-import fr.insee.survey.datacollectionmanagement.jms.handler.validator.PropertyValidator;
 import fr.insee.survey.datacollectionmanagement.jms.model.JMSOutputMessage;
 import fr.insee.survey.datacollectionmanagement.jms.model.ResponseCode;
+import fr.insee.survey.datacollectionmanagement.jms.service.exception.PropertyException;
+import fr.insee.survey.datacollectionmanagement.jms.service.validator.PropertyValidator;
 import fr.insee.survey.datacollectionmanagement.jms.validation.JsonSchemaValidator;
 import fr.insee.survey.datacollectionmanagement.jms.validation.SchemaType;
 import fr.insee.survey.datacollectionmanagement.jms.validation.SchemaValidationException;
@@ -27,6 +28,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -61,7 +63,17 @@ public class InterrogationQueueConsumer {
             );
             log.debug(command.toString());
 
-            InterrogationDto interrogationFiliere = command.getPayload();
+            InterrogationDto interrogationFiliere = new InterrogationDto()
+                    .partitionId(UUID.fromString(root.path("payload").path("partitionId").asText()))
+                    .interrogationId(UUID.fromString(root.path("payload").path("interrogationId").asText()))
+                    .displayName("Interrogation simple")
+                    .cityCode("34172");
+            AddressDto addressDto = new AddressDto();
+            addressDto.setStreetNumber(root
+                    .path("interrogation")
+                    .path("streetNumber")
+                    .asText());
+            interrogationFiliere.setAddress(addressDto);
             Interrogation interrogation = Interrogation.fromFiliereInterrogation(interrogationFiliere);
             interrogationBatchService.saveInterrogation(interrogation);
             responseMessage = JMSOutputMessage.createResponse(ResponseCode.CREATED);

@@ -1,7 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler.stub;
+package fr.insee.survey.datacollectionmanagement.jms.service.stub;
 
 
-import fr.insee.survey.datacollectionmanagement.jms.handler.InterrogationResponsePublisher;
+import fr.insee.survey.datacollectionmanagement.jms.service.InterrogationResponsePublisher;
 import fr.insee.survey.datacollectionmanagement.jms.model.JMSOutputMessage;
 import lombok.Getter;
 

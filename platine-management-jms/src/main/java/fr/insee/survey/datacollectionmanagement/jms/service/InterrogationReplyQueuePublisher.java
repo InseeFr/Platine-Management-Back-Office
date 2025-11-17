@@ -1,4 +1,4 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler;
+package fr.insee.survey.datacollectionmanagement.jms.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

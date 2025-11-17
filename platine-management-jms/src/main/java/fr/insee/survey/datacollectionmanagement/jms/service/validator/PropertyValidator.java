@@ -1,7 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.jms.handler.validator;
+package fr.insee.survey.datacollectionmanagement.jms.service.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.insee.survey.datacollectionmanagement.jms.handler.exception.PropertyException;
+import fr.insee.survey.datacollectionmanagement.jms.service.exception.PropertyException;
 
 /**
  * This utility is used to retrieve mandatory string property from a json object
@@ -12,9 +12,6 @@ public class PropertyValidator {
     private PropertyValidator() {
         throw new IllegalArgumentException("Utility class");
     }
-
-    public static final String PROPERTY_NOT_EMPTY =
-            "Property %s should not be empty";
 
     /**
      * @param node the node
