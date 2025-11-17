@@ -3,10 +3,7 @@ package fr.insee.survey.datacollectionmanagement.query.dto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class SearchQuestioningDto {
@@ -27,7 +24,7 @@ public class SearchQuestioningDto {
                                 TypeQuestioningEvent highestEventType,
                                 String surveyUnitId,
                                 String identificationCode,
-                                String contactId,
+                                List<String> contactIds,
                                 Integer score) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
@@ -36,14 +33,8 @@ public class SearchQuestioningDto {
         this.highestEventType = highestEventType;
         this.surveyUnitId = surveyUnitId;
         this.identificationCode = identificationCode;
-        this.contactIds = new ArrayList<>();
-        this.contactIds.add(contactId);
+        this.contactIds = contactIds;
         this.score = score;
     }
 
-    public void addContactId(String contactId) {
-        if(!this.contactIds.contains(contactId)) {
-            this.contactIds.add(contactId);
-        }
-    }
 }
