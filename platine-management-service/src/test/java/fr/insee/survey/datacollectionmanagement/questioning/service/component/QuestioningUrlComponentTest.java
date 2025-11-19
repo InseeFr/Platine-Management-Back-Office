@@ -10,7 +10,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,6 +43,8 @@ class QuestioningUrlComponentTest {
     private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
     private final String identificationName = "Test Company";
+    private final String surveyUnitLabel = "Entreprise";
+
 
     private final UUID questioningId = UUID.randomUUID();
     private final String sourceId = "SOURCEID";
@@ -58,12 +59,12 @@ class QuestioningUrlComponentTest {
     private QuestioningUrlContext createQuestioningUrlContext(
             DataCollectionEnum dataCollection,
             String operation,
-            boolean isBusiness, String surveyUnitCompositeName, String identificationName) {
+            boolean isBusiness, String surveyUnitLabel, String identificationName) {
         return new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
                 isBusiness,
-                surveyUnitCompositeName,
+                surveyUnitLabel,
                 identificationName,
                 String.format("%s-%s-%s",sourceId.toLowerCase(),surveyYear,period),
                 dataCollection,
@@ -280,7 +281,7 @@ class QuestioningUrlComponentTest {
                 DataCollectionEnum.LUNATIC_NORMAL, null, true, null, "Test"
         );
 
-        String expectedLabel = component.buildSurveyUnitCompositeName(null, "Test", surveyUnitId);
+        String expectedLabel = component.buildSurveyUnitCompositeName("", "Test", surveyUnitId);
 
         // when
         String url = component.buildAccessUrl(UserRoles.REVIEWER, ctx);
@@ -403,7 +404,7 @@ class QuestioningUrlComponentTest {
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitCompositeName,
+                surveyUnitLabel,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_NORMAL,
@@ -415,10 +416,10 @@ class QuestioningUrlComponentTest {
         );
 
         String url = component.buildDepositProofUrl(ctx);
+        String encodedCompositeName = component.buildEncodedSurveyUnitCompositeName(surveyUnitLabel,identificationName, surveyUnitId);
 
         assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
-                .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
-                StringUtils.capitalize(surveyUnitCompositeName), identificationName, surveyUnitId));
+                .endsWith(String.format("?surveyUnitCompositeName=%s",encodedCompositeName));
     }
 
     @Test
@@ -428,7 +429,7 @@ class QuestioningUrlComponentTest {
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitCompositeName,
+                surveyUnitLabel,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_SENSITIVE,
@@ -440,10 +441,9 @@ class QuestioningUrlComponentTest {
         );
 
         String url = component.buildDepositProofUrl(ctx);
-
+        String encodedCompositeName = component.buildEncodedSurveyUnitCompositeName(surveyUnitLabel,identificationName, surveyUnitId);
         assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
-                .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
-                        StringUtils.capitalize(surveyUnitCompositeName), identificationName, surveyUnitId));
+                .endsWith(String.format("?surveyUnitCompositeName=%s",encodedCompositeName));
     }
 
     @Test
@@ -453,7 +453,7 @@ class QuestioningUrlComponentTest {
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitCompositeName,
+                surveyUnitLabel,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_NORMAL,
@@ -465,9 +465,10 @@ class QuestioningUrlComponentTest {
         );
 
         String url = component.buildDepositProofUrl(ctx);
+        String encodedCompositeName = component.buildEncodedSurveyUnitCompositeName(surveyUnitLabel,identificationName, surveyUnitId);
 
         assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
-                .endsWith(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+                .endsWith(String.format("?surveyUnitCompositeName=%s", encodedCompositeName));
     }
 
     @Test
@@ -487,9 +488,12 @@ class QuestioningUrlComponentTest {
                 "contact123"
         );
 
+        String encodedCompositeName = component.buildEncodedSurveyUnitCompositeName("",identificationName, surveyUnitId);
+
+
         String url = component.buildDepositProofUrl(ctx);
         assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
-                .endsWith(String.format("?surveyUnitCompositeName=%s (%s)", identificationName, surveyUnitId));
+                .endsWith(String.format("?surveyUnitCompositeName=%s", encodedCompositeName));
     }
 
     @Test
