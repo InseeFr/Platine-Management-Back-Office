@@ -60,4 +60,6 @@ public class Questioning {
     @Enumerated(EnumType.STRING)
     private TypeQuestioningEvent highestEventType;
 
+    private Long priority;
+
 }
