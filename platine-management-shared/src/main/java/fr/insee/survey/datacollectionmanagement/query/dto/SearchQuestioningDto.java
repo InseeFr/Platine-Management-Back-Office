@@ -16,6 +16,7 @@ public class SearchQuestioningDto {
     private final String identificationCode;
     private final List<String> contactIds;
     private final Integer score;
+    private final Long priority;
 
     public SearchQuestioningDto(UUID questioningId,
                                 String campaignId,
@@ -25,7 +26,8 @@ public class SearchQuestioningDto {
                                 String surveyUnitId,
                                 String identificationCode,
                                 List<String> contactIds,
-                                Integer score) {
+                                Integer score,
+                                Long priority) {
         this.questioningId = questioningId;
         this.campaignId = campaignId;
         this.lastCommunication = lastCommunication;
@@ -35,6 +37,7 @@ public class SearchQuestioningDto {
         this.identificationCode = identificationCode;
         this.contactIds = contactIds;
         this.score = score;
+        this.priority = priority;
     }
 
 }

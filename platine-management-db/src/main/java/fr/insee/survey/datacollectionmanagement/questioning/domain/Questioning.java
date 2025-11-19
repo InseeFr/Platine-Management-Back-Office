@@ -62,4 +62,6 @@ public class Questioning {
 
     @Column(name = "is_on_probation")
     private Boolean isOnProbation = false;
+
+    private Long priority;
 }
