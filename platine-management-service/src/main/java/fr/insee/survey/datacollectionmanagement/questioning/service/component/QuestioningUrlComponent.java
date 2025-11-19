@@ -126,11 +126,10 @@ public class QuestioningUrlComponent {
         String encodedSurveyUnitCompositeName = "";
 
         if (context.isBusiness()) {
-            String surveyUnitCompositeName = buildSurveyUnitCompositeName(
+            encodedSurveyUnitCompositeName = buildEncodedSurveyUnitCompositeName(
                     context.surveyUnitLabel(),
                     context.surveyUnitIdentificationName(),
                     context.surveyUnitId());
-            encodedSurveyUnitCompositeName = Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitCompositeName.getBytes(StandardCharsets.UTF_8));
         }
 
         return switch (StringUtils.defaultString(role).toLowerCase()) {
@@ -185,12 +184,12 @@ public class QuestioningUrlComponent {
                 .path("/api/interrogations/{questioningId}/deposit-proof");
 
         if (ctx.isBusiness()) {
-            String surveyUnitCompositeName = buildSurveyUnitCompositeName(
+            String encodedSurveyUnitCompositeName = buildEncodedSurveyUnitCompositeName(
                     ctx.surveyUnitLabel(),
                     ctx.surveyUnitIdentificationName(),
                     ctx.surveyUnitId()
             );
-            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, surveyUnitCompositeName);
+            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
         }
 
         return builder.buildAndExpand(ctx.questioningId()).toUriString();
@@ -208,7 +207,12 @@ public class QuestioningUrlComponent {
         };
     }
 
-    public String buildSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
+    String buildEncodedSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
+        String surveyUnitCompositeName = buildSurveyUnitCompositeName (label, identificationName, surveyUnitId);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitCompositeName.getBytes(StandardCharsets.UTF_8));
+    }
+
+    String buildSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
         if (StringUtils.isBlank(label)) {
             return String.format("%s (%s)", identificationName, surveyUnitId);
         }
