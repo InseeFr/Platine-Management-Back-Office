@@ -58,12 +58,12 @@ class QuestioningUrlComponentTest {
     private QuestioningUrlContext createQuestioningUrlContext(
             DataCollectionEnum dataCollection,
             String operation,
-            boolean isBusiness, String surveyUnitLabel, String identificationName) {
+            boolean isBusiness, String surveyUnitCompositeName, String identificationName) {
         return new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
                 isBusiness,
-                surveyUnitLabel,
+                surveyUnitCompositeName,
                 identificationName,
                 String.format("%s-%s-%s",sourceId.toLowerCase(),surveyYear,period),
                 dataCollection,
@@ -267,9 +267,9 @@ class QuestioningUrlComponentTest {
         assertThat(uri.getHost()).isEqualTo("lunatic-normal");
 
         Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKeys("pathAssistance", "surveyUnitLabel");
+        assertThat(q).containsKeys("pathAssistance", "surveyUnitCompositeName");
 
-        String labelDecoded = base64UrlDecode(q.get("surveyUnitLabel"));
+        String labelDecoded = base64UrlDecode(q.get("surveyUnitCompositeName"));
         assertThat(labelDecoded).isEqualTo(expectedLabel);
     }
 
@@ -292,9 +292,9 @@ class QuestioningUrlComponentTest {
         assertThat(uri.getPath()).isEqualTo("/v3/review/interrogations/" + questioningId);
 
         Map<String, String> q = parseQuery(uri.getQuery());
-        assertThat(q).containsKey("surveyUnitLabel");
+        assertThat(q).containsKey("surveyUnitCompositeName");
 
-        String labelDecoded = base64UrlDecode(q.get("surveyUnitLabel"));
+        String labelDecoded = base64UrlDecode(q.get("surveyUnitCompositeName"));
         assertThat(labelDecoded).isEqualTo(expectedLabel);
     }
 
@@ -398,12 +398,12 @@ class QuestioningUrlComponentTest {
 
     @Test
     void testDepositProofUrl_lunaticNormal_withBusinessContext() {
-        String surveyUnitLabel = "company";
+        String surveyUnitCompositeName = "company";
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitLabel,
+                surveyUnitCompositeName,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_NORMAL,
@@ -418,17 +418,17 @@ class QuestioningUrlComponentTest {
 
         assertThat(url).startsWith(questionnaireApiUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
                 .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
-                StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
+                StringUtils.capitalize(surveyUnitCompositeName), identificationName, surveyUnitId));
     }
 
     @Test
     void testDepositProofUrl_lunaticSensitive_withBusinessContext() {
-        String surveyUnitLabel = "corporation";
+        String surveyUnitCompositeName = "corporation";
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitLabel,
+                surveyUnitCompositeName,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_SENSITIVE,
@@ -443,17 +443,17 @@ class QuestioningUrlComponentTest {
 
         assertThat(url).startsWith(questionnaireApiSensitiveUrl + "/api/interrogations/" + questioningId + "/deposit-proof")
                 .endsWith(String.format("?surveyUnitCompositeName=%s %s (%s)",
-                        StringUtils.capitalize(surveyUnitLabel), identificationName, surveyUnitId));
+                        StringUtils.capitalize(surveyUnitCompositeName), identificationName, surveyUnitId));
     }
 
     @Test
     void testDepositProofUrl_businessContext_withBlankLabel() {
-        String surveyUnitLabel = "";
+        String surveyUnitCompositeName = "";
         QuestioningUrlContext ctx = new QuestioningUrlContext(
                 surveyUnitId,
                 questioningId,
                 true,
-                surveyUnitLabel,
+                surveyUnitCompositeName,
                 identificationName,
                 "campaign123",
                 DataCollectionEnum.LUNATIC_NORMAL,
@@ -583,7 +583,7 @@ class QuestioningUrlComponentTest {
     @NullSource
     @EmptySource
     @ValueSource(strings = { "   " })
-    void buildSurveyUnitLabelDetails_returnsIdentificationWhenLabelBlankish(String label) {
+    void buildsurveyUnitCompositeNameDetails_returnsIdentificationWhenLabelBlankish(String label) {
         String result = component.buildSurveyUnitCompositeName(label, identificationName, surveyUnitId);
         assertThat(result).isEqualTo(identificationName + " (" + surveyUnitId + ")");
     }

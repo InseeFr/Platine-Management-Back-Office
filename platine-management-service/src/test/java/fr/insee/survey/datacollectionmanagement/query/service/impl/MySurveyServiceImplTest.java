@@ -84,7 +84,7 @@ class MySurveyServiceImplTest {
         questioningService.setQuestionnaireStatus(QuestionnaireStatusTypeEnum.IN_PROGRESS);
         myQuestionnaireDetailsDto.setDataCollectionTarget(DataCollectionEnum.LUNATIC_NORMAL.name());
         myQuestionnaireDetailsDto.setSourceType(SourceTypeEnum.BUSINESS.name());
-        myQuestionnaireDetailsDto.setSurveyUnitLabel("Entreprise");
+        myQuestionnaireDetailsDto.setSurveyUnitCompositeName("Entreprise");
         List<MyQuestionnaireDto> result = mySurveysService.getListMyQuestionnaires("123");
 
         assertThat(result).isNotEmpty().hasSize(1);

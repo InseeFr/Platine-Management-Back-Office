@@ -43,7 +43,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
                     isBusiness,
-                    details.getSurveyUnitLabel(),
+                    details.getSurveyUnitCompositeName(),
                     details.getSurveyUnitIdentificationName(),
                     String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriodCollect()),
                     DataCollectionEnum.valueOf(details.getDataCollectionTarget()),

@@ -34,7 +34,6 @@ public class QuestioningUrlComponent {
     private final String xform2Url;
 
     private static final String PATH_ASSISTANCE = "pathAssistance";
-    private static final String SURVEY_UNIT_LABEL = "surveyUnitLabel";
     private static final String SURVEY_UNIT_COMPOSITE_NAME = "surveyUnitCompositeName";
 
 
@@ -124,14 +123,14 @@ public class QuestioningUrlComponent {
      */
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
         String questioningId = context.questioningId().toString();
-        String encodedLabel = "";
+        String encodedSurveyUnitCompositeName = "";
 
         if (context.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitCompositeName(
+            String surveyUnitCompositeName = buildSurveyUnitCompositeName(
                     context.surveyUnitLabel(),
                     context.surveyUnitIdentificationName(),
                     context.surveyUnitId());
-            encodedLabel = Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitLabelDetails.getBytes(StandardCharsets.UTF_8));
+            encodedSurveyUnitCompositeName = Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitCompositeName.getBytes(StandardCharsets.UTF_8));
         }
 
         return switch (StringUtils.defaultString(role).toLowerCase()) {
@@ -141,7 +140,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "review", "interrogations", questioningId);
 
                 if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
+                    builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
                 }
 
                 yield builder.build().toUriString();
@@ -155,7 +154,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "interrogations", questioningId);
 
                 if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
+                    builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
                 }
 
                 yield builder
@@ -186,12 +185,12 @@ public class QuestioningUrlComponent {
                 .path("/api/interrogations/{questioningId}/deposit-proof");
 
         if (ctx.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitCompositeName(
+            String surveyUnitCompositeName = buildSurveyUnitCompositeName(
                     ctx.surveyUnitLabel(),
                     ctx.surveyUnitIdentificationName(),
                     ctx.surveyUnitId()
             );
-            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, surveyUnitLabelDetails);
+            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, surveyUnitCompositeName);
         }
 
         return builder.buildAndExpand(ctx.questioningId()).toUriString();
