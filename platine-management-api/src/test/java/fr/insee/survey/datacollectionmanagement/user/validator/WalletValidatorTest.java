@@ -65,4 +65,44 @@ class WalletValidatorTest {
         List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w1, w2));
         assertTrue(errors.isEmpty());
     }
+
+    @Test
+    void returnsError_whenDuplicateWallets() {
+        WalletDto w1 = new WalletDto("SU-001", "USER1", "G1");
+        WalletDto w2 = new WalletDto("SU-002", "USER2", "G2");
+        WalletDto w3 = new WalletDto("SU-001", "USER1", "G1");
+
+        List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w1, w2, w3));
+
+        assertFalse(errors.isEmpty());
+
+        List<ValidationWalletError> duplicateErrors = errors.stream()
+                .filter(e -> e.line() == null && e.field() == null)
+                .toList();
+
+        assertEquals(1, duplicateErrors.size());
+        ValidationWalletError dupError = duplicateErrors.getFirst();
+
+        String msg = dupError.message();
+        assertTrue(msg.contains("Duplicate wallet"));
+        assertTrue(msg.contains("id_su=SU-001"));
+        assertTrue(msg.contains("idep=USER1"));
+        assertTrue(msg.contains("id_group=G1"));
+        assertTrue(msg.contains("lines 1, 3"));
+    }
+
+    @Test
+    void noDuplicateError_whenAllWalletsDistinct() {
+        WalletDto w1 = new WalletDto("SU-001", "USER1", "G1");
+        WalletDto w2 = new WalletDto("SU-002", "USER1", "G1");
+        WalletDto w3 = new WalletDto("SU-001", "USER2", "G1");
+
+        List<ValidationWalletError> errors = validator.getWalletInputErrors(List.of(w1, w2, w3));
+
+        List<ValidationWalletError> duplicateErrors = errors.stream()
+                .filter(e -> e.line() == null && e.field() == null)
+                .toList();
+
+        assertTrue(duplicateErrors.isEmpty());
+    }
 }
