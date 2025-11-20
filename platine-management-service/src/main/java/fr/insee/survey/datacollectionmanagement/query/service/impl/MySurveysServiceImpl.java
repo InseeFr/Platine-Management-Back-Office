@@ -43,7 +43,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getSurveyUnitId(),
                     details.getQuestioningId(),
                     isBusiness,
-                    details.getSurveyUnitLabel(),
+                    details.getSurveyUnitCompositeName(),
                     details.getSurveyUnitIdentificationName(),
                     String.format("%s-%s-%s",details.getSourceId().toLowerCase(),details.getSurveyYear(),details.getPeriodCollect()),
                     DataCollectionEnum.valueOf(details.getDataCollectionTarget()),
@@ -94,7 +94,7 @@ public class MySurveysServiceImpl implements MySurveysService {
             if (isXForm(ctx.dataCollection())) {
                 return QuestioningUrls.forAccess(questioningUrlComponent.buildAccessUrl(UserRoles.INTERVIEWER, ctx));
             }
-            return QuestioningUrls.forDepositProof(questioningUrlComponent.buildDepositProofUrl(ctx.questioningId(), ctx.dataCollection()));
+            return QuestioningUrls.forDepositProof(questioningUrlComponent.buildDepositProofUrl(ctx));
         }
         if (isOpen(status)) {
             return QuestioningUrls.forAccess(questioningUrlComponent.buildAccessUrl(UserRoles.INTERVIEWER, ctx));
