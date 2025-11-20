@@ -6,8 +6,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class WalletValidator {
@@ -20,11 +23,47 @@ public class WalletValidator {
             return List.of();
         }
 
+
         List<ValidationWalletError> errors = new ArrayList<>();
+        checkDuplicateWallet(wallets, errors);
         for (int i = 0; i < wallets.size(); i++) {
             validateSingleWallet(wallets.get(i), i + 1, errors);
         }
+
         return errors;
+    }
+
+    private void checkDuplicateWallet(List<WalletDto> wallets, List<ValidationWalletError> errors) {
+        Map<WalletDto, List<Integer>> lines = new LinkedHashMap<>();
+        for (int i = 0; i < wallets.size(); i++) {
+            WalletDto wallet = wallets.get(i);
+            int lineNumber = i + 1;
+
+            lines.computeIfAbsent(wallet, k -> new ArrayList<>())
+                    .add(lineNumber);
+        }
+
+        lines.entrySet()
+                .stream()
+                .filter(e -> e.getValue().size() > 1)
+                .forEach(e -> {
+                    WalletDto wallet = e.getKey();
+                    List<Integer> lineNumbers = e.getValue();
+                    errors.add(new ValidationWalletError(buildDuplicateMessage(wallet, lineNumbers)));
+                });
+    }
+
+    private String buildDuplicateMessage(WalletDto wallet, List<Integer> lineNumbers) {
+        String lineNumbersStr = lineNumbers.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", "));
+        String walletStr = String.format(
+                "(id_su=%s, idep=%s, id_group=%s)",
+                wallet.surveyUnit(),
+                wallet.internalUser(),
+                wallet.group()
+        );
+        return String.format("Duplicate wallet %s on lines %s", walletStr, lineNumbersStr);
     }
 
     private void validateSingleWallet(WalletDto w, int line, List<ValidationWalletError> errors) {
