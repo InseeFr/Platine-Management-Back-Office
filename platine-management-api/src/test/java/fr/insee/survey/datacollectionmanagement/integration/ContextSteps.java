@@ -64,6 +64,14 @@ public class ContextSteps {
     }
 
     @Transactional
+    @Given("the source {string}")
+    public void createSource(String sourceId) {
+        Source source = new Source();
+        source.setId(sourceId);
+        sourceRepository.save(source);
+    }
+
+    @Transactional
     @Given("the survey {string} related to source {string}")
     public void createSurvey(String surveyId, String sourceId) {
         Survey survey = new Survey();

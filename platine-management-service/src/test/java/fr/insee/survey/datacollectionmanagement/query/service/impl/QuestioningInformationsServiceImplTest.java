@@ -219,7 +219,7 @@ class QuestioningInformationsServiceImplTest {
 
 
         String expectedUrlAssistance = String.format("/assistance/faq-particulier/contact?interrogationId=%s&suId=%s&sourceId=%s",
-                infos.getQuestioningId().toString(), infos.getIdSu(), infos.getSourceId().toLowerCase());
+                infos.getQuestioningId().toString(), infos.getIdentificationCode(), infos.getSourceId().toLowerCase());
 
         assertEquals(URLEncoder.encode(expectedUrlAssistance, StandardCharsets.UTF_8), result.getUrlAssistance());
     }
