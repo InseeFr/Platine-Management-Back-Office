@@ -56,7 +56,7 @@ public class ContextSteps {
 
     @Transactional
     @Given("the source {string} with type {string}")
-    public void createSource(String sourceId, String type) {
+    public void createSourceWithType(String sourceId, String type) {
         Source source = new Source();
         source.setId(sourceId);
         source.setType(SourceTypeEnum.valueOf(type));

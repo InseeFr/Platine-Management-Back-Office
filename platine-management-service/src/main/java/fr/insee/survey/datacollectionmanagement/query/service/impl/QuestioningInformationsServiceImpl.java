@@ -73,6 +73,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
         String urlAssistanceRoot = infos.getSourceType().equalsIgnoreCase(SourceTypeEnum.BUSINESS.toString()) ? "/assistance/faq-entreprise/contact" : "/assistance/faq-particulier/contact";
         String urlAssistance = String.format("%s?interrogationId=%s&suId=%s&sourceId=%s",
                 urlAssistanceRoot, infos.getQuestioningId().toString(), infos.getIdentificationCode(), infos.getSourceId().toLowerCase());
+
         questioningInformationsDto.setUrlAssistance(URLEncoder.encode(urlAssistance, StandardCharsets.UTF_8));
 
         // Map ContactInformationsDto

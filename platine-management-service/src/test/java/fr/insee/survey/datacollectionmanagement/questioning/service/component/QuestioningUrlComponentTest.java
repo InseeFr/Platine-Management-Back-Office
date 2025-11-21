@@ -325,7 +325,6 @@ class QuestioningUrlComponentTest {
                 .contains("interrogationId=" + questioningId)
                 .contains("suId=" + surveyUnitId)
                 .contains("sourceId=" + sourceId.toLowerCase());
-
     }
 
     @Test
