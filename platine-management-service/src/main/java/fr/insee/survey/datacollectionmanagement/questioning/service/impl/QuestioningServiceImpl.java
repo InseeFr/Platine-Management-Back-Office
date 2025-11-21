@@ -204,6 +204,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
+                .isOnProbation(questioning.getIsOnProbation())
                 .build();
     }
 

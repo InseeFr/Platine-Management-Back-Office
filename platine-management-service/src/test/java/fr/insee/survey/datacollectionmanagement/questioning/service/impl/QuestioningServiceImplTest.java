@@ -210,6 +210,7 @@ class QuestioningServiceImplTest {
         su.setIdentificationCode("identificationCode");
         su.setLabel("label");
         questioning.setSurveyUnit(su);
+        questioning.setIsOnProbation(true);
 
         partitioning.setId("1");
 
@@ -259,6 +260,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
+        assertThat(result.isOnProbation()).isTrue();
     }
 
     @Test

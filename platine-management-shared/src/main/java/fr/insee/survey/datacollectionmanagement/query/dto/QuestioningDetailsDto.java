@@ -34,4 +34,5 @@ public class QuestioningDetailsDto {
     private Date validationDate;
     private String readOnlyUrl;
     private Boolean isHousehold;
+    private boolean isOnProbation;
 }

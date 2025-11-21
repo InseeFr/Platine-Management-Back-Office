@@ -25,6 +25,11 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
+    public QuestioningDetailsDtoBuilder isOnProbation(Boolean isOnProbation) {
+        instance.setOnProbation(isOnProbation);
+        return this;
+    }
+
     public QuestioningDetailsDtoBuilder questioningId(UUID id) {
         instance.setQuestioningId(id);
         return this;
