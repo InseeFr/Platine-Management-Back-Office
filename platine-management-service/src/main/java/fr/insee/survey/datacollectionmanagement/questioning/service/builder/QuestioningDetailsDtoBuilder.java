@@ -26,7 +26,7 @@ public class QuestioningDetailsDtoBuilder {
     }
 
     public QuestioningDetailsDtoBuilder isOnProbation(Boolean isOnProbation) {
-        instance.setOnProbation(isOnProbation);
+        instance.setIsOnProbation(isOnProbation);
         return this;
     }
 

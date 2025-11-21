@@ -260,7 +260,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
-        assertThat(result.isOnProbation()).isTrue();
+        assertThat(result.getIsOnProbation()).isTrue();
     }
 
     @Test
