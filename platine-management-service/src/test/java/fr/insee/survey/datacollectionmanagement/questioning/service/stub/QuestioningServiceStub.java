@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -43,7 +44,12 @@ public class QuestioningServiceStub implements QuestioningService {
         return questioning;
     }
 
-  @Override
+    @Override
+    public QuestioningProbationDto updateQuestioningProbation(QuestioningProbationDto questioningProbationDto) {
+        return null;
+    }
+
+    @Override
   public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
     return List.of();
   }
