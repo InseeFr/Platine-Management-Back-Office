@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
@@ -36,6 +37,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
@@ -208,6 +210,7 @@ class QuestioningServiceImplTest {
         su.setIdentificationCode("identificationCode");
         su.setLabel("label");
         questioning.setSurveyUnit(su);
+        questioning.setIsOnProbation(true);
 
         partitioning.setId("1");
 
@@ -257,6 +260,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getSurveyUnitLabel()).isEqualTo("label");
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
+        assertThat(result.getIsOnProbation()).isTrue();
     }
 
     @Test
@@ -612,6 +616,44 @@ class QuestioningServiceImplTest {
       assertEquals(expectedDto, result.getFirst());
       assertEquals(id, result.getFirst().getInterrogationId());
       assertEquals(TypeQuestioningEvent.PND, result.getFirst().getHighestEventType());
+    }
+
+    @Test
+    void updateQuestioningProbation_shouldUpdateAndReturnDto() {
+        // Given
+        UUID id = UUID.randomUUID();
+        QuestioningProbationDto dto = new QuestioningProbationDto(id, true);
+
+        Questioning existingQuestioning = new Questioning();
+        existingQuestioning.setId(id);
+        existingQuestioning.setIsOnProbation(false);
+
+        when(questioningRepository.findById(id)).thenReturn(Optional.of(existingQuestioning));
+        when(questioningRepository.save(existingQuestioning)).thenReturn(existingQuestioning);
+
+        // When
+        QuestioningProbationDto result = questioningService.updateQuestioningProbation(dto);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.questioningId()).isEqualTo(id);
+        assertThat(result.isOnProbation()).isTrue();
+        assertThat(existingQuestioning.getIsOnProbation()).isTrue();
+        verify(questioningRepository).save(existingQuestioning);
+    }
+
+    @Test
+    void updateQuestioningProbation_shouldThrowNotFoundException_whenQuestioningDoesNotExist() {
+        // Given
+        UUID id = UUID.randomUUID();
+        QuestioningProbationDto dto = new QuestioningProbationDto(id, true);
+
+        when(questioningRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> questioningService.updateQuestioningProbation(dto))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("Questioning not found with id " + id);
     }
 
 }
