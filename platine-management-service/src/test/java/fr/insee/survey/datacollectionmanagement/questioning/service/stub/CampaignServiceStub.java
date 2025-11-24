@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,11 @@ import java.util.*;
 public class CampaignServiceStub implements CampaignService {
 
     private final Map<String, CampaignStatusDto> campaignStatusMap = new HashMap<>();
+
+    @Getter
+    private Campaign lastSaved;
+
+    private List<Campaign> savedCampaigns = new ArrayList<>();
 
     public void addCampaignStatus(String campaignId, CollectionStatus status) {
         campaignStatusMap.put(campaignId, new CampaignStatusDto(campaignId, status));
@@ -26,7 +32,7 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
-    public Campaign findById(String idCampaign) {
+    public Campaign getById(String idCampaign) {
         Campaign campaign = new Campaign();
         campaign.setId(idCampaign);
         campaign.setCampaignWording("Test Campaign");
@@ -44,6 +50,11 @@ public class CampaignServiceStub implements CampaignService {
     }
 
     @Override
+    public Optional<Campaign> findById(String idCampaign) {
+        return Optional.of(getById(idCampaign));
+    }
+
+    @Override
     public Page<Campaign> findAll(Pageable pageable) {
         return null;
     }
@@ -55,7 +66,10 @@ public class CampaignServiceStub implements CampaignService {
 
     @Override
     public Campaign insertOrUpdateCampaign(Campaign campaign) {
-        return null;
+        savedCampaigns.removeIf(x -> Objects.equals(x.getId(), campaign.getId()));
+        savedCampaigns.add(campaign);
+        lastSaved = campaign;
+        return campaign;
     }
 
     @Override
@@ -106,4 +120,7 @@ public class CampaignServiceStub implements CampaignService {
         return null;
     }
 
+    public void setSavedCampaigns(List<Campaign> campaigns) {
+        savedCampaigns = new ArrayList<>(campaigns);
+    }
 }

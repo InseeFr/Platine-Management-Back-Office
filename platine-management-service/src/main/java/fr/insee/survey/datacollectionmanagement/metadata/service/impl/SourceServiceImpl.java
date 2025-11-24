@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.SourceDto;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
-import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -33,9 +32,9 @@ public class SourceServiceImpl implements SourceService {
 
     private final ParametersService parametersService;
 
-    public Source findById(String source) {
-        return sourceRepository.findById(source)
-                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", source)));
+    public Source findById(String sourceId) {
+        return sourceRepository.findById(sourceId)
+                .orElseThrow(() -> new NotFoundException(String.format("Source %s not found", sourceId)));
     }
 
     @Override

@@ -312,8 +312,8 @@ class CampaignControllerTest {
     void getCampaignOk() throws Exception {
         String campaignId = "SOURCE12023T01";
 
-        assertDoesNotThrow(() -> campaignService.findById(campaignId));
-        Campaign campaign = campaignService.findById(campaignId);
+        assertDoesNotThrow(() -> campaignService.getById(campaignId));
+        Campaign campaign = campaignService.getById(campaignId);
         this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, campaignId)).andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
                 .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))

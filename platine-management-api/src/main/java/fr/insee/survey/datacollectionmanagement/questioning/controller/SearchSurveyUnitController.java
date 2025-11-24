@@ -75,7 +75,7 @@ public class SearchSurveyUnitController {
         List<SurveyUnitPartitioningDto> listParts = new ArrayList<>();
         Set<Questioning> setQuestionings = questioningService.findBySurveyUnitIdSu(id);
         for (Questioning questioning : setQuestionings) {
-            Partitioning part = partitioningService.findById(questioning.getIdPartitioning());
+            Partitioning part = partitioningService.getById(questioning.getIdPartitioning());
             Optional<QuestioningEvent> questioningEvent = questioningEventService.getLastQuestioningEvent(questioning, TypeQuestioningEvent.STATE_EVENTS);
 
             if (!isFilterOpened || partitioningService.isOnGoing(part, Instant.now())) {

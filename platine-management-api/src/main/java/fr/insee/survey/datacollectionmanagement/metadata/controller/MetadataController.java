@@ -36,7 +36,7 @@ public class MetadataController {
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     public void updateCampaignInProgressMoog(@PathVariable("id") String id, @RequestBody CampaignMoogDto campaignMoogDto) {
         log.info("Updating Moog campaign with id {}", id);
-        Campaign campaign = campaignService.findById(id);
+        Campaign campaign = campaignService.getById(id);
         campaign.getPartitionings().forEach(p->{
             p.setClosingDate(new Date(campaignMoogDto.getCollectionEndDate()));
             p.setOpeningDate(new Date(campaignMoogDto.getCollectionStartDate()));

@@ -66,7 +66,7 @@ class BusinessContactServiceImplTest {
     void findMainContactByCampaignAndSurveyUnit_withMainContact() {
         // Given
         Campaign campaign = createCampaignWithSource(ID_CAMPAIGN1, ID_SOURCE1);
-        when(campaignService.findById(ID_CAMPAIGN1)).thenReturn(campaign);
+        when(campaignService.getById(ID_CAMPAIGN1)).thenReturn(campaign);
 
         ContactSource contactSource = createContactSource(ID_SOURCE1, ID_SU1, ID_CONTACT1, true);
         when(contactSourceService.findMainContactSourceBySourceAndSurveyUnit(ID_SOURCE1, ID_SU1))
@@ -93,7 +93,7 @@ class BusinessContactServiceImplTest {
     void findMainContactByCampaignAndSurveyUnit_withoutMainContact() {
         // Given
         Campaign campaign = createCampaignWithSource(ID_CAMPAIGN1, ID_SOURCE1);
-        when(campaignService.findById(ID_CAMPAIGN1)).thenReturn(campaign);
+        when(campaignService.getById(ID_CAMPAIGN1)).thenReturn(campaign);
 
         when(contactSourceService.findMainContactSourceBySourceAndSurveyUnit(ID_SOURCE1, ID_SU1))
                 .thenReturn(null);

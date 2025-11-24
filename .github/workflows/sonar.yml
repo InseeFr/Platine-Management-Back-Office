@@ -32,8 +32,12 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: install model filiere
+        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.2-SNAPSHOT.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.2-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn clean verify -Pcoverage sonar:sonar -Dsonar.projectKey=InseeFr_Platine-Management-Back-Office --no-transfer-progress
+        run: mvn clean verify -Pcoverage org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=InseeFr_Platine-Management-Back-Office --no-transfer-progress

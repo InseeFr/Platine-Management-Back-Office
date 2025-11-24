@@ -43,7 +43,7 @@ public class SurveyUnitEventServiceImpl implements SurveyUnitEventService {
         }
 
         SurveyUnit surveyUnit = surveyUnitService.findbyId(surveyUnitId);
-        Campaign campaign = campaignService.findById(eventDto.campaignId());
+        Campaign campaign = campaignService.getById(eventDto.campaignId());
 
         Instant eventDate = Instant.ofEpochMilli(eventDto.eventDate());
 

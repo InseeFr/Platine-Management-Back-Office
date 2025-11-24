@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,6 +23,9 @@ public class Campaign {
 
     @Id
     private String id;
+
+    @Column(name = "technical_id",unique = true)
+    private UUID technicalId;
 
     @Column(name = "YEAR_VALUE")
     @NonNull
@@ -61,5 +65,4 @@ public class Campaign {
 
     @Column(name = "operation_upload_reference")
     private String operationUploadReference;
-
 }

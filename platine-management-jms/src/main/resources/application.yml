@@ -1,0 +1,57 @@
+logging:
+  file:
+    clean-history-on-start: true
+    max-history: 1460
+    max-size: 10MB
+    name: sicpilbo.log
+    total-size-cap: 500MB
+  level:
+    root: INFO
+  pattern:
+    console: '%d{yyyy-MMM-dd HH:mm:ss a} ID:%X{id} %blue(User:%X{user}) %yellow(Method:%X{method}) %green(Path:%X{path}) [%t] %clr(%-5level) %logger{36} - %msg%n'
+    file: '%d{yyyy-MMM-dd HH:mm:ss a} ID:%X{id} User:%X{user} Method:%X{method} Path:%X{path} [%t] %-5level %logger{36} - %msg%n'
+spring:
+  application:
+    name: datacollection-management-jms
+  datasource:
+    driverClassName: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 16
+      minimum-idle: 16
+    password: cocorico
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+  jackson:
+    time-zone: Europe/Paris
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+  liquibase:
+    change-log: classpath:db/master.xml
+    contexts: prod
+    defaultSchema: public
+    enabled: false
+  output:
+    ansi:
+      enabled: always
+  artemis:
+    mode: native
+    broker-url:
+    user:
+    password:
+    pool:
+      enabled: true
+      max-connections: 50
+  jms:
+    listener:
+      command-queue:
+broker:
+  # artemis, pulsar
+  name:
+  queue:
+    interrogation:
+      request: interrogation_request
+      response: interrogation_response

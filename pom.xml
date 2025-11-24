@@ -22,6 +22,7 @@
         <module>platine-management-shared</module>
         <module>platine-management-db</module>
         <module>platine-management-api</module>
+        <module>platine-management-jms</module>
     </modules>
     <properties>
 		<revision>4.29.0</revision>

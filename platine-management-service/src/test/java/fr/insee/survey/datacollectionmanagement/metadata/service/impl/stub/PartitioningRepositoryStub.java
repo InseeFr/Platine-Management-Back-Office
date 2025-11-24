@@ -8,11 +8,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class PartitioningRepositoryStub implements PartitioningRepository {
+
+    private List<Partitioning> partitionings;
+
+    public PartitioningRepositoryStub() {
+        this.partitionings = new ArrayList<>();
+    }
+
+    public void setPartitionings(Partitioning... partitionings) {
+        this.partitionings.addAll(Arrays.asList(partitionings));
+    }
+
     @Override
     public Partitioning findRandomPartitioning() {
         return null;
@@ -45,7 +55,8 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
 
     @Override
     public <S extends Partitioning> S saveAndFlush(S entity) {
-        return null;
+        this.partitionings.add(entity);
+        return entity;
     }
 
     @Override
@@ -120,7 +131,9 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
 
     @Override
     public <S extends Partitioning> S save(S entity) {
-        return null;
+        partitionings.removeIf(p -> Objects.equals(p.getId(), entity.getId()));
+        partitionings.add(entity);
+        return entity;
     }
 
     @Override
@@ -129,8 +142,10 @@ public class PartitioningRepositoryStub implements PartitioningRepository {
     }
 
     @Override
-    public Optional<Partitioning> findById(String s) {
-        return Optional.empty();
+    public Optional<Partitioning> findById(String id) {
+        return partitionings.stream()
+                .filter(partitioning -> partitioning.getId().equals(id))
+                .findFirst();
     }
 
     @Override

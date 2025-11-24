@@ -43,7 +43,7 @@ public class MonitoringController {
     @GetMapping(value = "/api/temp/moog/campaigns/{idCampaign}/monitoring/progress", produces = MediaType.APPLICATION_JSON_VALUE)
     public JSONCollectionWrapper<MoogProgressDto> getDataForProgressTemp(@PathVariable String idCampaign) {
         log.info("Request GET for monitoring moog progress table for campaign : {}", idCampaign);
-        Campaign campaign = campaignService.findById(idCampaign);
+        Campaign campaign = campaignService.getById(idCampaign);
         log.info("{} partitionings found", campaign.getPartitionings().stream().map(Partitioning::getId)
                 .toList().size());
         campaign.getPartitionings().forEach(part -> log.info("{} partitionig found", part.getId()));

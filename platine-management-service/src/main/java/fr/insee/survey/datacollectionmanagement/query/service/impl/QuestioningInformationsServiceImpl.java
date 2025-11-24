@@ -36,7 +36,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
     public QuestioningInformationsDto findQuestioningInformationsDtoReviewer(String idCampaign, String idsu) {
 
 
-        List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
+        List<Partitioning> listParts = campaignService.getById(idCampaign).getPartitionings().
                 stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu).isPresent()).toList();
 
         if (listParts.isEmpty()) {
@@ -51,7 +51,7 @@ public class QuestioningInformationsServiceImpl implements QuestioningInformatio
     public QuestioningInformationsDto findQuestioningInformationsDtoInterviewer(String idCampaign, String idsu, String contactId) {
 
 
-        List<Partitioning> listParts = campaignService.findById(idCampaign).getPartitionings().
+        List<Partitioning> listParts = campaignService.getById(idCampaign).getPartitionings().
                 stream().filter(p -> questioningService.findByIdPartitioningAndSurveyUnitIdSu(p.getId(), idsu).isPresent()).toList();
 
         if (listParts.isEmpty()) {

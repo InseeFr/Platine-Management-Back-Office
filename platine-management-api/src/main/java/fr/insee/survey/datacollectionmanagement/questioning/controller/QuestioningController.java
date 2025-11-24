@@ -64,7 +64,7 @@ public class QuestioningController {
     public ResponseEntity<QuestioningDto> postQuestioning(@RequestBody QuestioningDto questioningDto) {
         log.warn("DEPRECATED");
         SurveyUnit su = surveyUnitService.findbyId(questioningDto.getSurveyUnitId());
-        partitioningService.findById(questioningDto.getIdPartitioning());
+        partitioningService.getById(questioningDto.getIdPartitioning());
 
 
         Questioning questioning = convertToEntity(questioningDto);

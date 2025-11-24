@@ -9,12 +9,15 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface CampaignService {
 
     Collection<CampaignMoogDto> getCampaigns();
 
-    Campaign findById(String idCampaign);
+    Campaign getById(String idCampaign);
+
+    Optional<Campaign> findById(String idCampaign);
 
     Page<Campaign> findAll(Pageable pageable);
 

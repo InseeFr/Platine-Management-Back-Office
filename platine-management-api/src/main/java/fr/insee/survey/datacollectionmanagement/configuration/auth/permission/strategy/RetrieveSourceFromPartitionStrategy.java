@@ -10,11 +10,11 @@ public class RetrieveSourceFromPartitionStrategy implements SourceRetrievalStrat
 
     /**
      * Retrieve source from partition id
-     * @param partitionId
-     * @return
+     * @param partitionId partitionId
+     * @return sourceId linked to partition
      */
     @Override
     public String getSourceId(Object partitionId) {
-        return partitioningService.findById((String) partitionId).getCampaign().getSurvey().getSource().getId();
+        return partitioningService.getById((String) partitionId).getCampaign().getSurvey().getSource().getId();
     }
 }

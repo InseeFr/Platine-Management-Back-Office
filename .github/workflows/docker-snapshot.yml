@@ -26,6 +26,10 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
+      - name: install model filiere
+        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.2-SNAPSHOT.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.2-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+
+
       - name: Build API
         run: mvn package --no-transfer-progress
 
