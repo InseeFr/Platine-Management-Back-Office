@@ -35,7 +35,6 @@
             <version>${project.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-artemis</artifactId>
@@ -44,12 +43,6 @@
         <dependency>
             <groupId>org.messaginghub</groupId>
             <artifactId>pooled-jms</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jms-server</artifactId>
-            <version>2.33.0</version>
         </dependency>
 
         <dependency>
@@ -66,7 +59,22 @@
 
     </dependencies>
 
-     <build>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Forcer la version corrigée de commons-beanutils : CVE-2025-48734 -->
+            <!-- 1.10.1 ===> 1.11.0 -->
+            <!-- Impossible de passer en version 4.0.0 sans changer la version de springboot : https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-artemis-->
+            <!-- Mélange de Spring Boot 3.5.6 et de dépendances Spring Boot 4.0.0 -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.11.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <build>
          <plugins>
              <plugin>
                  <groupId>org.springframework.boot</groupId>
