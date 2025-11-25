@@ -2,15 +2,21 @@ package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.exception.QuestioningPriorityRulesException;
+import fr.insee.survey.datacollectionmanagement.exception.WalletBusinessRuleException;
 import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningPriorityService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.ValidationQuestioningPriorityError;
+import fr.insee.survey.datacollectionmanagement.user.validation.ValidationWalletError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +36,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +55,8 @@ public class QuestioningController {
     private final ModelMapper modelMapper;
 
     private final QuestioningAccreditationService questioningAccreditationService;
+
+    private final QuestioningPriorityService  questioningPriorityService;
 
     /**
      * @deprecated
@@ -111,6 +120,25 @@ public class QuestioningController {
             @PathVariable("contactId") String contactId)  {
 
         questioningAccreditationService.setMainQuestioningAccreditationToContact(contactId, interrogationId, false);
+    }
+
+    @Operation(
+            summary = "Update interrogation priorities",
+            description = "Receives a list of {idInterrogation, priority} and updates priorities accordingly."
+    )
+    @ApiResponse(responseCode = "204", description = "Priorities successfully updated")
+    @PostMapping(value = UrlConstants.API_QUESTIONINGS_PRIORITIES)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public void updatePriorities(@RequestBody List<InterrogationPriorityInputDto> priorities) {
+        List<ValidationQuestioningPriorityError> validationErrors = questioningPriorityService.validatePriorityRules(priorities);
+        if (!validationErrors.isEmpty()) {
+            List<String> errorMessages = validationErrors.stream()
+                    .map(ValidationQuestioningPriorityError::toString)
+                    .toList();
+            errorMessages.forEach(log::error);
+            throw new QuestioningPriorityRulesException(errorMessages);
+        }
+        questioningService.updatePriorities(priorities);
     }
 
     private Questioning convertToEntity(QuestioningDto questioningDto) {

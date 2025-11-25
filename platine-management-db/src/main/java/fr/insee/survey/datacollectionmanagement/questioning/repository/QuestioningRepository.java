@@ -7,10 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import org.springframework.data.repository.query.Param;
 
 public interface QuestioningRepository extends JpaRepository<Questioning, UUID> {
@@ -69,4 +67,7 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
     boolean existsBySurveyUnitIdSu(String idSu);
 
     Page<Questioning> findAll(Pageable pageable);
+
+    @Query("select distinct q.id from Questioning q where q.id in :ids")
+    Set<UUID> findExistingInterrogationIds(Collection<UUID> ids);
 }

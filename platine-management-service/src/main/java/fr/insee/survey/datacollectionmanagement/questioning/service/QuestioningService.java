@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
@@ -53,4 +54,8 @@ public interface QuestioningService {
     QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
 
     boolean hasExpertiseStatus(UUID questioningId);
+
+    void updatePriorities(List<InterrogationPriorityInputDto> priorities);
+
+    Set<UUID> findMissingIds(Set<UUID> ids);
 }

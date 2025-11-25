@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceReposi
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
@@ -245,5 +246,36 @@ public class QuestioningServiceImpl implements QuestioningService {
         return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
 
+    @Override
+    public void updatePriorities(List<InterrogationPriorityInputDto> priorities) {
+        if (priorities == null || priorities.isEmpty()) {
+            return;
+        }
+
+        Map<UUID, Long> priorityById = priorities.stream()
+                .collect(Collectors.toMap(
+                        InterrogationPriorityInputDto::interrogationId,
+                        InterrogationPriorityInputDto::priority
+                ));
+
+        List<Questioning> interrogations = questioningRepository.findAllById(priorityById.keySet());
+        interrogations.forEach(questioning ->
+                questioning.setPriority(priorityById.get(questioning.getId()))
+        );
+        questioningRepository.saveAll(interrogations);
+    }
+
+    @Override
+    public Set<UUID> findMissingIds(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<UUID> existingIdentifiers = questioningRepository.findExistingInterrogationIds(ids);
+        Set<UUID> missingIdentifiers = new HashSet<>(ids);
+        missingIdentifiers.removeAll(existingIdentifiers);
+
+        return missingIdentifiers;
+    }
 
 }

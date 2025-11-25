@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
@@ -18,13 +19,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
 
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
-    ArrayList<Questioning> questionings = new ArrayList<>();
+    List<Questioning> questionings = new ArrayList<>();
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -43,12 +45,12 @@ public class QuestioningServiceStub implements QuestioningService {
         return questioning;
     }
 
-  @Override
-  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+    @Override
+    public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
     return List.of();
   }
 
-  @Override
+    @Override
     public void deleteQuestioning(UUID id) {
         questionings.remove(findById(id));
     }
@@ -102,6 +104,24 @@ public class QuestioningServiceStub implements QuestioningService {
     public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
         return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestEventType());
+    }
+
+    @Override
+    public void updatePriorities(List<InterrogationPriorityInputDto> priorities) {
+
+    }
+
+    @Override
+    public Set<UUID> findMissingIds(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<UUID> existingIdentifiers = questionings.stream().map(Questioning::getId).collect(Collectors.toSet());
+        Set<UUID> missingIdentifiers = new HashSet<>(ids);
+        missingIdentifiers.removeAll(existingIdentifiers);
+
+        return missingIdentifiers;
     }
 
     @Override

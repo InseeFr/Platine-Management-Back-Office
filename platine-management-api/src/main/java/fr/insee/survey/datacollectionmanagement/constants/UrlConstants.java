@@ -37,6 +37,7 @@ public class UrlConstants {
     public static final String API_QUESTIONINGSID = "/api/questionings/id";
     public static final String API_QUESTIONINGS_SEARCH = "/api/questionings/search";
     public static final String API_QUESTIONINGS_ID_ASSISTANCE = "/api/questioning/{id}/assistance";
+    public static final String API_QUESTIONINGS_PRIORITIES = "/api/questionings/priorities";
 
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
