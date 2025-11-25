@@ -29,7 +29,7 @@ public record ValidationQuestioningPriorityError (
     public String toString() {
 
         String baseMessage = switch (type) {
-            case INTERROGATION_ID_NULL ->
+            case NULL_INTERROGATION_ID ->
                     "Interrogation id cannot be null";
             case DUPLICATE_INTERROGATION_ID ->
                     String.format("Duplicate interrogation id %s is not allowed", interrogationId);

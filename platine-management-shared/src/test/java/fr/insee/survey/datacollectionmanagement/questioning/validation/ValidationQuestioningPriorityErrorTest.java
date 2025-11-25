@@ -15,7 +15,7 @@ class ValidationQuestioningPriorityErrorTest {
         // given
         ValidationQuestioningPriorityError error =
                 new ValidationQuestioningPriorityError(
-                        ValidationQuestioningPriorityErrorType.INTERROGATION_ID_NULL,
+                        ValidationQuestioningPriorityErrorType.NULL_INTERROGATION_ID,
                         3
                 );
 

@@ -62,7 +62,7 @@ class QuestioningPriorityServiceImplTest {
         assertEquals(1, errors.size());
 
         ValidationQuestioningPriorityError error = errors.getFirst();
-        assertEquals(ValidationQuestioningPriorityErrorType.INTERROGATION_ID_NULL, error.type());
+        assertEquals(ValidationQuestioningPriorityErrorType.NULL_INTERROGATION_ID, error.type());
         assertEquals(List.of(1), error.lines());
         assertNull(error.interrogationId());
     }
@@ -135,7 +135,7 @@ class QuestioningPriorityServiceImplTest {
         assertEquals(4, errors.size());
 
         ValidationQuestioningPriorityError nullIdError = errors.getFirst();
-        assertEquals(ValidationQuestioningPriorityErrorType.INTERROGATION_ID_NULL, nullIdError.type());
+        assertEquals(ValidationQuestioningPriorityErrorType.NULL_INTERROGATION_ID, nullIdError.type());
         assertEquals(List.of(1), nullIdError.lines());
         assertNull(nullIdError.interrogationId());
 

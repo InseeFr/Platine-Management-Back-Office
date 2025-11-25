@@ -68,7 +68,7 @@ public class QuestioningPriorityServiceImpl  implements QuestioningPriorityServi
         return linePriorities.stream()
                 .filter(lp -> lp.input().interrogationId() == null)
                 .map(lp -> new ValidationQuestioningPriorityError(
-                        ValidationQuestioningPriorityErrorType.INTERROGATION_ID_NULL,
+                        ValidationQuestioningPriorityErrorType.NULL_INTERROGATION_ID,
                         lp.lineNumber()
                 ))
                 .toList();
