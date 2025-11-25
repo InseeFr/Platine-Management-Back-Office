@@ -652,6 +652,7 @@ class QuestioningServiceImplTest {
                 .hasMessageContaining("Questioning not found with id " + id);
     }
 
+    @Test
     void updatePriorities_shouldDoNothing_whenListIsNull() {
         questioningService.updatePriorities(null);
 

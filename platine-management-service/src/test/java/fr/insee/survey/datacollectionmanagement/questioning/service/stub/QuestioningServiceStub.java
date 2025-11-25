@@ -113,7 +113,7 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public void updatePriorities(List<InterrogationPriorityInputDto> priorities) {
-
+        //not used
     }
 
     @Override
