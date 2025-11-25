@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
@@ -73,6 +74,21 @@ public class QuestioningController {
         responseHeaders.set(HttpHeaders.LOCATION, ServletUriComponentsBuilder.fromCurrentRequest().toUriString());
         return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(convertToDto(questioning));
 
+    }
+
+    @Operation(summary = "Update questioning probation")
+    @PutMapping(value = UrlConstants.API_QUESTIONINGS_PROBATION, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Updated", content = @Content(schema = @Schema(implementation = QuestioningProbationDto.class))),
+            @ApiResponse(responseCode = "404", description = "NotFound")
+    })
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    public ResponseEntity<QuestioningProbationDto> putQuestioningProbation(@RequestBody QuestioningProbationDto questioningProbationDto) {
+
+        QuestioningProbationDto resultDto = questioningService.updateQuestioningProbation(questioningProbationDto);
+
+        return ResponseEntity.ok()
+                .body(resultDto);
     }
 
     @Operation(summary = "Search for questionings by survey unit id")

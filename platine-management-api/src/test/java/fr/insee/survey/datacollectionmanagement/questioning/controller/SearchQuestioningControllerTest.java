@@ -1,9 +1,14 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -29,6 +36,12 @@ class SearchQuestioningControllerTest {
     QuestioningService questioningService;
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    QuestioningRepository questioningRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void init() {
@@ -122,6 +135,41 @@ class SearchQuestioningControllerTest {
                 .andExpect(jsonPath("$.last", is(false)));
     }
 
+    @Test
+    void shouldUpdateProbationStatus() throws Exception {
+        // Given
+        Questioning existingQuestioning = questioningRepository.findAll().getFirst();
+        boolean newStatus = !Boolean.TRUE.equals(existingQuestioning.getIsOnProbation());
+        QuestioningProbationDto dto = new QuestioningProbationDto(existingQuestioning.getId(), newStatus);
+        String jsonContent = objectMapper.writeValueAsString(dto);
 
+        // When
+        mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .content(jsonContent)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.questioningId", is(existingQuestioning.getId().toString())))
+                .andExpect(jsonPath("$.isOnProbation", is(newStatus)));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+        // Given
+        UUID nonExistentId = UUID.randomUUID();
+        QuestioningProbationDto dto = new QuestioningProbationDto(nonExistentId, true);
+        String jsonContent = objectMapper.writeValueAsString(dto);
+
+        // When
+        mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .content(jsonContent)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isNotFound());
+    }
 
 }

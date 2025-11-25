@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,8 @@ public interface QuestioningService {
     Questioning findById(UUID id);
 
     Questioning saveQuestioning(Questioning questioning);
+
+    QuestioningProbationDto updateQuestioningProbation(QuestioningProbationDto questioningProbationDto);
 
     List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId);
 

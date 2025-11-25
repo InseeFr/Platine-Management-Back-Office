@@ -32,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,7 +70,23 @@ public class QuestioningServiceImpl implements QuestioningService {
         return questioningRepository.save(questioning);
     }
 
-  @Override
+    @Override
+    @Transactional
+    public QuestioningProbationDto updateQuestioningProbation(QuestioningProbationDto dto) {
+
+        Questioning questioning = questioningRepository.findById(dto.questioningId())
+                .orElseThrow(() -> new NotFoundException("Questioning not found with id " + dto.questioningId()));
+
+        questioning.setIsOnProbation(dto.isOnProbation());
+
+        Questioning savedQuestioning = questioningRepository.save(questioning);
+
+        return new QuestioningProbationDto(
+                savedQuestioning.getId(),
+                savedQuestioning.getIsOnProbation());
+    }
+
+    @Override
   public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
     return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
   }
@@ -187,6 +204,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
+                .isOnProbation(questioning.getIsOnProbation())
                 .build();
     }
 
