@@ -50,9 +50,9 @@ class SortValidatorTest {
     void sanitizeSort_withMixedAllowedAndDisallowed_keepsOnlyAllowedInOriginalOrder() {
         // given
         Sort input = Sort.by(
-                Sort.Order.asc("priority"),   // autorisé
-                Sort.Order.desc("unknown"),   // interdit
-                Sort.Order.asc("score")       // autorisé
+                Sort.Order.asc("priority"),
+                Sort.Order.desc("unknown"),
+                Sort.Order.asc("score")
         );
 
         // when
