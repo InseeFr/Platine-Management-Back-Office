@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -195,6 +197,42 @@ class QuestionningControllerTest {
         mockMvc.perform(put(UrlConstants.API_MAIN_CONTACT_INTERROGATIONS_ASSIGN, questioningId, contactId)
                         .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("admin", AuthorityRoleEnum.ADMIN))))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updatePriorities_shouldReturn200_whenValidationOk() throws Exception {
+        Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
+        UUID questioningId = questioning.getId();
+        String json = """
+                [
+                  {
+                    "interrogationId": "%s",
+                    "priority": 1
+                  }
+                ]
+                """.formatted(questioningId);
+
+        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_PRIORITIES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updatePriorities_shouldReturn400_whenValidationNotOk() throws Exception {
+        String json = """
+                [
+                  {
+                    "interrogationId": "11111111-1111-1111-1111-111111111111",
+                    "priority": 1
+                  }
+                ]
+                """;
+
+        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_PRIORITIES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 
 }

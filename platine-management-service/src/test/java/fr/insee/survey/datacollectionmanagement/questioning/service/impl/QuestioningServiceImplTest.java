@@ -3,14 +3,9 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
@@ -30,6 +25,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -656,4 +652,129 @@ class QuestioningServiceImplTest {
                 .hasMessageContaining("Questioning not found with id " + id);
     }
 
+    void updatePriorities_shouldDoNothing_whenListIsNull() {
+        questioningService.updatePriorities(null);
+
+        verifyNoInteractions(questioningRepository);
+    }
+
+    @Test
+    void updatePriorities_shouldDoNothing_whenListIsEmpty() {
+        questioningService.updatePriorities(List.of());
+
+        verifyNoInteractions(questioningRepository);
+    }
+
+    private InterrogationPriorityInputDto priority(UUID interrogationId, Long priority) {
+        return new InterrogationPriorityInputDto(interrogationId, priority);
+    }
+
+    private Questioning questioning(UUID id, Long priority) {
+        Questioning q = new Questioning();
+        q.setId(id);
+        q.setPriority(priority);
+        return q;
+    }
+
+    @Test
+    void updatePriorities_shouldUpdatePrioritiesForExistingQuestionings() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+
+        List<InterrogationPriorityInputDto> priorities = List.of(
+                priority(id1, 100L),
+                priority(id2, 200L)
+        );
+
+        List<Questioning> existingQuestionings = List.of(
+                questioning(id1, 10L),
+                questioning(id2, 20L)
+        );
+
+        when(questioningRepository.findAllById(Set.of(id1, id2)))
+                .thenReturn(existingQuestionings);
+
+        questioningService.updatePriorities(priorities);
+
+        verify(questioningRepository).findAllById(Set.of(id1, id2));
+
+        verify(questioningRepository).saveAll(argThat(iterable -> {
+            List<Questioning> saved = new ArrayList<>();
+            iterable.forEach(saved::add);
+
+            assertEquals(2, saved.size());
+
+            Questioning q1 = saved.stream()
+                    .filter(q -> q.getId().equals(id1))
+                    .findFirst()
+                    .orElseThrow();
+            Questioning q2 = saved.stream()
+                    .filter(q -> q.getId().equals(id2))
+                    .findFirst()
+                    .orElseThrow();
+
+            assertEquals(100L, q1.getPriority());
+            assertEquals(200L, q2.getPriority());
+
+            return true;
+        }));
+    }
+
+    @Test
+    void findMissingIds_shouldReturnEmpty_whenIdsIsNull() {
+        Set<UUID> result = questioningService.findMissingIds(null);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(questioningRepository);
+    }
+
+    @Test
+    void findMissingIds_shouldReturnEmpty_whenIdsIsEmpty() {
+        Set<UUID> result = questioningService.findMissingIds(Set.of());
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(questioningRepository);
+    }
+
+    @Test
+    void findMissingIds_shouldReturnEmpty_whenAllIdsExist() {
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        Set<UUID> inputIds = Set.of(id1, id2);
+
+        when(questioningRepository.findExistingInterrogationIds(inputIds))
+                .thenReturn(Set.of(id1, id2));
+
+        Set<UUID> result = questioningService.findMissingIds(inputIds);
+
+        assertTrue(result.isEmpty());
+        verify(questioningRepository).findExistingInterrogationIds(inputIds);
+        verifyNoMoreInteractions(questioningRepository);
+    }
+
+    @Test
+    void findMissingIds_shouldReturnMissingIds_only() {
+        UUID existingId1 = UUID.randomUUID();
+        UUID existingId2 = UUID.randomUUID();
+        UUID missingId1 = UUID.randomUUID();
+        UUID missingId2 = UUID.randomUUID();
+
+        Set<UUID> inputIds = Set.of(existingId1, existingId2, missingId1, missingId2);
+
+        when(questioningRepository.findExistingInterrogationIds(inputIds))
+                .thenReturn(Set.of(existingId1, existingId2));
+
+        Set<UUID> result = questioningService.findMissingIds(inputIds);
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(missingId1));
+        assertTrue(result.contains(missingId2));
+        assertFalse(result.contains(existingId1));
+        assertFalse(result.contains(existingId2));
+
+        verify(questioningRepository).findExistingInterrogationIds(inputIds);
+        verifyNoMoreInteractions(questioningRepository);
+    }
 }
