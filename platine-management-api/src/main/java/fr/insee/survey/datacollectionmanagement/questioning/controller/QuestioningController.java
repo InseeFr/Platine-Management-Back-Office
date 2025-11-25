@@ -142,7 +142,7 @@ public class QuestioningController {
             summary = "Update interrogation priorities",
             description = "Receives a list of {idInterrogation, priority} and updates priorities accordingly."
     )
-    @ApiResponse(responseCode = "204", description = "Priorities successfully updated")
+    @ApiResponse(responseCode = "200", description = "Priorities successfully updated")
     @PostMapping(value = UrlConstants.API_QUESTIONINGS_PRIORITIES)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
     public void updatePriorities(@RequestBody List<InterrogationPriorityInputDto> priorities) {
