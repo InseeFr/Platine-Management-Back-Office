@@ -7,7 +7,6 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
