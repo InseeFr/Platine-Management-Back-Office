@@ -61,6 +61,11 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
+    public Set<UUID> findExistingInterrogationIds(Collection<UUID> ids) {
+        return Set.of();
+    }
+
+    @Override
     public void flush() {
         // not used
     }
