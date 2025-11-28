@@ -142,7 +142,7 @@ class QuestioningCsvExportComponentTest {
     @Test
     void toCsvBytes_shouldHandleEmptyDataList() throws Exception {
         // given
-        List<QuestioningCsvDto> data = List.of(); // liste vide
+        List<QuestioningCsvDto> data = List.of();
 
         // when
         CSVParser parser = generateAndParseCsv(data, false);
