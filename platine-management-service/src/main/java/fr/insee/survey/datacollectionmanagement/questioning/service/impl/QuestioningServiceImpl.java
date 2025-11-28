@@ -78,21 +78,21 @@ public class QuestioningServiceImpl implements QuestioningService {
         Questioning questioning = questioningRepository.findById(dto.questioningId())
                 .orElseThrow(() -> new NotFoundException("Questioning not found with id " + dto.questioningId()));
 
-        questioning.setIsOnProbation(dto.isOnProbation());
+        questioning.setOnProbation(dto.isOnProbation());
 
         Questioning savedQuestioning = questioningRepository.save(questioning);
 
         return new QuestioningProbationDto(
                 savedQuestioning.getId(),
-                savedQuestioning.getIsOnProbation());
+                savedQuestioning.isOnProbation());
     }
 
     @Override
-  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
-    return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
-  }
+    public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+        return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
+    }
 
-  @Override
+    @Override
     public void deleteQuestioning(UUID id) {
         questioningRepository.deleteById(id);
     }
@@ -205,7 +205,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
-                .isOnProbation(questioning.getIsOnProbation())
+                .isOnProbation(questioning.isOnProbation())
                 .build();
     }
 

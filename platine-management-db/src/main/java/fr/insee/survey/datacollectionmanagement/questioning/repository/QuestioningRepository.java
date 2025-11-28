@@ -9,8 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.*;
 
-import org.springframework.data.repository.query.Param;
-
 public interface QuestioningRepository extends JpaRepository<Questioning, UUID> {
 
     Set<Questioning> findByIdPartitioning(String idPartitioning);
@@ -51,16 +49,14 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
         q.idPartitioning,
         q.surveyUnit.idSu,
         q.highestEventType,
-        q.highestEventDate
+        q.highestEventDate,
+        q.isOnProbation
     )
     FROM Questioning q
-    WHERE q.idPartitioning IN (
-        SELECT p.id
-        FROM Partitioning p
-        WHERE p.campaign.id = :campaignId
-    )
-""")
-    List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(@Param("campaignId") String campaignId);
+    JOIN Partitioning p ON p.id = q.idPartitioning
+    WHERE p.campaign.id = :campaignId
+    """)
+    List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(String campaignId);
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 

@@ -8,15 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class QuestioningCsvDto {
-
-  private UUID interrogationId;
-  private String partitioningId;
-  private String surveyUnitId;
-  private TypeQuestioningEvent highestEventType;
-  private Date highestEventDate;
-
-}
+public record QuestioningCsvDto(
+        UUID interrogationId,
+        String partitioningId,
+        String surveyUnitId,
+        TypeQuestioningEvent highestEventType,
+        Date highestEventDate,
+        boolean isOnProbation
+) {}

@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl;
 
+import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -8,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub.CampaignRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.ParametersServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.PartitioningServiceStub;
@@ -23,6 +25,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CampaignServiceImplTest {
 
@@ -438,8 +442,37 @@ class CampaignServiceImplTest {
         assertThat(result.getFirst().id()).isEqualTo("CAMP1");
         assertThat(result.getFirst().collectMode()).isEqualTo("WEB");
         assertThat(result.getFirst().sensitivity()).isFalse();
+    }
 
+    @Test
+    void findSourceTypeByCampaignId_returnsType_whenCampaignExists() {
+        // given
+        Campaign newCampaign = new Campaign();
+        newCampaign.setId("CAMP_1");
 
+        Survey survey = new Survey();
+        Source source = new Source();
+        source.setType(SourceTypeEnum.BUSINESS);
+        survey.setSource(source);
+        newCampaign.setSurvey(survey);
+
+        campaignRepositoryStub.setCampaigns(List.of(newCampaign));
+
+        // when
+        SourceTypeEnum result = campaignServiceImpl.findSourceTypeByCampaignId("CAMP_1");
+
+        // then
+        assertEquals(SourceTypeEnum.BUSINESS, result);
+    }
+
+    @Test
+    void findSourceTypeByCampaignId_throwsNotFound_whenCampaignDoesNotExist() {
+        NotFoundException ex = assertThrows(
+                NotFoundException.class,
+                () -> campaignServiceImpl.findSourceTypeByCampaignId("UNKNOWN")
+        );
+
+        assertEquals("Campaign UNKNOWN not found", ex.getMessage());
     }
 
     private Campaign openedCampaign(String id) {
