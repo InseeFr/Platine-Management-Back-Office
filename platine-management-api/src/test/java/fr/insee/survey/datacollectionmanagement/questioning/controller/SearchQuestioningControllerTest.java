@@ -129,7 +129,7 @@ class SearchQuestioningControllerTest {
     void shouldUpdateProbationStatus() throws Exception {
         // Given
         Questioning existingQuestioning = questioningRepository.findAll().getFirst();
-        boolean newStatus = !Boolean.TRUE.equals(existingQuestioning.getIsOnProbation());
+        boolean newStatus = !existingQuestioning.isOnProbation();
         QuestioningProbationDto dto = new QuestioningProbationDto(existingQuestioning.getId(), newStatus);
         String jsonContent = objectMapper.writeValueAsString(dto);
 

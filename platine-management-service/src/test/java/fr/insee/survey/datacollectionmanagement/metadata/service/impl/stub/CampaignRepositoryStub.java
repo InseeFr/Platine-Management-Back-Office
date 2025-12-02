@@ -1,7 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +70,19 @@ public class CampaignRepositoryStub implements CampaignRepository {
     @Override
     public List<Campaign> findOpenedCampaignsForUserGroups(String userId, Instant instant) {
         return List.of();
+    }
+
+    @Override
+    public Optional<SourceTypeEnum> findSourceTypeById(String idCampaign) {
+        if (campaigns == null || campaigns.isEmpty()) {
+            return Optional.empty();
+        }
+        return campaigns.stream()
+                .filter(c -> c.getId().equals(idCampaign))
+                .findFirst()
+                .map(Campaign::getSurvey)
+                .map(Survey::getSource)
+                .map(Source::getType);
     }
 
     @Override

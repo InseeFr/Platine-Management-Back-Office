@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.repository;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface CampaignRepository extends JpaRepository<Campaign, String>,PagingAndSortingRepository<Campaign, String> {
@@ -108,4 +110,13 @@ public interface CampaignRepository extends JpaRepository<Campaign, String>,Pagi
             nativeQuery = true)
     List<Campaign> findOpenedCampaignsForUserGroups(@Param("userId") String userId,
                                                     @Param("instant") Instant instant);
+
+    @Query(value = """
+    SELECT src.type
+    FROM campaign c
+        JOIN survey s ON s.id = c.survey_id
+        JOIN source src ON src.id = s.source_id
+    WHERE c.id = :idCampaign
+    """, nativeQuery = true)
+    Optional<SourceTypeEnum> findSourceTypeById(String idCampaign);
 }

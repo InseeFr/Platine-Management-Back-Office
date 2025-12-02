@@ -20,7 +20,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
-import fr.insee.survey.datacollectionmanagement.metadata.service.PartitioningService;
 import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningContactDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
@@ -36,11 +35,10 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.SurveyUnitService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -52,6 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,21 +73,12 @@ class QuestioningServiceImplTest {
     private QuestioningRepository questioningRepository;
 
     @Mock
-    private SurveyUnitService surveyUnitService;
-
-    @Mock
-    private PartitioningService partitioningService;
-
-    @Mock
     private ContactService contactService;
 
     private QuestioningEventServiceStub questioningEventService;
 
     @Mock
     private SearchQuestioningDao searchQuestioningDao;
-
-    @Mock
-    private QuestioningAccreditationService questioningAccreditationService;
 
     @Mock
     private SourceRepository sourceRepository;
@@ -191,8 +181,8 @@ class QuestioningServiceImplTest {
 
     @ParameterizedTest
     @CsvSource({
-        "HOUSEHOLD, true",
-        "BUSINESS, false"
+            "HOUSEHOLD, true",
+            "BUSINESS, false"
     })
     @DisplayName("Should return correct QuestioningDetailsDto based on SourceTypeEnum")
     void testGetQuestioningDetails(SourceTypeEnum sourceType, boolean expectedIsHousehold) {
@@ -206,7 +196,7 @@ class QuestioningServiceImplTest {
         su.setIdentificationCode("identificationCode");
         su.setLabel("label");
         questioning.setSurveyUnit(su);
-        questioning.setIsOnProbation(true);
+        questioning.setOnProbation(true);
 
         partitioning.setId("1");
 
@@ -228,9 +218,9 @@ class QuestioningServiceImplTest {
         questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
 
         QuestioningEvent event = new QuestioningEvent(
-            new Date(),
-            TypeQuestioningEvent.INITLA,
-            questioning);
+                new Date(),
+                TypeQuestioningEvent.INITLA,
+                questioning);
         questioning.setQuestioningEvents(Set.of(event));
         questioning.setQuestioningComments(Set.of());
         questioning.setQuestioningCommunications(Set.of());
@@ -239,7 +229,7 @@ class QuestioningServiceImplTest {
         when(partitioningRepository.findById(any())).thenReturn(Optional.of(partitioning));
         when(sourceRepository.findById(any())).thenReturn(Optional.of(source));
         when(contactService.findByIdentifiers(any())).thenReturn(
-            List.of(new QuestioningContactDto("contact1", "Doe", "John", true))
+                List.of(new QuestioningContactDto("contact1", "Doe", "John", true))
         );
 
         // When
@@ -269,7 +259,7 @@ class QuestioningServiceImplTest {
         // When & Then
         assertThatThrownBy(() -> questioningService.getQuestioningDetails(questioningId))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Questioning "+questioningId+" not found");
+                .hasMessageContaining("Questioning " + questioningId + " not found");
     }
 
     @DisplayName("Should return NOT_RECEIVED when no events exist")
@@ -521,97 +511,100 @@ class QuestioningServiceImplTest {
 
     @Test
     void getQuestioningsByCampaignIdForCsv_shouldReturnListWhenDataExists() {
-      // Given
-      String campaignId = "campaign123";
-      UUID id1 = UUID.randomUUID();
-      UUID id2 = UUID.randomUUID();
+        // Given
+        String campaignId = "campaign123";
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
 
-      List<QuestioningCsvDto> expectedDtos = Arrays.asList(
-          new QuestioningCsvDto(
-              id1,
-              "p1",
-              "su1",
-              TypeQuestioningEvent.VALINT,
-              new Date()
-          ),
-          new QuestioningCsvDto(
-              id2,
-              "p2",
-              "su2",
-              TypeQuestioningEvent.FOLLOWUP,
-              new Date(System.currentTimeMillis() - 86400000)  // Date d'hier
-          )
-      );
+        List<QuestioningCsvDto> expectedDtos = Arrays.asList(
+                new QuestioningCsvDto(
+                        id1,
+                        "p1",
+                        "su1",
+                        TypeQuestioningEvent.VALINT,
+                        new Date(),
+                        false
+                ),
+                new QuestioningCsvDto(
+                        id2,
+                        "p2",
+                        "su2",
+                        TypeQuestioningEvent.FOLLOWUP,
+                        new Date(System.currentTimeMillis() - 86400000),
+                        false
+                )
+        );
 
-      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
-          .thenReturn(expectedDtos);
+        when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+                .thenReturn(expectedDtos);
 
-      // When
-      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+        // When
+        List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      // Then
-      assertNotNull(result);
-      assertEquals(2, result.size());
-      assertEquals(expectedDtos, result);
-      assertEquals(id1, result.getFirst().getInterrogationId());
-      assertEquals(TypeQuestioningEvent.VALINT, result.getFirst().getHighestEventType());
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedDtos, result);
+        assertEquals(id1, result.getFirst().interrogationId());
+        assertEquals(TypeQuestioningEvent.VALINT, result.getFirst().highestEventType());
     }
 
     @Test
     void getQuestioningsByCampaignIdForCsv_shouldReturnEmptyListWhenNoData() {
-      // Given
-      String campaignId = "campaign123";
+        // Given
+        String campaignId = "campaign123";
 
-      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
-          .thenReturn(Collections.emptyList());
+        when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+                .thenReturn(Collections.emptyList());
 
-      // When
-      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+        // When
+        List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      // Then
-      assertNotNull(result);
-      assertTrue(result.isEmpty());
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
     void getQuestioningsByCampaignIdForCsv_shouldHandleNullCampaignId() {
-      // Given
-      when(questioningRepository.findQuestioningDataForCsvByCampaignId(null))
-          .thenReturn(Collections.emptyList());
+        // Given
+        when(questioningRepository.findQuestioningDataForCsvByCampaignId(null))
+                .thenReturn(Collections.emptyList());
 
-      // When/Then
-      assertDoesNotThrow(() -> {
-        List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-      });
+        // When/Then
+        assertDoesNotThrow(() -> {
+            List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(null);
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        });
     }
 
     @Test
     void getQuestioningsByCampaignIdForCsv_shouldReturnSingleItemWhenOnlyOneExists() {
-      // Given
-      String campaignId = "campaign123";
-      UUID id = UUID.randomUUID();
-      QuestioningCsvDto expectedDto = new QuestioningCsvDto(
-          id,
-          "p1",
-          "su1",
-          TypeQuestioningEvent.PND,
-          new Date()
-      );
+        // Given
+        String campaignId = "campaign123";
+        UUID id = UUID.randomUUID();
+        QuestioningCsvDto expectedDto = new QuestioningCsvDto(
+                id,
+                "p1",
+                "su1",
+                TypeQuestioningEvent.PND,
+                new Date(),
+                false
+        );
 
-      when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
-          .thenReturn(Collections.singletonList(expectedDto));
+        when(questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId))
+                .thenReturn(Collections.singletonList(expectedDto));
 
-      // When
-      List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+        // When
+        List<QuestioningCsvDto> result = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      // Then
-      assertNotNull(result);
-      assertEquals(1, result.size());
-      assertEquals(expectedDto, result.getFirst());
-      assertEquals(id, result.getFirst().getInterrogationId());
-      assertEquals(TypeQuestioningEvent.PND, result.getFirst().getHighestEventType());
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(expectedDto, result.getFirst());
+        assertEquals(id, result.getFirst().interrogationId());
+        assertEquals(TypeQuestioningEvent.PND, result.getFirst().highestEventType());
     }
 
     @Test
@@ -622,7 +615,7 @@ class QuestioningServiceImplTest {
 
         Questioning existingQuestioning = new Questioning();
         existingQuestioning.setId(id);
-        existingQuestioning.setIsOnProbation(false);
+        existingQuestioning.setOnProbation(false);
 
         when(questioningRepository.findById(id)).thenReturn(Optional.of(existingQuestioning));
         when(questioningRepository.save(existingQuestioning)).thenReturn(existingQuestioning);
@@ -634,7 +627,7 @@ class QuestioningServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.questioningId()).isEqualTo(id);
         assertThat(result.isOnProbation()).isTrue();
-        assertThat(existingQuestioning.getIsOnProbation()).isTrue();
+        assertThat(existingQuestioning.isOnProbation()).isTrue();
         verify(questioningRepository).save(existingQuestioning);
     }
 

@@ -4,21 +4,17 @@ package fr.insee.survey.datacollectionmanagement.metadata.controller;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,19 +25,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -49,7 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CampaignControllerTest {
 
@@ -60,13 +49,8 @@ class CampaignControllerTest {
     @Autowired
     CampaignService campaignService;
 
-    @MockitoBean
-    private QuestioningService questioningService;
-
-    private static final String CAMPAIGN_ID = "campaign-2024";
-    private static final UUID INTERROGATION_ID_1 = UUID.randomUUID();
-    private static final UUID INTERROGATION_ID_2 = UUID.randomUUID();
-    private static final Date FIXED_DATE = new Date(1672531200000L); // 2023-01-01
+    @Autowired
+    QuestioningService questioningService;
 
     @BeforeEach
     void init() {
@@ -394,119 +378,98 @@ class CampaignControllerTest {
     }
 
     @Test
-    void downloadQuestioningsCsv_shouldReturnValidCsv_whenDataExists() throws Exception {
-        // Given
-        List<QuestioningCsvDto> mockData = createStandardTestData();
+    void downloadQuestioningsCsv_shouldReturnValidCsvHouseHold_whenDataExists() throws Exception {
+        String campaignId = "SOURCE22023T01"; // household source
 
-        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-                .thenReturn(mockData);
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-        // When/Then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
                 .andExpect(status().isOk())
                 .andExpect(header().string(
+                        HttpHeaders.CONTENT_TYPE,
+                        "text/csv;charset=UTF-8"))
+                .andExpect(header().string(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + CAMPAIGN_ID + ".csv\""
+                        "attachment; filename=\"SOURCE22023T01.csv\""
                 ))
-                .andExpect(result -> verifyCsvContent(result, mockData));
+                .andExpect(result -> verifyCsvContent(result, data, false));
+    }
 
-        verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
+    @Test
+    void downloadQuestioningsCsv_shouldReturnValidCsvBusiness_whenDataExists() throws Exception {
+        String campaignId = "SOURCE12023T01"; // business source
+
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_TYPE,
+                        "text/csv;charset=UTF-8"))
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"SOURCE12023T01.csv\""
+                ))
+                .andExpect(result -> verifyCsvContent(result, data, true));
     }
 
     @Test
     void downloadQuestioningsCsv_shouldReturnEmptyCsv_whenNoData() throws Exception {
-        // Given
-        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-                .thenReturn(Collections.emptyList());
+        String campaignId = "SOURCE12023T01";
 
-        // When/Then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+        for (QuestioningCsvDto questioningCsvDto : data) {
+            questioningService.deleteQuestioning(questioningCsvDto.interrogationId());
+        }
+
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String content = result.getResponse().getContentAsString();
                     String[] lines = content.split("\n");
-                    assertEquals(1, lines.length, "Doit contenir uniquement l'en-tête");
-                    assertTrue(lines[0].contains("partitioningId"), "En-tête manquant");
+                    assertEquals(1, lines.length, "Should only contain header");
+                    assertTrue(lines[0].contains("partitioningId"), "Missing header");
                 });
-
-        verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
     }
 
     @Test
-    void downloadQuestioningsCsv_shouldReturn404_whenCampaignNotFound() throws Exception {
-        // Given
-        String unknownCampaignId = "unknown-campaign";
-        when(questioningService.getQuestioningsByCampaignIdForCsv(unknownCampaignId))
-                .thenThrow(new NotFoundException(unknownCampaignId));
+    void downloadQuestioningsCsv_shouldReturnNotFoundWhenUnknownCampaign() throws Exception {
+        String campaignId = "NOT_FOUND";
 
-        // When/Then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, unknownCampaignId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value(unknownCampaignId));
-
-        verify(questioningService).getQuestioningsByCampaignIdForCsv(unknownCampaignId);
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isNotFound());
     }
 
-    @Test
-    void downloadQuestioningsCsv_shouldHandleLargeDataset() throws Exception {
-        // Given
-        List<QuestioningCsvDto> largeDataset = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            largeDataset.add(new QuestioningCsvDto(
-                    UUID.randomUUID(),
-                    "partition-" + i,
-                    "unit-" + i,
-                    TypeQuestioningEvent.HC,
-                    FIXED_DATE
-            ));
-        }
-
-        when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-                .thenReturn(largeDataset);
-
-        // When/Then
-        MvcResult result = mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-                .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
-                        containsString("filename=\"" + CAMPAIGN_ID + ".csv\"")))
-                .andReturn();
-
-        // Vérification que le contenu est généré (sans vérifier chaque ligne)
-        String content = result.getResponse().getContentAsString();
-        String[] lines = content.split("\n");
-        assertEquals(1001, lines.length, "Doit contenir 1 en-tête + 1000 lignes");
-    }
-
-    private List<QuestioningCsvDto> createStandardTestData() {
-        return Arrays.asList(
-                new QuestioningCsvDto(INTERROGATION_ID_1, "partition-1", "unit-1001", TypeQuestioningEvent.HC, FIXED_DATE),
-                new QuestioningCsvDto(INTERROGATION_ID_2, "partition-2", "unit-1002", TypeQuestioningEvent.EXPERT, FIXED_DATE)
-        );
-    }
-
-    private void verifyCsvContent(MvcResult result, List<QuestioningCsvDto> expectedData) throws Exception {
+    private void verifyCsvContent(MvcResult result, List<QuestioningCsvDto> expectedData, boolean isBusiness) throws Exception {
         String csvContent = result.getResponse().getContentAsString();
         String[] lines = csvContent.split("\n");
 
-        // Vérification de la structure
-        assertEquals(expectedData.size() + 1, lines.length, "Nombre de lignes incorrect");
+        assertEquals(expectedData.size() + 1, lines.length, "Wrong number of lines");
 
-        // Vérification de l'en-tête
         assertThat(lines[0]).contains(
                 "partitioningId", "surveyUnitId", "interrogationId",
                 "highestEventType", "highestEventDate"
         );
 
-        // Vérification des données
+        if (isBusiness) {
+            assertThat(lines[0]).contains("isOnProbation");
+        }
+
+
         for (int i = 0; i < expectedData.size(); i++) {
             QuestioningCsvDto dto = expectedData.get(i);
             String line = lines[i + 1];
 
             assertThat(line)
-                    .contains(dto.getPartitioningId())
-                    .contains(dto.getSurveyUnitId())
-                    .contains(dto.getInterrogationId().toString())
-                    .contains(dto.getHighestEventType().name());
+                    .contains(dto.partitioningId())
+                    .contains(dto.surveyUnitId())
+                    .contains(dto.interrogationId().toString())
+                    .contains(dto.highestEventType() != null ? dto.highestEventType().name() : "")
+                    .contains(dto.highestEventDate() != null ? dto.highestEventDate().toString(): "");
+            if (isBusiness) {
+                assertThat(line).contains(dto.isOnProbation()+"");
+            }
         }
     }
 

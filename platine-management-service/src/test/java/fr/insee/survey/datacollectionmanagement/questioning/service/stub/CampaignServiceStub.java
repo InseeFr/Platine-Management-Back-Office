@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import org.springframework.data.domain.Page;
@@ -99,6 +100,11 @@ public class CampaignServiceStub implements CampaignService {
                 .map(campaignStatusMap::get)
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    @Override
+    public SourceTypeEnum findSourceTypeByCampaignId(String campaignId) {
+        return null;
     }
 
     @Override

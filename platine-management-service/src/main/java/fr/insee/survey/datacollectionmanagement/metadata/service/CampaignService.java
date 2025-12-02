@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.service;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,4 +53,6 @@ public interface CampaignService {
     CampaignHeaderDto findCampaignHeaderById(String id);
 
     List<CampaignStatusDto> findCampaignStatusByCampaignIdIn(List<String> ids);
+
+    SourceTypeEnum findSourceTypeByCampaignId(String campaignId);
 }
