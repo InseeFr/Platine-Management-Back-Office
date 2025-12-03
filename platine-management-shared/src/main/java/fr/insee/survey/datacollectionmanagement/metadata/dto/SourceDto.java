@@ -19,5 +19,6 @@ public class SourceDto {
     private String storageTime;
     private String personalData;
     private Boolean displayFaq;
+    private boolean paperFormInputEnabled;
 
 }
