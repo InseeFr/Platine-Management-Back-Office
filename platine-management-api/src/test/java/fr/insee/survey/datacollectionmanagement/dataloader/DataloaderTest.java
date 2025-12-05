@@ -57,6 +57,9 @@ public class DataloaderTest {
     private OwnerRepository ownerRepository;
 
     @Autowired
+    private SupportRepository supportRepository;
+
+    @Autowired
     private SourceRepository sourceRepository;
 
     @Autowired
