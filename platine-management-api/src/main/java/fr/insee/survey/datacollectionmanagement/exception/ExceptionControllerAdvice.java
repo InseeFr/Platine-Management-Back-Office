@@ -68,11 +68,11 @@ public class ExceptionControllerAdvice {
     /**
      * Global method to process the catched exception
      *
-     * @param ex      Exception catched
-     * @param status  status linked with this exception
-     * @param request request initiating the exception
+     * @param ex                   Exception catched
+     * @param status               status linked with this exception
+     * @param request              request initiating the exception
      * @param overrideErrorMessage message overriding default error message from exception
-     * @param errors messages details
+     * @param errors               messages details
      * @return the apierror object with associated status code
      */
     private ResponseEntity<ApiError> processException(final Exception ex, final HttpStatus status,
@@ -81,7 +81,7 @@ public class ExceptionControllerAdvice {
         if (overrideErrorMessage != null) {
             errorMessage = overrideErrorMessage;
         }
-        ApiError error = errorComponent.buildApiErrorObject(request,status, errorMessage, errors);
+        ApiError error = errorComponent.buildApiErrorObject(request, status, errorMessage, errors);
         log.error("Exception occurred at {}: {}", error.getPath(), errorMessage, ex);
         return new ResponseEntity<>(error, status);
     }
@@ -121,7 +121,6 @@ public class ExceptionControllerAdvice {
         log.error(defaultMessage, e);
         return processException(e, HttpStatus.BAD_REQUEST, request, defaultMessage);
     }
-
 
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -206,11 +205,17 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(WalletFileProcessingException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleWalletFileProcessingException(
-        WalletFileProcessingException e, WebRequest request) {
-      log.error("Wallet file processing error: {}", e.getMessage(), e);
-      return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
+            WalletFileProcessingException e, WebRequest request) {
+        log.error("Wallet file processing error: {}", e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
     }
 
+    @ExceptionHandler(QuestioningPriorityRulesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleQuestioningPriorityRulesException(
+            QuestioningPriorityRulesException e, WebRequest request) {
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage(), e.getErrors());
+    }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

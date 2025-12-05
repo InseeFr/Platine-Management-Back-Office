@@ -7,11 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import org.springframework.data.repository.query.Param;
+import java.util.*;
 
 public interface QuestioningRepository extends JpaRepository<Questioning, UUID> {
 
@@ -53,20 +49,21 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
         q.idPartitioning,
         q.surveyUnit.idSu,
         q.highestEventType,
-        q.highestEventDate
+        q.highestEventDate,
+        q.isOnProbation
     )
     FROM Questioning q
-    WHERE q.idPartitioning IN (
-        SELECT p.id
-        FROM Partitioning p
-        WHERE p.campaign.id = :campaignId
-    )
-""")
-    List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(@Param("campaignId") String campaignId);
+    JOIN Partitioning p ON p.id = q.idPartitioning
+    WHERE p.campaign.id = :campaignId
+    """)
+    List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(String campaignId);
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
     boolean existsBySurveyUnitIdSu(String idSu);
 
     Page<Questioning> findAll(Pageable pageable);
+
+    @Query("select distinct q.id from Questioning q where q.id in :ids")
+    Set<UUID> findExistingInterrogationIds(Collection<UUID> ids);
 }

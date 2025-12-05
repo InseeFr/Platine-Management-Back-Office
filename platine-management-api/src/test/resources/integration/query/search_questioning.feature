@@ -147,3 +147,191 @@ Feature: Search for questionings
       | QSU001       |
       | QSU002       |
       | QSU004       |
+
+  Scenario: Sort questionings by priority ASC then score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+      | score    | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 2       |
+      | 3       |
+      | 1       |
+
+  Scenario: Sort questionings by priority DESC then score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+      | score    | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 3       |
+      | 2       |
+
+  Scenario: Sort questionings by priority DESC then score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+      | score    | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 2       |
+      | 3       |
+
+  Scenario: Sort questionings by priority ASC then score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+      | score    | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 2       |
+      | 1       |
+
+  Scenario: Sort questionings by priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 3        | 30    |
+      | 2  | 2        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 2       |
+      | 1       |
+
+  Scenario: Sort questionings by priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 3        | 30    |
+      | 2  | 2        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 2       |
+      | 3       |
+
+  Scenario: Sort questionings by score DESC then priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | DESC      |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id |
+      | 1  |
+      | 2  |
+      | 3  |
+
+  Scenario: Sort questionings by score ASC then priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | ASC       |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id |
+      | 3  |
+      | 2  |
+      | 1  |
+
+  Scenario: Sort questionings by score DESC then priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | DESC      |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 2       |
+      | 1       |
+      | 3       |
+
+  Scenario: Sort questionings by score ASC then priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | ASC       |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 1       |
+      | 2       |
+
+  Scenario: Sort questionings by score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 40    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field | direction |
+      | score | ASC       |
+    Then the result should contain questionings in the following order
+      | id |
+      | 3  |
+      | 2  |
+      | 1  |
+
+  Scenario: Sort questionings by score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 40    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field | direction |
+      | score | DESC      |
+    Then the result should contain questionings in the following order
+      | id |
+      | 1  |
+      | 2  |
+      | 3  |

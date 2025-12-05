@@ -6,16 +6,18 @@ import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import fr.insee.survey.datacollectionmanagement.questioning.validation.SortByValid;
-import fr.insee.survey.datacollectionmanagement.questioning.validation.SortDirectionValid;
+import fr.insee.survey.datacollectionmanagement.questioning.validation.SortValidator;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +26,6 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
@@ -36,28 +37,32 @@ public class SearchQuestioningController {
 
     private final QuestioningService questioningService;
 
+    private final SortValidator sortValidator;
+
     @Operation(summary = "Multi-criteria search questionings")
     @PostMapping(value = UrlConstants.API_QUESTIONINGS_SEARCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public Slice<SearchQuestioningDto> searchQuestionings(
-            @RequestBody(required = false) SearchQuestioningParams searchParams,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer pageSize,
-            @RequestParam(required = false) @SortByValid String sortBy,
-            @RequestParam(required = false) @SortDirectionValid String sortDirection,
-            @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+            @RequestBody(required = false)
+            SearchQuestioningParams searchParams,
+            @ParameterObject
+            @PageableDefault(page = 0, size = 50)
+            Pageable pageable,
+            @Parameter(hidden = true)
+            @CurrentSecurityContext(expression = "authentication")
+            Authentication authentication) {
 
-        log.info("Search questionings with param {} page = {} pageSize = {} sortBy = {} direction = {}",
-                searchParams, page, pageSize, sortBy, sortDirection);
+        log.info("Search questionings with param {} pageable = {}",
+                searchParams, pageable);
 
         String userId = authentication.getName().toUpperCase();
 
-        Sort sort = Sort.unsorted();
-        if (sortBy != null && sortDirection != null) {
-            sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
-        }
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Pageable sanitizedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sortValidator.sanitizeSort(pageable.getSort())
+        );
 
-        return questioningService.searchQuestionings(searchParams, pageable, userId);
+        return questioningService.searchQuestionings(searchParams, sanitizedPageable, userId);
     }
 
     @Operation(summary = "Get questioning details")

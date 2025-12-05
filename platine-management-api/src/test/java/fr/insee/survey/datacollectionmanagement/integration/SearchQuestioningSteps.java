@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUni
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningEventServiceImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.service.impl.QuestioningServiceImpl;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -102,6 +104,24 @@ public class SearchQuestioningSteps {
         questioningRepository.save(questioning);
     }
 
+    @Transactional
+    @Given("the following priorities and scores for questionings")
+    public void theFollowingPrioritiesAndScoresForQuestionings(DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+
+        for (Map<String, String> row : rows) {
+            Integer key = Integer.valueOf(row.get("id"));
+            Long priority = Long.valueOf(row.get("priority"));
+            Integer score = Integer.valueOf(row.get("score"));
+
+            UUID realId = questioningContext.getRealId(key);
+            Questioning questioning = questioningRepository.getReferenceById(realId);
+            questioning.setPriority(priority);
+            questioning.setScore(score);
+            questioningRepository.save(questioning);
+        }
+    }
+
     @When("I search for Questioning with {string} and page {int} with size {int}")
     public void iSearchForQuestioningWithSurveyUnitId(String surveyUnitId, int page, int size) {
         SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(surveyUnitId, null, null, null, WalletFilterEnum.ALL);
@@ -153,12 +173,25 @@ public class SearchQuestioningSteps {
                 searchQuestioningParams, PageRequest.of(0, 20), userId);
     }
 
-    @When("I search for all Questioning with page {int} and size {int}")
-    public void iSearchForAllQuestioningWithPageAndSize(int page, int size) {
-        SearchQuestioningParams searchQuestioningParams = new SearchQuestioningParams(null, null, null, null, WalletFilterEnum.ALL);
+    @When("I search for all Questioning with page {int} and size {int} sorted by")
+    public void iSearchForAllQuestioningWithPageAndSizeSortedBy(int page, int size, DataTable sortTable) {
+        List<Map<String, String>> rows = sortTable.asMaps(String.class, String.class);
+
+        List<Sort.Order> orders = rows.stream()
+                .map(row -> {
+                    String field = row.get("field");
+                    String direction = row.get("direction");
+                    return new Sort.Order(Sort.Direction.fromString(direction), field);
+                })
+                .toList();
+
+        SearchQuestioningParams searchQuestioningParams =
+                new SearchQuestioningParams(null, null, null, null, WalletFilterEnum.ALL);
 
         resultPage = questioningService.searchQuestionings(
-                searchQuestioningParams, PageRequest.of(page, size), null
+                searchQuestioningParams,
+                PageRequest.of(page, size, Sort.by(orders)),
+                null
         );
     }
 
@@ -221,5 +254,18 @@ public class SearchQuestioningSteps {
     }
 
 
+    @Then("the result should contain questionings in the following order")
+    public void theResultShouldContainTheFollowingQuestioningsInOrder(List<Map<String, String>> expectedRecords) {
+        List<Integer> expectedIds = expectedRecords.stream()
+                .map(m -> Integer.valueOf(m.get("id")))
+                .toList();
+
+        List<Integer> actualIds = resultPage.getContent().stream()
+                .map(dto -> questioningContext.getKey(dto.getQuestioningId()))
+                .toList();
+
+        assertThat(actualIds)
+                .containsExactlyElementsOf(expectedIds);
+    }
 
 }

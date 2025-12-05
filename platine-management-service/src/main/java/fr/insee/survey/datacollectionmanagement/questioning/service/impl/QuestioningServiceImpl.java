@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceReposi
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
 import fr.insee.survey.datacollectionmanagement.query.dto.*;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
@@ -77,21 +78,21 @@ public class QuestioningServiceImpl implements QuestioningService {
         Questioning questioning = questioningRepository.findById(dto.questioningId())
                 .orElseThrow(() -> new NotFoundException("Questioning not found with id " + dto.questioningId()));
 
-        questioning.setIsOnProbation(dto.isOnProbation());
+        questioning.setOnProbation(dto.isOnProbation());
 
         Questioning savedQuestioning = questioningRepository.save(questioning);
 
         return new QuestioningProbationDto(
                 savedQuestioning.getId(),
-                savedQuestioning.getIsOnProbation());
+                savedQuestioning.isOnProbation());
     }
 
     @Override
-  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
-    return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
-  }
+    public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+        return questioningRepository.findQuestioningDataForCsvByCampaignId(campaignId);
+    }
 
-  @Override
+    @Override
     public void deleteQuestioning(UUID id) {
         questioningRepository.deleteById(id);
     }
@@ -204,7 +205,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .comments(questioningCommentOutputsDto)
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
-                .isOnProbation(questioning.getIsOnProbation())
+                .isOnProbation(questioning.isOnProbation())
                 .build();
     }
 
@@ -263,5 +264,36 @@ public class QuestioningServiceImpl implements QuestioningService {
         return highestEvent != null && TypeQuestioningEvent.EXPERT_EVENTS.contains(highestEvent);
     }
 
+    @Override
+    public void updatePriorities(List<InterrogationPriorityInputDto> priorities) {
+        if (priorities == null || priorities.isEmpty()) {
+            return;
+        }
+
+        Map<UUID, Long> priorityById = priorities.stream()
+                .collect(Collectors.toMap(
+                        InterrogationPriorityInputDto::interrogationId,
+                        InterrogationPriorityInputDto::priority
+                ));
+
+        List<Questioning> interrogations = questioningRepository.findAllById(priorityById.keySet());
+        interrogations.forEach(questioning ->
+                questioning.setPriority(priorityById.get(questioning.getId()))
+        );
+        questioningRepository.saveAll(interrogations);
+    }
+
+    @Override
+    public Set<UUID> findMissingIds(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<UUID> existingIdentifiers = questioningRepository.findExistingInterrogationIds(ids);
+        Set<UUID> missingIdentifiers = new HashSet<>(ids);
+        missingIdentifiers.removeAll(existingIdentifiers);
+
+        return missingIdentifiers;
+    }
 
 }

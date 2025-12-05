@@ -61,5 +61,7 @@ public class Questioning {
     private TypeQuestioningEvent highestEventType;
 
     @Column(name = "is_on_probation")
-    private Boolean isOnProbation = false;
+    private boolean isOnProbation = false;
+
+    private Long priority;
 }

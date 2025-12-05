@@ -73,6 +73,7 @@ public class SearchQuestioningDao {
                         su.id_su AS survey_unit_id,
                         su.identification_code AS identification_code,
                         q.score AS score,
+                        q.priority AS priority,
                         string_agg(qa_all.id_contact::text, ', ') AS contact_ids
                 """);
 
@@ -102,7 +103,7 @@ public class SearchQuestioningDao {
                 LEFT JOIN questioning_accreditation qa_all
                         ON qa_all.questioning_id = q.id
                 """);
-        sql.append(" GROUP BY q.id, p.campaign_id, su.id_su, su.identification_code, q.score");
+        sql.append(" GROUP BY q.id, p.campaign_id, su.id_su, su.identification_code, q.score, q.priority");
         sql.append(" ORDER BY ");
         if (pageable.getSort().isSorted()) {
             List<String> orderClauses = new ArrayList<>();
@@ -128,7 +129,8 @@ public class SearchQuestioningDao {
                     qlimited.survey_unit_id,
                     qlimited.identification_code,
                     qlimited.contact_ids,
-                    qlimited.score
+                    qlimited.score,
+                    qlimited.priority
                 FROM qlimited
                 """);
         var nativeQuery = entityManager.createNativeQuery(sql.toString());
@@ -388,6 +390,7 @@ public class SearchQuestioningDao {
         String identificationCode = (String) row[8];
         List<String> contactIds = getContactIds(row);
         Integer score = (Integer) row[10];
+        Long  priority = (Long) row[11];
 
         TypeCommunicationEvent typeCommunicationEvent = lastCommunicationType != null ? TypeCommunicationEvent.valueOf(lastCommunicationType) : null;
         TypeQuestioningEvent typeQuestioningEvent = highestEventType != null ? TypeQuestioningEvent.valueOf(highestEventType) : null;
@@ -402,7 +405,8 @@ public class SearchQuestioningDao {
                 surveyUnitId,
                 identificationCode,
                 contactIds,
-                score
+                score,
+                priority
         );
     }
 

@@ -24,6 +24,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.service.impl.CampaignServiceImpl;
+import fr.insee.survey.datacollectionmanagement.metadata.utils.QuestioningCsvExportComponent;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
@@ -98,6 +101,8 @@ public class CampaignController {
     private final UploadService uploadService;
 
     private final ModelMapper modelmapper;
+
+    private final QuestioningCsvExportComponent questioningCsvExportComponent;
 
 
     @Operation(summary = "Search for campaigns, paginated")
@@ -290,7 +295,8 @@ public class CampaignController {
     @Operation(
             summary = "Download questioning data for a campaign as a CSV file",
             description = "Generates and returns a CSV file containing information about questionings for a given campaign ID. " +
-                    "The file includes the following columns: id_partition, id_unite_enquetee, id_interrogation, statut_le_plus_fort, date."
+                    "The file includes the following columns: partitioningId, surveyUnitId, " +
+                    "interrogationId, highestEventType, highestEventDate, isOnProbation."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "CSV file successfully generated and returned",
@@ -304,26 +310,16 @@ public class CampaignController {
     public ResponseEntity<Resource> downloadQuestioningsCsv(
             @PathVariable("campaignId") String campaignId) {
 
+        SourceTypeEnum sourceType = campaignService.findSourceTypeByCampaignId(campaignId);
+
         List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
-            writer.println("partitioningId,surveyUnitId,interrogationId,highestEventType,highestEventDate");
-            for (QuestioningCsvDto q : data) {
-                writer.printf("%s,%s,%s,%s,%s%n",
-                        q.getPartitioningId(),
-                        q.getSurveyUnitId(),
-                        q.getInterrogationId(),
-                        q.getHighestEventType(),
-                        q.getHighestEventDate()
-                );
-            }
-        } catch (Exception e) {
-            throw new CsvGenerationException("Error generating CSV", e);
-        }
+        boolean isBusinessSource = sourceType == SourceTypeEnum.BUSINESS;
+
+        byte[] csvBytes = questioningCsvExportComponent.toCsvBytes(data, isBusinessSource);
 
         String filename = campaignId + ".csv";
-        ByteArrayResource resource = new ByteArrayResource(out.toByteArray());
+        ByteArrayResource resource = new ByteArrayResource(csvBytes);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")

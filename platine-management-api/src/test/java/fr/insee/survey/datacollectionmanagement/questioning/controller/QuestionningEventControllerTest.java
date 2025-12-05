@@ -122,6 +122,7 @@ class QuestionningEventControllerTest {
     private String createJsonQuestioningEventInputDto(UUID id) throws JSONException {
         JSONObject jo = new JSONObject();
         jo.put("questioningId", id);
+        jo.put("date", "2025-11-28T16:58:50.748Z");
 
         return jo.toString();
     }

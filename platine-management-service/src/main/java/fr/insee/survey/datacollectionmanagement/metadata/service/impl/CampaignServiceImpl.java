@@ -5,6 +5,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
@@ -188,6 +189,12 @@ public class CampaignServiceImpl implements CampaignService {
                 .distinct()
                 .map(campaignId -> new CampaignStatusDto(campaignId, getCollectionStatus(campaignId)))
                 .toList();
+    }
+
+    @Override
+    public SourceTypeEnum findSourceTypeByCampaignId(String campaignId) {
+        return campaignRepository.findSourceTypeById(campaignId)
+                .orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", campaignId)));
     }
 
     private CampaignHeaderDto convertToCampaignHeaderDto(Campaign c) {

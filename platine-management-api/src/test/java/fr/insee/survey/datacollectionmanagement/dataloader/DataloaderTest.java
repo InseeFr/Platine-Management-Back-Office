@@ -16,9 +16,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
+import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
+import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
@@ -55,9 +57,6 @@ public class DataloaderTest {
     private OwnerRepository ownerRepository;
 
     @Autowired
-    private SupportRepository supportRepository;
-
-    @Autowired
     private SourceRepository sourceRepository;
 
     @Autowired
@@ -88,6 +87,9 @@ public class DataloaderTest {
     private QuestioningEventRepository questioningEventRepository;
 
     @Autowired
+    private InterrogationEventComparator interrogationEventComparator;
+
+    @Autowired
     private ViewRepository viewRepository;
 
     @Autowired
@@ -95,10 +97,6 @@ public class DataloaderTest {
 
     @Autowired
     private ContactSourceRepository contactSourceRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
 
     @PostConstruct
     public void init() throws ParseException {
@@ -265,7 +263,8 @@ public class DataloaderTest {
                 source.setLongWording("Long wording of " + sourceName + " ?");
                 source.setShortWording("Short wording of " + sourceName);
                 source.setPeriodicity(PeriodicityEnum.T);
-                source.setType(SourceTypeEnum.BUSINESS);
+                SourceTypeEnum type = sourceRepository.count() % 2 == 0 ? SourceTypeEnum.BUSINESS : SourceTypeEnum.HOUSEHOLD;
+                source.setType(type);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
@@ -425,6 +424,16 @@ public class DataloaderTest {
             }
             qu.setQuestioningEvents(new HashSet<>(qeList));
             qu.setQuestioningAccreditations(questioningAccreditations);
+
+            Optional<QuestioningEvent> highestEvent = Optional.ofNullable(qu.getQuestioningEvents())
+                    .orElse(Collections.emptySet())
+                    .stream()
+                    .filter(qe -> TypeQuestioningEvent.INTERROGATION_EVENTS.contains(qe.getType()))
+                    .max(interrogationEventComparator);
+
+            qu.setHighestEventType(highestEvent.map(QuestioningEvent::getType).orElse(null));
+            qu.setHighestEventDate(highestEvent.map(QuestioningEvent::getDate).orElse(null));
+
             questioningRepository.save(qu);
             log.info("Questioning created : {}", qu);
 
