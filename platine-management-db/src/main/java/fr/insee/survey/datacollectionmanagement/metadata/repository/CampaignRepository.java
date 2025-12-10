@@ -43,13 +43,23 @@ public interface CampaignRepository extends JpaRepository<Campaign, String>,Pagi
     List<Campaign> findBySourcePeriod(String source, String period);
 
     @Query(value = """
-        SELECT c.* 
-        FROM campaign c
-        JOIN survey s ON s.id = c.survey_id
-        JOIN "source" s2 ON s2.id = s.source_id
-        WHERE (:source IS NULL OR UPPER(s2.id) = UPPER(CAST(:source AS TEXT)))
+            SELECT c.*
+            FROM campaign c
+            JOIN survey s ON s.id = c.survey_id
+            JOIN "source" s2 ON s2.id = s.source_id
+            LEFT JOIN LATERAL (
+                SELECT 1
+                FROM partitioning p
+                WHERE p.campaign_id = c.id
+                  AND NOW() BETWEEN p.opening_date AND p.closing_date
+                LIMIT 1
+            ) p_open ON true
+            WHERE (:source IS NULL OR UPPER(s2.id::text) = UPPER(:source))
+            ORDER BY
+                CASE WHEN p_open IS NOT NULL THEN 1 ELSE 0 END DESC,
+                c.id ASC
         """, nativeQuery = true)
-    Page<Campaign> findBySource(String source, Pageable pageable);
+    Page<Campaign> findBySource(@Param("source") String source, Pageable pageable);
 
     List<Campaign> findByDataCollectionTargetIsNot(DataCollectionEnum dataCollectionTarget);
 
