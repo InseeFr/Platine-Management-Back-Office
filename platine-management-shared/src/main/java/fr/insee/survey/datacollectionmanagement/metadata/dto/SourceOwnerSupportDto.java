@@ -21,5 +21,5 @@ public class SourceOwnerSupportDto {
     private String ownerId;
     private String supportId;
     private Boolean displayFaq;
-
+    private boolean paperFormInputEnabled;
 }
