@@ -5,6 +5,8 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.*;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.ParametersService;
@@ -110,10 +112,23 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<CampaignOngoingDto> getCampaignOngoingDtos() {
-        return campaignRepository.findAll().stream()
-                .filter(campaign -> isCampaignOngoing(campaign.getId()))
-                .map(this::convertToCampaignOngoingDto).toList();
+    public List<CampaignOngoingDto> getCampaignOngoingDtos(String idep, WalletFilterEnum walletFilter) {
+        Instant instant = Instant.now();
+
+        List<Campaign> campaigns = switch (walletFilter) {
+            case MY_WALLET ->
+                    campaignRepository.findOpenedCampaignsForUser(idep, instant);
+
+            case GROUPS ->
+                    campaignRepository.findOpenedCampaignsForUserGroups(idep, instant);
+
+            case ALL ->
+                    campaignRepository.findOpenedCampaigns(instant);
+        };
+
+        return campaigns.stream()
+                .map(this::convertToCampaignOngoingDto)
+                .toList();
     }
 
     @Override
@@ -174,6 +189,12 @@ public class CampaignServiceImpl implements CampaignService {
                 .distinct()
                 .map(campaignId -> new CampaignStatusDto(campaignId, getCollectionStatus(campaignId)))
                 .toList();
+    }
+
+    @Override
+    public SourceTypeEnum findSourceTypeByCampaignId(String campaignId) {
+        return campaignRepository.findSourceTypeById(campaignId)
+                .orElseThrow(() -> new NotFoundException(String.format("Campaign %s not found", campaignId)));
     }
 
     private CampaignHeaderDto convertToCampaignHeaderDto(Campaign c) {

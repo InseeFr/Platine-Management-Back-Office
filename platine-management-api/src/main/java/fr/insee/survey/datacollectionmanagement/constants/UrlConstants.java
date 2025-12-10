@@ -28,15 +28,17 @@ public class UrlConstants {
     public static final String API_USERS_ID_USEREVENTS = "/api/users/{id}/user-events";
     public static final String API_USEREVENTS = "/api/users/contact-events";
     public static final String API_USEREVENTS_ID = "/api/users/user-events/{id}";
-    public static final String API_SOURCE_ID_SOURCE_ACCREDITATIONS = "/api/source/{id}/source-accreditations";
-    public static final String API_USERS_ID_SOURCES = "/api/users/{id}/accredited-sources";
+    public static final String API_SOURCE_ID_WALLET = "/api/source/{id}/wallet";
 
-    //API QUESTIONING DOMAIN
+
+  //API QUESTIONING DOMAIN
     public static final String API_QUESTIONINGS = "/api/questionings";
     public static final String API_QUESTIONINGS_ID = "/api/questionings/{id}";
     public static final String API_QUESTIONINGSID = "/api/questionings/id";
     public static final String API_QUESTIONINGS_SEARCH = "/api/questionings/search";
     public static final String API_QUESTIONINGS_ID_ASSISTANCE = "/api/questioning/{id}/assistance";
+    public static final String API_QUESTIONINGS_PROBATION = "/api/questionings/probation";
+    public static final String API_QUESTIONINGS_PRIORITIES = "/api/questionings/priorities";
 
     public static final String API_SURVEY_UNITS ="/api/survey-units";
     public static final String API_SURVEY_UNITS_ID = "/api/survey-units/{id}";
@@ -138,6 +140,5 @@ public class UrlConstants {
 
 
     public static final String API_HEALTHCHECK = "/api/healthcheck";
-    public static final String ACTUATOR = "/actuator/**";
 
 }

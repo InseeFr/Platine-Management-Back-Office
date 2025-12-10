@@ -1,50 +1,20 @@
 package fr.insee.survey.datacollectionmanagement.metadata.controller;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
-import fr.insee.survey.datacollectionmanagement.questioning.controller.QuestioningController;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import net.minidev.json.JSONObject;
 import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,15 +25,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class CampaignControllerTest {
 
@@ -74,16 +49,8 @@ class CampaignControllerTest {
     @Autowired
     CampaignService campaignService;
 
-    @MockitoBean
-    private QuestioningService questioningService;
-
-    @InjectMocks
-    private QuestioningController questioningController;
-
-    private static final String CAMPAIGN_ID = "campaign-2024";
-    private static final UUID INTERROGATION_ID_1 = UUID.randomUUID();
-    private static final UUID INTERROGATION_ID_2 = UUID.randomUUID();
-    private static final Date FIXED_DATE = new Date(1672531200000L); // 2023-01-01
+    @Autowired
+    QuestioningService questioningService;
 
     @BeforeEach
     void init() {
@@ -411,120 +378,119 @@ class CampaignControllerTest {
     }
 
     @Test
-    void downloadQuestioningsCsv_shouldReturnValidCsv_whenDataExists() throws Exception {
-      // Given
-      List<QuestioningCsvDto> mockData = createStandardTestData();
+    void downloadQuestioningsCsv_shouldReturnValidCsvHouseHold_whenDataExists() throws Exception {
+        String campaignId = "SOURCE22023T01"; // household source
 
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(mockData);
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(header().string(
-              HttpHeaders.CONTENT_DISPOSITION,
-              "attachment; filename=\"" + CAMPAIGN_ID + ".csv\""
-          ))
-          .andExpect(result -> verifyCsvContent(result, mockData));
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_TYPE,
+                        "text/csv;charset=UTF-8"))
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"SOURCE22023T01.csv\""
+                ))
+                .andExpect(result -> verifyCsvContent(result, data, false));
+    }
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
+    @Test
+    void downloadQuestioningsCsv_shouldReturnValidCsvBusiness_whenDataExists() throws Exception {
+        String campaignId = "SOURCE12023T01"; // business source
+
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_TYPE,
+                        "text/csv;charset=UTF-8"))
+                .andExpect(header().string(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"SOURCE12023T01.csv\""
+                ))
+                .andExpect(result -> verifyCsvContent(result, data, true));
     }
 
     @Test
     void downloadQuestioningsCsv_shouldReturnEmptyCsv_whenNoData() throws Exception {
-      // Given
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(Collections.emptyList());
+        String campaignId = "SOURCE12023T01";
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(result -> {
-            String content = result.getResponse().getContentAsString();
-            String[] lines = content.split("\n");
-            assertEquals(1, lines.length, "Doit contenir uniquement l'en-tête");
-            assertTrue(lines[0].contains("partitioningId"), "En-tête manquant");
-          });
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID);
+        for (QuestioningCsvDto questioningCsvDto : data) {
+            questioningService.deleteQuestioning(questioningCsvDto.interrogationId());
+        }
+
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    String content = result.getResponse().getContentAsString();
+                    String[] lines = content.split("\n");
+                    assertEquals(1, lines.length, "Should only contain header");
+                    assertTrue(lines[0].contains("partitioningId"), "Missing header");
+                });
     }
 
     @Test
-    void downloadQuestioningsCsv_shouldReturn404_whenCampaignNotFound() throws Exception {
-      // Given
-      String unknownCampaignId = "unknown-campaign";
-      when(questioningService.getQuestioningsByCampaignIdForCsv(unknownCampaignId))
-          .thenThrow(new NotFoundException(unknownCampaignId));
+    void downloadQuestioningsCsv_shouldReturnNotFoundWhenUnknownCampaign() throws Exception {
+        String campaignId = "NOT_FOUND";
 
-      // When/Then
-      mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, unknownCampaignId))
-          .andExpect(status().isNotFound())
-          .andExpect(jsonPath("$.message").value(unknownCampaignId));
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+                .andExpect(status().isNotFound());
+    }
 
-      verify(questioningService).getQuestioningsByCampaignIdForCsv(unknownCampaignId);
+    private void verifyCsvContent(MvcResult result, List<QuestioningCsvDto> expectedData, boolean isBusiness) throws Exception {
+        String csvContent = result.getResponse().getContentAsString();
+        String[] lines = csvContent.split("\n");
+
+        assertEquals(expectedData.size() + 1, lines.length, "Wrong number of lines");
+
+        assertThat(lines[0]).contains(
+                "partitioningId", "surveyUnitId", "interrogationId",
+                "highestEventType", "highestEventDate"
+        );
+
+        if (isBusiness) {
+            assertThat(lines[0]).contains("isOnProbation");
+        }
+
+
+        for (int i = 0; i < expectedData.size(); i++) {
+            QuestioningCsvDto dto = expectedData.get(i);
+            String line = lines[i + 1];
+
+            assertThat(line)
+                    .contains(dto.partitioningId())
+                    .contains(dto.surveyUnitId())
+                    .contains(dto.interrogationId().toString())
+                    .contains(dto.highestEventType() != null ? dto.highestEventType().name() : "")
+                    .contains(dto.highestEventDate() != null ? dto.highestEventDate().toString(): "");
+            if (isBusiness) {
+                assertThat(line).contains(dto.isOnProbation()+"");
+            }
+        }
     }
 
     @Test
-    void downloadQuestioningsCsv_shouldHandleLargeDataset() throws Exception {
-      // Given
-      List<QuestioningCsvDto> largeDataset = new ArrayList<>();
-      for (int i = 0; i < 1000; i++) {
-        largeDataset.add(new QuestioningCsvDto(
-            UUID.randomUUID(),
-            "partition-" + i,
-            "unit-" + i,
-            TypeQuestioningEvent.HC,
-            FIXED_DATE
-        ));
-      }
-
-      when(questioningService.getQuestioningsByCampaignIdForCsv(CAMPAIGN_ID))
-          .thenReturn(largeDataset);
-
-      // When/Then
-      MvcResult result = mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, CAMPAIGN_ID))
-          .andExpect(status().isOk())
-          .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,
-              containsString("filename=\"" + CAMPAIGN_ID + ".csv\"")))
-          .andReturn();
-
-      // Vérification que le contenu est généré (sans vérifier chaque ligne)
-      String content = result.getResponse().getContentAsString();
-      String[] lines = content.split("\n");
-      assertEquals(1001, lines.length, "Doit contenir 1 en-tête + 1000 lignes");
-    }
-
-    private List<QuestioningCsvDto> createStandardTestData() {
-      return Arrays.asList(
-          new QuestioningCsvDto(INTERROGATION_ID_1, "partition-1", "unit-1001", TypeQuestioningEvent.HC, FIXED_DATE),
-          new QuestioningCsvDto(INTERROGATION_ID_2, "partition-2", "unit-1002", TypeQuestioningEvent.EXPERT, FIXED_DATE)
-      );
-    }
-
-    private void verifyCsvContent(MvcResult result, List<QuestioningCsvDto> expectedData) throws Exception {
-      String csvContent = result.getResponse().getContentAsString();
-      String[] lines = csvContent.split("\n");
-
-      // Vérification de la structure
-      assertEquals(expectedData.size() + 1, lines.length, "Nombre de lignes incorrect");
-
-      // Vérification de l'en-tête
-      assertThat(lines[0]).contains(
-          "partitioningId", "surveyUnitId", "interrogationId",
-          "highestEventType", "highestEventDate"
-      );
-
-      // Vérification des données
-      for (int i = 0; i < expectedData.size(); i++) {
-        QuestioningCsvDto dto = expectedData.get(i);
-        String line = lines[i + 1];
-
-        assertThat(line)
-            .contains(dto.getPartitioningId())
-            .contains(dto.getSurveyUnitId())
-            .contains(dto.getInterrogationId().toString())
-            .contains(dto.getHighestEventType().name());
-      }
+    void should_return_ongoing_campaigns_with_filter_all() throws Exception {
+        // Given
+        Campaign campaign1 = initOpenedCampaign("CAMP1");
+        initCampaignAndPartitionings("CAMP1", campaign1);
+        Campaign campaign2 = initOpenedCampaign("CAMP2");
+        initCampaignAndPartitionings("CAMP2", campaign2);
+        Campaign campaign3 = initFutureCampaign("CAMP3");
+        initCampaignAndPartitionings("CAMP3", campaign3);
+        
+        // When / Then
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING)
+                        .param("walletFilter", "ALL"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("CAMP1"))
+                .andExpect(jsonPath("$[1].id").value("CAMP2"));
     }
 
 }

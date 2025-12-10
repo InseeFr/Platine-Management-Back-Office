@@ -13,7 +13,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.repository.CampaignRepo
 import fr.insee.survey.datacollectionmanagement.metadata.repository.PartitioningRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SurveyRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningAccreditationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
@@ -24,6 +26,8 @@ import io.cucumber.java.en.Given;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 public class ContextSteps {
@@ -62,6 +66,7 @@ public class ContextSteps {
     public void createSurvey(String surveyId, String sourceId) {
         Survey survey = new Survey();
         survey.setId(surveyId);
+        survey.setYear(0);
         Source source = sourceRepository.findById(sourceId).orElseThrow(() -> new IllegalArgumentException("Source not found"));
         survey.setSource(source);
         surveyRepository.save(survey);
@@ -86,6 +91,37 @@ public class ContextSteps {
         part.setCampaign(campaign);
         partitioningRepository.save(part);
     }
+
+    @Transactional
+    @Given("the opened partitioning {string} related to campaign {string}")
+    public void createOpenedPartitioning(String partId, String campaignId) {
+        Partitioning part = new Partitioning();
+        part.setId(partId);
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate tomorrow  = LocalDate.now().plusDays(1);
+        Date yesterdayDate = Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date tomorrowDate = Date.from(tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        part.setOpeningDate(yesterdayDate);
+        part.setClosingDate(tomorrowDate);
+        Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
+        part.setCampaign(campaign);
+        partitioningRepository.save(part);
+    }
+
+    @Transactional
+    @Given("the closed partitioning {string} related to campaign {string}")
+    public void createClosedPartitioning(String partId, String campaignId) {
+        Partitioning part = new Partitioning();
+        part.setId(partId);
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        Date yesterdayDate = Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        part.setOpeningDate(yesterdayDate);
+        part.setClosingDate(yesterdayDate);
+        Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
+        part.setCampaign(campaign);
+        partitioningRepository.save(part);
+    }
+
 
     @Transactional
     @Given("the survey unit {string} with label {string}")

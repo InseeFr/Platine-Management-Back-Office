@@ -21,6 +21,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.util.List;
+
 /**
  * Handle API exceptions for project
  * Do not work on exceptions occuring before/outside controllers scope
@@ -63,6 +65,27 @@ public class ExceptionControllerAdvice {
         return new ResponseEntity<>(error, status);
     }
 
+    /**
+     * Global method to process the catched exception
+     *
+     * @param ex                   Exception catched
+     * @param status               status linked with this exception
+     * @param request              request initiating the exception
+     * @param overrideErrorMessage message overriding default error message from exception
+     * @param errors               messages details
+     * @return the apierror object with associated status code
+     */
+    private ResponseEntity<ApiError> processException(final Exception ex, final HttpStatus status,
+                                                      final WebRequest request, String overrideErrorMessage, List<String> errors) {
+        String errorMessage = ex.getMessage();
+        if (overrideErrorMessage != null) {
+            errorMessage = overrideErrorMessage;
+        }
+        ApiError error = errorComponent.buildApiErrorObject(request, status, errorMessage, errors);
+        log.error("Exception occurred at {}: {}", error.getPath(), errorMessage, ex);
+        return new ResponseEntity<>(error, status);
+    }
+
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ApiError> noHandlerFoundException(NoHandlerFoundException e, WebRequest request) {
@@ -98,7 +121,6 @@ public class ExceptionControllerAdvice {
         log.error(defaultMessage, e);
         return processException(e, HttpStatus.BAD_REQUEST, request, defaultMessage);
     }
-
 
 
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -172,6 +194,27 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ApiError> exceptions(HttpClientErrorException e, WebRequest request) {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.valueOf(e.getStatusCode().value()), request, ERROR_OCCURRED_LABEL);
+    }
+
+    @ExceptionHandler(WalletBusinessRuleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleWalletBusinessRuleException(WalletBusinessRuleException e, WebRequest request) {
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage(), e.getErrors());
+    }
+
+    @ExceptionHandler(WalletFileProcessingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleWalletFileProcessingException(
+            WalletFileProcessingException e, WebRequest request) {
+        log.error("Wallet file processing error: {}", e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
+    }
+
+    @ExceptionHandler(QuestioningPriorityRulesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleQuestioningPriorityRulesException(
+            QuestioningPriorityRulesException e, WebRequest request) {
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage(), e.getErrors());
     }
 
     @ExceptionHandler(Exception.class)

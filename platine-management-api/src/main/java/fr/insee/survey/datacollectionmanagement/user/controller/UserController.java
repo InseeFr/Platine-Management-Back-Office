@@ -6,13 +6,9 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.user.Authorit
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
-import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
-import fr.insee.survey.datacollectionmanagement.metadata.service.SourceService;
-import fr.insee.survey.datacollectionmanagement.user.domain.SourceAccreditation;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
-import fr.insee.survey.datacollectionmanagement.user.service.SourceAccreditationService;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,7 +35,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -50,10 +45,6 @@ import java.util.Set;
 public class UserController {
 
     private final UserService userService;
-
-    private final SourceService sourceService;
-
-    private final SourceAccreditationService sourceAccreditationService;
 
     private final ModelMapper modelMapper;
 
@@ -128,7 +119,7 @@ public class UserController {
     }
 
 
-    @Operation(summary = "Delete a user, its userEvents and its sourceaccreditations")
+    @Operation(summary = "Delete a user, its userEvents")
     @DeleteMapping(value = UrlConstants.API_USERS_ID)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
@@ -142,34 +133,11 @@ public class UserController {
 
         try {
             userService.deleteUserAndEvents(user);
-
-            sourceAccreditationService.findByUserIdentifier(id).stream().forEach(acc -> {
-                Source source = sourceService.findById(acc.getSource().getId());
-                Set<SourceAccreditation> newSet = source.getSourceAccreditations();
-                newSet.removeIf(a -> a.getId().equals(acc.getId()));
-                source.setSourceAccreditations(newSet);
-                sourceService.insertOrUpdateSource(source);
-                sourceAccreditationService.deleteAccreditation(acc);
-
-            });
             log.info("Delete user {}", id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error");
         }
-    }
-
-    @Operation(summary = "Get user accredited sources")
-    @GetMapping(value = UrlConstants.API_USERS_ID_SOURCES)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content"),
-            @ApiResponse(responseCode = "404", description = "Not found"),
-            @ApiResponse(responseCode = "400", description = "Bad Request")
-    })
-    public ResponseEntity getUserSources(@PathVariable("id") String id) {
-        userService.findByIdentifier(id);
-        List<String> accreditedSources = userService.findAccreditedSources(id);
-        return ResponseEntity.status(HttpStatus.OK).body(accreditedSources);
     }
 
     @Operation(summary = "Retrieve user roles and permissions")
@@ -199,11 +167,7 @@ public class UserController {
     }
 
     private UserDto convertToDto(User user) {
-
-        List<String> accreditedSources = userService.findAccreditedSources(user.getIdentifier());
-        UserDto userDto= modelMapper.map(user, UserDto.class);
-        userDto.setAccreditedSources(accreditedSources);
-        return userDto;
+        return modelMapper.map(user, UserDto.class);
     }
 
     class UserPage extends PageImpl<UserDto> {

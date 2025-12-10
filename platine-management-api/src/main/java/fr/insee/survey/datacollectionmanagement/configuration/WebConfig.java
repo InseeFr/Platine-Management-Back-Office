@@ -54,5 +54,4 @@ public class WebConfig implements WebMvcConfigurer {
     public String questionnaireApiSensitiveUrl() {
         return applicationConfig.getQuestionnaireApiSensitiveUrl();
     }
-
 }

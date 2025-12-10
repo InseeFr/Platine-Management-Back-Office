@@ -24,6 +24,10 @@ import fr.insee.survey.datacollectionmanagement.metadata.dto.CampaignSummaryDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.OnGoingDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.ParamsDto;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
+import fr.insee.survey.datacollectionmanagement.metadata.service.impl.CampaignServiceImpl;
+import fr.insee.survey.datacollectionmanagement.metadata.utils.QuestioningCsvExportComponent;
+import fr.insee.survey.datacollectionmanagement.user.enums.WalletFilterEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.metadata.service.SurveyService;
 import fr.insee.survey.datacollectionmanagement.metadata.util.ParamValidator;
@@ -32,6 +36,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningS
 import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.view.service.ViewService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -40,12 +45,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +69,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -93,6 +101,8 @@ public class CampaignController {
     private final UploadService uploadService;
 
     private final ModelMapper modelmapper;
+
+    private final QuestioningCsvExportComponent questioningCsvExportComponent;
 
 
     @Operation(summary = "Search for campaigns, paginated")
@@ -235,8 +245,10 @@ public class CampaignController {
     @Operation(summary = "get ongoing campaigns")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
-    public List<CampaignOngoingDto> getOngoingCampaigns() {
-        return campaignService.getCampaignOngoingDtos();
+    public List<CampaignOngoingDto> getOngoingCampaigns(
+            @Parameter(hidden = true) @CurrentSecurityContext(expression = "authentication.name") String idep,
+            @RequestParam(name = "walletFilter", required = false, defaultValue = "ALL") WalletFilterEnum walletFilter) {
+        return campaignService.getCampaignOngoingDtos(idep, walletFilter);
     }
 
     @Operation(summary = "Get commons ongoing campaigns")
@@ -281,48 +293,38 @@ public class CampaignController {
     }
 
     @Operation(
-        summary = "Download questioning data for a campaign as a CSV file",
-        description = "Generates and returns a CSV file containing information about questionings for a given campaign ID. " +
-            "The file includes the following columns: id_partition, id_unite_enquetee, id_interrogation, statut_le_plus_fort, date."
+            summary = "Download questioning data for a campaign as a CSV file",
+            description = "Generates and returns a CSV file containing information about questionings for a given campaign ID. " +
+                    "The file includes the following columns: partitioningId, surveyUnitId, " +
+                    "interrogationId, highestEventType, highestEventDate, isOnProbation."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "CSV file successfully generated and returned",
-            content = @Content(mediaType = "text/csv",
-                schema = @Schema(type = "string", format = "binary"))),
-        @ApiResponse(responseCode = "403", description = "Forbidden"),
-        @ApiResponse(responseCode = "404", description = "Campaign not found"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error during CSV generation")
+            @ApiResponse(responseCode = "200", description = "CSV file successfully generated and returned",
+                    content = @Content(mediaType = "text/csv",
+                            schema = @Schema(type = "string", format = "binary"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Campaign not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error during CSV generation")
     })
     @GetMapping(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV)
     public ResponseEntity<Resource> downloadQuestioningsCsv(
-        @PathVariable("campaignId") String campaignId) {
+            @PathVariable("campaignId") String campaignId) {
 
-      List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
+        SourceTypeEnum sourceType = campaignService.findSourceTypeByCampaignId(campaignId);
 
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
-        writer.println("partitioningId,surveyUnitId,interrogationId,highestEventType,highestEventDate");
-        for (QuestioningCsvDto q : data) {
-          writer.printf("%s,%s,%s,%s,%s%n",
-              q.getPartitioningId(),
-              q.getSurveyUnitId(),
-              q.getInterrogationId(),
-              q.getHighestEventType(),
-              q.getHighestEventDate()
-          );
-        }
-      }
-       catch (Exception e) {
-          throw new CsvGenerationException("Error generating CSV", e);
-        }
+        List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-      String filename = campaignId + ".csv";
-      ByteArrayResource resource = new ByteArrayResource(out.toByteArray());
+        boolean isBusinessSource = sourceType == SourceTypeEnum.BUSINESS;
 
-      return ResponseEntity.ok()
-          .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-          .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-          .body(resource);
+        byte[] csvBytes = questioningCsvExportComponent.toCsvBytes(data, isBusinessSource);
+
+        String filename = campaignId + ".csv";
+        ByteArrayResource resource = new ByteArrayResource(csvBytes);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(resource);
     }
 
     private CampaignDto convertToDto(Campaign campaign) {

@@ -5,7 +5,6 @@ import fr.insee.survey.datacollectionmanagement.metadata.domain.Campaign;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Partitioning;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Survey;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningUrlContext;
@@ -17,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -35,9 +33,9 @@ public class QuestioningUrlComponent {
 
     private final String xform2Url;
 
-
     private static final String PATH_ASSISTANCE = "pathAssistance";
-    private static final String SURVEY_UNIT_LABEL = "surveyUnitLabel";
+    private static final String SURVEY_UNIT_COMPOSITE_NAME = "surveyUnitCompositeName";
+
 
     /**
      * Generates an access URL based on the provided parameters.
@@ -125,14 +123,13 @@ public class QuestioningUrlComponent {
      */
     protected String buildLunaticUrl(String role, String baseUrl, QuestioningUrlContext context) {
         String questioningId = context.questioningId().toString();
-        String encodedLabel = "";
+        String encodedSurveyUnitCompositeName = "";
 
         if (context.isBusiness()) {
-            String surveyUnitLabelDetails = buildSurveyUnitLabelDetails(
+            encodedSurveyUnitCompositeName = buildEncodedSurveyUnitCompositeName(
                     context.surveyUnitLabel(),
                     context.surveyUnitIdentificationName(),
                     context.surveyUnitId());
-            encodedLabel = Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitLabelDetails.getBytes(StandardCharsets.UTF_8));
         }
 
         return switch (StringUtils.defaultString(role).toLowerCase()) {
@@ -142,7 +139,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "review", "interrogations", questioningId);
 
                 if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
+                    builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
                 }
 
                 yield builder.build().toUriString();
@@ -156,7 +153,7 @@ public class QuestioningUrlComponent {
                         .pathSegment("v3", "interrogations", questioningId);
 
                 if (context.isBusiness()) {
-                    builder.queryParam(SURVEY_UNIT_LABEL, encodedLabel);
+                    builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
                 }
 
                 yield builder
@@ -169,22 +166,33 @@ public class QuestioningUrlComponent {
 
     /**
      * Builds deposit proof based on the provided parameters
-     * @param questioningId questioning id
-     * @param dataCollection data collection enum type
-     * @return the deosit proof url for the associated questioning
+     * @param ctx context for building url
+     * @return the deposit proof url for the associated questioning
      */
-    public String buildDepositProofUrl(UUID questioningId, DataCollectionEnum dataCollection) {
-        String path = String.format("/api/interrogations/%s/deposit-proof", questioningId);
+    public String buildDepositProofUrl(QuestioningUrlContext ctx) {
+        String baseUrl = switch (ctx.dataCollection()) {
+            case LUNATIC_NORMAL -> questionnaireApiUrl;
+            case LUNATIC_SENSITIVE -> questionnaireApiSensitiveUrl;
+            default -> null;
+        };
 
-        if (DataCollectionEnum.LUNATIC_NORMAL.equals(dataCollection)) {
-            return questionnaireApiUrl + path;
+        if (baseUrl == null) {
+            return null;
         }
 
-        if (DataCollectionEnum.LUNATIC_SENSITIVE.equals(dataCollection)) {
-            return questionnaireApiSensitiveUrl + path;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
+                .path("/api/interrogations/{questioningId}/deposit-proof");
+
+        if (ctx.isBusiness()) {
+            String encodedSurveyUnitCompositeName = buildEncodedSurveyUnitCompositeName(
+                    ctx.surveyUnitLabel(),
+                    ctx.surveyUnitIdentificationName(),
+                    ctx.surveyUnitId()
+            );
+            builder.queryParam(SURVEY_UNIT_COMPOSITE_NAME, encodedSurveyUnitCompositeName);
         }
 
-        return null;
+        return builder.buildAndExpand(ctx.questioningId()).toUriString();
     }
 
     /**
@@ -199,7 +207,12 @@ public class QuestioningUrlComponent {
         };
     }
 
-    public String buildSurveyUnitLabelDetails(String label, String identificationName, String surveyUnitId) {
+    String buildEncodedSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
+        String surveyUnitCompositeName = buildSurveyUnitCompositeName (label, identificationName, surveyUnitId);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(surveyUnitCompositeName.getBytes(StandardCharsets.UTF_8));
+    }
+
+    String buildSurveyUnitCompositeName(String label, String identificationName, String surveyUnitId) {
         if (StringUtils.isBlank(label)) {
             return String.format("%s (%s)", identificationName, surveyUnitId);
         }

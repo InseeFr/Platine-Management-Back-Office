@@ -1,11 +1,17 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -26,9 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SearchQuestioningControllerTest {
 
     @Autowired
-    QuestioningService questioningService;
-    @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    QuestioningRepository questioningRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @BeforeEach
     void init() {
@@ -40,9 +52,8 @@ class SearchQuestioningControllerTest {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
                         .param("page", "0")
-                        .param("pageSize", "20")
-                        .param("sortBy", "score")
-                        .param("sortDirection", "ASC")
+                        .param("size", "20")
+                        .param("sort", "score,ASC")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -68,7 +79,7 @@ class SearchQuestioningControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
                 .andExpect(jsonPath("$.number", is(0)))
-                .andExpect(jsonPath("$.size", is(20)))
+                .andExpect(jsonPath("$.size", is(50)))
                 .andExpect(jsonPath("$.sort.sorted", is(false)));
     }
 
@@ -77,9 +88,8 @@ class SearchQuestioningControllerTest {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
                         .param("page", "1")
-                        .param("pageSize", "5")
-                        .param("sortBy", "score")
-                        .param("sortDirection", "DESC")
+                        .param("size", "5")
+                        .param("sort", "score,DESC")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -88,19 +98,12 @@ class SearchQuestioningControllerTest {
                 .andExpect(jsonPath("$.sort.sorted", is(true)));
     }
 
-    @Test
-    void testSortParamsIncomplete() throws Exception {
+    @ParameterizedTest
+    @CsvSource({"where 1=1,ASC", "status,ASC"})
+    void testSortParamsForbiddenThenNoSort(String field, String direction) throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
-                        .param("sortBy", "score")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sort.sorted", is(false)));
-
-        mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
-                        .content("{}")
-                        .param("sortDirection", "ASC")
+                        .param("sort", String.format("%s,%s", field, direction))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -112,7 +115,7 @@ class SearchQuestioningControllerTest {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
                         .content("{}")
                         .param("page", "0")
-                        .param("pageSize", "5")
+                        .param("size", "5")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -122,6 +125,41 @@ class SearchQuestioningControllerTest {
                 .andExpect(jsonPath("$.last", is(false)));
     }
 
+    @Test
+    void shouldUpdateProbationStatus() throws Exception {
+        // Given
+        Questioning existingQuestioning = questioningRepository.findAll().getFirst();
+        boolean newStatus = !existingQuestioning.isOnProbation();
+        QuestioningProbationDto dto = new QuestioningProbationDto(existingQuestioning.getId(), newStatus);
+        String jsonContent = objectMapper.writeValueAsString(dto);
 
+        // When
+        mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .content(jsonContent)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.questioningId", is(existingQuestioning.getId().toString())))
+                .andExpect(jsonPath("$.isOnProbation", is(newStatus)));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+        // Given
+        UUID nonExistentId = UUID.randomUUID();
+        QuestioningProbationDto dto = new QuestioningProbationDto(nonExistentId, true);
+        String jsonContent = objectMapper.writeValueAsString(dto);
+
+        // When
+        mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .content(jsonContent)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isNotFound());
+    }
 
 }

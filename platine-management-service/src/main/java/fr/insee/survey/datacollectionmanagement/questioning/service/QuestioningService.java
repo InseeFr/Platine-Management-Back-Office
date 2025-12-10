@@ -6,17 +6,16 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+
+import java.util.*;
 
 public interface QuestioningService {
 
@@ -25,6 +24,8 @@ public interface QuestioningService {
     Questioning findById(UUID id);
 
     Questioning saveQuestioning(Questioning questioning);
+
+    QuestioningProbationDto updateQuestioningProbation(QuestioningProbationDto questioningProbationDto);
 
     List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId);
 
@@ -47,7 +48,7 @@ public interface QuestioningService {
 
     Set<Questioning> findBySurveyUnitIdSu(String idSu);
 
-    Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable);
+    Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable, String userId);
 
     QuestioningDetailsDto getQuestioningDetails(UUID id);
 
@@ -56,4 +57,8 @@ public interface QuestioningService {
     QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
 
     boolean hasExpertiseStatus(UUID questioningId);
+
+    void updatePriorities(List<InterrogationPriorityInputDto> priorities);
+
+    Set<UUID> findMissingIds(Set<UUID> ids);
 }

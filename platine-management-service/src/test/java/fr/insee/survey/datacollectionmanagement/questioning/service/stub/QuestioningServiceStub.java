@@ -7,8 +7,10 @@ import fr.insee.survey.datacollectionmanagement.query.dto.AssistanceDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.QuestioningDetailsDto;
 import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
+import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
+import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -18,13 +20,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Setter
 public class QuestioningServiceStub implements QuestioningService {
 
     private QuestionnaireStatusTypeEnum questionnaireStatus;
 
-    ArrayList<Questioning> questionings = new ArrayList<>();
+    List<Questioning> questionings = new ArrayList<>();
 
     @Override
     public Page<Questioning> findAll(Pageable pageable) {
@@ -43,12 +46,16 @@ public class QuestioningServiceStub implements QuestioningService {
         return questioning;
     }
 
-  @Override
-  public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
-    return List.of();
-  }
+    @Override
+    public QuestioningProbationDto updateQuestioningProbation(QuestioningProbationDto questioningProbationDto) {
+        return null;
+    }
 
-  @Override
+    public List<QuestioningCsvDto> getQuestioningsByCampaignIdForCsv(String campaignId) {
+		return List.of();
+	}
+
+    @Override
     public void deleteQuestioning(UUID id) {
         questionings.remove(findById(id));
     }
@@ -84,7 +91,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable) {
+    public Slice<SearchQuestioningDto> searchQuestionings(SearchQuestioningParams searchQuestioningParams, Pageable pageable, String userId) {
         return null;
     }
 
@@ -102,6 +109,24 @@ public class QuestioningServiceStub implements QuestioningService {
     public boolean hasExpertiseStatus(UUID questioningId) {
         Questioning questioning = findById(questioningId);
         return TypeQuestioningEvent.EXPERT_EVENTS.contains(questioning.getHighestEventType());
+    }
+
+    @Override
+    public void updatePriorities(List<InterrogationPriorityInputDto> priorities) {
+        //not used
+    }
+
+    @Override
+    public Set<UUID> findMissingIds(Set<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Set.of();
+        }
+
+        Set<UUID> existingIdentifiers = questionings.stream().map(Questioning::getId).collect(Collectors.toSet());
+        Set<UUID> missingIdentifiers = new HashSet<>(ids);
+        missingIdentifiers.removeAll(existingIdentifiers);
+
+        return missingIdentifiers;
     }
 
     @Override

@@ -47,8 +47,22 @@ public class SurveyUnitServiceImpl implements SurveyUnitService {
         return surveyUnitRepository.findById(idSu);
     }
 
+  @Override
+  public Set<String> findMissingIds(Set<String> identifiers) {
+    if (identifiers == null || identifiers.isEmpty()) {
+      return Set.of();
+    }
 
-    @Override
+    Set<String> existingIdentifiers = surveyUnitRepository.findExistingSurveyUnitIds(identifiers);
+
+    Set<String> missingIdentifiers = new HashSet<>(identifiers);
+    missingIdentifiers.removeAll(existingIdentifiers);
+
+    return missingIdentifiers;
+  }
+
+
+  @Override
     public Page<SearchSurveyUnitDto> findbyIdentifier(String id, Pageable pageable) {
         return surveyUnitRepository.findByIdentifier(id, pageable);
     }

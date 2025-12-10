@@ -60,4 +60,8 @@ public class Questioning {
     @Enumerated(EnumType.STRING)
     private TypeQuestioningEvent highestEventType;
 
+    @Column(name = "is_on_probation")
+    private boolean isOnProbation = false;
+
+    private Long priority;
 }

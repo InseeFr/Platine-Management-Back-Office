@@ -50,27 +50,33 @@ Feature: Search for questionings
     Given the questioning communication for questioning 2 with type "MAIL_RELANCE" and date "2025-06-20T20:02:00"
     Given the questioning communication for questioning 3 with type "COURRIER_OUVERTURE" and date "2025-06-20T20:00:00"
     Given the questioning communication for questioning 3 with type "COURRIER_RELANCE" and date "2025-07-20T20:02:00"
+    Given the user "USER1"
+    Given the user "USER2"
+    Given the user_wallet for user "USER1" with survey_unit "QSU001" with group "GROUP_A" and source "TIC"
+    Given the user_wallet for user "USER1" with survey_unit "QSU002" with group "GROUP_A" and source "TIC"
+    Given the user_wallet for user "USER1" with survey_unit "QSU003" with group "GROUP_B" and source "TIC"
+    Given the user_wallet for user "USER2" with survey_unit "QSU004" with group "GROUP_A"  and source "TIC"
 
   Scenario: Search by surveyUnitId
     When I search for Questioning with "QSU001" and page 0 with size 10
     Then the result size is 1
-    Then the result should contain the following Questioning related to surveyUnit:
-      | id     | listContacts |
+    Then the result should contain the following Questioning related to surveyUnit
+      | surveyUnitId     | listContacts |
       | QSU001 | QCONTACT1    |
 
 
   Scenario: Search by surveyUnitName
     When I search for Questioning with "NAME002" and page 0 with size 10
     Then the result size is 1
-    Then the result should contain the following Questioning related to surveyUnit:
-      | id     | listContacts |
+    Then the result should contain the following Questioning related to surveyUnit
+      | surveyUnitId     | listContacts |
       | QSU002 | QCONTACT2    |
 
   Scenario: Search by surveyUnitCode
     When I search for Questioning with "CODE002" and page 0 with size 10
     Then the result size is 2
-    Then the result should contain the following Questioning related to surveyUnit:
-      | id     | listContacts |
+    Then the result should contain the following Questioning related to surveyUnit
+      | surveyUnitId    | listContacts |
       | QSU002 | QCONTACT2    |
       | QSU003 | QCONTACT3    |
 
@@ -78,8 +84,8 @@ Feature: Search for questionings
   Scenario: Search by accreditationContactId
     When I search for Questioning with "QCONTACT3" and page 0 with size 10
     Then the result size is 2
-    Then the result should contain the following Questioning related to surveyUnit:
-      | id     | listContacts                    |
+    Then the result should contain the following Questioning related to surveyUnit
+      | surveyUnitId     | listContacts                    |
       | QSU003 | QCONTACT3                       |
       | QSU004 | QCONTACT3,QCONTACT4,QCONTACT5|
 
@@ -110,7 +116,222 @@ Feature: Search for questionings
       | 3  | QSU006       |                | PARTIELINT       | COURRIER_RELANCE      |
 
 
+  Scenario: Search questionings accessible  by wallet
+    When I search questionings by wallet for user "USER1"
+    Then the result should contain the following questionings for survey units
+      | surveyUnitId |
+      | QSU001       |
+      | QSU002       |
+      | QSU003       |
+
+  Scenario: Search questionings accessible  by wallet
+    When I search questionings by wallet for user "USER2"
+    Then the result should contain the following questionings for survey units
+      | surveyUnitId |
+      | QSU004       |
 
 
+  Scenario: Search questionings accessible by groups
+    When I search questionings by groups for user "USER1"
+    Then the result should contain the following questionings for survey units
+      | surveyUnitId |
+      | QSU001       |
+      | QSU002       |
+      | QSU003       |
+      | QSU004       |
 
+  Scenario: Search questionings accessible by groups
+    When I search questionings by groups for user "USER2"
+    Then the result should contain the following questionings for survey units
+      | surveyUnitId |
+      | QSU001       |
+      | QSU002       |
+      | QSU004       |
 
+  Scenario: Sort questionings by priority ASC then score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+      | score    | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 2       |
+      | 3       |
+      | 1       |
+
+  Scenario: Sort questionings by priority DESC then score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+      | score    | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 3       |
+      | 2       |
+
+  Scenario: Sort questionings by priority DESC then score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+      | score    | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 2       |
+      | 3       |
+
+  Scenario: Sort questionings by priority ASC then score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 2        | 30    |
+      | 2  | 1        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+      | score    | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 2       |
+      | 1       |
+
+  Scenario: Sort questionings by priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 3        | 30    |
+      | 2  | 2        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 2       |
+      | 1       |
+
+  Scenario: Sort questionings by priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 3        | 30    |
+      | 2  | 2        | 40    |
+      | 3  | 1        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 1       |
+      | 2       |
+      | 3       |
+
+  Scenario: Sort questionings by score DESC then priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | DESC      |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id |
+      | 1  |
+      | 2  |
+      | 3  |
+
+  Scenario: Sort questionings by score ASC then priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | ASC       |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id |
+      | 3  |
+      | 2  |
+      | 1  |
+
+  Scenario: Sort questionings by score DESC then priority DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | DESC      |
+      | priority | DESC      |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 2       |
+      | 1       |
+      | 3       |
+
+  Scenario: Sort questionings by score ASC then priority ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 30    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field    | direction |
+      | score    | ASC       |
+      | priority | ASC       |
+    Then the result should contain questionings in the following order
+      | id      |
+      | 3       |
+      | 1       |
+      | 2       |
+
+  Scenario: Sort questionings by score ASC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 40    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field | direction |
+      | score | ASC       |
+    Then the result should contain questionings in the following order
+      | id |
+      | 3  |
+      | 2  |
+      | 1  |
+
+  Scenario: Sort questionings by score DESC
+    Given the following priorities and scores for questionings
+      | id | priority | score |
+      | 1  | 1        | 40    |
+      | 2  | 3        | 30    |
+      | 3  | 2        | 10    |
+    When I search for all Questioning with page 0 and size 3 sorted by
+      | field | direction |
+      | score | DESC      |
+    Then the result should contain questionings in the following order
+      | id |
+      | 1  |
+      | 2  |
+      | 3  |
