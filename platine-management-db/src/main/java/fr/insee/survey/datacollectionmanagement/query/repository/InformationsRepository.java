@@ -31,7 +31,8 @@ public class InformationsRepository {
                     p.return_date,
                     s2.logo,
                     q.id AS questioning_id,
-                    s2.id AS source_id
+                    s2.id AS source_id,
+                    s2.type AS source_type
                 FROM
                     questioning q
                 JOIN questioning_accreditation qa ON q.id = qa.questioning_id
@@ -66,7 +67,8 @@ public class InformationsRepository {
                 p.return_date,
                 s2.logo,
                 q.id AS questioning_id,
-                s2.id AS source_id
+                s2.id AS source_id,
+                s2.type AS source_type
             FROM
                 questioning q
             JOIN questioning_accreditation qa ON q.id = qa.questioning_id

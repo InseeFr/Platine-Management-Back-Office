@@ -1,7 +1,7 @@
 Feature: Get Questioning Informations
 
   Background: :
-    Given the source "EAP"
+    Given the source "EAP" with type "BUSINESS"
     Given the survey "EAP2023" related to source "EAP"
     Given the campaign "EAP2023T01" related to survey "EAP2023"
     Given the partitioning "EAP2023T0100" related to campaign "EAP2023T01"
@@ -10,8 +10,6 @@ Feature: Get Questioning Informations
     Given the contact "USER02" with firstname "Nom2" and lastname "Prenom2" and gender "Female" and the streetnumber "17"
     Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and main contact "USER01"
     Given the questioning for partitioning "EAP2023T0100" survey unit id "TESTCASE" and model "model" and contact "USER02"
-
-
 
   Scenario: Get informations for interviewer (main contact)
     Given the user "USER01" is authenticated as "RESPONDENT"

@@ -52,4 +52,7 @@ public class Source {
     @Column(name = "display_faq")
     private Boolean displayFaq;
 
+    @Column(name = "paper_form_input_enabled", nullable = false)
+    private boolean paperFormInputEnabled;
+
 }

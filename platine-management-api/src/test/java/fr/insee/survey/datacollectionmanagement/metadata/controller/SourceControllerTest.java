@@ -69,6 +69,27 @@ class SourceControllerTest {
     }
 
     @Test
+    void getSupportBySourceOk() throws Exception {
+        String identifier = "SOURCE1";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value("SupportInsee"))
+                .andExpect(jsonPath("label").value("Support INSEE"))
+                .andExpect(jsonPath("mail").value("mail.test@test.fr"));
+
+    }
+
+    @Test
+    void getSupportBySourceNotFound() throws Exception {
+        String identifier = "SOURCENOTFOUND";
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+
+    }
+
+    @Test
     void getSourcesOk() throws Exception {
         JSONArray jo = new JSONArray();
         Source source1 = sourceService.findById("SOURCE1");
@@ -82,7 +103,9 @@ class SourceControllerTest {
                 .andExpect(jsonPath("$[0].shortWording").value("Short wording of SOURCE1"))
                 .andExpect(jsonPath("$[1].shortWording").value("Short wording of SOURCE2"))
                 .andExpect(jsonPath("$[0].longWording").value("Long wording of SOURCE1 ?"))
-                .andExpect(jsonPath("$[1].longWording").value("Long wording of SOURCE2 ?"));
+                .andExpect(jsonPath("$[1].longWording").value("Long wording of SOURCE2 ?"))
+                .andExpect(jsonPath("$[0].paperFormInputEnabled").value(false))
+                .andExpect(jsonPath("$[1].paperFormInputEnabled").value(false));
     }
 
     @Test
@@ -104,9 +127,11 @@ class SourceControllerTest {
         assertEquals(source.getLongWording(), sourceFound.getLongWording());
         assertEquals(source.getShortWording(), sourceFound.getShortWording());
         assertEquals(source.getPeriodicity(), sourceFound.getPeriodicity());
+        assertEquals(source.isPaperFormInputEnabled(), sourceFound.isPaperFormInputEnabled());
 
         // update source - status ok
         source.setLongWording("Long wording update");
+        source.setPaperFormInputEnabled(false);
         String jsonSourceUpdate = createJson(source);
         mockMvc.perform(put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSourceUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
@@ -115,6 +140,7 @@ class SourceControllerTest {
         Source sourceFoundAfterUpdate = sourceService.findById(identifier);
         assertEquals("Long wording update", sourceFoundAfterUpdate.getLongWording());
         assertEquals(source.getId(), sourceFoundAfterUpdate.getId());
+        assertEquals(source.isPaperFormInputEnabled(), sourceFoundAfterUpdate.isPaperFormInputEnabled());
 
         // delete source
         mockMvc.perform(delete(UrlConstants.API_SOURCES_ID, identifier).contentType(MediaType.APPLICATION_JSON))
@@ -147,6 +173,7 @@ class SourceControllerTest {
         sourceMock.setPeriodicity(PeriodicityEnum.T);
         sourceMock.setType(SourceTypeEnum.HOUSEHOLD);
         sourceMock.setMandatoryMySurveys(true);
+        sourceMock.setPaperFormInputEnabled(true);
         return sourceMock;
     }
 
@@ -157,6 +184,7 @@ class SourceControllerTest {
         jo.put("shortWording", source.getShortWording());
         jo.put("type", source.getType());
         jo.put("periodicity", source.getPeriodicity());
+        jo.put("paperFormInputEnabled", source.isPaperFormInputEnabled());
         return jo.toString();
     }
 

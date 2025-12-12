@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.metadata.service.impl.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
+import fr.insee.survey.datacollectionmanagement.metadata.domain.Support;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.SourceRepository;
 import lombok.Getter;
 import lombok.Setter;
@@ -180,5 +181,11 @@ public class SourceRepositoryStub implements SourceRepository {
     @Override
     public Page<Source> findAll(Pageable pageable) {
         return null;
+    }
+
+    @Override
+    public Optional<Support> findSupportBySourceId(String identifier) {
+        Optional<Source> source = findById(identifier);
+        return source.map(Source::getSupport);
     }
 }
