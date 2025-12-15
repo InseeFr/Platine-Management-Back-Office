@@ -13,11 +13,10 @@ import java.util.stream.Collectors;
  * Add strategies for each permission
  */
 @Configuration
-@SuppressWarnings("unchecked")
 public class PermissionEvaluatorConfig {
     @Bean
-    public Map<Permission, ApplicationPermissionEvaluator<?>> permissionEvaluators(
-            List<ApplicationPermissionEvaluator<?>> evaluators) {
+    public <T> Map<Permission, ApplicationPermissionEvaluator<T>> permissionEvaluators(
+            List<ApplicationPermissionEvaluator<T>> evaluators) {
 
         return evaluators.stream()
                 .collect(Collectors.toMap(

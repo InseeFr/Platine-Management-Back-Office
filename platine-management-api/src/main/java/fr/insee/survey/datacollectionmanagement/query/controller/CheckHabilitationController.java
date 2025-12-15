@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @RestController
 @Tag(name = "5 - Cross domain")
 @RequiredArgsConstructor
+@Slf4j
 public class CheckHabilitationController {
 
     private final CheckHabilitationService checkHabilitationService;
@@ -66,6 +68,7 @@ public class CheckHabilitationController {
             @RequestParam(name = "permission") Permission permission,
             @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
 
+        log.info("GET permission {} for questioning {}", permission.name(), questioningId);
         if(!Permission.READ_PDF_RESPONSE.equals(permission)) {
             return new HabilitationDto(false);
         }
