@@ -17,6 +17,10 @@ public class AuthorizationProfileFactory {
             if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.SUPPORT)) {
                 permissions.add(Permission.READ_SUPPORT);
             }
+
+            if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.INTERNAL_USER)) {
+                permissions.add(Permission.READ_PDF_RESPONSE);
+            }
         }
         return new AuthorizationProfile(applicationRoles, sources, permissions);
     }

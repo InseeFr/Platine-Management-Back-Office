@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import java.time.Instant;
 import java.util.*;
@@ -18,21 +17,7 @@ import java.util.*;
 @AllArgsConstructor
 public class AuthenticationUserProvider {
 
-
-    public static JwtAuthenticationToken getAuthenticatedUser(String contactId, AuthorityRoleEnum... roles) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (AuthorityRoleEnum role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.securityRole()));
-        }
-
-        Map<String, Object> headers = Map.of("typ", "JWT");
-        Map<String, Object> claims = Map.of("preferred_username", contactId, "name", contactId);
-
-        Jwt jwt = new Jwt("token-value", Instant.MIN, Instant.MAX, headers, claims);
-        return new JwtAuthenticationToken(jwt, authorities, contactId);
-    }
-
-    public static ProfiledAuthenticationToken getAuthenticatedUserWithPermissions(String contactId, AuthorityRoleEnum... roles) {
+    public static ProfiledAuthenticationToken getAuthenticatedUser(String contactId, AuthorityRoleEnum... roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (AuthorityRoleEnum role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.securityRole()));

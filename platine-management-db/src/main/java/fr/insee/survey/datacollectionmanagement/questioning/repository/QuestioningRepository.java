@@ -1,11 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.questioning.repository;
 
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 
@@ -66,4 +68,16 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
 
     @Query("select distinct q.id from Questioning q where q.id in :ids")
     Set<UUID> findExistingInterrogationIds(Collection<UUID> ids);
+
+    @Query("""
+        SELECT s.type
+        FROM Questioning q
+        JOIN Partitioning p ON q.idPartitioning = p.id
+        JOIN p.campaign c
+        JOIN c.survey su
+        JOIN su.source s
+        WHERE q.id = :questioningId
+    """)
+    SourceTypeEnum getSourceTypeByQuestioningId(@Param("questioningId") UUID questioningId);
+
 }

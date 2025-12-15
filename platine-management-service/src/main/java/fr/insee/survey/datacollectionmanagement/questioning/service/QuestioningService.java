@@ -61,4 +61,11 @@ public interface QuestioningService {
     void updatePriorities(List<InterrogationPriorityInputDto> priorities);
 
     Set<UUID> findMissingIds(Set<UUID> ids);
+
+    /**
+     *
+     * @param questioningId questioning id
+     * @return true if the questioning is linked to a business source, false otherwise
+     */
+    boolean isQuestioningInBusinessSource(UUID questioningId);
 }

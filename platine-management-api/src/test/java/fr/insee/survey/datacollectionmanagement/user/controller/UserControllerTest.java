@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -84,8 +86,15 @@ class UserControllerTest {
         jo.put("totalElements", userRepository.count());
         jo.put("numberOfElements", userRepository.count());
 
-        this.mockMvc.perform(get(UrlConstants.API_USERS_ALL)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(jo.toString(), false));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_USERS_ALL))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jo.toString(), response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -95,10 +104,17 @@ class UserControllerTest {
         // create user - status created
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
-        mockMvc.perform(
-                        put(UrlConstants.API_USERS_ID, identifier).content(jsonUser).contentType(MediaType.APPLICATION_JSON))
+        String response = mockMvc
+                .perform(
+                        put(UrlConstants.API_USERS_ID, identifier)
+                                .content(jsonUser)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonUser.toString(), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonUser, response, JSONCompareMode.LENIENT);
         assertDoesNotThrow(() -> userService.findByIdentifier(identifier));
         User userFound = userService.findByIdentifier(identifier);
         assertEquals(user.getIdentifier(), userFound.getIdentifier());
@@ -107,9 +123,16 @@ class UserControllerTest {
         // update user - status ok
         user.setRole(UserRoleTypeEnum.ASSISTANCE);
         String jsonUserUpdate = createJson(user);
-        mockMvc.perform(put(UrlConstants.API_USERS_ID, identifier).content(jsonUserUpdate)
-                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonUserUpdate.toString(), false));
+        response = mockMvc
+                .perform(put(UrlConstants.API_USERS_ID, identifier)
+                        .content(jsonUserUpdate)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonUserUpdate, response, JSONCompareMode.LENIENT);
         User userFoundAfterUpdate = userService.findByIdentifier(identifier);
         assertEquals(UserRoleTypeEnum.ASSISTANCE, userFoundAfterUpdate.getRole());
         List<UserEvent> listUpdate = new ArrayList<>(
@@ -149,7 +172,7 @@ class UserControllerTest {
         this.mockMvc.perform(
                         get(UrlConstants.API_USER_ROLE)
                                 .with(authentication(AuthenticationUserProvider
-                                        .getAuthenticatedUserWithPermissions("TEST1", AuthorityRoleEnum.SUPPORT)))
+                                        .getAuthenticatedUser("TEST1", AuthorityRoleEnum.SUPPORT)))
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.appRoles[0]").value("SUPPORT"))

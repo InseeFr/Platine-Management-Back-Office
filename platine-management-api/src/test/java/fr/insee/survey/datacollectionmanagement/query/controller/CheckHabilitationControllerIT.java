@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class CheckHabilitationControllerTest {
+class CheckHabilitationControllerIT {
 
     @Autowired
     MockMvc mockMvc;
@@ -108,6 +109,45 @@ class CheckHabilitationControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.habilitated").value(false));
+    }
+
+    @Test
+    void shouldNotAllowPermissionAccessForRespondent() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
+        mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING)
+                        .param("id", UUID.randomUUID().toString())
+                        .param("permission", Permission.READ_PDF_RESPONSE.name())
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilitated").value(false));
+    }
+
+    @Test
+    void shouldNotAllowPermissionAccessForNoPDFPermission() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
+        mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING)
+                        .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
+                        .param("permission", Permission.READ_SUPPORT.name())
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilitated").value(false));
+    }
+
+    @Test
+    void shouldAllowPermissionAccessForInternalUser() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
+        mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING)
+                        .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000002")
+                        .param("permission", Permission.READ_PDF_RESPONSE.name())
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilitated").value(true));
     }
 
 }

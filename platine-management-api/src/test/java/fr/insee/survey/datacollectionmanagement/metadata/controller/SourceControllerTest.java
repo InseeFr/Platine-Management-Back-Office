@@ -15,6 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,7 +49,7 @@ class SourceControllerTest {
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
 
     @Test
@@ -56,8 +58,15 @@ class SourceControllerTest {
         assertDoesNotThrow(() -> sourceService.findById(identifier));
         Source source = sourceService.findById(identifier);
         String json = createJson(source);
-        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_SOURCES_ID, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -115,11 +124,15 @@ class SourceControllerTest {
         // create source - status created
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
-        mockMvc.perform(
+        String response = mockMvc.perform(
                         put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSource)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonSource.toString(), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSource, response, JSONCompareMode.LENIENT);
         assertDoesNotThrow(() -> sourceService.findById(identifier));
 
         Source sourceFound = sourceService.findById(identifier);
@@ -133,9 +146,14 @@ class SourceControllerTest {
         source.setLongWording("Long wording update");
         source.setPaperFormInputEnabled(false);
         String jsonSourceUpdate = createJson(source);
-        mockMvc.perform(put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSourceUpdate)
+        response = mockMvc
+                .perform(put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSourceUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonSourceUpdate.toString(), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSourceUpdate, response, JSONCompareMode.LENIENT);
         assertDoesNotThrow(() -> sourceService.findById(identifier));
         Source sourceFoundAfterUpdate = sourceService.findById(identifier);
         assertEquals("Long wording update", sourceFoundAfterUpdate.getLongWording());
