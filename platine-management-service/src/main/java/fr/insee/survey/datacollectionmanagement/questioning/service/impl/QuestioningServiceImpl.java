@@ -297,9 +297,7 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public boolean isQuestioningInBusinessSource(UUID questioningId) {
-        SourceTypeEnum sourceType = questioningRepository.getSourceTypeByQuestioningId(questioningId);
-        return SourceTypeEnum.BUSINESS.equals(sourceType);
+    public boolean canExportQuestioningDataToPdf(UUID questioningId) {
+        return questioningRepository.existsBusinessSourceForLunaticNormal(questioningId);
     }
-
 }

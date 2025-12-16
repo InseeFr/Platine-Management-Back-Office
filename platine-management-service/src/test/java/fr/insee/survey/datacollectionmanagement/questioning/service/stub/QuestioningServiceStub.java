@@ -130,8 +130,8 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public boolean isQuestioningInBusinessSource(UUID questioningId) {
-        return false;
+    public boolean canExportQuestioningDataToPdf(UUID questioningId) {
+        return true;
     }
 
     @Override

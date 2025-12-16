@@ -63,9 +63,9 @@ public interface QuestioningService {
     Set<UUID> findMissingIds(Set<UUID> ids);
 
     /**
-     * Indicates whether the given questioning is linked to a business source.
+     * Indicates whether the given questioning data can be exported to pdf
      * @param questioningId the questioning identifier
-     * @return {@code true} if the questioning is linked to a business source, {@code false} otherwise
+     * @return {@code true} if the questioning data can be exported, {@code false} otherwise
      */
-    boolean isQuestioningInBusinessSource(UUID questioningId);
+    boolean canExportQuestioningDataToPdf(UUID questioningId);
 }

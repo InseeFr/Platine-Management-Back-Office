@@ -33,6 +33,6 @@ public class PdfResponsePermissionEvaluator implements ApplicationPermissionEval
         if (!hasGlobalPermission) {
             return false;
         }
-        return questioningService.isQuestioningInBusinessSource(questioningId);
+        return questioningService.canExportQuestioningDataToPdf(questioningId);
     }
 }

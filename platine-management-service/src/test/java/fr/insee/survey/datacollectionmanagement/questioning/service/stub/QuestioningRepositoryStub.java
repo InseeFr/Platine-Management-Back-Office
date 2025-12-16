@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
-import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import org.springframework.data.domain.Example;
@@ -67,8 +66,8 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public SourceTypeEnum getSourceTypeByQuestioningId(UUID questioningId) {
-        return SourceTypeEnum.BUSINESS;
+    public boolean existsBusinessSourceForLunaticNormal(UUID questioningId) {
+        return true;
     }
 
     @Override
