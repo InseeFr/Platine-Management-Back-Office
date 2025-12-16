@@ -41,7 +41,7 @@ public interface QuestioningService {
     /**
      * Delete questionings attached to one partitioning
      *
-     * @param partitioning
+     * @param partitioning the partitioning to search
      * @return nb questioning deleted
      */
     int deleteQuestioningsOfOnePartitioning(Partitioning partitioning);
@@ -61,4 +61,11 @@ public interface QuestioningService {
     void updatePriorities(List<InterrogationPriorityInputDto> priorities);
 
     Set<UUID> findMissingIds(Set<UUID> ids);
+
+    /**
+     * Indicates whether the given questioning is linked to a business source.
+     * @param questioningId the questioning identifier
+     * @return {@code true} if the questioning is linked to a business source, {@code false} otherwise
+     */
+    boolean isQuestioningInBusinessSource(UUID questioningId);
 }

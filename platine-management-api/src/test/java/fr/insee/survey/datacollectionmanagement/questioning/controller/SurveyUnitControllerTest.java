@@ -53,7 +53,7 @@ class SurveyUnitControllerTest {
     @BeforeEach
     void init() {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
-                .getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+                .getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
 
     @Test
@@ -61,8 +61,15 @@ class SurveyUnitControllerTest {
         String identifier = "100000000";
         SurveyUnit surveyUnit = surveyUnitService.findbyId(identifier);
         String json = createJson(surveyUnit);
-        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -102,8 +109,15 @@ class SurveyUnitControllerTest {
         jo.put("totalElements", surveyUnitRepository.count());
         jo.put("numberOfElements", surveyUnitRepository.count());
 
-        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(jo.toString(), false));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_SURVEY_UNITS))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jo.toString(), response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -113,11 +127,15 @@ class SurveyUnitControllerTest {
         // create surveyUnit - status created
         SurveyUnit surveyUnit = initSurveyUnit(identifier);
         String jsonSurveyUnit = createJson(surveyUnit);
-        mockMvc.perform(
+        String response = mockMvc.perform(
                         put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonSurveyUnit, false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSurveyUnit, response, JSONCompareMode.LENIENT);
         SurveyUnit surveyUnitFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getIdSu(), surveyUnitFound.getIdSu());
         assertEquals(surveyUnit.getIdentificationCode(), surveyUnitFound.getIdentificationCode());
@@ -126,9 +144,13 @@ class SurveyUnitControllerTest {
         // update surveyUnit - status ok
         surveyUnit.setIdentificationName("identificationNameUpdate");
         String jsonSurveyUnitUpdate = createJson(surveyUnit);
-        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
+        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonSurveyUnitUpdate, false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSurveyUnitUpdate, response, JSONCompareMode.LENIENT);
         SurveyUnit surveyUnitFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals("identificationNameUpdate", surveyUnitFoundAfterUpdate.getIdentificationName());
         assertEquals(surveyUnit.getIdSu(), surveyUnitFoundAfterUpdate.getIdSu());
@@ -148,11 +170,15 @@ class SurveyUnitControllerTest {
         // create surveyUnit - status created
         SurveyUnit surveyUnit = initSurveyUnitAddress(identifier);
         String jsonSurveyUnit = createJsonSurveyUnitAddress(surveyUnit);
-        mockMvc.perform(
+        String response = mockMvc.perform(
                         put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonSurveyUnit, false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSurveyUnit, response, JSONCompareMode.LENIENT);
         SurveyUnit suFound = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(), suFound.getSurveyUnitAddress().getCityName());
 
@@ -160,9 +186,13 @@ class SurveyUnitControllerTest {
         String newCityName = "cityUpdate";
         surveyUnit.getSurveyUnitAddress().setCityName(newCityName);
         String jsonSurveyUnitUpdate = createJsonSurveyUnitAddress(surveyUnit);
-        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
+        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonSurveyUnitUpdate, false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonSurveyUnitUpdate, response, JSONCompareMode.LENIENT);
         SurveyUnit countactFoundAfterUpdate = surveyUnitService.findbyId(identifier);
         assertEquals(surveyUnit.getSurveyUnitAddress().getCityName(),
                 countactFoundAfterUpdate.getSurveyUnitAddress().getCityName());

@@ -130,6 +130,11 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
+    public boolean isQuestioningInBusinessSource(UUID questioningId) {
+        return false;
+    }
+
+    @Override
     public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
         return questionnaireStatus;
     }

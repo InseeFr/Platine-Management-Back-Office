@@ -1,5 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.PermissionEvaluatorHandler;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
@@ -8,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,9 +28,11 @@ import java.util.UUID;
 @RestController
 @Tag(name = "5 - Cross domain")
 @RequiredArgsConstructor
+@Slf4j
 public class CheckHabilitationController {
 
     private final CheckHabilitationService checkHabilitationService;
+    private final PermissionEvaluatorHandler permissionEvaluator;
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
     @GetMapping(path = UrlConstants.API_CHECK_HABILITATION_V1, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,6 +59,22 @@ public class CheckHabilitationController {
                 .toList();
         boolean habilitated = checkHabilitationService.checkHabilitation(role, questioningId, userRoles, authentication.getName().toUpperCase());
         return ResponseEntity.ok(new HabilitationDto(habilitated));
+    }
+
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+    @GetMapping(path = UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING, produces = MediaType.APPLICATION_JSON_VALUE)
+    public HabilitationDto checkPermission(
+            @RequestParam(name = "id") UUID questioningId,
+            @RequestParam(name = "permission") Permission permission,
+            @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+
+        log.info("GET permission {} for questioning {}", permission.name(), questioningId);
+        if(!Permission.READ_PDF_RESPONSE.equals(permission)) {
+            return new HabilitationDto(false);
+        }
+
+        boolean habilitated = permissionEvaluator.hasPermission(authentication, questioningId, permission);
+        return new HabilitationDto(habilitated);
     }
 
 }
