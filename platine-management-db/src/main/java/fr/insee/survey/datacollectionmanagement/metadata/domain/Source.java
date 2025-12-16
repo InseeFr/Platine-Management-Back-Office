@@ -17,9 +17,6 @@ public class Source {
     private String id;
     private String longWording;
     private String shortWording;
-    private Boolean forceClose;
-    private String messageSurveyOffline;
-    private String messageInfoSurveyOffline;
     private String logo;
     private String storageTime;
     private String personalData;

@@ -67,7 +67,6 @@ public class UrlConstants {
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";
-    public static final String API_SOURCE_ID_OPENED = "/api/sources/{id}/is-opened";
     public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
     public static final String API_SOURCES_ID_SUPPPORT = "/api/sources/{id}/support";
 
