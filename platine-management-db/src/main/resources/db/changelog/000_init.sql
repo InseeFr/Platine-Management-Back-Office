@@ -29,11 +29,6 @@ CREATE TABLE public.event_order (
 CREATE TABLE public.internal_users (
 	identifier varchar(255) NOT NULL,
 	"role" int4 NULL,
-	creation_author varchar(255) NULL,
-	creation_date timestamp(6) NULL,
-	first_name varchar(255) NULL,
-	"name" varchar(255) NULL,
-	organization varchar(255) NULL,
 	CONSTRAINT internal_users_pkey PRIMARY KEY (identifier)
 );
 
@@ -159,23 +154,10 @@ CREATE TABLE public."source" (
 	short_wording varchar(255) NULL,
 	owner_id varchar(255) NULL,
 	support_id varchar(255) NULL,
-	force_close bool NULL,
-	message_info_survey_offline varchar(255) NULL,
-	message_survey_offline varchar(255) NULL,
 	logo varchar(255) NULL,
 	CONSTRAINT source_pkey PRIMARY KEY (id),
 	CONSTRAINT fkahd906jyo5ysjlpovalcaepda FOREIGN KEY (support_id) REFERENCES public."support"(id),
 	CONSTRAINT fkgmojpew8135gresse7lqngpcc FOREIGN KEY (owner_id) REFERENCES public."owner"(id)
-);
-
-CREATE TABLE public.source_accreditation (
-	id int8 NOT NULL,
-	creation_author varchar(255) NULL,
-	creation_date timestamp NULL,
-	id_user varchar(255) NULL,
-	source_id varchar(255) NULL,
-	CONSTRAINT source_accreditation_pkey PRIMARY KEY (id),
-	CONSTRAINT fk619l4arqi10dpf2fowm1d7ejl FOREIGN KEY (source_id) REFERENCES public."source"(id)
 );
 
 CREATE TABLE public.source_params (
@@ -485,13 +467,6 @@ CREATE SEQUENCE public.seq_upload
 	CACHE 1
 	NO CYCLE;
 
-CREATE SEQUENCE public.source_accreditation_seq
-	INCREMENT BY 50
-	MINVALUE 1
-	MAXVALUE 9223372036854775807
-	START 1
-	CACHE 1
-	NO CYCLE;
 
 CREATE SEQUENCE public.su_comment_seq
 	INCREMENT BY 50

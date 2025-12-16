@@ -56,22 +56,6 @@ public class ContactController {
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
-    /**
-     * @deprecated
-     */
-    @Operation(summary = "Search for contacts, paginated")
-    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Deprecated(since = "2.6.0", forRemoval = true)
-    public ContactPage getContacts(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(defaultValue = "identifier") String sort) {
-        log.warn("DEPRECATED");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<Contact> pageC = contactService.findAll(pageable);
-        List<ContactDto> listC = pageC.stream().map(contactService::convertToDto).toList();
-        return new ContactPage(listC, pageable, pageC.getTotalElements());
-    }
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)

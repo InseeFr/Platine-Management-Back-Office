@@ -9,9 +9,7 @@ public class UrlConstants {
 
     // API CONTACTS DOMAIN
     public static final String API_CONTACTS = "/api/contacts/";
-    public static final String API_CONTACTS_ALL = "/api/contacts";
     public static final String API_CONTACTS_ID = "/api/contacts/{id}";
-    public static final String API_CONTACTS_ID_ADDRESS = "/api/contacts/{id}/address";
     public static final String API_CONTACTS_ID_CONTACTEVENTS = "/api/contacts/{id}/contact-events";
     public static final String API_CONTACT = "/api/contact/";
     public static final String API_CONTACT_CONTACTEVENTS = "/api/contact/contact-events";
@@ -23,7 +21,6 @@ public class UrlConstants {
 
     public static final String API_USERS_ALL = "/api/users";
     public static final String API_USERS_ID = "/api/users/{id}";
-    public static final String API_USERS_ID_USEREVENTS = "/api/users/{id}/user-events";
     public static final String API_SOURCE_ID_WALLET = "/api/source/{id}/wallet";
 
 

@@ -7,3 +7,10 @@ DROP TABLE public.campaign_event;
 ALTER TABLE public."source" DROP COLUMN force_close;
 ALTER TABLE public."source" DROP COLUMN message_info_survey_offline;
 ALTER TABLE public."source" DROP COLUMN message_survey_offline;
+
+
+ALTER TABLE public.internal_users DROP COLUMN creation_author;
+ALTER TABLE public.internal_users DROP COLUMN creation_date;
+ALTER TABLE public.internal_users DROP COLUMN first_name;
+ALTER TABLE public.internal_users DROP COLUMN "name";
+ALTER TABLE public.internal_users DROP COLUMN organization;

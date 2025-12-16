@@ -53,16 +53,6 @@ public class ContactServiceImpl implements ContactService {
 
 
   @Override
-  public Page<Contact> findAll(Pageable pageable) {
-    return contactRepository.findAll(pageable);
-  }
-
-  @Override
-  public List<Contact> findAll() {
-    return contactRepository.findAll();
-  }
-
-  @Override
   public Contact findByIdentifier(String identifier) {
     return contactRepository.findById(identifier).orElseThrow(() -> new NotFoundException(String.format("Contact %s not found", identifier)));
   }
