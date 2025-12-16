@@ -12,6 +12,7 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventR
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactSourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
@@ -20,10 +21,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.comparator.Interroga
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
-import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
@@ -304,6 +303,7 @@ public class DataloaderTest {
                         campaign.setId(sourceName + (year - j) + period);
                         campaign.setCampaignWording(
                                 "Campaign about " + sourceName + " in " + (year - j) + " and period " + period);
+                        campaign.setDataCollectionTarget(campaignRepository.count() % 2 == 0 ? DataCollectionEnum.LUNATIC_NORMAL : DataCollectionEnum.LUNATIC_SENSITIVE);
                         setCampaigns.add(campaign);
                         campaignRepository.save(campaign);
                         Set<Partitioning> setParts = new HashSet<>();

@@ -14,11 +14,12 @@ public class AuthorizationProfileFactory {
         Set<Permission> permissions = new HashSet<>();
 
         for(AuthorityRoleEnum applicationRole : applicationRoles) {
-            if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.SUPPORT)) {
+            Objects.requireNonNull(applicationRole);
+            if (List.of(AuthorityRoleEnum.SUPPORT, AuthorityRoleEnum.ADMIN).contains(applicationRole)) {
                 permissions.add(Permission.READ_SUPPORT);
             }
 
-            if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.INTERNAL_USER)) {
+            if (List.of(AuthorityRoleEnum.INTERNAL_USER, AuthorityRoleEnum.ADMIN).contains(applicationRole)) {
                 permissions.add(Permission.READ_PDF_RESPONSE);
             }
         }

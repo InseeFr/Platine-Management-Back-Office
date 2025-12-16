@@ -150,4 +150,17 @@ class CheckHabilitationControllerIT {
                 .andExpect(jsonPath("$.habilitated").value(true));
     }
 
+    @Test
+    void shouldNotAllowPermissionAccessForInternalUserWhenNoBusinessSource() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
+        mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING)
+                        .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
+                        .param("permission", Permission.READ_PDF_RESPONSE.name())
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilitated").value(false));
+    }
+
 }

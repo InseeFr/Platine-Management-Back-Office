@@ -70,7 +70,7 @@ class PdfResponsePermissionEvaluatorTest {
     void shouldReturnFalseWhenQuestioningIsNotInBusinessSource() {
         when(globalPermissionChecker.hasPermission(authentication, Permission.READ_PDF_RESPONSE))
                 .thenReturn(true);
-        when(questioningService.isQuestioningInBusinessSource(questioningId))
+        when(questioningService.canExportQuestioningDataToPdf(questioningId))
                 .thenReturn(false);
 
         boolean result = evaluator.hasPermission(authentication, questioningId);
@@ -81,14 +81,14 @@ class PdfResponsePermissionEvaluatorTest {
         verify(globalPermissionChecker)
                 .hasPermission(authentication, Permission.READ_PDF_RESPONSE);
         verify(questioningService)
-                .isQuestioningInBusinessSource(questioningId);
+                .canExportQuestioningDataToPdf(questioningId);
     }
 
     @Test
     void shouldReturnTrueWhenGlobalPermissionGrantedAndQuestioningIsInBusinessSource() {
         when(globalPermissionChecker.hasPermission(authentication, Permission.READ_PDF_RESPONSE))
                 .thenReturn(true);
-        when(questioningService.isQuestioningInBusinessSource(questioningId))
+        when(questioningService.canExportQuestioningDataToPdf(questioningId))
                 .thenReturn(true);
 
         boolean result = evaluator.hasPermission(authentication, questioningId);
@@ -99,6 +99,6 @@ class PdfResponsePermissionEvaluatorTest {
         verify(globalPermissionChecker)
                 .hasPermission(authentication, Permission.READ_PDF_RESPONSE);
         verify(questioningService)
-                .isQuestioningInBusinessSource(questioningId);
+                .canExportQuestioningDataToPdf(questioningId);
     }
 }
