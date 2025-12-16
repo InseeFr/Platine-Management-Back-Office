@@ -33,16 +33,6 @@ public class UserEventServiceImpl implements UserEventService {
     }
 
     @Override
-    public UserEvent saveUserEvent(UserEvent userEvent) {
-        return userEventRepository.save(userEvent);
-    }
-
-    @Override
-    public void deleteUserEvent(Long id) {
-        userEventRepository.deleteById(id);
-    }
-
-    @Override
     public Set<UserEvent> findUserEventsByUser(User user) {
         return userEventRepository.findByUser(user);
     }

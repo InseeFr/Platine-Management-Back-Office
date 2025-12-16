@@ -4,13 +4,12 @@ package fr.insee.survey.datacollectionmanagement.user.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public interface UserService {
@@ -22,8 +21,6 @@ public interface UserService {
      * @return user Page
      */
     Page<User> findAll(Pageable pageable);
-
-    List<User> findAll();
 
     Set<String> findMissingIdentifiers(Set<String> uniqueUsers);
 

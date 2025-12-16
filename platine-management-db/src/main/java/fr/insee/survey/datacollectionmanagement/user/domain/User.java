@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -18,11 +17,6 @@ public class User {
 
     @Id
     private String identifier;
-    private String name;
-    private String firstName;
-    private String organization;
-    private Date creationDate;
-    private String creationAuthor;
 
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)
