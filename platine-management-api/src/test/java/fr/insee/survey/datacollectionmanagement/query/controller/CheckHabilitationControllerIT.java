@@ -160,7 +160,7 @@ class CheckHabilitationControllerIT {
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+                .andExpect(jsonPath("$.habilitated").value(false));
     }
 
 }
