@@ -55,7 +55,7 @@ public class UrlConstants {
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
     public static final String API_QUESTIONING_ID_COMMENT = "/api/questionings/{id}/comment";
     public static final String API_MAIN_CONTACT = "/api/main-contact";
-    public static final String API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP = "/api/questioning-statuses/imports/valpap";
+    public static final String API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP = "/api/questioning-events/import/valpap";
 
     // API METADATA DOMAIN
     public static final String API_SOURCES = "/api/sources";
