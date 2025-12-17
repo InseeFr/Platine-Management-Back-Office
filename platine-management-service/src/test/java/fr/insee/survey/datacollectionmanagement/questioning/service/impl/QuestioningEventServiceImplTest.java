@@ -1,12 +1,15 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
@@ -22,7 +25,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,6 +37,9 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class QuestioningEventServiceImplTest {
 
@@ -50,7 +60,8 @@ class QuestioningEventServiceImplTest {
                 questioningRepository,
                 new ModelMapper(),
                 interrogationEventComparator,
-                new ExpertEventComponent());
+                new ExpertEventComponent(),
+                new ObjectMapper());
     }
 
     private Questioning createQuestioning() {
@@ -511,4 +522,101 @@ class QuestioningEventServiceImplTest {
         }
     }
 
+    @Test
+    @DisplayName("import from csv should not throw when type is VALPAP")
+    void importFromCsvShouldNotThrowWhenTypeIsVALPAP() {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                456
+                """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        questioningRepository.setQuestionings(List.of(questioning));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN : aucune exception
+        assertDoesNotThrow(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file));
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found")
+    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFound() {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                123456789
+                """;
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN
+        NotFoundException ex = assertThrows(
+                NotFoundException.class,
+                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
+        );
+
+        // THEN
+        assertTrue(ex.getMessage().startsWith("123456789"));
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values")
+    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValues() {
+        // GIVEN : CSV with TYPE != VALPAP
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                123456789
+                """;
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        questioningRepository.setTooManyValuesException(true);
+
+        // WHEN
+        TooManyValuesException ex = assertThrows(
+                TooManyValuesException.class,
+                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
+        );
+
+        // THEN
+        assertTrue(ex.getMessage().contains("123456789"));
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw IOException")
+    void importFromCsvShouldWrapIOExceptionIntoCsvFileProcessingException() throws IOException {
+        // GIVEN
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getInputStream()).thenThrow(new IOException("file.csv"));
+
+        // WHEN
+        CsvFileProcessingException ex = assertThrows(
+                CsvFileProcessingException.class,
+                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
+        );
+
+        // THEN
+        assertInstanceOf(IOException.class, ex.getCause());
+        assertEquals("file.csv", ex.getCause().getMessage());
+    }
 }

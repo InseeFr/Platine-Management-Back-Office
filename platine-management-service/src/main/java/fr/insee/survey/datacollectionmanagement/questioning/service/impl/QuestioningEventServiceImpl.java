@@ -1,7 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
+import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
@@ -20,16 +23,29 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.component.Ex
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import wiremock.com.ethlo.time.DateTime;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class QuestioningEventServiceImpl implements QuestioningEventService {
+
+    public static final String ID_UNITE_ENQUETEE = "ID_UNITE_ENQUETEE";
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
 
@@ -44,6 +60,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final ExpertEventComponent expertEventComponent;
 
     private static final String QUESTIONING_NOT_FOUND_MESSAGE = "Questioning %s not found";
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -193,7 +211,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         throw new ForbiddenAccessException(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
     }
 
-
     public void refreshHighestEvent(UUID questioningId) {
         Questioning questioning = questioningRepository.findById(questioningId)
                 .orElseThrow(() -> new NotFoundException(String.format(QUESTIONING_NOT_FOUND_MESSAGE, questioningId)));
@@ -209,4 +226,64 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         questioningRepository.save(questioning);
     }
 
+    @Override
+    public void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file) {
+        final JsonNode payload = objectMapper.createObjectNode()
+                .put("source", "platine-gestion");
+
+        final Instant now = Instant.now();
+
+        CSVFormat format = CSVFormat.DEFAULT.builder()
+                .setHeader()
+                .setIgnoreEmptyLines(false)
+                .setTrim(false)
+                .get();
+
+        try (BufferedReader reader = new BufferedReader(
+                                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+                                     CSVParser csvParser = format.parse(reader)) {
+
+            Set<String> surveyUnitIds = new HashSet<>();
+            for (CSVRecord myRecord : csvParser) {
+                surveyUnitIds.add(myRecord.get(ID_UNITE_ENQUETEE));
+            }
+
+            if (surveyUnitIds.isEmpty()) {
+                throw new CsvFileProcessingException("No value of ID_UNITE_ENQUETEE identifier");
+            }
+
+            Set<Questioning> questionings = questioningRepository.findBySurveyUnitIdSuIn(surveyUnitIds);
+
+            Map<String, List<Questioning>> bySu = questionings.stream()
+                    .collect(Collectors.groupingBy(q -> q.getSurveyUnit().getIdSu()));
+
+            for (String su : surveyUnitIds) {
+                List<Questioning> list = bySu.get(su);
+                if (list == null || list.isEmpty()) {
+                    throw new NotFoundException(su);
+                }
+                if (list.size() > 1) {
+                    throw new TooManyValuesException(su);
+                }
+            }
+
+            List<QuestioningEvent> events = new ArrayList<>(surveyUnitIds.size());
+            for (String su : surveyUnitIds) {
+                Questioning q = bySu.get(su).getFirst();
+                QuestioningEvent ev = new QuestioningEvent();
+                ev.setQuestioning(q);
+                ev.setType(TypeQuestioningEvent.VALPAP);
+                ev.setPayload(payload);
+                ev.setDate(Date.from(now));
+                events.add(ev);
+            }
+            questioningEventRepository.saveAll(events);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (TooManyValuesException e) {
+            throw new TooManyValuesException(e.getMessage());
+        } catch (IllegalArgumentException | IOException e) {
+            throw new CsvFileProcessingException(e.getMessage(), e);
+        }
+    }
 }

@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,13 +29,12 @@ import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -214,4 +214,112 @@ class QuestionningEventControllerTest {
         return joEvent.toString();
     }
 
+    @Test
+    @DisplayName("Uploading interrogation statuses from paper questionnaires and should return ok")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationStatusesFromPaperQuestionnairesAndShouldReturnOk() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                100000000
+                """;
+
+        MockMultipartFile csv = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                                .file(csv)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation statuses from paper questionnaires should return MappingForColumnName not found : 409")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnMappingForColumnNameNotFound409() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEEE
+                100000001
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(status().is(409))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Mapping for ID_UNITE_ENQUETEE not found, expected one of [ID_UNITE_ENQUETEEE]")));
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation statuses from paper questionnaires should return NoValueOfSurveyUNitId identifier : 409")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnNoValueOfSurveyUNitIdIdentifier409() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEEE
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(status().is(409))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("No value of ID_UNITE_ENQUETEE identifier")));
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation statuses from paper questionnaires should return SurveyUnitNotFound : 404")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnSurveyUnitNotFound404() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                123_NOT_FOUND_456
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(status().is(404))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("123_NOT_FOUND_456")));
+    }
 }

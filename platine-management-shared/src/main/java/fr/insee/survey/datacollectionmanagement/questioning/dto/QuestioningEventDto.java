@@ -19,4 +19,14 @@ public class QuestioningEventDto {
     private String type;
     private JsonNode payload;
 
+    @Override
+    public String toString() {
+        return "QuestioningEventDto{" +
+                "id=" + id +
+                ", questioningId=" + questioningId +
+                ", eventDate=" + eventDate +
+                ", type='" + type + '\'' +
+                ", payload=" + payload +
+                '}';
+    }
 }
