@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
 /**
- * Exception levée lorsqu'une erreur de lecture ou de parsing de fichier Wallet survient.
+ * Exception raised when a Wallet file reading or parsing error occurs.
  */
 public class CsvFileProcessingException extends RuntimeException {
     public CsvFileProcessingException(String message, Throwable cause) {
