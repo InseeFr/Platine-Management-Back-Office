@@ -2,7 +2,6 @@ package fr.insee.survey.datacollectionmanagement.questioning.repository;
 
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -81,6 +80,9 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
       AND s.type = fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum.BUSINESS
     """)
     boolean existsBusinessSourceForLunaticNormal(@Param("questioningId") UUID questioningId);
+
+    @Query("select distinct q from Questioning q where q.surveyUnit.idSu in :surveyUnitIds")
+    Set<Questioning> findBySurveyUnitIdSuIn(Set<String> surveyUnitIds);
 
     @Query("""
     SELECT (COUNT(q) > 0)
