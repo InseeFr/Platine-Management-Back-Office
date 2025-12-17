@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestioningEventServiceImpl implements QuestioningEventService {
 
-    public static final String ID_UNITE_ENQUETEE = "ID_UNITE_ENQUETEE";
+    public static final String SURVEY_UNIT_ID = "ID_UNITE_ENQUETEE";
 
     private final LastQuestioningEventComparator lastQuestioningEventComparator;
 
@@ -227,7 +227,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file) {
+    public void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file) throws NotFoundException, TooManyValuesException{
         final JsonNode payload = objectMapper.createObjectNode()
                 .put("source", "platine-gestion");
 
@@ -245,7 +245,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
             Set<String> surveyUnitIds = new HashSet<>();
             for (CSVRecord myRecord : csvParser) {
-                surveyUnitIds.add(myRecord.get(ID_UNITE_ENQUETEE));
+                surveyUnitIds.add(myRecord.get(SURVEY_UNIT_ID));
             }
 
             if (surveyUnitIds.isEmpty()) {
@@ -278,10 +278,6 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 events.add(ev);
             }
             questioningEventRepository.saveAll(events);
-        } catch (NotFoundException e) {
-            throw new NotFoundException(e.getMessage());
-        } catch (TooManyValuesException e) {
-            throw new TooManyValuesException(e.getMessage());
         } catch (IllegalArgumentException | IOException e) {
             throw new CsvFileProcessingException(e.getMessage(), e);
         }
