@@ -241,4 +241,10 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.CONFLICT, request);
     }
 
+    @ExceptionHandler(CsvFileProcessingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleCsvFileProcessingException(CsvFileProcessingException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.CONFLICT, request);
+    }
 }

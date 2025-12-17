@@ -1,8 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import lombok.Setter;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +16,11 @@ import java.util.function.Function;
 
 public class QuestioningRepositoryStub implements QuestioningRepository {
 
-    ArrayList<Questioning> questionings = new ArrayList<>();
+    @Setter
+    List<Questioning> questionings = new ArrayList<>();
+
+    @Setter
+    boolean tooManyValuesException = false;
 
     @Override
     public Set<Questioning> findByIdPartitioning(String idPartitioning) {
@@ -28,7 +34,10 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
 
     @Override
     public Optional<Questioning> findByIdPartitioningAndSurveyUnitIdSu(String idPartitioning, String surveyUnitIdSu) {
-        return Optional.empty();
+        return questionings.stream()
+                .filter(q -> idPartitioning.equals(q.getIdPartitioning())
+                        && surveyUnitIdSu.equals(q.getSurveyUnit().getIdSu()))
+                .findFirst();
     }
 
     @Override
@@ -36,12 +45,12 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
         return List.of();
     }
 
-  @Override
-  public List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(String campaignId) {
-    return List.of();
-  }
+    @Override
+    public List<QuestioningCsvDto> findQuestioningDataForCsvByCampaignId(String campaignId) {
+        return List.of();
+    }
 
-  @Override
+    @Override
     public Set<Questioning> findBySurveyUnitIdSu(String idSu) {
         return Set.of();
     }
@@ -68,6 +77,14 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     @Override
     public boolean existsBusinessSourceForLunaticNormal(UUID questioningId) {
         return true;
+    }
+
+    @Override
+    public Set<Questioning> findBySurveyUnitIdSuIn(Set<String> surveyUnitIds) {
+        if(tooManyValuesException){
+            throw new TooManyValuesException(surveyUnitIds.stream().findFirst().get());
+        }
+        return new HashSet<>(questionings);
     }
 
     @Override

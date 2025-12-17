@@ -20,9 +20,7 @@ public class UrlConstants {
     public static final String API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN = "/api/contact/{interrogationId}/new-main-contact-with-interrogation";
 
     // API USER DOMAIN
-
     public static final String API_USERS_ALL = "/api/users";
-
     public static final String API_USERS_ALL_NO_PAGINATION ="/api/users/v2" ;
     public static final String API_USERS_ID = "/api/users/{id}";
     public static final String API_USERS_ID_USEREVENTS = "/api/users/{id}/user-events";
@@ -56,10 +54,8 @@ public class UrlConstants {
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
     public static final String API_QUESTIONING_ID_COMMENT = "/api/questionings/{id}/comment";
-
-
     public static final String API_MAIN_CONTACT = "/api/main-contact";
-
+    public static final String API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP = "/api/questioning-events/import/valpap";
 
     // API METADATA DOMAIN
     public static final String API_SOURCES = "/api/sources";
