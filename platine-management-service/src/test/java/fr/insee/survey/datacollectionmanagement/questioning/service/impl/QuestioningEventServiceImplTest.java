@@ -37,7 +37,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -544,8 +543,8 @@ class QuestioningEventServiceImplTest {
                 csvContent.getBytes(StandardCharsets.UTF_8)
         );
 
-        // WHEN / THEN : aucune exception
-        assertDoesNotThrow(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file));
+        // WHEN / THEN
+        assertThatCode(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)).doesNotThrowAnyException();
     }
 
     @Test
@@ -553,9 +552,9 @@ class QuestioningEventServiceImplTest {
     void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFound() {
         // GIVEN
         String csvContent = """
-                ID_UNITE_ENQUETEE
-                123456789
-                """;
+            ID_UNITE_ENQUETEE
+            123456789
+            """;
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -564,14 +563,10 @@ class QuestioningEventServiceImplTest {
                 csvContent.getBytes(StandardCharsets.UTF_8)
         );
 
-        // WHEN
-        NotFoundException ex = assertThrows(
-                NotFoundException.class,
-                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
-        );
-
-        // THEN
-        assertTrue(ex.getMessage().startsWith("123456789"));
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageStartingWith("123456789");
     }
 
     @Test
@@ -582,24 +577,18 @@ class QuestioningEventServiceImplTest {
                 ID_UNITE_ENQUETEE
                 123456789
                 """;
-
         MultipartFile file = new MockMultipartFile(
                 "file",
                 "statuses.csv",
                 "text/csv",
                 csvContent.getBytes(StandardCharsets.UTF_8)
         );
-
         questioningRepository.setTooManyValuesException(true);
 
-        // WHEN
-        TooManyValuesException ex = assertThrows(
-                TooManyValuesException.class,
-                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
-        );
-
-        // THEN
-        assertTrue(ex.getMessage().contains("123456789"));
+        // WHEN / THEN
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+                .isInstanceOf(TooManyValuesException.class)
+                .hasMessageContaining("123456789"); // Optionnel
     }
 
     @Test
@@ -609,14 +598,13 @@ class QuestioningEventServiceImplTest {
         MultipartFile file = mock(MultipartFile.class);
         when(file.getInputStream()).thenThrow(new IOException("file.csv"));
 
-        // WHEN
-        CsvFileProcessingException ex = assertThrows(
-                CsvFileProcessingException.class,
-                () -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)
-        );
-
-        // THEN
-        assertInstanceOf(IOException.class, ex.getCause());
-        assertEquals("file.csv", ex.getCause().getMessage());
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+                .isInstanceOf(CsvFileProcessingException.class)
+                .hasCauseInstanceOf(IOException.class)
+                .hasCauseExactlyInstanceOf(IOException.class)
+                .hasMessageContaining("file.csv")
+                .cause()
+                .hasMessage("file.csv");
     }
 }
