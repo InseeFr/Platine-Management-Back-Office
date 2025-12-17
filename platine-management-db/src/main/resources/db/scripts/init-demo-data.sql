@@ -297,12 +297,6 @@ SELECT setval(
 );
 
 SELECT setval(
-    'public.campaign_event_seq',
-    COALESCE((SELECT MAX(id) FROM public.campaign_event), 0) + 1,
-    false
-);
-
-SELECT setval(
     'public.contact_event_seq',
     COALESCE((SELECT MAX(id) FROM public.contact_event), 0) + 1,
     false
