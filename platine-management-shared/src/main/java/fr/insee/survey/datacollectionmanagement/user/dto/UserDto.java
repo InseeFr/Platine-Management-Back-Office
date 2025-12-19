@@ -6,9 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-import java.util.List;
-
 @Getter
 @Setter
 public class UserDto{
@@ -16,13 +13,6 @@ public class UserDto{
     private String identifier;
     @InternalUserRoleValid
     private String role;
-    private String name;
-    private String firstName;
-    private String organization;
-    private List<String> accreditedSources;
-    private Date creationDate;
-    private String creationAuthor;
-
 
 }
 

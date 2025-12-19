@@ -11,7 +11,6 @@ import fr.insee.survey.datacollectionmanagement.user.dto.UserDto;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,27 +59,15 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         Page<User> pageC = userService.findAll(pageable);
         List<UserDto> listC = pageC.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(new UserController.UserPage(listC, pageable, pageC.getTotalElements()));
+        return ResponseEntity.ok().body(new UserPage(listC, pageable, pageC.getTotalElements()));
     }
 
-    @Operation(summary = "Search for users, without pagination")
-    @GetMapping(value = UrlConstants.API_USERS_ALL_NO_PAGINATION, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class ))))
-    })
-    public ResponseEntity getUsersNotPaginated() {
-        List<User> users = userService.findAll();
-        List<UserDto> listUsers = users.stream().map(this::convertToDto).toList();
-        return ResponseEntity.ok().body(listUsers);
-    }
 
     @Operation(summary = "Search for a user by its id")
     @GetMapping(value = UrlConstants.API_USERS_ID, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDto> getUser(@PathVariable("id") String id) {
         User user = userService.findByIdentifier(id);
         return ResponseEntity.ok().body(convertToDto(user));
-
-
     }
 
     @Operation(summary = "Update or create user")
@@ -128,7 +115,7 @@ public class UserController {
     })
     @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
     @Transactional
-    public ResponseEntity deleteUser(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteUser(@PathVariable("id") String id) {
         User user = userService.findByIdentifier(id);
 
         try {

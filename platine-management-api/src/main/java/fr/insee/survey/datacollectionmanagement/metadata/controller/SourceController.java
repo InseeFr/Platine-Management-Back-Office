@@ -135,24 +135,6 @@ public class SourceController {
 
     }
 
-    @Operation(summary = "Check if a source is opened")
-    @GetMapping(value = UrlConstants.API_SOURCE_ID_OPENED, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
-    public OpenDto isSourceOpened(@PathVariable("id") String id) {
-
-        Source source = sourceService.findById(id.toUpperCase());
-        if (Boolean.TRUE.equals(source.getForceClose())) {
-            return new OpenDto(false, true, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
-        }
-
-        if (source.getSurveys().isEmpty())
-            return new OpenDto(true, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
-
-        boolean isOpened = source.getSurveys().stream().anyMatch(survey -> surveyService.isSurveyOngoing(survey.getId()));
-
-        return new OpenDto(isOpened, false, source.getMessageSurveyOffline(), source.getMessageInfoSurveyOffline());
-
-    }
 
     @Operation(summary = "Search for surveys by the owner id")
     @GetMapping(value = UrlConstants.API_OWNERS_ID_SOURCES, produces = MediaType.APPLICATION_JSON_VALUE)

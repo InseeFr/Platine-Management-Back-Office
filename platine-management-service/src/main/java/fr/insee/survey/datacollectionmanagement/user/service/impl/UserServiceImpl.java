@@ -28,10 +28,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(pageable);
     }
 
-    @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
 
     @Override
     public Set<String> findMissingIdentifiers(Set<String> identifiers) {

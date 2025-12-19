@@ -116,22 +116,6 @@ class ContactControllerTest {
 
     }
 
-    @Test
-    void getContactsOk() throws Exception {
-        JSONObject jo = new JSONObject();
-        jo.put("totalElements", contactRepository.count());
-        jo.put("numberOfElements", contactRepository.count());
-
-        String response = this.mockMvc
-                .perform(get(UrlConstants.API_CONTACTS_ALL))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        JSONAssert.assertEquals(jo.toString(), response, JSONCompareMode.LENIENT);
-    }
 
     @Test
     void putContactCreateUpdateDelete() throws Exception {
