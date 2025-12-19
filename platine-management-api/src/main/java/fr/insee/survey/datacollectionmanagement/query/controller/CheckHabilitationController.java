@@ -32,7 +32,7 @@ import java.util.UUID;
 public class CheckHabilitationController {
 
     private final CheckHabilitationService checkHabilitationService;
-    private final PermissionEvaluatorHandler permissionEvaluator;
+    private final PermissionEvaluatorHandler permissionEvaluatorHandler;
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
     @GetMapping(path = UrlConstants.API_CHECK_HABILITATION_V1, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,19 +61,16 @@ public class CheckHabilitationController {
         return ResponseEntity.ok(new HabilitationDto(habilitated));
     }
 
-    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
-    @GetMapping(path = UrlConstants.API_CHECK_PERMISSION_FOR_QUESTIONING, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(path = UrlConstants.API_CHECK_PERMISSION, produces = MediaType.APPLICATION_JSON_VALUE)
     public HabilitationDto checkPermission(
-            @RequestParam(name = "id") UUID questioningId,
+            @RequestParam(name = "id", required = false) UUID questioningId,
             @RequestParam(name = "permission") Permission permission,
             @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
 
         log.info("GET permission {} for questioning {}", permission.name(), questioningId);
-        if(!Permission.READ_PDF_RESPONSE.equals(permission)) {
-            return new HabilitationDto(false);
-        }
 
-        boolean habilitated = permissionEvaluator.hasPermission(authentication, questioningId, permission);
+        boolean habilitated = permissionEvaluatorHandler.hasPermission(authentication, questioningId, permission);
         return new HabilitationDto(habilitated);
     }
 

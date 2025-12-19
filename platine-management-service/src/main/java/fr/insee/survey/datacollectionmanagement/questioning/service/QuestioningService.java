@@ -68,4 +68,11 @@ public interface QuestioningService {
      * @return {@code true} if the questioning data can be exported, {@code false} otherwise
      */
     boolean canExportQuestioningDataToPdf(UUID questioningId);
+
+    /**
+     * Indicates whether the given questioning data can be filled in paper mode
+     * @param questioningId the questioning identifier
+     * @return {@code true} if the questioning data can be filled in paper mode, {@code false} otherwise
+     */
+    boolean canWriteInPaperMode(UUID questioningId);
 }

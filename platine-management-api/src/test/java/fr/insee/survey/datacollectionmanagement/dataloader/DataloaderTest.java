@@ -267,6 +267,8 @@ public class DataloaderTest {
                 source.setPeriodicity(PeriodicityEnum.T);
                 SourceTypeEnum type = sourceRepository.count() % 2 == 0 ? SourceTypeEnum.BUSINESS : SourceTypeEnum.HOUSEHOLD;
                 source.setType(type);
+                boolean paperInputFormEnabled = sourceRepository.count() % 2 == 0 ? true : false;
+                source.setPaperFormInputEnabled(paperInputFormEnabled);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
@@ -401,9 +403,13 @@ public class DataloaderTest {
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
                     TypeQuestioningEvent.PARTIELINT, qu));
-            qeList.add(new QuestioningEvent(
-                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.VALINT, qu));
+
+            if(questioningRepository.count() % 10 != 0) {
+                qeList.add(new QuestioningEvent(
+                        part.get().getClosingDate(),
+                        TypeQuestioningEvent.VALINT,
+                        qu));
+            }
 
             qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));
 

@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -67,6 +68,11 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
 
     @Override
     public boolean existsBusinessSourceForLunaticNormal(UUID questioningId) {
+        return true;
+    }
+
+    @Override
+    public boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId, List<TypeQuestioningEvent> forbiddenEventTypes) {
         return true;
     }
 

@@ -1,6 +1,8 @@
-package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl;
+package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.global;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.GlobalPermissionChecker;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -11,37 +13,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SupportPermissionEvaluatorTest {
+class SupportAccessPermissionEvaluatorTest {
 
     @Mock
-    GlobalPermissionChecker globalPermissionChecker;
+    GlobalPermissionChecker roleChecker;
 
     @Mock
     Authentication authentication;
 
-    SupportPermissionEvaluator evaluator;
+    SupportAccessPermissionEvaluator evaluator;
 
     @Test
     void shouldReturnReadSupportAsPermission() {
-        evaluator = new SupportPermissionEvaluator(globalPermissionChecker);
+        evaluator = new SupportAccessPermissionEvaluator(roleChecker);
 
-        assertThat(evaluator.permission())
+        Assertions.assertThat(evaluator.permission())
                 .isEqualTo(Permission.READ_SUPPORT);
     }
 
     @Test
     void shouldReturnVoidAsTargetType() {
-        evaluator = new SupportPermissionEvaluator(globalPermissionChecker);
+        evaluator = new SupportAccessPermissionEvaluator(roleChecker);
 
-        assertThat(evaluator.targetType())
+        Assertions.assertThat(evaluator.targetType())
                 .isEqualTo(Void.class);
     }
 
     @Test
     void shouldReturnTrueWhenGlobalPermissionCheckerReturnsTrue() {
-        evaluator = new SupportPermissionEvaluator(globalPermissionChecker);
+        evaluator = new SupportAccessPermissionEvaluator(roleChecker);
 
-        when(globalPermissionChecker.hasPermission(authentication, Permission.READ_SUPPORT))
+        when(roleChecker.hasPermission(authentication, Permission.READ_SUPPORT))
                 .thenReturn(true);
 
         boolean result = evaluator.hasPermission(authentication, null);
@@ -49,15 +51,15 @@ class SupportPermissionEvaluatorTest {
         assertThat(result)
                 .isTrue();
 
-        verify(globalPermissionChecker)
+        verify(roleChecker)
                 .hasPermission(authentication, Permission.READ_SUPPORT);
     }
 
     @Test
     void shouldReturnFalseWhenGlobalPermissionCheckerReturnsFalse() {
-        evaluator = new SupportPermissionEvaluator(globalPermissionChecker);
+        evaluator = new SupportAccessPermissionEvaluator(roleChecker);
 
-        when(globalPermissionChecker.hasPermission(authentication, Permission.READ_SUPPORT))
+        when(roleChecker.hasPermission(authentication, Permission.READ_SUPPORT))
                 .thenReturn(false);
 
         boolean result = evaluator.hasPermission(authentication, null);
@@ -65,7 +67,7 @@ class SupportPermissionEvaluatorTest {
         assertThat(result)
                 .isFalse();
 
-        verify(globalPermissionChecker)
+        verify(roleChecker)
                 .hasPermission(authentication, Permission.READ_SUPPORT);
     }
 }

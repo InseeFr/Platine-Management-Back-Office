@@ -3,6 +3,7 @@ package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.e
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.AuthorizationProfile;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.ProfiledAuthenticationToken;
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GlobalPermissionCheckerTest {
+class RoleCheckerTest {
 
     GlobalPermissionChecker checker = new GlobalPermissionChecker();
 
@@ -45,11 +46,11 @@ class GlobalPermissionCheckerTest {
     }
 
     @Test
-    void shouldReturnFalseWhenProfileDoesNotContainPermission() {
+    void shouldReturnFalseWhenProfileDoesNotContainRolesForPermission() {
         when(profiledAuthentication.getProfile())
                 .thenReturn(authorizationProfile);
-        when(authorizationProfile.permissions())
-                .thenReturn(Set.of(Permission.READ_PDF_RESPONSE));
+        when(authorizationProfile.appRoles())
+                .thenReturn(Set.of(AuthorityRoleEnum.RESPONDENT));
 
         boolean result = checker.hasPermission(
                 profiledAuthentication,
@@ -64,8 +65,8 @@ class GlobalPermissionCheckerTest {
     void shouldReturnTrueWhenProfileContainsPermission() {
         when(profiledAuthentication.getProfile())
                 .thenReturn(authorizationProfile);
-        when(authorizationProfile.permissions())
-                .thenReturn(Set.of(Permission.READ_SUPPORT));
+        when(authorizationProfile.appRoles())
+                .thenReturn(Set.of(AuthorityRoleEnum.SUPPORT));
 
         boolean result = checker.hasPermission(
                 profiledAuthentication,

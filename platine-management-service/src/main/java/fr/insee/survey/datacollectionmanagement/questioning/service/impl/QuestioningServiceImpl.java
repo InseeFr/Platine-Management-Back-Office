@@ -35,6 +35,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -300,4 +301,15 @@ public class QuestioningServiceImpl implements QuestioningService {
     public boolean canExportQuestioningDataToPdf(UUID questioningId) {
         return questioningRepository.existsBusinessSourceForLunaticNormal(questioningId);
     }
+
+    @Override
+    public boolean canWriteInPaperMode(UUID questioningId) {
+        List<TypeQuestioningEvent> forbiddenEventTypesForAccess = new ArrayList<>();
+        forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.REFUSED_EVENTS);
+        forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.EXPERT_EVENTS);
+        forbiddenEventTypesForAccess.add(TypeQuestioningEvent.VALINT);
+
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, forbiddenEventTypesForAccess);
+    }
+
 }

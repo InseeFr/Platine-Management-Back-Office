@@ -34,7 +34,7 @@ class PermissionEvaluatorHandlerTest {
         handler = new PermissionEvaluatorHandler(
                 Map.of(
                         Permission.READ_SUPPORT, voidEvaluator,
-                        Permission.READ_PDF_RESPONSE, uuidEvaluator
+                        Permission.INTERROGATION_EXPORT_PDF_DATA, uuidEvaluator
                 )
         );
     }
@@ -91,7 +91,7 @@ class PermissionEvaluatorHandlerTest {
         when(uuidEvaluator.targetType()).thenReturn(UUID.class);
 
         assertThatThrownBy(() ->
-                handler.hasPermission(authentication, null, Permission.READ_PDF_RESPONSE)
+                handler.hasPermission(authentication, null, Permission.INTERROGATION_EXPORT_PDF_DATA)
         )
                 .isInstanceOf(ApplicationPermissionEvaluatorException.class)
                 .hasMessageContaining("Target required");
@@ -105,7 +105,7 @@ class PermissionEvaluatorHandlerTest {
                 handler.hasPermission(
                         authentication,
                         "not-a-uuid",
-                        Permission.READ_PDF_RESPONSE
+                        Permission.INTERROGATION_EXPORT_PDF_DATA
                 )
         )
                 .isInstanceOf(ApplicationPermissionEvaluatorException.class)
@@ -141,7 +141,7 @@ class PermissionEvaluatorHandlerTest {
         boolean result = handler.hasPermission(
                 authentication,
                 target,
-                Permission.READ_PDF_RESPONSE
+                Permission.INTERROGATION_EXPORT_PDF_DATA
         );
 
         assertThat(result).isTrue();
@@ -159,7 +159,7 @@ class PermissionEvaluatorHandlerTest {
                 authentication,
                 target,
                 "ANY_TYPE",
-                "READ_PDF_RESPONSE"
+                Permission.INTERROGATION_EXPORT_PDF_DATA.name()
         );
 
         assertThat(result).isTrue();
