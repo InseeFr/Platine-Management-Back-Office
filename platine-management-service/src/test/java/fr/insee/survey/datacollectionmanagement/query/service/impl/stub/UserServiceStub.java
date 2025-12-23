@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserServiceStub implements UserService {
 
@@ -20,11 +19,6 @@ public class UserServiceStub implements UserService {
     @Override
     public Page<User> findAll(Pageable pageable) {
         return null;
-    }
-
-    @Override
-    public List<User> findAll() {
-        return List.of();
     }
 
     @Override

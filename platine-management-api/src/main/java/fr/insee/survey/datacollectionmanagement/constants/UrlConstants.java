@@ -9,9 +9,7 @@ public class UrlConstants {
 
     // API CONTACTS DOMAIN
     public static final String API_CONTACTS = "/api/contacts/";
-    public static final String API_CONTACTS_ALL = "/api/contacts";
     public static final String API_CONTACTS_ID = "/api/contacts/{id}";
-    public static final String API_CONTACTS_ID_ADDRESS = "/api/contacts/{id}/address";
     public static final String API_CONTACTS_ID_CONTACTEVENTS = "/api/contacts/{id}/contact-events";
     public static final String API_CONTACT = "/api/contact/";
     public static final String API_CONTACT_CONTACTEVENTS = "/api/contact/contact-events";
@@ -22,12 +20,7 @@ public class UrlConstants {
     // API USER DOMAIN
 
     public static final String API_USERS_ALL = "/api/users";
-
-    public static final String API_USERS_ALL_NO_PAGINATION ="/api/users/v2" ;
     public static final String API_USERS_ID = "/api/users/{id}";
-    public static final String API_USERS_ID_USEREVENTS = "/api/users/{id}/user-events";
-    public static final String API_USEREVENTS = "/api/users/contact-events";
-    public static final String API_USEREVENTS_ID = "/api/users/user-events/{id}";
     public static final String API_SOURCE_ID_WALLET = "/api/source/{id}/wallet";
 
 
@@ -67,7 +60,6 @@ public class UrlConstants {
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";
-    public static final String API_SOURCE_ID_OPENED = "/api/sources/{id}/is-opened";
     public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
     public static final String API_SOURCES_ID_SUPPPORT = "/api/sources/{id}/support";
 

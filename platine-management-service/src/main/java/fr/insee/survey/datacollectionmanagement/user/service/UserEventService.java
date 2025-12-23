@@ -14,15 +14,11 @@ import java.util.Set;
 @Service
 public interface UserEventService {
 
-    public Page<UserEvent> findAll(Pageable pageable);
+    Page<UserEvent> findAll(Pageable pageable);
 
-    public UserEvent findById(Long id);
+    UserEvent findById(Long id);
 
-    public UserEvent saveUserEvent(UserEvent userEvent);
-
-    public void deleteUserEvent(Long id);
-
-    public Set<UserEvent> findUserEventsByUser (User user);
+    Set<UserEvent> findUserEventsByUser (User user);
 
     UserEvent createUserEvent(User user, UserEventTypeEnum type, JsonNode payload);
 
