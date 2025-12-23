@@ -1,14 +1,15 @@
-package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl;
+package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.global;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.ApplicationPermissionEvaluator;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.GlobalPermissionChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SupportPermissionEvaluator implements ApplicationPermissionEvaluator<Void> {
+public class SupportAccessPermissionEvaluator implements ApplicationPermissionEvaluator<Void> {
 
     private final GlobalPermissionChecker globalPermissionChecker;
 

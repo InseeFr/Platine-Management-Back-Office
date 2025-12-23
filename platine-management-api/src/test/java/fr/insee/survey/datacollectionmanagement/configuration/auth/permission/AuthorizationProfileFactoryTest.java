@@ -32,42 +32,75 @@ class AuthorizationProfileFactoryTest {
     }
 
     @Test
-    void shouldAddReadSupportPermissionForSupportRole() {
+    void shouldHaveValidPermissionForSupportRole() {
         AuthorizationProfile profile = factory.buildProfile(
                 Set.of(AuthorityRoleEnum.SUPPORT),
                 Set.of("SRC")
         );
 
         assertThat(profile.permissions())
-                .containsExactly(Permission.READ_SUPPORT);
+                .containsExactlyInAnyOrder(Permission.READ_SUPPORT);
     }
 
     @Test
-    void shouldAddReadPdfResponsePermissionForInternalUserRole() {
+    void shouldHaveValidPermissionForInternalUserRole() {
         AuthorizationProfile profile = factory.buildProfile(
                 Set.of(AuthorityRoleEnum.INTERNAL_USER),
                 Set.of("SRC")
         );
 
-        assertThat(profile.permissions())
-                .containsExactly(Permission.READ_PDF_RESPONSE);
+        assertThat(profile.permissions()).isEmpty();
     }
 
     @Test
-    void shouldAddBothPermissionsWhenBothRolesArePresent() {
+    void shouldHaveValidPermissionForAdmin() {
         AuthorizationProfile profile = factory.buildProfile(
-                Set.of(
-                        AuthorityRoleEnum.SUPPORT,
-                        AuthorityRoleEnum.INTERNAL_USER
-                ),
-                Set.of("SRC1")
+                Set.of(AuthorityRoleEnum.ADMIN),
+                Set.of("SRC")
         );
 
         assertThat(profile.permissions())
-                .containsExactlyInAnyOrder(
-                        Permission.READ_SUPPORT,
-                        Permission.READ_PDF_RESPONSE
-                );
+                .containsExactlyInAnyOrder(Permission.READ_SUPPORT);
+    }
+
+    @Test
+    void shouldHaveValidPermissionForRespondent() {
+        AuthorizationProfile profile = factory.buildProfile(
+                Set.of(AuthorityRoleEnum.RESPONDENT),
+                Set.of("SRC")
+        );
+
+        assertThat(profile.permissions()).isEmpty();
+    }
+
+    @Test
+    void shouldHaveValidPermissionForPortal() {
+        AuthorizationProfile profile = factory.buildProfile(
+                Set.of(AuthorityRoleEnum.PORTAL),
+                Set.of("SRC")
+        );
+
+        assertThat(profile.permissions()).isEmpty();
+    }
+
+    @Test
+    void shouldHaveValidPermissionForReader() {
+        AuthorizationProfile profile = factory.buildProfile(
+                Set.of(AuthorityRoleEnum.READER),
+                Set.of("SRC")
+        );
+
+        assertThat(profile.permissions()).isEmpty();
+    }
+
+    @Test
+    void shouldHaveValidPermissionForWebClient() {
+        AuthorizationProfile profile = factory.buildProfile(
+                Set.of(AuthorityRoleEnum.WEB_CLIENT),
+                Set.of("SRC")
+        );
+
+        assertThat(profile.permissions()).isEmpty();
     }
 
     @Test

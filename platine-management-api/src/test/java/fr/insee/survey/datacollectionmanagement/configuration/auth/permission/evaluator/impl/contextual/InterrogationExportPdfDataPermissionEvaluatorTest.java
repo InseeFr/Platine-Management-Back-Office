@@ -1,6 +1,7 @@
-package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl;
+package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.contextual;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.GlobalPermissionChecker;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PdfResponsePermissionEvaluatorTest {
+class InterrogationExportPdfDataPermissionEvaluatorTest {
 
     @Mock
-    GlobalPermissionChecker globalPermissionChecker;
+    GlobalPermissionChecker roleChecker;
 
     @Mock
     QuestioningService questioningService;
@@ -26,14 +27,14 @@ class PdfResponsePermissionEvaluatorTest {
     @Mock
     Authentication authentication;
 
-    PdfResponsePermissionEvaluator evaluator;
+    InterrogationExportPdfDataPermissionEvaluator evaluator;
 
     UUID questioningId;
 
     @BeforeEach
     void setUp() {
-        evaluator = new PdfResponsePermissionEvaluator(
-                globalPermissionChecker,
+        evaluator = new InterrogationExportPdfDataPermissionEvaluator(
+                roleChecker,
                 questioningService
         );
         questioningId = UUID.randomUUID();
@@ -42,7 +43,7 @@ class PdfResponsePermissionEvaluatorTest {
     @Test
     void shouldReturnReadPdfResponseAsPermission() {
         assertThat(evaluator.permission())
-                .isEqualTo(Permission.READ_PDF_RESPONSE);
+                .isEqualTo(Permission.INTERROGATION_EXPORT_PDF_DATA);
     }
 
     @Test
@@ -53,7 +54,7 @@ class PdfResponsePermissionEvaluatorTest {
 
     @Test
     void shouldReturnFalseWhenGlobalPermissionIsDenied() {
-        when(globalPermissionChecker.hasPermission(authentication, Permission.READ_PDF_RESPONSE))
+        when(roleChecker.hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA))
                 .thenReturn(false);
 
         boolean result = evaluator.hasPermission(authentication, questioningId);
@@ -61,14 +62,14 @@ class PdfResponsePermissionEvaluatorTest {
         assertThat(result)
                 .isFalse();
 
-        verify(globalPermissionChecker)
-                .hasPermission(authentication, Permission.READ_PDF_RESPONSE);
+        verify(roleChecker)
+                .hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA);
         verifyNoInteractions(questioningService);
     }
 
     @Test
     void shouldReturnFalseWhenQuestioningIsNotInBusinessSource() {
-        when(globalPermissionChecker.hasPermission(authentication, Permission.READ_PDF_RESPONSE))
+        when(roleChecker.hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA))
                 .thenReturn(true);
         when(questioningService.canExportQuestioningDataToPdf(questioningId))
                 .thenReturn(false);
@@ -78,15 +79,15 @@ class PdfResponsePermissionEvaluatorTest {
         assertThat(result)
                 .isFalse();
 
-        verify(globalPermissionChecker)
-                .hasPermission(authentication, Permission.READ_PDF_RESPONSE);
+        verify(roleChecker)
+                .hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA);
         verify(questioningService)
                 .canExportQuestioningDataToPdf(questioningId);
     }
 
     @Test
     void shouldReturnTrueWhenGlobalPermissionGrantedAndQuestioningIsInBusinessSource() {
-        when(globalPermissionChecker.hasPermission(authentication, Permission.READ_PDF_RESPONSE))
+        when(roleChecker.hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA))
                 .thenReturn(true);
         when(questioningService.canExportQuestioningDataToPdf(questioningId))
                 .thenReturn(true);
@@ -96,8 +97,8 @@ class PdfResponsePermissionEvaluatorTest {
         assertThat(result)
                 .isTrue();
 
-        verify(globalPermissionChecker)
-                .hasPermission(authentication, Permission.READ_PDF_RESPONSE);
+        verify(roleChecker)
+                .hasPermission(authentication, Permission.INTERROGATION_EXPORT_PDF_DATA);
         verify(questioningService)
                 .canExportQuestioningDataToPdf(questioningId);
     }

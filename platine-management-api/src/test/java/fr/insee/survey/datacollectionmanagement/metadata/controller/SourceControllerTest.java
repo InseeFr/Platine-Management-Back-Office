@@ -113,7 +113,7 @@ class SourceControllerTest {
                 .andExpect(jsonPath("$[1].shortWording").value("Short wording of SOURCE2"))
                 .andExpect(jsonPath("$[0].longWording").value("Long wording of SOURCE1 ?"))
                 .andExpect(jsonPath("$[1].longWording").value("Long wording of SOURCE2 ?"))
-                .andExpect(jsonPath("$[0].paperFormInputEnabled").value(false))
+                .andExpect(jsonPath("$[0].paperFormInputEnabled").value(true))
                 .andExpect(jsonPath("$[1].paperFormInputEnabled").value(false));
     }
 

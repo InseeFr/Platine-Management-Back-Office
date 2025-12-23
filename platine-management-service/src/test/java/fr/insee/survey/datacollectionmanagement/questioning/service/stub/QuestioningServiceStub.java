@@ -135,6 +135,11 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
+    public boolean canWriteInPaperMode(UUID questioningId) {
+        return true;
+    }
+
+    @Override
     public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
         return questionnaireStatus;
     }

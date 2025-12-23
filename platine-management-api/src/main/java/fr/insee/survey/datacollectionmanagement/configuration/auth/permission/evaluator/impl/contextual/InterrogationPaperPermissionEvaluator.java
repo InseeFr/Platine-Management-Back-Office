@@ -1,7 +1,8 @@
-package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl;
+package fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.contextual;
 
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.ApplicationPermissionEvaluator;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.impl.GlobalPermissionChecker;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -11,14 +12,14 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
-public class PdfResponsePermissionEvaluator implements ApplicationPermissionEvaluator<UUID> {
+public class InterrogationPaperPermissionEvaluator implements ApplicationPermissionEvaluator<UUID> {
 
-    private final GlobalPermissionChecker globalPermissionChecker;
+    private final GlobalPermissionChecker globalRoleChecker;
     private final QuestioningService questioningService;
 
     @Override
     public Permission permission() {
-        return Permission.READ_PDF_RESPONSE;
+        return Permission.INTERROGATION_ACCESS_IN_PAPER_MODE;
     }
 
     @Override
@@ -28,11 +29,10 @@ public class PdfResponsePermissionEvaluator implements ApplicationPermissionEval
 
     @Override
     public boolean hasPermission(Authentication authentication, UUID questioningId) {
-
-        boolean hasGlobalPermission = globalPermissionChecker.hasPermission(authentication, this.permission());
-        if (!hasGlobalPermission) {
+        boolean hasValidRole = globalRoleChecker.hasPermission(authentication, this.permission());
+        if (!hasValidRole) {
             return false;
         }
-        return questioningService.canExportQuestioningDataToPdf(questioningId);
+        return questioningService.canWriteInPaperMode(questioningId);
     }
 }
