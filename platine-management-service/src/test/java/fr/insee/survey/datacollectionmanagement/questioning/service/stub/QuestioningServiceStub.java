@@ -9,6 +9,7 @@ import fr.insee.survey.datacollectionmanagement.query.dto.SearchQuestioningDto;
 import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusTypeEnum;
 import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningIdDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
@@ -87,7 +88,11 @@ public class QuestioningServiceStub implements QuestioningService {
 
     @Override
     public Set<Questioning> findBySurveyUnitIdSu(String idSu) {
-        return Set.of();
+        Questioning questioning = new Questioning();
+        SurveyUnit su = new SurveyUnit();
+        su.setIdSu(idSu);
+        questioning.setSurveyUnit(su);
+        return Set.of(questioning);
     }
 
     @Override
