@@ -33,6 +33,7 @@
     <include file="changelog/150_add_priority_interrogation.sql" relativeToChangelogFile="true"/>
     <include file="changelog/160_add_param_paperFormInputEnabled_Source.sql" relativeToChangelogFile="true"/>
     <include file="changelog/170_delete_useless_tables_and_columns.sql" relativeToChangelogFile="true"/>
+    <include file="changelog/180_rename_events_VALPAP_to_RECUPAP.sql" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

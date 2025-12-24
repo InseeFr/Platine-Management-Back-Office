@@ -38,7 +38,7 @@ Feature: Search for questionings
     Given the questioning event for questioning 0 with type "VALINT" and date "2025-06-20T20:00:00"
     Given the questioning event for questioning 0 with type "PARTIELINT" and date "2025-06-20T20:01:00"
     Given the questioning event for questioning 1 with type "INITLA" and date "2025-06-20T20:00:00"
-    Given the questioning event for questioning 1 with type "VALPAP" and date "2025-06-20T20:02:00"
+    Given the questioning event for questioning 1 with type "RECUPAP" and date "2025-06-20T20:02:00"
     Given the questioning event for questioning 2 with type "PARTIELINT" and date "2025-06-20T20:01:00"
     Given the questioning event for questioning 2 with type "INITLA" and date "2025-06-20T20:00:00"
     Given the questioning event for questioning 3 with type "INITLA" and date "2025-07-20T20:00:00"
@@ -93,10 +93,10 @@ Feature: Search for questionings
   Scenario: Search by highest questioning event
     When I search questionings for campaign "TIC2023T01" and highest event types
       | VALINT |
-      | VALPAP |
+      | RECUPAP |
     Then the result should contain the following questionings
       | id | surveyUnitId | validationDate      | highestEventType | lastCommunicationType |
-      | 1  | QSU005       | 2025-06-20T20:02:00 | VALPAP           | COURRIER_OUVERTURE    |
+      | 1  | QSU005       | 2025-06-20T20:02:00 | RECUPAP           | COURRIER_OUVERTURE    |
 
   Scenario: Search by last communication types
     When I search questionings for campaign "TIC2023T01" and last communication types
@@ -105,7 +105,7 @@ Feature: Search for questionings
     Then the result should contain the following questionings
       | id | surveyUnitId | validationDate      | highestEventType | lastCommunicationType |
       | 0  | QSU005       |                     | PARTIELINT       | MAIL_RELANCE          |
-      | 1  | QSU005       | 2025-06-20T20:02:00 | VALPAP           | COURRIER_OUVERTURE    |
+      | 1  | QSU005       | 2025-06-20T20:02:00 | RECUPAP           | COURRIER_OUVERTURE    |
       | 2  | QSU005       |                     | PARTIELINT       | MAIL_RELANCE          |
 
 

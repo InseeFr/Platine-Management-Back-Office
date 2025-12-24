@@ -86,7 +86,7 @@ class QuestionningEventControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(randomUUID)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
+                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, RECUPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
     }
 
     @Test

@@ -6,12 +6,9 @@ import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningE
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningCommunicationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +18,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class UploadServiceImplTest {
 
-    private UploadService uploadService;
-    private QuestioningServiceStub questioningServiceStub;
-    private QuestioningEventServiceStub questioningEventServiceStub;
-    private CampaignServiceStub campaignServiceStub;
-    private QuestioningCommunicationService questioningCommunicationService;
+    private UploadServiceImpl uploadService;
+    QuestioningEventServiceStub questioningEventServiceStub;
+    QuestioningServiceStub questioningServiceStub;
+
     @Mock
     private UploadRepository uploadRepository;
 
@@ -36,8 +36,8 @@ class UploadServiceImplTest {
     void init(){
         questioningServiceStub = new QuestioningServiceStub();
         questioningEventServiceStub = new QuestioningEventServiceStub();
-        campaignServiceStub = new CampaignServiceStub();
-        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,questioningCommunicationService, campaignServiceStub,questioningServiceStub); ;
+        CampaignServiceStub campaignServiceStub = new CampaignServiceStub();
+        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,null, campaignServiceStub, questioningServiceStub);
     }
     @Test
     @DisplayName("Should save something")
@@ -50,14 +50,37 @@ class UploadServiceImplTest {
         moogUploadQuestioningEventDto.setIdSu("idsu");
         moogUploadQuestioningEventDto.setIdContact("contact");
         uploadDto.setData(List.of(moogUploadQuestioningEventDto));
-        
+
         String campaignId = "EEC2025T01";
-        
+
         //When
-        ResultUpload result = uploadService.save(campaignId, uploadDto);
+        when(uploadRepository.saveAndFlush(any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         //Then
-        Assertions.assertThat(result).isNotNull();
+        ResultUpload result = uploadService.save(campaignId, uploadDto);
+        assertThat(result).isNotNull();
+
+        assertThat(result.getListIdOK())
+                .hasSize(1);
+
+        assertThat(result.getListIdKO())
+                .isEmpty();
     }
 
+    @Test
+    @DisplayName("Should rename VALPAP to RECUPAP")
+    void test_should_rename_valpap_to_recupap() {
+        MoogUploadQuestioningEventDto moogUploadValpap = new MoogUploadQuestioningEventDto();
+        moogUploadValpap.setStatus("VALPAP");
+        moogUploadValpap = uploadService.renameValpaptoRecupap(moogUploadValpap);
+        assertThat(moogUploadValpap.getStatus()).isEqualTo("RECUPAP");
+
+        MoogUploadQuestioningEventDto moogUploaRecupap = new MoogUploadQuestioningEventDto();
+        moogUploaRecupap.setStatus("RECUPAP");
+        moogUploaRecupap = uploadService.renameValpaptoRecupap(moogUploaRecupap);
+        assertThat(moogUploaRecupap.getStatus()).isEqualTo("RECUPAP");
+
+
+    }
 }
