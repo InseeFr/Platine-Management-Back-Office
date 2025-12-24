@@ -3,11 +3,9 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 import fr.insee.survey.datacollectionmanagement.exception.RessourceNotValidatedException;
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningEventDto;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
-import fr.insee.survey.datacollectionmanagement.questioning.service.UploadService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.CampaignServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningServiceStub;
@@ -19,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +37,7 @@ class UploadServiceImplTest {
         questioningServiceStub = new QuestioningServiceStub();
         questioningEventServiceStub = new QuestioningEventServiceStub();
         CampaignServiceStub campaignServiceStub = new CampaignServiceStub();
-        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,null, campaignServiceStub, questioningServiceStub); ;
+        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,null, campaignServiceStub, questioningServiceStub);
     }
     @Test
     @DisplayName("Should save something")
