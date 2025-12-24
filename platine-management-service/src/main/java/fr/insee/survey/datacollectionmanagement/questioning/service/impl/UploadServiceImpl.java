@@ -77,10 +77,7 @@ public class UploadServiceImpl implements UploadService {
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning())).findFirst();
 
                 qe.setUpload(up);
-                //Service used by moog. Useful if you don't want to change moog and want to have both VALPAP and RECUPAP status in the csv sent.
-                if(mmDto.getStatus().equals("VALPAP")){
-                    mmDto.setStatus("RECUPAP");
-                }
+                mmDto =renameValpaptoRecupap(mmDto);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
                 qe.setQuestioning(quest.get());
                 ObjectNode payload = JsonNodeFactory.instance.objectNode();
@@ -117,6 +114,14 @@ public class UploadServiceImpl implements UploadService {
         saveAndFlush(up);
 
         return result;
+    }
+
+    MoogUploadQuestioningEventDto renameValpaptoRecupap(MoogUploadQuestioningEventDto mmDto) {
+        //Service used by moog. Useful if you don't want to change moog and want to have both VALPAP and RECUPAP status in the csv sent.
+        if(mmDto.getStatus().equals("VALPAP")){
+            mmDto.setStatus("RECUPAP");
+        }
+        return mmDto;
     }
 
     @Override
