@@ -529,7 +529,7 @@ CREATE SEQUENCE public.view_seq
 INSERT INTO public.event_order (id,event_order,status) VALUES
 	 (8,8,'REFUSAL'),
 	 (7,7,'VALINT'),
-	 (6,6,'VALPAP'),
+	 (6,6,'RECUPAP'),
 	 (5,5,'HC'),
 	 (4,4,'PARTIELINT'),
 	 (3,3,'WASTE'),

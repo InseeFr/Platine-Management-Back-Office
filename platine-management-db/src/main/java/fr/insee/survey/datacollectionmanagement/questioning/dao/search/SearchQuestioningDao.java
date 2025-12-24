@@ -67,7 +67,7 @@ public class SearchQuestioningDao {
                      ) AS last_communication_questionnaire ,
                         q.highest_event_type AS highest_event_type,
                         CASE
-                           WHEN q.highest_event_type IN ('VALINT', 'VALPAP') THEN q.highest_event_date
+                           WHEN q.highest_event_type IN ('VALINT', 'RECUPAP') THEN q.highest_event_date
                            ELSE NULL
                         END AS validation_date,
                         su.id_su AS survey_unit_id,

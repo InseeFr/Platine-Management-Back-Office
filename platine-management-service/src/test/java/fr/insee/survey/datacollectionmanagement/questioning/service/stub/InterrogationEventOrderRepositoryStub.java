@@ -25,7 +25,7 @@ public class InterrogationEventOrderRepositoryStub implements InterrogationEvent
             order(TypeQuestioningEvent.valueOf("INITLA"),     O_INITLA),
             order(TypeQuestioningEvent.valueOf("PARTIELINT"), O_PARTIEL_VAL),
             order(TypeQuestioningEvent.valueOf("VALINT"),     O_PARTIEL_VAL),
-            order(TypeQuestioningEvent.valueOf("VALPAP"),     O_PARTIEL_VAL),
+            order(TypeQuestioningEvent.valueOf("RECUPAP"),     O_PARTIEL_VAL),
             order(TypeQuestioningEvent.valueOf("EXPERT"),     O_EXPERT),
             order(TypeQuestioningEvent.valueOf("ONGEXPERT"),  O_EXPERT),
             order(TypeQuestioningEvent.valueOf("VALID"),      O_EXPERT),
