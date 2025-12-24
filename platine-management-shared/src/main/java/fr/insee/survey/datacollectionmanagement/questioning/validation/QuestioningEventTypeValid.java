@@ -16,7 +16,7 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = QuestioningEventValidator.class)
 public @interface QuestioningEventTypeValid {
     //error message
-    String message() default "Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid";
+    String message() default "Type missing or not recognized. Only VALINT, RECUPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid";
 
     //represents group of constraints
     Class<?>[] groups() default {};

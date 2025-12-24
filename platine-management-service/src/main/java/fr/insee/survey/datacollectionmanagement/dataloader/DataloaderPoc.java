@@ -198,7 +198,7 @@ public class DataloaderPoc {
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("7"), TypeQuestioningEvent.VALINT.toString(), 7));
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.VALPAP.toString(), 6));
+                    .saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.RECUPAP.toString(), 6));
             orderRepository.saveAndFlush(new EventOrder(Long.parseLong("5"), TypeQuestioningEvent.HC.toString(), 5));
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("4"), TypeQuestioningEvent.PARTIELINT.toString(), 4));
