@@ -403,13 +403,13 @@ public class DataloaderTest {
                     TypeQuestioningEvent.INITLA, qu, StatusEvent.AUTOMATIC));
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.AUTOMATIC));
+                    TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.MANUAL));
 
             if(questioningRepository.count() % 10 != 0) {
                 qeList.add(new QuestioningEvent(
                         part.get().getClosingDate(),
                         TypeQuestioningEvent.VALINT,
-                        qu, StatusEvent.AUTOMATIC));
+                        qu, StatusEvent.MANUAL));
             }
 
             qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));

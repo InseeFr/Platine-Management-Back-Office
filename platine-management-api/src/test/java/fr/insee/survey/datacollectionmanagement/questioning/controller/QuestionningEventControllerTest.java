@@ -181,16 +181,29 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should delete questioning event")
+    @DisplayName("Should delete questioning event with manual status")
     @WithMockUser(roles={"ADMIN"})
-    void shouldDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
-        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+    void shouldDeleteQuestioningEventWithManualStatus() throws Exception {
+        assertThat(questioningEventService.findbyId(2L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 2L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> questioningEventService.findbyId(2L)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Should not delete questioning event with automatic status")
+    @WithMockUser(roles={"ADMIN"})
+    void shouldNotDeleteQuestioningEventWithAutomaticStatus() throws Exception {
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
     }
 
     @Test
