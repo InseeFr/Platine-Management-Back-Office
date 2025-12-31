@@ -18,5 +18,6 @@ public class QuestioningEventDto {
     @QuestioningEventTypeValid
     private String type;
     private JsonNode payload;
+    private String status;
 
 }

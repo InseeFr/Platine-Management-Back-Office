@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,10 +41,14 @@ public class QuestioningEvent {
     @Column(columnDefinition = "jsonb")
     private JsonNode payload;
 
-    public QuestioningEvent(Date date, TypeQuestioningEvent type, Questioning questioning) {
+    @Enumerated(EnumType.STRING)
+    private StatusEvent status;
+
+    public QuestioningEvent(Date date, TypeQuestioningEvent type, Questioning questioning, StatusEvent status) {
         this.date = date;
         this.type = type;
         this.questioning = questioning;
+        this.status = status;
     }
 
     public QuestioningEvent() {
@@ -52,7 +57,7 @@ public class QuestioningEvent {
     @Override
     public String toString() {
         return "QuestioningEvent [id=" + id + ", date=" + date + ", type=" + type + ", payload=" + payload
-                + "]";
+                + ", status=" + status + "]";
     }
 
 }

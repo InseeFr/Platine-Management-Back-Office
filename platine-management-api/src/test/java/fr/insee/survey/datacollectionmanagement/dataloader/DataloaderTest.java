@@ -19,6 +19,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
@@ -399,16 +400,16 @@ public class DataloaderTest {
 
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.INITLA, qu));
+                    TypeQuestioningEvent.INITLA, qu, StatusEvent.AUTOMATIC));
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.PARTIELINT, qu));
+                    TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.AUTOMATIC));
 
             if(questioningRepository.count() % 10 != 0) {
                 qeList.add(new QuestioningEvent(
                         part.get().getClosingDate(),
                         TypeQuestioningEvent.VALINT,
-                        qu));
+                        qu, StatusEvent.AUTOMATIC));
             }
 
             qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));
