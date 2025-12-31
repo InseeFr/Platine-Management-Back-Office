@@ -10,6 +10,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEv
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
@@ -211,7 +212,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType, StatusEvent.MANUAL));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -262,7 +263,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -295,7 +296,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -329,7 +330,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -460,7 +461,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(1L)).isNotPresent();
         }
 
@@ -469,7 +470,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
+            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(1L)).isNotPresent();
         }
     }
@@ -487,7 +488,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles,  id, typeQuestioningEvent))
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(managementExcludedRoles,  id, typeQuestioningEvent))
                     .isInstanceOf(ForbiddenAccessException.class)
                     .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(id)).isPresent();
@@ -504,7 +505,7 @@ class QuestioningEventServiceImplTest {
             QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
             assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, id, typeQuestioningEvent))
+            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(userRoles, id, typeQuestioningEvent))
                     .isInstanceOf(ForbiddenAccessException.class)
                     .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
             assertThat(questioningEventRepository.findById(id)).isPresent();

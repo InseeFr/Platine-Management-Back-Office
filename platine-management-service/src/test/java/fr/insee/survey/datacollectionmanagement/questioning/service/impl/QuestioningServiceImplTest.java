@@ -33,6 +33,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEv
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
@@ -220,7 +221,7 @@ class QuestioningServiceImplTest {
         QuestioningEvent event = new QuestioningEvent(
                 new Date(),
                 TypeQuestioningEvent.INITLA,
-                questioning);
+                questioning, StatusEvent.AUTOMATIC);
         questioning.setQuestioningEvents(Set.of(event));
         questioning.setQuestioningComments(Set.of());
         questioning.setQuestioningCommunications(Set.of());

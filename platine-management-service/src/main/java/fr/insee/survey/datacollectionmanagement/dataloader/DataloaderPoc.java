@@ -16,6 +16,7 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
@@ -468,47 +469,47 @@ public class DataloaderPoc {
                 case 0:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.REFUSAL, qu));
+                            TypeQuestioningEvent.REFUSAL, qu, StatusEvent.MANUAL));
                     break;
                 case 1:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.PND, qu));
+                            TypeQuestioningEvent.PND, qu, StatusEvent.AUTOMATIC));
                     break;
                 case 2:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.FOLLOWUP, qu));
+                            TypeQuestioningEvent.FOLLOWUP, qu, StatusEvent.AUTOMATIC));
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.FOLLOWUP, qu));
+                            TypeQuestioningEvent.FOLLOWUP, qu, StatusEvent.AUTOMATIC));
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.PARTIELINT, qu));
+                            TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.AUTOMATIC));
                     break;
                 case 3, 4:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.FOLLOWUP, qu));
+                            TypeQuestioningEvent.FOLLOWUP, qu, StatusEvent.AUTOMATIC));
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.FOLLOWUP, qu));
+                            TypeQuestioningEvent.FOLLOWUP, qu, StatusEvent.AUTOMATIC));
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.VALINT, qu));
+                            TypeQuestioningEvent.VALINT, qu, StatusEvent.AUTOMATIC));
                     break;
                 case 5, 6, 7:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.PARTIELINT, qu));
+                            TypeQuestioningEvent.PARTIELINT, qu,StatusEvent.AUTOMATIC));
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.VALINT, qu));
+                            TypeQuestioningEvent.VALINT, qu, StatusEvent.AUTOMATIC));
                     break;
                 default:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.PARTIELINT, qu));
+                            TypeQuestioningEvent.PARTIELINT, qu,StatusEvent.AUTOMATIC));
                     break;
 
             }

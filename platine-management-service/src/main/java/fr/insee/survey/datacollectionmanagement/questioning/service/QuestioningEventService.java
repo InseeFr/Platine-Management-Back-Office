@@ -56,5 +56,5 @@ public interface QuestioningEventService {
      */
     void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
 
-    void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent);
+    void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent);
 }

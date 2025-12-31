@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -133,7 +135,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isNull();
         assertThat(questioning.getScoreInit()).isNull();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.MANUAL);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -148,7 +150,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is null")
     void badRequestExpertiseEvent() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null, StatusEvent.MANUAL);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -160,7 +162,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is not expert_event")
     void badRequestExpertiseEvent2() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC, StatusEvent.MANUAL);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -171,7 +173,7 @@ class QuestionningEventControllerTest {
     @Test
     @DisplayName("Should return not fount exception")
     void notFoundQuestioning() throws Exception {
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.MANUAL);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -180,24 +182,30 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should delete questioning event")
+    @DisplayName("Should delete questioning event with manual status")
     @WithMockUser(roles={"ADMIN"})
-    void shouldDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
-        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+    void shouldDeleteQuestioningEventWithManualStatus() throws Exception {
+        assertThat(questioningEventService.findbyId(2L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 2L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> questioningEventService.findbyId(2L)).isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    @DisplayName("Should not delete questioning event")
-    @WithMockUser(roles={"RESPONDENT"})
-    void shouldNotDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    @DisplayName("Should return forbidden for unauthorized roles or automatic status")
+    void shouldReturnForbiddenForDeletion() throws Exception {
+
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("user").roles("RESPONDENT"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("admin").roles("ADMIN"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
