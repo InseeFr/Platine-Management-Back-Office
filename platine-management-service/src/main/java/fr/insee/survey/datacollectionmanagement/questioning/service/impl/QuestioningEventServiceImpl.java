@@ -110,7 +110,11 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) {
-        return modelMapper.map(questioningEventDto, QuestioningEvent.class);
+        QuestioningEvent entity = modelMapper.map(questioningEventDto, QuestioningEvent.class);
+        if (entity.getStatus() == null) {
+            entity.setStatus(StatusEvent.AUTOMATIC);
+        }
+        return entity;
     }
 
     @Override
