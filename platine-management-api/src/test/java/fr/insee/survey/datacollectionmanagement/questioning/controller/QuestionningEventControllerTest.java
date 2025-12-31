@@ -33,6 +33,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -194,24 +195,17 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should not delete questioning event with automatic status")
-    @WithMockUser(roles={"ADMIN"})
-    void shouldNotDeleteQuestioningEventWithAutomaticStatus() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    @DisplayName("Should return forbidden for unauthorized roles or automatic status")
+    void shouldReturnForbiddenForDeletion() throws Exception {
+
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("user").roles("RESPONDENT"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
 
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should not delete questioning event")
-    @WithMockUser(roles={"RESPONDENT"})
-    void shouldNotDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("admin").roles("ADMIN"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isForbidden());
