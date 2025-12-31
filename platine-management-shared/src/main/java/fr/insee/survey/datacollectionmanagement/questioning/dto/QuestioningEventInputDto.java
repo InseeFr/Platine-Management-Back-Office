@@ -15,7 +15,7 @@ public class QuestioningEventInputDto {
     private UUID questioningId;
     private Date date;
     private JsonNode payload;
-    StatusEvent status;
+    private StatusEvent status;
 
 
 }

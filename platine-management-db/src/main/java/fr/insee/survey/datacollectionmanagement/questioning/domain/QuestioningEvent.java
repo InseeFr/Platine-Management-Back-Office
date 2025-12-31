@@ -42,6 +42,7 @@ public class QuestioningEvent {
     private JsonNode payload;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private StatusEvent status;
 
     public QuestioningEvent(Date date, TypeQuestioningEvent type, Questioning questioning, StatusEvent status) {
