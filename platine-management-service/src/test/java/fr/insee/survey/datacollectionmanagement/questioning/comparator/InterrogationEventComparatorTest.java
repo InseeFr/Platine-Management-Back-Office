@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.comparator;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
@@ -262,7 +263,7 @@ class InterrogationEventComparatorTest {
     private static QuestioningEvent event(TypeQuestioningEvent type, int offsetDays) {
         LocalDate base = LocalDate.now().plusDays(offsetDays);
         Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         return qe;
     }
@@ -272,7 +273,7 @@ class InterrogationEventComparatorTest {
         ZoneId zoneId = ZoneId.of("Europe/Paris");
         LocalDate base = LocalDate.now(Clock.fixed(fixedInstant, zoneId));
         Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(id);
         return qe;
     }
