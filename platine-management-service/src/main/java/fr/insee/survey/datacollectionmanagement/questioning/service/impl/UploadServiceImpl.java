@@ -119,7 +119,7 @@ public class UploadServiceImpl implements UploadService {
     MoogUploadQuestioningEventDto renameValpaptoRecupap(MoogUploadQuestioningEventDto mmDto) {
         //Service used by moog. Useful if you don't want to change moog and want to have both VALPAP and RECUPAP status in the csv sent.
         if(mmDto.getStatus().equals("VALPAP")){
-            mmDto.setStatus("RECUPAP");
+            mmDto.setStatus(TypeQuestioningEvent.RECUPAP.name());
         }
         return mmDto;
     }
