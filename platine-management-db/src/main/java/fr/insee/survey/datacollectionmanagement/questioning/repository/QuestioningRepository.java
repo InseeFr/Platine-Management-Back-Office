@@ -82,6 +82,9 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
     """)
     boolean existsBusinessSourceForLunaticNormal(@Param("questioningId") UUID questioningId);
 
+    @Query("select q from Questioning q where q.surveyUnit.idSu in :surveyUnitIds")
+    Set<Questioning> findBySurveyUnitIdSuIn(Set<String> surveyUnitIds);
+
     @Query("""
     SELECT (COUNT(q) > 0)
         FROM Questioning q

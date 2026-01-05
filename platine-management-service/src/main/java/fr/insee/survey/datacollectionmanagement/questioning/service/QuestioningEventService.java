@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,4 +58,10 @@ public interface QuestioningEventService {
     void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
 
     void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent);
+
+    /**
+     * Bulk uploading of survey statuses (received paper questionnaires, VALPAP)
+     * @param file
+     */
+    void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file);
 }
