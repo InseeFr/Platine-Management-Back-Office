@@ -1,9 +1,8 @@
 --liquibase formatted sql
-
 --changeset pgpu0i:180_add_status_for_questioning_event dbms:postgresql
-ALTER TABLE questioning_event
 
-    ADD COLUMN IF NOT EXISTS status VARCHAR(255);
+ALTER TABLE questioning_event
+    ADD COLUMN IF NOT EXISTS status VARCHAR(255) DEFAULT 'AUTOMATIC';
 
 UPDATE questioning_event
 SET status = CASE

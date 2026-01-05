@@ -295,6 +295,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 ev.setType(TypeQuestioningEvent.VALPAP);
                 ev.setPayload(payload);
                 ev.setDate(Date.from(now));
+                ev.setStatus(StatusEvent.MANUAL);
                 events.add(ev);
             }
             questioningEventRepository.saveAll(events);
