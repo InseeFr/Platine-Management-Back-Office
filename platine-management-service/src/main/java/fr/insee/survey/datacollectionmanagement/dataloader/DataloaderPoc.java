@@ -474,7 +474,7 @@ public class DataloaderPoc {
                 case 1:
                     questioningEvents.add(new QuestioningEvent(
                             faker.date().between(part.getOpeningDate(), part.getClosingDate()),
-                            TypeQuestioningEvent.PND, qu, StatusEvent.AUTOMATIC));
+                            TypeQuestioningEvent.PND, qu, StatusEvent.MANUAL));
                     break;
                 case 2:
                     questioningEvents.add(new QuestioningEvent(

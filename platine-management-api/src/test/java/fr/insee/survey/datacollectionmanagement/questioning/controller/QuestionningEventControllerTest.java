@@ -138,7 +138,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isNull();
         assertThat(questioning.getScoreInit()).isNull();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.MANUAL);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -153,7 +153,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is null")
     void badRequestExpertiseEvent() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null, StatusEvent.MANUAL);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -165,7 +165,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is not expert_event")
     void badRequestExpertiseEvent2() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC, StatusEvent.MANUAL);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -176,7 +176,7 @@ class QuestionningEventControllerTest {
     @Test
     @DisplayName("Should return not fount exception")
     void notFoundQuestioning() throws Exception {
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.MANUAL);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -198,19 +198,22 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should return forbidden for unauthorized roles or automatic status")
-    void shouldReturnForbiddenForDeletion() throws Exception {
-
+    @DisplayName("Should return forbidden when user has unauthorized role")
+    void shouldReturnForbiddenForUnauthorizedRole() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
                         .with(user("user").roles("RESPONDENT"))
                         .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isForbidden());
 
+        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should return forbidden for automatic status even for admin role")
+    void shouldReturnForbiddenForAutomaticStatus() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
                         .with(user("admin").roles("ADMIN"))
                         .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isForbidden());
 
         assertThat(questioningEventService.findbyId(1L)).isNotNull();

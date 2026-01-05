@@ -222,13 +222,13 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         boolean isInternalUserAllowed = userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole())
                 && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent);
 
-        if (isAdmin || isInternalUserAllowed) {
-            deleteQuestioningEvent(questioningEventId);
-        } else {
+        if (!isAdmin && !isInternalUserAllowed) {
             throw new ForbiddenAccessException(
                     String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent)
             );
         }
+
+        deleteQuestioningEvent(questioningEventId);
     }
 
     public void refreshHighestEvent(UUID questioningId) {

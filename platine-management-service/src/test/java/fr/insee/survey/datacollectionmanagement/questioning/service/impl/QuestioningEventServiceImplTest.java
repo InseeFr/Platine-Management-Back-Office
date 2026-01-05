@@ -222,7 +222,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType, StatusEvent.MANUAL));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -273,7 +273,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -306,7 +306,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -340,7 +340,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.MANUAL));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
