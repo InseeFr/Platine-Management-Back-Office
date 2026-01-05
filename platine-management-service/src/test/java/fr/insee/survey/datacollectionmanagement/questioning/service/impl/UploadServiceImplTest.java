@@ -74,7 +74,7 @@ class UploadServiceImplTest {
     @DisplayName("Should rename VALPAP to RECUPAP")
     void test_should_rename_valpap_to_recupap() {
         MoogUploadQuestioningEventDto moogUploadValpap = new MoogUploadQuestioningEventDto();
-        moogUploadValpap.setStatus("VALPAP");
+        moogUploadValpap.setStatus(TypeQuestioningEvent.VALPAP.name());
         moogUploadValpap = uploadService.renameValpaptoRecupap(moogUploadValpap);
         assertThat(moogUploadValpap.getStatus()).isEqualTo(TypeQuestioningEvent.RECUPAP.name());
 
