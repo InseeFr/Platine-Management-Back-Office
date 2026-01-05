@@ -247,7 +247,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file) throws NotFoundException, TooManyValuesException{
+    public void updatedInterrogationsStatusesFromRecupapCsvFile(MultipartFile file) throws NotFoundException, TooManyValuesException{
         final JsonNode payload = objectMapper.createObjectNode()
                 .put("source", "platine-gestion");
 
@@ -292,7 +292,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 Questioning q = bySu.get(su).getFirst();
                 QuestioningEvent ev = new QuestioningEvent();
                 ev.setQuestioning(q);
-                ev.setType(TypeQuestioningEvent.VALPAP);
+                ev.setType(TypeQuestioningEvent.RECUPAP);
                 ev.setPayload(payload);
                 ev.setDate(Date.from(now));
                 ev.setStatus(StatusEvent.MANUAL);

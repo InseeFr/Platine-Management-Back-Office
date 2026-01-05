@@ -87,7 +87,7 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public void updatedInterrogationsStatusesFromValpapCsvFile(MultipartFile file) {
+    public void updatedInterrogationsStatusesFromRecupapCsvFile(MultipartFile file) {
         //not used
     }
 }

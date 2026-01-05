@@ -91,7 +91,7 @@ class QuestionningEventControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(randomUUID)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
+                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, RECUPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
     }
 
     @Test
@@ -247,7 +247,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(csv)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -273,7 +273,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -300,7 +300,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -328,7 +328,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )

@@ -545,7 +545,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN / THEN
-        assertThatCode(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file)).doesNotThrowAnyException();
+        assertThatCode(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file)).doesNotThrowAnyException();
     }
 
     @Test
@@ -565,7 +565,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageStartingWith("123456789");
     }
@@ -587,7 +587,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.setTooManyValuesException(true);
 
         // WHEN / THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("123456789"); // Optionnel
     }
@@ -600,7 +600,7 @@ class QuestioningEventServiceImplTest {
         when(file.getInputStream()).thenThrow(new IOException("file.csv"));
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
                 .isInstanceOf(CsvFileProcessingException.class)
                 .hasCauseInstanceOf(IOException.class)
                 .hasCauseExactlyInstanceOf(IOException.class)

@@ -155,7 +155,7 @@ public class QuestioningEventController {
     }
 
     @Operation(summary = "Uploading of interrogation statuses from received paper questionnaires from file (CSV or JSON)")
-    @PostMapping(value = UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP,
+    @PostMapping(value = UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -172,6 +172,6 @@ public class QuestioningEventController {
                     content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
     })
     public void uploadingInterrogationStatusesFromPaperQuestionnaires(@RequestPart("file") MultipartFile file)  {
-        questioningEventService.updatedInterrogationsStatusesFromValpapCsvFile(file);
+        questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file);
     }
 }
