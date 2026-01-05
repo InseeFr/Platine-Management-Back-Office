@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEv
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -127,7 +128,11 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     public QuestioningEvent convertToEntity(QuestioningEventDto questioningEventDto) {
-        return modelMapper.map(questioningEventDto, QuestioningEvent.class);
+        QuestioningEvent entity = modelMapper.map(questioningEventDto, QuestioningEvent.class);
+        if (entity.getStatus() == null) {
+            entity.setStatus(StatusEvent.AUTOMATIC);
+        }
+        return entity;
     }
 
     @Override
@@ -151,6 +156,11 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
         newQuestioningEvent.setDate(questioningEventInputDto.getDate());
         newQuestioningEvent.setPayload(questioningEventInputDto.getPayload());
+
+        newQuestioningEvent.setStatus(questioningEventInputDto.getStatus() != null
+                ? questioningEventInputDto.getStatus()
+                : StatusEvent.AUTOMATIC);
+
         newQuestioningEvent = questioningEventRepository.save(newQuestioningEvent);
 
         // Update the bidirectional link
@@ -184,6 +194,10 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         created.setType(newType);
         created.setDate(new Date());
 
+        created.setStatus(expertEventDto.status() != null
+                ? expertEventDto.status()
+                : StatusEvent.AUTOMATIC);
+
         created = questioningEventRepository.save(created);
 
         log.info("New expert event {} has been saved", newType);
@@ -193,22 +207,28 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent)
-    {
+    public void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent) {
 
-        if(userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole()))
-        {
-            deleteQuestioningEvent(questioningEventId);
-            return;
+        QuestioningEvent event = questioningEventRepository.findById(questioningEventId)
+                .orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", questioningEventId)));
+
+        if (StatusEvent.AUTOMATIC.equals(event.getStatus())) {
+            throw new ForbiddenAccessException(
+                    String.format("Deletion of automatic event %s is forbidden", questioningEventId)
+            );
         }
 
-        if(userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole()) && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent))
-        {
-            deleteQuestioningEvent(questioningEventId);
-            return;
+        boolean isAdmin = userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole());
+        boolean isInternalUserAllowed = userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole())
+                && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent);
+
+        if (!isAdmin && !isInternalUserAllowed) {
+            throw new ForbiddenAccessException(
+                    String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent)
+            );
         }
 
-        throw new ForbiddenAccessException(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
+        deleteQuestioningEvent(questioningEventId);
     }
 
     public void refreshHighestEvent(UUID questioningId) {
@@ -275,6 +295,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 ev.setType(TypeQuestioningEvent.VALPAP);
                 ev.setPayload(payload);
                 ev.setDate(Date.from(now));
+                ev.setStatus(StatusEvent.MANUAL);
                 events.add(ev);
             }
             questioningEventRepository.saveAll(events);
