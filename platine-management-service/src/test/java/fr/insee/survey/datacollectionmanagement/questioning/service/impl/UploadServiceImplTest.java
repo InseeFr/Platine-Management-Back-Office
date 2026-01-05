@@ -76,12 +76,12 @@ class UploadServiceImplTest {
         MoogUploadQuestioningEventDto moogUploadValpap = new MoogUploadQuestioningEventDto();
         moogUploadValpap.setStatus("VALPAP");
         moogUploadValpap = uploadService.renameValpaptoRecupap(moogUploadValpap);
-        assertThat(moogUploadValpap.getStatus()).isEqualTo("RECUPAP");
+        assertThat(moogUploadValpap.getStatus()).isEqualTo(TypeQuestioningEvent.RECUPAP.name());
 
         MoogUploadQuestioningEventDto moogUploaRecupap = new MoogUploadQuestioningEventDto();
-        moogUploaRecupap.setStatus("RECUPAP");
+        moogUploaRecupap.setStatus(TypeQuestioningEvent.RECUPAP.name());
         moogUploaRecupap = uploadService.renameValpaptoRecupap(moogUploaRecupap);
-        assertThat(moogUploaRecupap.getStatus()).isEqualTo("RECUPAP");
+        assertThat(moogUploaRecupap.getStatus()).isEqualTo(TypeQuestioningEvent.RECUPAP.name());
 
 
     }
