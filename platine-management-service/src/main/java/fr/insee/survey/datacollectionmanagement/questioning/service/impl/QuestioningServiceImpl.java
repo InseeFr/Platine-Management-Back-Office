@@ -308,6 +308,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.REFUSED_EVENTS);
         forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.EXPERT_EVENTS);
         forbiddenEventTypesForAccess.add(TypeQuestioningEvent.VALINT);
+        forbiddenEventTypesForAccess.add(TypeQuestioningEvent.RECUPAP);
 
         return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, forbiddenEventTypesForAccess);
     }
