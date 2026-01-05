@@ -247,7 +247,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(csv)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -273,7 +273,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -300,7 +300,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -328,7 +328,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_VALPAP)
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP)
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
