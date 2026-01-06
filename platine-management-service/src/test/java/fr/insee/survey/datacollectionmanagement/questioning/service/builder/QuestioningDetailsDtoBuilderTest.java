@@ -83,14 +83,17 @@ class QuestioningDetailsDtoBuilderTest {
     void shouldSetEvents() {
         QuestioningEventDto event1 = new QuestioningEventDto();
         event1.setType("INIT_LA");
+        event1.setStatus("MANUAL");
         event1.setEventDate(new Date(1709022000000L));
 
         QuestioningEventDto event2 = new QuestioningEventDto();
         event2.setType("VALINT");
+        event2.setStatus("AUTOMATIC");
         event2.setEventDate(new Date(1709108400000L));
 
         QuestioningEventDto validatedEvent = new QuestioningEventDto();
         validatedEvent.setType("VALID");
+        validatedEvent.setStatus("AUTOMATIC");
         validatedEvent.setEventDate(new Date(1709194800000L));
 
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
@@ -99,8 +102,9 @@ class QuestioningDetailsDtoBuilderTest {
 
         assertThat(dto.getListEvents()).hasSize(2);
         assertThat(dto.getLastEventId()).isEqualTo(event2.getId());
-        assertThat(dto.getLastEvent()).isEqualTo("VALINT");
-        assertThat(dto.getDateLastEvent()).isEqualTo(event2.getEventDate());
+        assertThat(dto.getLastEventType()).isEqualTo("VALINT");
+        assertThat(dto.getLastEventStatus()).isEqualTo("AUTOMATIC");
+        assertThat(dto.getLastEventDate()).isEqualTo(event2.getEventDate());
         assertThat(dto.getValidationDate()).isEqualTo(validatedEvent.getEventDate());
     }
 
@@ -112,8 +116,9 @@ class QuestioningDetailsDtoBuilderTest {
 
         assertThat(dto.getListEvents()).isNull();
         assertThat(dto.getLastEventId()).isNull();
-        assertThat(dto.getLastEvent()).isNull();
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getLastEventType()).isNull();
+        assertThat(dto.getLastEventStatus()).isNull();
+        assertThat(dto.getLastEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
 
@@ -125,8 +130,9 @@ class QuestioningDetailsDtoBuilderTest {
 
         assertThat(dto.getListEvents()).isEmpty();
         assertThat(dto.getLastEventId()).isNull();
-        assertThat(dto.getLastEvent()).isNull();
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getLastEventType()).isNull();
+        assertThat(dto.getLastEventStatus()).isNull();
+        assertThat(dto.getLastEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
 
@@ -238,14 +244,14 @@ class QuestioningDetailsDtoBuilderTest {
                 .events(null, TypeQuestioningEvent.EXPERT, null, null)
                 .build();
 
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getLastEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
 
         dto = new QuestioningDetailsDtoBuilder()
                 .events(null, null, new Date(), null)
                 .build();
 
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getLastEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
 }

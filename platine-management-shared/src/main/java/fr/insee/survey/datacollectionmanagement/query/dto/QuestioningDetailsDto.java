@@ -23,8 +23,9 @@ public class QuestioningDetailsDto {
     private String surveyUnitLabel;
     private List<QuestioningEventDto> listEvents;
     private Long lastEventId;
-    private String lastEvent;
-    private Date dateLastEvent;
+    private String lastEventType;
+    private String lastEventStatus;
+    private Date lastEventDate;
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunicationType;
     private boolean lastCommunicationReceipt;
