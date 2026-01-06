@@ -63,10 +63,10 @@ public class QuestioningDetailsDtoBuilder {
                     .filter(e -> e.getType().equals(highestEventType.name()) && e.getEventDate().equals(highestEventDate))
                     .findFirst()
                     .ifPresent(event -> {
-                        instance.setLastEventId(event.getId());
-                        instance.setLastEventType(event.getType());
-                        instance.setLastEventStatus(event.getStatus());
-                        instance.setLastEventDate(event.getEventDate());
+                        instance.setHighestEventId(event.getId());
+                        instance.setHighestEventType(event.getType());
+                        instance.setHighestEventStatus(event.getStatus());
+                        instance.setHighestEventDate(event.getEventDate());
                     });
         }
 

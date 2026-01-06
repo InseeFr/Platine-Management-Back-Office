@@ -22,10 +22,10 @@ public class QuestioningDetailsDto {
     private String surveyUnitIdentificationName;
     private String surveyUnitLabel;
     private List<QuestioningEventDto> listEvents;
-    private Long lastEventId;
-    private String lastEventType;
-    private String lastEventStatus;
-    private Date lastEventDate;
+    private Long highestEventId;
+    private String highestEventType;
+    private String highestEventStatus;
+    private Date highestEventDate;
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunicationType;
     private boolean lastCommunicationReceipt;
