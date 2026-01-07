@@ -17,7 +17,10 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -35,7 +38,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -196,6 +198,10 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(comment -> modelMapper.map(comment, QuestioningCommentOutputDto.class))
                 .toList();
 
+        boolean canWritePaperMode = canWriteInPaperMode(questioning.getId());
+        String paperModeUrl = questioningUrlComponent.getPaperUrl(questioning);
+
+
         return new QuestioningDetailsDtoBuilder()
                 .questioningId(id)
                 .campaignId(campaignId)
@@ -207,6 +213,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
+                .paperModeUrl(canWritePaperMode, paperModeUrl)
                 .build();
     }
 

@@ -103,4 +103,12 @@ public class QuestioningDetailsDtoBuilder {
     public QuestioningDetailsDto build() {
         return instance;
     }
+
+
+    public QuestioningDetailsDtoBuilder paperModeUrl(boolean canWritePaperMode, String paperModeUrl) {
+        if( canWritePaperMode){
+            instance.setPaperModeUrl(paperModeUrl);
+        }
+        return this;
+    }
 }

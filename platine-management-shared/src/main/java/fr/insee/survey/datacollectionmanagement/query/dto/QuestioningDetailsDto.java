@@ -36,4 +36,5 @@ public class QuestioningDetailsDto {
     private String readOnlyUrl;
     private Boolean isHousehold;
     private Boolean isOnProbation;
+    private String paperModeUrl;
 }
