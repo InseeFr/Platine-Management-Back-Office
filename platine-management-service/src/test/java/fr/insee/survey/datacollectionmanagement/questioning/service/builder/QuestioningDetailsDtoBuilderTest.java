@@ -254,4 +254,22 @@ class QuestioningDetailsDtoBuilderTest {
         assertThat(dto.getHighestEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
+
+    @Test
+    void shouldSetPaperUrl() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .paperModeUrl( true,"https://paper.com")
+                .build();
+
+        assertThat(dto.getPaperModeUrl()).isEqualTo("https://paper.com");
+    }
+
+    @Test
+    void shouldNotSetPaperUrl() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .paperModeUrl( false,"https://paper.com")
+                .build();
+
+        assertThat(dto.getPaperModeUrl()).isEmpty();
+    }
 }

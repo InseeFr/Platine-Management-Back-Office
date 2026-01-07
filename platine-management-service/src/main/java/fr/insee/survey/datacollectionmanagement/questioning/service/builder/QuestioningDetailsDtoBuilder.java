@@ -106,9 +106,7 @@ public class QuestioningDetailsDtoBuilder {
 
 
     public QuestioningDetailsDtoBuilder paperModeUrl(boolean canWritePaperMode, String paperModeUrl) {
-        if( canWritePaperMode){
-            instance.setPaperModeUrl(paperModeUrl);
-        }
+        instance.setPaperModeUrl(canWritePaperMode ? paperModeUrl : "");
         return this;
     }
 }

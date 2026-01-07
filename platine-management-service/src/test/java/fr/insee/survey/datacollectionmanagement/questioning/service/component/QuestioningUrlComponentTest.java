@@ -210,6 +210,13 @@ class QuestioningUrlComponentTest {
     }
 
     @Test
+    void testPaperUrlNoQuestioning() {
+        String url = component.getPaperUrl(null);
+        String expected = "";
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
     void testFallbackToLunaticNormalWhenTargetIsNull() {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(null, null);
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);

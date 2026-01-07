@@ -238,7 +238,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
         assertThat(result.getIsOnProbation()).isTrue();
-        assertThat(result.getPaperModeUrl()).isNull();
+        assertThat(result.getPaperModeUrl()).isEmpty();
     }
 
     @Test
