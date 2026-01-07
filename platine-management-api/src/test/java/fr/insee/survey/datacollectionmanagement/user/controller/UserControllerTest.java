@@ -176,7 +176,7 @@ class UserControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.appRoles[0]").value("SUPPORT"))
-                .andExpect(jsonPath("$.permissions[0]").value("READ_SUPPORT"))
+                .andExpect(jsonPath("$.permissions[0]").value("SUPPORT_READ"))
                 .andExpect(jsonPath("$.sources").isEmpty());
     }
 

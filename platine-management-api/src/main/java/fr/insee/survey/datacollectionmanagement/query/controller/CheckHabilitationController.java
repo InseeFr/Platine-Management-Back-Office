@@ -4,6 +4,7 @@ import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Pe
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.PermissionEvaluatorHandler;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
 import fr.insee.survey.datacollectionmanagement.query.validation.ValidUserRole;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,15 +52,24 @@ public class CheckHabilitationController {
 
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
     @GetMapping(path = UrlConstants.API_CHECK_HABILITATION, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HabilitationDto> checkHabilitation(
+    public HabilitationDto checkHabilitation(
             @Valid @ValidUserRole @RequestParam(required = false) String role,
             @RequestParam(name = "id") UUID questioningId,
             @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
-        List<String> userRoles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-        boolean habilitated = checkHabilitationService.checkHabilitation(role, questioningId, userRoles, authentication.getName().toUpperCase());
-        return ResponseEntity.ok(new HabilitationDto(habilitated));
+
+        // same as role == interviewer
+        if (StringUtils.isBlank(role)) {
+            return checkPermission(questioningId, Permission.INTERROGATION_DATA_EDIT, authentication);
+        }
+
+        Permission permissionToCheck = switch (role) {
+            case UserRoles.REVIEWER -> Permission.INTERROGATION_DATA_READ;
+            case UserRoles.INTERVIEWER -> Permission.INTERROGATION_DATA_EDIT;
+            case UserRoles.EXPERT -> Permission.INTERROGATION_EXPERT_DATA_EDIT;
+            default -> throw new IllegalArgumentException("Permission does not exist");
+        };
+
+        return checkPermission(questioningId, permissionToCheck, authentication);
     }
 
     @PreAuthorize("isAuthenticated()")

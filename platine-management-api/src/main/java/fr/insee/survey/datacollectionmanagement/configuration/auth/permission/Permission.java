@@ -7,23 +7,43 @@ import java.util.Set;
 
 public enum Permission {
 
-    READ_SUPPORT(
+    SUPPORT_READ(
             true,
             AuthorityRoleEnum.ADMIN,
             AuthorityRoleEnum.SUPPORT
     ),
 
-    INTERROGATION_EXPORT_PDF_DATA(
+    INTERROGATION_DATA_EXPORT(
             false,
             AuthorityRoleEnum.ADMIN,
             AuthorityRoleEnum.INTERNAL_USER
     ),
 
-    INTERROGATION_ACCESS_IN_PAPER_MODE(
+    INTERROGATION_PAPER_DATA_EDIT(
             false,
             AuthorityRoleEnum.ADMIN,
             AuthorityRoleEnum.INTERNAL_USER
-    );
+    ),
+
+    INTERROGATION_DATA_READ(
+            false,
+            AuthorityRoleEnum.ADMIN,
+            AuthorityRoleEnum.RESPONDENT,
+            AuthorityRoleEnum.INTERNAL_USER
+    ),
+
+    INTERROGATION_DATA_EDIT(
+            false,
+            AuthorityRoleEnum.ADMIN,
+            AuthorityRoleEnum.RESPONDENT
+    ),
+
+    INTERROGATION_EXPERT_DATA_EDIT(
+            false,
+            AuthorityRoleEnum.ADMIN,
+            AuthorityRoleEnum.INTERNAL_USER
+    )
+    ;
 
     /**
      * is this permission global (based only on roles) and exposable when retrieving current user info

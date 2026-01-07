@@ -140,7 +140,12 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public boolean canWriteInPaperMode(UUID questioningId) {
+    public boolean canWriteInPaperEnvironment(UUID questioningId) {
+        return true;
+    }
+
+    @Override
+    public boolean isValidatedInPaperEnvironment(UUID questioningId) {
         return true;
     }
 

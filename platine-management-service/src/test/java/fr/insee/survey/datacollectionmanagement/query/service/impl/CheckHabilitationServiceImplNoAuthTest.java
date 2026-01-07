@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,18 +27,6 @@ class CheckHabilitationServiceImplNoAuthTest {
                 "id-su",
                 "campaign-id",
                 userRoles,
-                "user-id");
-
-        //then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should return true")
-    void should_return_true() {
-        boolean result = checkHabilitationServiceImplNoAuth.checkHabilitation(null,
-                UUID.randomUUID(),
-                List.of(),
                 "user-id");
 
         //then

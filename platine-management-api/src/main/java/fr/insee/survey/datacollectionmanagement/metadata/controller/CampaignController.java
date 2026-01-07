@@ -244,7 +244,7 @@ public class CampaignController {
 
     @Operation(summary = "get ongoing campaigns")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ONGOING, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
     public List<CampaignOngoingDto> getOngoingCampaigns(
             @Parameter(hidden = true) @CurrentSecurityContext(expression = "authentication.name") String idep,
             @RequestParam(name = "walletFilter", required = false, defaultValue = "ALL") WalletFilterEnum walletFilter) {
@@ -273,7 +273,7 @@ public class CampaignController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = CampaignSummaryDto.class))))
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
     public Page<CampaignSummaryDto> searchCampaigns(@RequestParam(required = false) String searchParam,
                                                     @RequestParam(defaultValue = "0") Integer page,
                                                     @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -286,7 +286,7 @@ public class CampaignController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CampaignHeaderDto.class)))
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
     public CampaignHeaderDto getHeader(@PathVariable("id") String id) {
         log.info("Get campaign header by id {}", id);
         return campaignService.findCampaignHeaderById(id);

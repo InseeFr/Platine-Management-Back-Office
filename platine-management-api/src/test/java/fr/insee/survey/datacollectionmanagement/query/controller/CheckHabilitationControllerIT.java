@@ -122,7 +122,7 @@ class CheckHabilitationControllerIT {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
                         .param("id", UUID.randomUUID().toString())
-                        .param("permission", Permission.INTERROGATION_EXPORT_PDF_DATA.name())
+                        .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -160,7 +160,7 @@ class CheckHabilitationControllerIT {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
                         .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000002")
-                        .param("permission", Permission.INTERROGATION_EXPORT_PDF_DATA.name())
+                        .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -173,7 +173,7 @@ class CheckHabilitationControllerIT {
         SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
                         .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
-                        .param("permission", Permission.INTERROGATION_EXPORT_PDF_DATA.name())
+                        .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
@@ -200,7 +200,7 @@ class CheckHabilitationControllerIT {
         // When / Then
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
                         .param("id", id)
-                        .param("permission", Permission.INTERROGATION_ACCESS_IN_PAPER_MODE.name())
+                        .param("permission", Permission.INTERROGATION_PAPER_DATA_EDIT.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())

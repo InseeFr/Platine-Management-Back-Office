@@ -198,7 +198,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(comment -> modelMapper.map(comment, QuestioningCommentOutputDto.class))
                 .toList();
 
-        boolean canWritePaperMode = canWriteInPaperMode(questioning.getId());
+        boolean isValidatedInPaperEnvironment = isValidatedInPaperEnvironment(questioning.getId());
         String paperModeUrl = questioningUrlComponent.getPaperUrl(questioning);
 
 
@@ -213,7 +213,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
-                .paperModeUrl(canWritePaperMode, paperModeUrl)
+                .paperModeUrl(isValidatedInPaperEnvironment, paperModeUrl)
                 .build();
     }
 
@@ -310,14 +310,21 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public boolean canWriteInPaperMode(UUID questioningId) {
-        List<TypeQuestioningEvent> forbiddenEventTypesForAccess = new ArrayList<>();
-        forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.REFUSED_EVENTS);
-        forbiddenEventTypesForAccess.addAll(TypeQuestioningEvent.EXPERT_EVENTS);
-        forbiddenEventTypesForAccess.add(TypeQuestioningEvent.VALINT);
-        forbiddenEventTypesForAccess.add(TypeQuestioningEvent.RECUPAP);
+    public boolean canWriteInPaperEnvironment(UUID questioningId) {
+        List<TypeQuestioningEvent> allowedEventTypes = new ArrayList<>();
+        allowedEventTypes.add(TypeQuestioningEvent.INITLA);
+        allowedEventTypes.add(TypeQuestioningEvent.FOLLOWUP);
+        allowedEventTypes.add(TypeQuestioningEvent.PARTIELINT);
+        allowedEventTypes.add(TypeQuestioningEvent.PARTIELPAP);
+        allowedEventTypes.add(TypeQuestioningEvent.RECUPAP);
+        allowedEventTypes.add(TypeQuestioningEvent.REFUSAL);
 
-        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, forbiddenEventTypesForAccess);
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes);
     }
 
+    @Override
+    public boolean isValidatedInPaperEnvironment(UUID questioningId) {
+        List<TypeQuestioningEvent> allowedEventTypes = List.of(TypeQuestioningEvent.VALPAP);
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes);
+    }
 }

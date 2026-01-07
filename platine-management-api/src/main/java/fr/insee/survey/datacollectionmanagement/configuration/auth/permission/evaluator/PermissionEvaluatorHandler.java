@@ -16,7 +16,7 @@ public class PermissionEvaluatorHandler implements PermissionEvaluator {
     private final Map<Permission, ApplicationPermissionEvaluator<?>> permissionEvaluators;
 
     /**
-     * Chech a permission with a target (ex. @PreAuthorize("hasPermission(#interroId, 'READ_SUPPORT')"))
+     * Chech a permission with a target (ex. @PreAuthorize("hasPermission(#interroId, 'SUPPORT_READ')"))
      */
     @Override
     public boolean hasPermission(Authentication authentication,
@@ -60,6 +60,10 @@ public class PermissionEvaluatorHandler implements PermissionEvaluator {
     ) {
         if (target == null && evaluator.targetType() != Void.class) {
             throw new ApplicationPermissionEvaluatorException("Target required");
+        }
+
+        if (target != null && evaluator.targetType() == Void.class) {
+            throw new ApplicationPermissionEvaluatorException("Permission is a global permission, do not supply an id");
         }
 
         if (target != null && !evaluator.targetType().isAssignableFrom(target.getClass())) {
