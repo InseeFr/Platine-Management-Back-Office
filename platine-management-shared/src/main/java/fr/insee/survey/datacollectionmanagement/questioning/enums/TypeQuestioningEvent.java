@@ -43,8 +43,7 @@ public enum TypeQuestioningEvent {
 
     public static final List<TypeQuestioningEvent> VALIDATED_EVENTS = List.of(
             VALINT,
-            VALPAP,
-            RECUPAP);
+            VALPAP);
 
     public static final List<TypeQuestioningEvent> OPENED_EVENTS = List.of(
             INITLA);
