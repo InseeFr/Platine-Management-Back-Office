@@ -12,18 +12,18 @@ import java.util.List;
 @Service
 public interface UploadService {
 
-    public ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException;
+    ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException;
 
-    public Upload findById(long id);
+    Upload findById(long id);
 
-    public List<Upload> findAllByIdCampaign(String idCampaign);
+    List<Upload> findAllByIdCampaign(String idCampaign);
 
-    public void delete(Upload up);
+    void delete(Upload up);
 
-    public Upload saveAndFlush(Upload up);
+    Upload saveAndFlush(Upload up);
 
-    public boolean checkUploadDate(String idCampaign, Date date);
+    boolean checkUploadDate(String idCampaign, Date date);
 
-    public void removeEmptyUploads();
+    void removeEmptyUploads();
 
 }

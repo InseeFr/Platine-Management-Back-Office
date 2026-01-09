@@ -60,11 +60,6 @@ public class ViewServiceStub implements ViewService {
     }
 
     @Override
-    public View findFirstViewByIdentifier(String identifier) {
-        return null;
-    }
-
-    @Override
     public List<View> findViewByCampaignId(String campaignId) {
         return List.of();
     }
@@ -72,11 +67,6 @@ public class ViewServiceStub implements ViewService {
     @Override
     public List<String> findDistinctCampaignByIdentifier(String identifier) {
         return List.copyOf(campaignsByIdentifiers.getOrDefault(identifier, Collections.emptySet()));
-    }
-
-    @Override
-    public List<View> findViewByIdSu(String idSu) {
-        return List.of();
     }
 
     @Override
@@ -111,11 +101,6 @@ public class ViewServiceStub implements ViewService {
     @Override
     public void deleteView(View view) {
         views.remove(findViewById(view.getId()));
-    }
-
-    @Override
-    public void deleteViewByIdentifier(String identifier) {
-        // Stub
     }
 
     @Override
