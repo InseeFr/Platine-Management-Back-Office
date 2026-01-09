@@ -41,6 +41,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -278,14 +279,15 @@ class QuestioningServiceImplTest {
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
-    @DisplayName("Should return RECEIVED when validated event exists before closing date")
-    @Test
-    void getQuestioningStatusTest4() {
+    @DisplayName("Should return RECEIVED when validated/receivedPaper event exists before closing date")
+    @ParameterizedTest
+    @ValueSource(strings={"VALINT","RECUPAP", "PARTIELPAP"})
+    void getQuestioningStatusTest4(String typeName) {
         partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
         partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
+        questioningEvent.setType(typeName);
         events.add(questioningEvent);
         questioningEventService.setQuestioningEvents(events);
 

@@ -4,8 +4,6 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthConstants;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningAccreditationService;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
@@ -18,20 +16,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "fr.insee.datacollectionmanagement.auth.mode", havingValue = AuthConstants.OIDC)
 @Slf4j
-public class CheckHabilitationServiceImplOidc implements CheckHabilitationService {
+public class CheckOrbeonHabilitationServiceImpl implements CheckHabilitationService {
 
     private final ViewService viewService;
 
     private final UserService userService;
-
-    private final QuestioningAccreditationService questioningAccreditationService;
-    private final QuestioningService questioningService;
 
     @Override
     public boolean checkHabilitation(String role,
@@ -58,42 +52,6 @@ public class CheckHabilitationServiceImplOidc implements CheckHabilitationServic
         }
 
         return checkInternal(role, userRoles, userId);
-    }
-
-    @Override
-    public boolean checkHabilitation(String role, UUID questioningId, List<String> userRoles, String userId) {
-        //admin
-        if (isAdmin(userRoles)) {
-            log.info("Check habilitation of admin {} for accessing questioning {} resulted in true", userId, questioningId);
-            return true;
-        }
-
-        // check habilitation for respondent
-        if (StringUtils.isBlank(role) || role.equals(UserRoles.INTERVIEWER)){
-            if (isRespondent(userRoles)) {
-                boolean habilitated = questioningAccreditationService.hasAccreditation(questioningId, userId);
-                log.info("Check habilitation of interviewer {} for accessing questioning {} resulted in {}", userId, questioningId, habilitated);
-                return habilitated;
-            }
-            log.warn("Check habilitation of interviewer {} for accessing questioning {} - no respondent habilitation found in token - check habilitation: false", userId, questioningId);
-            return false;
-        }
-
-        if (UserRoles.EXPERT.equals(role) && isInternalUser(userRoles)) {
-            return checkExpertise(userId, questioningId);
-        }
-
-        return checkInternal(role, userRoles, userId);
-    }
-
-    private boolean checkExpertise(String userId, UUID questioningId) {
-        Optional<User> optionalUser = userService.findOptionalByIdentifier(userId);
-        if(optionalUser.isEmpty()) {
-            log.warn("User '{}' doesn't exists", userId);
-            return false;
-        }
-
-        return questioningService.hasExpertiseStatus(questioningId);
     }
 
     private boolean checkInternal(String role, List<String> userRoles, String userId) {

@@ -63,7 +63,7 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
 
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);

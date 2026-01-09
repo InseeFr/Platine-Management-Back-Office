@@ -18,6 +18,13 @@ public record AuthorizationProfile(
         return sources.contains(sourceId);
     }
 
+    public boolean hasRole(AuthorityRoleEnum role) {
+        if(appRoles == null) {
+            return false;
+        }
+        return appRoles.contains(role);
+    }
+
     public static AuthorizationProfile emptyAuthorizationProfile() {
         return new AuthorizationProfile(null, null, null);
     }

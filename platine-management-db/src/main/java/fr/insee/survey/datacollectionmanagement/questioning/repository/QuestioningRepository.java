@@ -94,9 +94,9 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
         JOIN su.source s
     WHERE q.id = :questioningId
     AND s.paperFormInputEnabled = true
-    AND q.highestEventType NOT IN (
-        :forbiddenEventTypes
+    AND q.highestEventType IN (
+        :allowedEventTypes
     )
     """)
-    boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId, List<TypeQuestioningEvent> forbiddenEventTypes);
+    boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId, List<TypeQuestioningEvent> allowedEventTypes);
 }

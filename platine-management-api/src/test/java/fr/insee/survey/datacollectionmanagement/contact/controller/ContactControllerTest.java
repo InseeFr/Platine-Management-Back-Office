@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
@@ -141,7 +142,7 @@ class ContactControllerTest {
         assertEquals(contact.getEmail(), contactFound.getEmail());
         List<ContactEvent> list = new ArrayList<>(contactEventService.findContactEventsByContact(contactFound));
         assertEquals(1, list.size());
-        assertEquals(ContactEventTypeEnum.create, list.get(0).getType());
+        assertEquals(ContactEventTypeEnum.create, list.getFirst().getType());
 
         // update contact - status ok
         contact.setLastName("lastNameUpdate");
@@ -269,6 +270,7 @@ class ContactControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
@@ -302,12 +304,13 @@ class ContactControllerTest {
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
-        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, 1L)
+        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contactJson))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
 
+        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isNotPresent();
         List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findByContactIdentifier(username);

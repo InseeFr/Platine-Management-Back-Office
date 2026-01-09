@@ -39,7 +39,7 @@ class AuthorizationProfileFactoryTest {
         );
 
         assertThat(profile.permissions())
-                .containsExactlyInAnyOrder(Permission.READ_SUPPORT);
+                .containsExactlyInAnyOrder(Permission.SUPPORT_READ);
     }
 
     @Test
@@ -60,7 +60,7 @@ class AuthorizationProfileFactoryTest {
         );
 
         assertThat(profile.permissions())
-                .containsExactlyInAnyOrder(Permission.READ_SUPPORT);
+                .containsExactlyInAnyOrder(Permission.SUPPORT_READ);
     }
 
     @Test

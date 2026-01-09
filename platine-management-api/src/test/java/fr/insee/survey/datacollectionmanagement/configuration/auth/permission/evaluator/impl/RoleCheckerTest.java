@@ -31,7 +31,7 @@ class RoleCheckerTest {
 
     @Test
     void shouldReturnFalseWhenAuthenticationIsNull() {
-        boolean result = checker.hasPermission(null, Permission.READ_SUPPORT);
+        boolean result = checker.hasPermission(null, Permission.SUPPORT_READ);
 
         assertThat(result)
                 .isFalse();
@@ -39,7 +39,7 @@ class RoleCheckerTest {
 
     @Test
     void shouldReturnFalseWhenAuthenticationIsNotProfiledAuthenticationToken() {
-        boolean result = checker.hasPermission(authentication, Permission.READ_SUPPORT);
+        boolean result = checker.hasPermission(authentication, Permission.SUPPORT_READ);
 
         assertThat(result)
                 .isFalse();
@@ -54,7 +54,7 @@ class RoleCheckerTest {
 
         boolean result = checker.hasPermission(
                 profiledAuthentication,
-                Permission.READ_SUPPORT
+                Permission.SUPPORT_READ
         );
 
         assertThat(result)
@@ -70,7 +70,7 @@ class RoleCheckerTest {
 
         boolean result = checker.hasPermission(
                 profiledAuthentication,
-                Permission.READ_SUPPORT
+                Permission.SUPPORT_READ
         );
 
         assertThat(result)

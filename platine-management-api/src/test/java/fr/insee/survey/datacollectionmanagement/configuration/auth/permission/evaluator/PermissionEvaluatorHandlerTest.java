@@ -33,8 +33,8 @@ class PermissionEvaluatorHandlerTest {
     void setUp() {
         handler = new PermissionEvaluatorHandler(
                 Map.of(
-                        Permission.READ_SUPPORT, voidEvaluator,
-                        Permission.INTERROGATION_EXPORT_PDF_DATA, uuidEvaluator
+                        Permission.SUPPORT_READ, voidEvaluator,
+                        Permission.INTERROGATION_DATA_EXPORT, uuidEvaluator
                 )
         );
     }
@@ -61,7 +61,7 @@ class PermissionEvaluatorHandlerTest {
         boolean result = handler.hasPermission(
                 authentication,
                 null,
-                "READ_SUPPORT"
+                "SUPPORT_READ"
         );
 
         assertThat(result).isTrue();
@@ -81,7 +81,7 @@ class PermissionEvaluatorHandlerTest {
                 new PermissionEvaluatorHandler(Map.of());
 
         assertThatThrownBy(() ->
-                emptyHandler.hasPermission(authentication, null, Permission.READ_SUPPORT)
+                emptyHandler.hasPermission(authentication, null, Permission.SUPPORT_READ)
         )
                 .isInstanceOf(ApplicationPermissionEvaluatorException.class);
     }
@@ -91,7 +91,7 @@ class PermissionEvaluatorHandlerTest {
         when(uuidEvaluator.targetType()).thenReturn(UUID.class);
 
         assertThatThrownBy(() ->
-                handler.hasPermission(authentication, null, Permission.INTERROGATION_EXPORT_PDF_DATA)
+                handler.hasPermission(authentication, null, Permission.INTERROGATION_DATA_EXPORT)
         )
                 .isInstanceOf(ApplicationPermissionEvaluatorException.class)
                 .hasMessageContaining("Target required");
@@ -105,16 +105,27 @@ class PermissionEvaluatorHandlerTest {
                 handler.hasPermission(
                         authentication,
                         "not-a-uuid",
-                        Permission.INTERROGATION_EXPORT_PDF_DATA
+                        Permission.INTERROGATION_DATA_EXPORT
                 )
         )
                 .isInstanceOf(ApplicationPermissionEvaluatorException.class)
                 .hasMessageContaining("Invalid target type");
     }
 
-    // ------------------------------------------------------------------
-    // invokeEvaluator – happy paths
-    // ------------------------------------------------------------------
+    @Test
+    void shouldThrowWhenTargetTypeIsNotNullAndEvaluatorNeedsNothing() {
+        when(voidEvaluator.targetType()).thenReturn(Void.class);
+
+        assertThatThrownBy(() ->
+                handler.hasPermission(
+                        authentication,
+                        "not-a-uuid",
+                        Permission.SUPPORT_READ
+                )
+        )
+                .isInstanceOf(ApplicationPermissionEvaluatorException.class)
+                .hasMessageContaining("Permission is a global permission, do not supply an id");
+    }
 
     @Test
     void shouldInvokeEvaluatorWithVoidTarget() {
@@ -124,7 +135,7 @@ class PermissionEvaluatorHandlerTest {
         boolean result = handler.hasPermission(
                 authentication,
                 null,
-                Permission.READ_SUPPORT
+                Permission.SUPPORT_READ
         );
 
         assertThat(result).isTrue();
@@ -141,7 +152,7 @@ class PermissionEvaluatorHandlerTest {
         boolean result = handler.hasPermission(
                 authentication,
                 target,
-                Permission.INTERROGATION_EXPORT_PDF_DATA
+                Permission.INTERROGATION_DATA_EXPORT
         );
 
         assertThat(result).isTrue();
@@ -159,7 +170,7 @@ class PermissionEvaluatorHandlerTest {
                 authentication,
                 target,
                 "ANY_TYPE",
-                Permission.INTERROGATION_EXPORT_PDF_DATA.name()
+                Permission.INTERROGATION_DATA_EXPORT.name()
         );
 
         assertThat(result).isTrue();

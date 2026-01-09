@@ -2,6 +2,7 @@ package fr.insee.survey.datacollectionmanagement.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.ApplicationPermissionEvaluatorException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.List;
@@ -132,6 +134,16 @@ public class ExceptionControllerAdvice {
         return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
     }
 
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e,
+            WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request, "Error when converting values");
+    }
+
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleHttpMessageNotReadableException(
@@ -200,6 +212,12 @@ public class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiError> handleWalletBusinessRuleException(WalletBusinessRuleException e, WebRequest request) {
         return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage(), e.getErrors());
+    }
+
+    @ExceptionHandler(ApplicationPermissionEvaluatorException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleApplicationPermissionEvaluatorException(ApplicationPermissionEvaluatorException e, WebRequest request) {
+        return processException(e, HttpStatus.BAD_REQUEST, request, e.getMessage());
     }
 
     @ExceptionHandler(WalletFileProcessingException.class)

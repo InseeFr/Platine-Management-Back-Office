@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.configuration.auth.permission;
 
 
+import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,5 +25,9 @@ public class ProfiledAuthenticationToken extends JwtAuthenticationToken {
                                        AuthorizationProfile profile) {
         super(jwt, authorities, name);
         this.profile = profile;
+    }
+
+    public boolean hasRole(AuthorityRoleEnum role) {
+        return this.profile.hasRole(role);
     }
 }
