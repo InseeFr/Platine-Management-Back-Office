@@ -171,7 +171,10 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "500", description = "Unexpected error",
                     content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
     })
-    public void uploadingInterrogationStatusesFromPaperQuestionnaires(@RequestPart("file") MultipartFile file)  {
-        questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file);
+    public void uploadingInterrogationStatusesFromPaperQuestionnaires(
+            @PathVariable("campaignId") String campaignId,
+            @RequestPart("file") MultipartFile file)  {
+        log.info("Uploading RECUPAP statuses for campaign {}", campaignId);
+        questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(campaignId, file);
     }
 }
