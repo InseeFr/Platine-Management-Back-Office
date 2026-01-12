@@ -286,8 +286,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVParser csvParser = format.parse(reader)) {
             Set<String> surveyUnitIds = new HashSet<>();
-            for (CSVRecord record : csvParser) {
-                surveyUnitIds.add(record.get(SURVEY_UNIT_ID));
+            for (CSVRecord listSu : csvParser) {
+                surveyUnitIds.add(listSu.get(SURVEY_UNIT_ID));
             }
             if (surveyUnitIds.isEmpty()) {
                 throw new CsvFileProcessingException("No value of ID_UNITE_ENQUETEE identifier");
@@ -311,7 +311,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         }
         return campaigns.stream()
                 .filter(c -> campaignId.equalsIgnoreCase(c.getCampaignId()))
-                .collect(Collectors.toMap(SuCampaignView::getSurveyUnitIdSu, (a) -> a));
+                .collect(Collectors.toMap(SuCampaignView::getSurveyUnitIdSu, (suCampaignView) -> suCampaignView));
     }
 
     private void validateQuestionings(Map<String, List<Questioning>> questionningBySu, Set<String> surveyUnitIds) throws NotFoundException, TooManyValuesException {
