@@ -37,7 +37,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -250,19 +251,20 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void updatedInterrogationsStatusesFromRecupapCsvFile(String campaignId, MultipartFile file) throws NotFoundException, TooManyValuesException{
+    public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws NotFoundException, TooManyValuesException{
         final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
-        final Date nowDate = Date.from(Instant.now());
+        LocalDate base = LocalDate.now();
+        Date nowDate = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         try {
             Set<String> surveyUnitIds = readSurveyUnitIdsFromCsv(file);
             Map<String, List<Questioning>> questioningBySu = getQuestioningsBySu(surveyUnitIds);
             Map<String, SuCampaignView> campaignBySu = getCampaignBySu(surveyUnitIds, campaignId);
 
-            validateQuestionings(questioningBySu, surveyUnitIds);
+            validateSuInQuestionings(questioningBySu, surveyUnitIds);
             validateSuInCampaign(campaignBySu, surveyUnitIds);
 
-            List<QuestioningEvent> events = buildRecupapEvents(surveyUnitIds, questioningBySu, payload, nowDate);
+            List<QuestioningEvent> events = buildRecupapInterrogationEvents(surveyUnitIds, questioningBySu, payload, nowDate);
             questioningEventRepository.saveAll(events);
             questioningEventRepository.flush();
             events
@@ -314,7 +316,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 .collect(Collectors.toMap(SuCampaignView::getSurveyUnitIdSu, (suCampaignView) -> suCampaignView));
     }
 
-    private void validateQuestionings(Map<String, List<Questioning>> questionningBySu, Set<String> surveyUnitIds) throws NotFoundException, TooManyValuesException {
+    private void validateSuInQuestionings(Map<String, List<Questioning>> questionningBySu, Set<String> surveyUnitIds) throws NotFoundException, TooManyValuesException {
         for (String su : surveyUnitIds) {
             List<Questioning> list = questionningBySu.get(su);
             if (list == null || list.isEmpty()) {
@@ -334,7 +336,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         }
     }
 
-    private List<QuestioningEvent> buildRecupapEvents(Set<String> surveyUnitIds,
+    private List<QuestioningEvent> buildRecupapInterrogationEvents(Set<String> surveyUnitIds,
                                                       Map<String, List<Questioning>> questionningBySu,
                                                       JsonNode payload,
                                                       Date nowDate) {

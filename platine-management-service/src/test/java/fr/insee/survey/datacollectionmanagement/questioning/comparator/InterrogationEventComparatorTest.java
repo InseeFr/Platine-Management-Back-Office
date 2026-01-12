@@ -257,12 +257,21 @@ class InterrogationEventComparatorTest {
                                 event(TypeQuestioningEvent.VALID,-1)),
                         TypeQuestioningEvent.ENDEXPERT),
 
-
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA,-2),
                                 event(TypeQuestioningEvent.VALINT,-1),
                                 event(TypeQuestioningEvent.RECUPAP,0)),
-                        TypeQuestioningEvent.RECUPAP)
+                        TypeQuestioningEvent.RECUPAP),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.REFUSAL,-2),
+                                event(TypeQuestioningEvent.RECUPAP,0)),
+                        TypeQuestioningEvent.REFUSAL),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.HC,-2),
+                                event(TypeQuestioningEvent.RECUPAP,0)),
+                        TypeQuestioningEvent.HC)
         );
     }
 

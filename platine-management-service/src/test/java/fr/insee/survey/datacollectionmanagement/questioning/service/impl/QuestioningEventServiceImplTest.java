@@ -555,7 +555,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN / THEN
-        assertThatCode(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file)).doesNotThrowAnyException();
+        assertThatCode(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file)).doesNotThrowAnyException();
     }
 
     @Test
@@ -578,7 +578,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageStartingWith("123456789");
     }
@@ -600,7 +600,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.setTooManyValuesException(true);
 
         // WHEN / THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("123456789"); // Optionnel
     }
@@ -638,7 +638,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN / THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("456"); // The duplicated SU id
     }
@@ -651,7 +651,7 @@ class QuestioningEventServiceImplTest {
         when(file.getInputStream()).thenThrow(new IOException("file.csv"));
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(CsvFileProcessingException.class)
                 .hasCauseInstanceOf(IOException.class)
                 .hasCauseExactlyInstanceOf(IOException.class)
@@ -687,7 +687,7 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile("TEST_CAMPAIGN", file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageStartingWith("456");
     }

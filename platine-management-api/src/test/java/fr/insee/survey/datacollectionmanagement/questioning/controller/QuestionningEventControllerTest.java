@@ -232,9 +232,9 @@ class QuestionningEventControllerTest {
 
     @Disabled
     @Test
-    @DisplayName("Uploading interrogation statuses from paper questionnaires and should return ok")
+    @DisplayName("Uploading interrogation events from paper questionnaires and should return ok")
     @WithMockUser(roles={"ADMIN"})
-    void uploadingInterrogationStatusesFromPaperQuestionnairesAndShouldReturnOk() throws Exception {
+    void uploadingInterrogationEventsFromPaperQuestionnairesAndShouldReturnOk() throws Exception {
         // GIVEN
         String csvContent = """
                 ID_UNITE_ENQUETEE
@@ -253,7 +253,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP, "SOURCE12025T10")
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12025T10")
                                 .file(csv)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -261,9 +261,9 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Uploading interrogation statuses from paper questionnaires should return MappingForColumnName not found : 409")
+    @DisplayName("Uploading interrogation events from paper questionnaires should return MappingForColumnName not found : 409")
     @WithMockUser(roles={"ADMIN"})
-    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnMappingForColumnNameNotFound409() throws Exception {
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnMappingForColumnNameNotFound409() throws Exception {
         // GIVEN
         String csvContent = """
                 ID_UNITE_ENQUETEEE
@@ -279,7 +279,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP, "SOURCE12023T01")
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -289,9 +289,9 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Uploading interrogation statuses from paper questionnaires should return NoValueOfSurveyUNitId identifier : 409")
+    @DisplayName("Uploading interrogation events from paper questionnaires should return NoValueOfSurveyUNitId identifier : 409")
     @WithMockUser(roles={"ADMIN"})
-    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnNoValueOfSurveyUNitIdIdentifier409() throws Exception {
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnNoValueOfSurveyUNitIdIdentifier409() throws Exception {
         // GIVEN
         String csvContent = """
                 ID_UNITE_ENQUETEEE
@@ -306,7 +306,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP, "SOURCE12023T01")
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
@@ -316,9 +316,9 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Uploading interrogation statuses from paper questionnaires should return SurveyUnitNotFound : 404")
+    @DisplayName("Uploading interrogation events from paper questionnaires should return SurveyUnitNotFound : 404")
     @WithMockUser(roles={"ADMIN"})
-    void uploadingInterrogationStatusesFromPaperQuestionnairesShouldReturnSurveyUnitNotFound404() throws Exception {
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnSurveyUnitNotFound404() throws Exception {
         // GIVEN
         String csvContent = """
                 ID_UNITE_ENQUETEE
@@ -334,7 +334,7 @@ class QuestionningEventControllerTest {
 
         // WHEN / THEN
         mockMvc.perform(
-                        multipart(UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP, "SOURCE12023T01")
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
