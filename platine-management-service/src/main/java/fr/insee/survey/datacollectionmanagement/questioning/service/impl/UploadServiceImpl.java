@@ -15,6 +15,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
@@ -79,6 +80,7 @@ public class UploadServiceImpl implements UploadService {
                 qe.setUpload(up);
                 mmDto =renameValpaptoRecupap(mmDto);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
+                qe.setStatus(StatusEvent.MANUAL);
                 qe.setQuestioning(quest.get());
                 ObjectNode payload = JsonNodeFactory.instance.objectNode();
 
