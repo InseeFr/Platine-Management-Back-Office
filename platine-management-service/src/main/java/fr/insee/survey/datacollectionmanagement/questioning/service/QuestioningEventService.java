@@ -63,5 +63,5 @@ public interface QuestioningEventService {
      * Bulk uploading of survey statuses (received paper questionnaires, VALPAP)
      * @param file
      */
-    void updatedInterrogationsStatusesFromRecupapCsvFile(MultipartFile file);
+    void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file);
 }

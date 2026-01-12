@@ -154,8 +154,8 @@ public class QuestioningEventController {
         questioningEventService.postExpertEvent(id, expertEventDto);
     }
 
-    @Operation(summary = "Uploading of interrogation statuses from received paper questionnaires from file (CSV or JSON)")
-    @PostMapping(value = UrlConstants.API_UPLOADING_INTERROGATIONS_STATUSES_RECUPAP,
+    @Operation(summary = "Uploading of interrogation events from received paper questionnaires from file (CSV)")
+    @PostMapping(value = UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
@@ -171,7 +171,10 @@ public class QuestioningEventController {
             @ApiResponse(responseCode = "500", description = "Unexpected error",
                     content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
     })
-    public void uploadingInterrogationStatusesFromPaperQuestionnaires(@RequestPart("file") MultipartFile file)  {
-        questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file);
+    public void bulkUploadRecupapInterrogationEvents(
+            @PathVariable("campaignId") String campaignId,
+            @RequestPart("file") MultipartFile file)  {
+        log.info("Uploading RECUPAP events for campaign {}", campaignId);
+        questioningEventService.bulkUploadRecupapInterrogationEvents(campaignId, file);
     }
 }

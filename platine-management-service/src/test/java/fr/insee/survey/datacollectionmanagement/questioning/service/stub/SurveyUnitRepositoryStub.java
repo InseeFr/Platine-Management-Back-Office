@@ -1,19 +1,19 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.stub;
 
+import fr.insee.survey.datacollectionmanagement.query.dto.SuCampaignView;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
-
-import java.util.Collection;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.FluentQuery;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 @Setter
@@ -25,7 +25,7 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
 	private List<SearchSurveyUnitDto> echoes;
 	private List<SurveyUnit> surveyUnits;
 	private List<ContactAccreditedToSurveyUnitDto> listContactAccreditedToSurveyUnitDto;
-
+	private Set<SuCampaignView> suCampaignView;
 
 	@Override
 	public List<SurveyUnit> findAllByIdentificationCode(String identificationCode) {
@@ -77,6 +77,10 @@ public class SurveyUnitRepositoryStub implements SurveyUnitRepository {
         return List.of();
     }
 
+    @Override
+    public Set<SuCampaignView> findCampaignIdsBySurveyUnitIdIn(Set<String> surveyUnitIds) {
+        return suCampaignView;
+    }
 
     @Override
 	public void flush() {

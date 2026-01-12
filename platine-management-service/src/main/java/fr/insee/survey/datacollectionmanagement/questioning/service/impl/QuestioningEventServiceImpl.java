@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingExcep
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.query.dto.SuCampaignView;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -19,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import jakarta.transaction.Transactional;
@@ -30,13 +32,13 @@ import org.apache.commons.csv.CSVRecord;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import wiremock.com.ethlo.time.DateTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +55,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private final QuestioningEventRepository questioningEventRepository;
 
     private final QuestioningRepository questioningRepository;
+
+    private final SurveyUnitRepository surveyUnitRepository;
 
     private final ModelMapper modelMapper;
 
@@ -247,60 +251,108 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void updatedInterrogationsStatusesFromRecupapCsvFile(MultipartFile file) throws NotFoundException, TooManyValuesException{
-        final JsonNode payload = objectMapper.createObjectNode()
-                .put("source", "platine-gestion");
+    public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws NotFoundException, TooManyValuesException{
+        final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
+        LocalDate base = LocalDate.now();
+        Date nowDate = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        final Instant now = Instant.now();
+        try {
+            Set<String> surveyUnitIds = readSurveyUnitIdsFromCsv(file);
+            Map<String, List<Questioning>> questioningBySu = getQuestioningsBySu(surveyUnitIds);
+            Map<String, SuCampaignView> campaignBySu = getCampaignBySu(surveyUnitIds, campaignId);
 
+            validateSuInQuestionings(questioningBySu, surveyUnitIds);
+            validateSuInCampaign(campaignBySu, surveyUnitIds);
+
+            List<QuestioningEvent> events = buildRecupapInterrogationEvents(surveyUnitIds, questioningBySu, payload, nowDate);
+            questioningEventRepository.saveAll(events);
+            questioningEventRepository.flush();
+            events
+                    .stream()
+                    .map(qe -> qe.getQuestioning().getId())
+                    .distinct()
+                    .forEach(this::refreshHighestEvent);
+
+        } catch (IllegalArgumentException | IOException e) {
+            throw new CsvFileProcessingException(e.getMessage(), e);
+        }
+    }
+
+    private Set<String> readSurveyUnitIdsFromCsv(MultipartFile file) throws IOException {
         CSVFormat format = CSVFormat.DEFAULT.builder()
                 .setHeader()
                 .setIgnoreEmptyLines(false)
                 .setTrim(false)
                 .get();
 
-        try (BufferedReader reader = new BufferedReader(
-                                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-                                     CSVParser csvParser = format.parse(reader)) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+             CSVParser csvParser = format.parse(reader)) {
             Set<String> surveyUnitIds = new HashSet<>();
-            for (CSVRecord myRecord : csvParser) {
-                surveyUnitIds.add(myRecord.get(SURVEY_UNIT_ID));
+            for (CSVRecord listSu : csvParser) {
+                surveyUnitIds.add(listSu.get(SURVEY_UNIT_ID));
             }
-
             if (surveyUnitIds.isEmpty()) {
                 throw new CsvFileProcessingException("No value of ID_UNITE_ENQUETEE identifier");
             }
-
-            Set<Questioning> questionings = questioningRepository.findBySurveyUnitIdSuIn(surveyUnitIds);
-
-            Map<String, List<Questioning>> bySu = questionings.stream()
-                    .collect(Collectors.groupingBy(q -> q.getSurveyUnit().getIdSu()));
-
-            for (String su : surveyUnitIds) {
-                List<Questioning> list = bySu.get(su);
-                if (list == null || list.isEmpty()) {
-                    throw new NotFoundException(su);
-                }
-                if (list.size() > 1) {
-                    throw new TooManyValuesException(su);
-                }
-            }
-
-            List<QuestioningEvent> events = new ArrayList<>(surveyUnitIds.size());
-            for (String su : surveyUnitIds) {
-                Questioning q = bySu.get(su).getFirst();
-                QuestioningEvent ev = new QuestioningEvent();
-                ev.setQuestioning(q);
-                ev.setType(TypeQuestioningEvent.RECUPAP);
-                ev.setPayload(payload);
-                ev.setDate(Date.from(now));
-                ev.setStatus(StatusEvent.MANUAL);
-                events.add(ev);
-            }
-            questioningEventRepository.saveAll(events);
-        } catch (IllegalArgumentException | IOException e) {
-            throw new CsvFileProcessingException(e.getMessage(), e);
+            return surveyUnitIds;
         }
+    }
+
+    private Map<String, List<Questioning>> getQuestioningsBySu(Set<String> surveyUnitIds) {
+        Set<Questioning> questionings = questioningRepository.findBySurveyUnitIdSuIn(surveyUnitIds);
+        if (questionings == null) {
+            throw new IllegalArgumentException("Questionings result is null");
+        }
+        return questionings.stream().collect(Collectors.groupingBy(q -> q.getSurveyUnit().getIdSu()));
+    }
+
+    private Map<String, SuCampaignView> getCampaignBySu(Set<String> surveyUnitIds, String campaignId) {
+        Set<SuCampaignView> campaigns = surveyUnitRepository.findCampaignIdsBySurveyUnitIdIn(surveyUnitIds);
+        if (campaigns == null) {
+            throw new IllegalArgumentException("Campaigns result is null");
+        }
+        return campaigns.stream()
+                .filter(c -> campaignId.equalsIgnoreCase(c.getCampaignId()))
+                .collect(Collectors.toMap(SuCampaignView::getSurveyUnitIdSu, (suCampaignView) -> suCampaignView));
+    }
+
+    private void validateSuInQuestionings(Map<String, List<Questioning>> questionningBySu, Set<String> surveyUnitIds) throws NotFoundException, TooManyValuesException {
+        for (String su : surveyUnitIds) {
+            List<Questioning> list = questionningBySu.get(su);
+            if (list == null || list.isEmpty()) {
+                throw new NotFoundException(su);
+            }
+            if (list.size() > 1) {
+                throw new TooManyValuesException(su);
+            }
+        }
+    }
+
+    private void validateSuInCampaign(Map<String, SuCampaignView> suInCampaign, Set<String> surveyUnitIds) throws NotFoundException {
+        for (String su : surveyUnitIds) {
+            if (!suInCampaign.containsKey(su)) {
+                throw new NotFoundException(su);
+            }
+        }
+    }
+
+    private List<QuestioningEvent> buildRecupapInterrogationEvents(Set<String> surveyUnitIds,
+                                                      Map<String, List<Questioning>> questionningBySu,
+                                                      JsonNode payload,
+                                                      Date nowDate) {
+        return surveyUnitIds.stream()
+                .map(su -> {
+                    // suInCampaign presence has already been validated; we just need the unique questioning for this SU
+                    List<Questioning> qList = questionningBySu.get(su);
+                    Questioning q = qList.stream().findFirst().orElseThrow(() -> new NotFoundException(su));
+                    QuestioningEvent ev = new QuestioningEvent();
+                    ev.setQuestioning(q);
+                    ev.setType(TypeQuestioningEvent.RECUPAP);
+                    ev.setPayload(payload);
+                    ev.setDate(nowDate);
+                    ev.setStatus(StatusEvent.MANUAL);
+                    return ev;
+                })
+                .collect(Collectors.toCollection(() -> new ArrayList<>(surveyUnitIds.size())));
     }
 }

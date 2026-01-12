@@ -6,6 +6,7 @@ import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingExcep
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.query.dto.SuCampaignViewImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -19,6 +20,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.component.Ex
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
+import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SurveyUnitRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,15 +51,19 @@ class QuestioningEventServiceImplTest {
 
     private QuestioningEventServiceImpl questioningEventService;
 
+    private SurveyUnitRepositoryStub surveyUnitRepository;
+
     @BeforeEach
     void setUp() {
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
+        surveyUnitRepository = new SurveyUnitRepositoryStub();
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
         questioningEventService = new QuestioningEventServiceImpl(
                 null,
                 questioningEventRepository,
                 questioningRepository,
+                surveyUnitRepository,
                 new ModelMapper(),
                 interrogationEventComparator,
                 new ExpertEventComponent(),
@@ -523,7 +529,7 @@ class QuestioningEventServiceImplTest {
     }
 
     @Test
-    @DisplayName("import from csv should not throw when type is VALPAP")
+    @DisplayName("import from csv should not throw when type is RECUPAP and SU belongs to campaign")
     void importFromCsvShouldNotThrowWhenTypeIsVALPAP() {
         // GIVEN
         String csvContent = """
@@ -533,9 +539,13 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = new Questioning();
         SurveyUnit surveyUnit = new SurveyUnit();
         surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
         questioning.setIdPartitioning("123");
         questioning.setSurveyUnit(surveyUnit);
-        questioningRepository.setQuestionings(List.of(questioning));
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
+        surveyUnitRepository.setSuCampaignView(Set.of(
+                new SuCampaignViewImpl("456",  "TEST_CAMPAIGN")
+        ));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -545,17 +555,20 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN / THEN
-        assertThatCode(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file)).doesNotThrowAnyException();
+        assertThatCode(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file)).doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found")
-    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFound() {
+    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found in List<Questioning>")
+    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFoundInListQuestioning() {
         // GIVEN
         String csvContent = """
             ID_UNITE_ENQUETEE
             123456789
             """;
+        surveyUnitRepository.setSuCampaignView(Set.of(
+                new SuCampaignViewImpl("123456789", "CAMP_A")
+        ));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -565,14 +578,14 @@ class QuestioningEventServiceImplTest {
         );
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageStartingWith("123456789");
     }
 
     @Test
-    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values")
-    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValues() {
+    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values in List<Questioning>")
+    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValuesInListQuestioning() {
         // GIVEN : CSV with TYPE != VALPAP
         String csvContent = """
                 ID_UNITE_ENQUETEE
@@ -587,9 +600,47 @@ class QuestioningEventServiceImplTest {
         questioningRepository.setTooManyValuesException(true);
 
         // WHEN / THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(TooManyValuesException.class)
                 .hasMessageContaining("123456789"); // Optionnel
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values in List<Questioning> bis")
+    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValuesInListQuestioningBis() {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                456
+                """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        Questioning questioningBis = new Questioning();
+        SurveyUnit surveyUnitBis = new SurveyUnit();
+        surveyUnitBis.setIdSu("456");
+        questioningBis.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd21"));
+        questioningBis.setIdPartitioning("789");
+        questioningBis.setSurveyUnit(surveyUnitBis);
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning, questioningBis)));
+        surveyUnitRepository.setSuCampaignView(Set.of(
+                new SuCampaignViewImpl("456",  "TEST_CAMPAIGN")
+        ));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(TooManyValuesException.class)
+                .hasMessageContaining("456"); // The duplicated SU id
     }
 
     @Test
@@ -600,7 +651,7 @@ class QuestioningEventServiceImplTest {
         when(file.getInputStream()).thenThrow(new IOException("file.csv"));
 
         // WHEN & THEN
-        assertThatThrownBy(() -> questioningEventService.updatedInterrogationsStatusesFromRecupapCsvFile(file))
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
                 .isInstanceOf(CsvFileProcessingException.class)
                 .hasCauseInstanceOf(IOException.class)
                 .hasCauseExactlyInstanceOf(IOException.class)
@@ -608,4 +659,37 @@ class QuestioningEventServiceImplTest {
                 .cause()
                 .hasMessage("file.csv");
     }
+
+    @Test
+    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found in Campaign")
+    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFoundInCampaign() {
+        // GIVEN
+        String csvContent = """
+            ID_UNITE_ENQUETEE
+            456
+            """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
+        surveyUnitRepository.setSuCampaignView(Set.of(
+                new SuCampaignViewImpl("789",  "TEST_CAMPAIGN")
+        ));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageStartingWith("456");
+    }
+
 }

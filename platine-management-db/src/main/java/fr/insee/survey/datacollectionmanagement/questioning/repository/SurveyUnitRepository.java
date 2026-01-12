@@ -1,5 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.repository;
 
+import fr.insee.survey.datacollectionmanagement.query.dto.SuCampaignView;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ContactAccreditedToSurveyUnitDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchSurveyUnitDto;
@@ -115,8 +116,17 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
     @Query("select distinct s.idSu from SurveyUnit s where s.idSu in :ids")
     Set<String> findExistingSurveyUnitIds(Collection<String> ids);
 
-
-
     List<SurveyUnit> findAllByIdSuIn(Collection<String> ids);
 
+    @Query(value = """
+    SELECT distinct
+           q.survey_unit_id_su as surveyUnitIdSu,
+           p.campaign_id        as campaignId
+    FROM partitioning p
+    JOIN questioning q ON q.id_partitioning = p.id
+    WHERE q.survey_unit_id_su in :surveyUnitIds
+      AND p.opening_date <= now()
+      AND (p.closing_date IS NULL OR p.closing_date >= now())
+    """, nativeQuery = true)
+    Set<SuCampaignView> findCampaignIdsBySurveyUnitIdIn(Set<String> surveyUnitIds);
 }
