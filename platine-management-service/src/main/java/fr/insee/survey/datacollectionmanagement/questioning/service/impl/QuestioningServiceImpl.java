@@ -198,7 +198,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(comment -> modelMapper.map(comment, QuestioningCommentOutputDto.class))
                 .toList();
 
-        boolean isValidatedInPaperEnvironment = isValidatedInPaperEnvironment(questioning.getId());
+        boolean canWriteInPaperEnvironment = canWriteInPaperEnvironment(questioning.getId());
         String paperModeUrl = questioningUrlComponent.getPaperUrl(questioning);
 
 
@@ -213,7 +213,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .readOnlyUrl(readOnlyUrl)
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
-                .paperModeUrl(isValidatedInPaperEnvironment, paperModeUrl)
+                .paperModeUrl(canWriteInPaperEnvironment, paperModeUrl)
                 .build();
     }
 
