@@ -4,4 +4,4 @@
 
 UPDATE questioning_event
 SET status = 'MANUAL'
-WHERE type IN ('RECUPAP');
+WHERE type = 'RECUPAP'
