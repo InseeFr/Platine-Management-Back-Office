@@ -53,6 +53,12 @@ public enum TypeQuestioningEvent {
             HC,
             REFUSAL);
 
+    public static final List<TypeQuestioningEvent> MANUAL_EVENTS = List.of(
+            WASTE,
+            HC,
+            REFUSAL,
+            RECUPAP);
+
     public static final List<TypeQuestioningEvent> STARTED_EVENTS = List.of(
             PARTIELINT);
 
