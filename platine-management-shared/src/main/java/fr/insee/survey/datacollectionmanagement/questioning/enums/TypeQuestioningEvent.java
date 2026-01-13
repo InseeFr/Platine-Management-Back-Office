@@ -68,7 +68,9 @@ public enum TypeQuestioningEvent {
             ONGEXPERT,
             VALID,
             ENDEXPERT,
-            NOQUAL
+            NOQUAL,
+            PARTIELPAP,
+            VALPAP
     );
 
     public static final List<TypeQuestioningEvent> EXPERT_EVENTS = List.of(
