@@ -224,7 +224,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
         boolean isAdmin = userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole());
         boolean isInternalUserAllowed = userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole())
-                && TypeQuestioningEvent.REFUSED_EVENTS.contains(typeQuestioningEvent);
+                && TypeQuestioningEvent.MANUAL_EVENTS.contains(typeQuestioningEvent);
 
         if (!isAdmin && !isInternalUserAllowed) {
             throw new ForbiddenAccessException(
