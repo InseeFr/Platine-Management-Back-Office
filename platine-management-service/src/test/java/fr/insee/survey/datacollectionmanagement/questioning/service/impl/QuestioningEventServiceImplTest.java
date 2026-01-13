@@ -481,7 +481,7 @@ class QuestioningEventServiceImplTest {
             assertThat(questioningEventRepository.findById(1L)).isNotPresent();
         }
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.REFUSED_EVENTS)
+        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.MANUAL_EVENTS)
         {
             QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
             questioningEventRepository.save(questioningEvent);
@@ -511,7 +511,7 @@ class QuestioningEventServiceImplTest {
         }
 
         List<TypeQuestioningEvent> typeQuestioningEventsWithoutRefused = Arrays.stream(TypeQuestioningEvent.values())
-                .filter(p -> !TypeQuestioningEvent.REFUSED_EVENTS.contains(p))
+                .filter(p -> !TypeQuestioningEvent.MANUAL_EVENTS.contains(p))
                 .toList();
 
         for (TypeQuestioningEvent typeQuestioningEvent : typeQuestioningEventsWithoutRefused)
