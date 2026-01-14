@@ -37,8 +37,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -285,10 +283,18 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 .get();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CSVParser csvParser = format.parse(reader)) {
+            CSVParser csvParser = format.parse(reader)) {
             Set<String> surveyUnitIds = new HashSet<>();
             for (CSVRecord listSu : csvParser) {
-                surveyUnitIds.add(listSu.get(SURVEY_UNIT_ID));
+                String surveyUnitId = listSu.get(SURVEY_UNIT_ID);
+                if (surveyUnitId == null || surveyUnitId.isEmpty()) {
+                    log.warn("Survey Unit Id is empty");
+                    continue;
+                }
+                surveyUnitId = surveyUnitId.trim();
+                if (!surveyUnitId.isBlank()) {
+                    surveyUnitIds.add(surveyUnitId);
+                }
             }
             if (surveyUnitIds.isEmpty()) {
                 throw new CsvFileProcessingException("No value of ID_UNITE_ENQUETEE identifier");
@@ -336,9 +342,9 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     private List<QuestioningEvent> buildRecupapInterrogationEvents(Set<String> surveyUnitIds,
-                                                      Map<String, List<Questioning>> questionningBySu,
-                                                      JsonNode payload,
-                                                      Date nowDate) {
+                                                                   Map<String, List<Questioning>> questionningBySu,
+                                                                   JsonNode payload,
+                                                                   Date nowDate) {
         return surveyUnitIds.stream()
                 .map(su -> {
                     // suInCampaign presence has already been validated; we just need the unique questioning for this SU
