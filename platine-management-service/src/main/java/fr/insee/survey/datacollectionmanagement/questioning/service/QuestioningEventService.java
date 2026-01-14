@@ -57,7 +57,7 @@ public interface QuestioningEventService {
      */
     void postExpertEvent(UUID id, ExpertEventDto expertEventDto);
 
-    void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent);
+    void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId);
 
     /**
      * Bulk uploading of survey statuses (received paper questionnaires, VALPAP)

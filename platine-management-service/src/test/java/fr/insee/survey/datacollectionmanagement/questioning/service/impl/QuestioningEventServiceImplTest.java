@@ -75,17 +75,18 @@ class QuestioningEventServiceImplTest {
         return validatedDto;
     }
 
-    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning, Clock clock) {
+    private QuestioningEvent createQuestioningEvent(long id, StatusEvent status, TypeQuestioningEvent type, Questioning questioning, Clock clock) {
         QuestioningEvent event = new QuestioningEvent();
         event.setId(id);
         event.setQuestioning(questioning);
+        event.setStatus(status);
         event.setType(type);
         event.setDate(Date.from(Instant.now(clock)));
         return event;
     }
 
-    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning) {
-        return createQuestioningEvent(id, type, questioning, Clock.systemUTC());
+    private QuestioningEvent createQuestioningEvent(long id, StatusEvent status, TypeQuestioningEvent type, Questioning questioning) {
+        return createQuestioningEvent(id, status, type, questioning, Clock.systemUTC());
     }
 
     @Test
@@ -102,8 +103,8 @@ class QuestioningEventServiceImplTest {
     void postValintQuestioningEventTest2() {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning);
-        QuestioningEvent event2 = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent event = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(event);
         questioningEvents.add(event2);
@@ -124,7 +125,7 @@ class QuestioningEventServiceImplTest {
     void postValintQuestioningEventTest3() {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
+        QuestioningEvent event = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(event);
         questioning.setQuestioningEvents(questioningEvents);
@@ -211,7 +212,7 @@ class QuestioningEventServiceImplTest {
                             int score, int scoreInit) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioning.setQuestioningEvents(questioningEvents);
@@ -262,7 +263,7 @@ class QuestioningEventServiceImplTest {
                             TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioning.setQuestioningEvents(questioningEvents);
@@ -293,8 +294,8 @@ class QuestioningEventServiceImplTest {
                                           TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
-        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioningEvents.add(init2);
@@ -327,8 +328,8 @@ class QuestioningEventServiceImplTest {
                                           TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
-        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioningEvents.add(init2);
@@ -367,7 +368,7 @@ class QuestioningEventServiceImplTest {
     void saveQuestioningEvent() {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
-        QuestioningEvent questioningEvent = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning);
         QuestioningEvent saved = questioningEventService.saveQuestioningEvent(questioningEvent);
         assertThat(saved).isNotNull();
         assertThat(saved.getQuestioning()).isNotNull();
@@ -381,8 +382,8 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
 
-        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.INITLA, questioning);
-        QuestioningEvent event2 = createQuestioningEvent(3L, TypeQuestioningEvent.PARTIELINT, questioning);
+        QuestioningEvent event = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(3L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.PARTIELINT, questioning);
         questioningEventRepository.save(event);
         questioningEventRepository.save(event2);
 
@@ -458,65 +459,37 @@ class QuestioningEventServiceImplTest {
 
 
     @Test
-    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event type")
+    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event status")
     void canUserDeleteQuestioningEventTest1() {
 
         Questioning questioning = createQuestioning();
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
-        {
-            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
-        }
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.MANUAL_EVENTS)
-        {
-            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
-        }
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning, Clock.systemUTC());
+        questioningEventRepository.save(questioningEvent);
+        assertThat(questioningEventRepository.findById(1L)).isPresent();
+        assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L));
+        assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+
     }
 
     @Test
-    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event type")
+    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event status")
     void canUserDeleteQuestioningEventTest2() {
 
         Questioning questioning = createQuestioning();
         List<String> managementExcludedRoles = AuthorityRoleEnum.MANAGEMENT_EXCLUDED_SECURITY_ROLES;
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
-        {
-            long id = new Random().nextLong();
-            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(managementExcludedRoles,  id, typeQuestioningEvent))
-                    .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-        }
 
-        List<TypeQuestioningEvent> typeQuestioningEventsWithoutRefused = Arrays.stream(TypeQuestioningEvent.values())
-                .filter(p -> !TypeQuestioningEvent.MANUAL_EVENTS.contains(p))
-                .toList();
+        long id = new Random().nextLong();
+        QuestioningEvent questioningEvent = createQuestioningEvent(id, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning, Clock.systemUTC());
+        questioningEventRepository.save(questioningEvent);
+        assertThat(questioningEventRepository.findById(id)).isPresent();
+        assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(managementExcludedRoles,  id))
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(String.format("Deletion of automatic event %s is forbidden", id));
+        assertThat(questioningEventRepository.findById(id)).isPresent();
 
-        for (TypeQuestioningEvent typeQuestioningEvent : typeQuestioningEventsWithoutRefused)
-        {
-            long id = new Random().nextLong();
-            List<String> userRoles =  List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
-            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(userRoles, id, typeQuestioningEvent))
-                    .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-        }
     }
 
     @Test

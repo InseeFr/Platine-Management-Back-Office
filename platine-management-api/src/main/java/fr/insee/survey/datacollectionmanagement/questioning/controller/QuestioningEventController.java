@@ -115,7 +115,7 @@ public class QuestioningEventController {
                 .toList();
 
         Upload upload = questioningEvent.getUpload();
-        questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(userRoles, questioningEvent.getId(), questioningEvent.getType());
+        questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(userRoles, questioningEvent.getId());
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);
         }
