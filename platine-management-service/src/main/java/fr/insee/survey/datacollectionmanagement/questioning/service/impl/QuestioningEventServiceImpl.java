@@ -253,8 +253,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws NotFoundException, TooManyValuesException{
         final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
-        LocalDate base = LocalDate.now();
-        Date nowDate = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date nowDate = new Date();
 
         try {
             Set<String> surveyUnitIds = readSurveyUnitIdsFromCsv(file);
