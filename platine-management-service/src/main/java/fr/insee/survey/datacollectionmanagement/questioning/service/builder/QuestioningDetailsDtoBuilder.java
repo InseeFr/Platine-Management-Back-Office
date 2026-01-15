@@ -100,13 +100,21 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
+    public QuestioningDetailsDtoBuilder paperModeUrl(boolean canWritePaperMode, String paperModeUrl) {
+        instance.setPaperModeUrl(canWritePaperMode ? paperModeUrl : "");
+        return this;
+    }
+
+    public QuestioningDetailsDtoBuilder exportDataPdfUrl(boolean canExportQuestioningDataToPdf, String exportDataPdfUrl) {
+        instance.setExportDataPdfUrl(canExportQuestioningDataToPdf? exportDataPdfUrl : "");
+        return this;
+    }
+
+
     public QuestioningDetailsDto build() {
         return instance;
     }
 
 
-    public QuestioningDetailsDtoBuilder paperModeUrl(boolean canWritePaperMode, String paperModeUrl) {
-        instance.setPaperModeUrl(canWritePaperMode ? paperModeUrl : "");
-        return this;
-    }
+
 }

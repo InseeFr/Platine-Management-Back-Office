@@ -199,7 +199,10 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .toList();
 
         boolean canWriteInPaperEnvironment = canWriteInPaperEnvironment(questioning.getId());
-        String paperModeUrl = questioningUrlComponent.getPaperUrl(questioning);
+        String paperModeUrl = questioningUrlComponent.buildPaperUrl(questioning);
+
+        boolean canExportDataPdf = canExportQuestioningDataToPdf(questioning.getId());
+        String exportDataPdfUrl =questioningUrlComponent.buildExportDataPdfUrl(questioning);
 
 
         return new QuestioningDetailsDtoBuilder()
@@ -214,6 +217,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
                 .paperModeUrl(canWriteInPaperEnvironment, paperModeUrl)
+                .exportDataPdfUrl(canExportDataPdf,exportDataPdfUrl)
                 .build();
     }
 

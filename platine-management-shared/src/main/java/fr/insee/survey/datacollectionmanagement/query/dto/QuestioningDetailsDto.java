@@ -37,4 +37,5 @@ public class QuestioningDetailsDto {
     private Boolean isHousehold;
     private Boolean isOnProbation;
     private String paperModeUrl;
+    private String exportDataPdfUrl;
 }

@@ -67,6 +67,9 @@ public class ApplicationConfig {
     @Value("${fr.insee.datacollectionmanagement.api.paper.ui.url}")
     private String paperUiUrl;
 
+    @Value("${fr.insee.datacollectionmanagement.api.export.data.pdf.url}")
+    private String exportDataPdfApiUrl;
+
     @Value("${fr.insee.datacollectionmanagement.api.questioning.api.url}")
     private String questionnaireApiUrl;
 
