@@ -79,6 +79,12 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
     WHERE q.id = :questioningId
       AND c.dataCollectionTarget = fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum.LUNATIC_NORMAL
       AND s.type = fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum.BUSINESS
+    AND EXISTS (
+        SELECT 1
+        FROM QuestioningEvent qe
+        WHERE qe.questioning = q
+        AND qe.type IN ('VALINT', 'VALPAP')
+    )
     """)
     boolean existsBusinessSourceForLunaticNormal(@Param("questioningId") UUID questioningId);
 
