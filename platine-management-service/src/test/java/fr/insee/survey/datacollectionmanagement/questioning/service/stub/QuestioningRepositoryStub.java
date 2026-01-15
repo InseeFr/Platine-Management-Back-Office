@@ -86,6 +86,11 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
+    public boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId, List<TypeQuestioningEvent> allowedEventTypes, List<TypeQuestioningEvent> forbiddenEventTypes) {
+        return false;
+    }
+
+    @Override
     public Set<Questioning> findBySurveyUnitIdSuIn(Set<String> surveyUnitIds) {
         if(tooManyValuesException){
             throw new TooManyValuesException(surveyUnitIds.stream().findFirst().get());
