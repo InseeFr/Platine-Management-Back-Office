@@ -320,7 +320,11 @@ public class QuestioningServiceImpl implements QuestioningService {
         allowedEventTypes.add(TypeQuestioningEvent.RECUPAP);
         allowedEventTypes.add(TypeQuestioningEvent.REFUSAL);
 
-        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes);
+        List<TypeQuestioningEvent> forbiddenEventTypes = new ArrayList<>();
+        forbiddenEventTypes.add(TypeQuestioningEvent.VALINT);
+        forbiddenEventTypes.add(TypeQuestioningEvent.VALPAP);
+
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes, forbiddenEventTypes);
     }
 
     @Override
