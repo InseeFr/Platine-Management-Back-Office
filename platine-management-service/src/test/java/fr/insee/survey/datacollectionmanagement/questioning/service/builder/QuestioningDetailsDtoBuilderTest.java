@@ -209,12 +209,23 @@ class QuestioningDetailsDtoBuilderTest {
     }
 
     @Test
-    void shouldSetReadOnlyUrl() {
+    void shouldSetReadOnlyUrlWhenExportDataNotPossible() {
+        boolean canExportDataToPf = false;
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .readOnlyUrl("https://example.com/readOnly")
+                .readOnlyUrl(canExportDataToPf, "https://example.com/readOnly")
                 .build();
 
         assertThat(dto.getReadOnlyUrl()).isEqualTo("https://example.com/readOnly");
+    }
+
+    @Test
+    void shouldNotSetReadOnlyUrlWhenExportDataPossible() {
+        boolean canExportDataToPf = true;
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .readOnlyUrl(canExportDataToPf, "https://example.com/readOnly")
+                .build();
+
+        assertThat(dto.getReadOnlyUrl()).isEmpty();
     }
 
     @Test

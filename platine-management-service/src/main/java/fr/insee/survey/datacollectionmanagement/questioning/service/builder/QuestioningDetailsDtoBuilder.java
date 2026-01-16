@@ -95,8 +95,8 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder readOnlyUrl(String readOnlyUrl) {
-        instance.setReadOnlyUrl(readOnlyUrl);
+    public QuestioningDetailsDtoBuilder readOnlyUrl(boolean canExportQuestioningDataToPdf, String readOnlyUrl) {
+        instance.setReadOnlyUrl(canExportQuestioningDataToPdf ? "" : readOnlyUrl);
         return this;
     }
 
@@ -106,7 +106,7 @@ public class QuestioningDetailsDtoBuilder {
     }
 
     public QuestioningDetailsDtoBuilder exportDataPdfUrl(boolean canExportQuestioningDataToPdf, String exportDataPdfUrl) {
-        instance.setExportDataPdfUrl(canExportQuestioningDataToPdf? exportDataPdfUrl : "");
+        instance.setExportDataPdfUrl(canExportQuestioningDataToPdf ? exportDataPdfUrl : "");
         return this;
     }
 
@@ -114,7 +114,6 @@ public class QuestioningDetailsDtoBuilder {
     public QuestioningDetailsDto build() {
         return instance;
     }
-
 
 
 }
