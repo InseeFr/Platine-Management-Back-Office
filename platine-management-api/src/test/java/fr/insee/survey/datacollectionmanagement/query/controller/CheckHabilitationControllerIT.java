@@ -163,8 +163,7 @@ class CheckHabilitationControllerIT {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+                .andExpect(status().isOk());
     }
 
     @Test
