@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
@@ -126,8 +127,7 @@ class CheckHabilitationControllerIT {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(false));
+                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest(name = "Permission {0} should be allowed for role {1}")
@@ -150,8 +150,7 @@ class CheckHabilitationControllerIT {
                         .param("permission", permission.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+                .andExpect(status().isOk());
     }
 
 
@@ -164,8 +163,7 @@ class CheckHabilitationControllerIT {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -177,8 +175,7 @@ class CheckHabilitationControllerIT {
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(false));
+                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest(
@@ -186,7 +183,7 @@ class CheckHabilitationControllerIT {
     )
     @MethodSource("paperPermissionCases")
     void shouldCheckPaperPermission(String id,
-                                    boolean expectedHabilitated,
+                                    HttpStatus statusExpected,
                                     String description) throws Exception {
 
         // Given
@@ -203,25 +200,24 @@ class CheckHabilitationControllerIT {
                         .param("permission", Permission.INTERROGATION_PAPER_DATA_EDIT.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(expectedHabilitated));
+                .andExpect(status().is(statusExpected.value()));
     }
 
     private static Stream<Arguments> paperPermissionCases() {
         return Stream.of(
                 Arguments.of(
                         "bbbbbbbb-bbbb-bbbb-bbbb-000000000003",
-                        false,
+                        HttpStatus.FORBIDDEN,
                         "Paper source allowed but user is not authorized"
                 ),
                 Arguments.of(
                         "bbbbbbbb-bbbb-bbbb-bbbb-000000000000",
-                        false,
+                        HttpStatus.FORBIDDEN,
                         "Questioning event is forbidden"
                 ),
                 Arguments.of(
                         "bbbbbbbb-bbbb-bbbb-bbbb-000000000002",
-                        false,
+                        HttpStatus.FORBIDDEN,
                         "Source is not paper-based"
                 )
         );
