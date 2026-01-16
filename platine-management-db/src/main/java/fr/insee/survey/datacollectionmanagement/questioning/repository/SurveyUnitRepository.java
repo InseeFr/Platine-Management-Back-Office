@@ -119,8 +119,7 @@ public interface SurveyUnitRepository extends JpaRepository<SurveyUnit, String> 
     List<SurveyUnit> findAllByIdSuIn(Collection<String> ids);
 
     @Query(value = """
-    SELECT distinct
-           q.survey_unit_id_su as surveyUnitIdSu,
+    SELECT q.survey_unit_id_su as surveyUnitIdSu,
            p.campaign_id        as campaignId
     FROM partitioning p
     JOIN questioning q ON q.id_partitioning = p.id

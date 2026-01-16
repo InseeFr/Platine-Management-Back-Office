@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.FluentQuery;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class QuestioningRepositoryStub implements QuestioningRepository {
 
@@ -22,6 +23,9 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
 
     @Setter
     boolean tooManyValuesException = false;
+
+    @Setter
+    Map<String, String> campaignByPartitioningId = new HashMap<>();
 
     @Override
     public Set<Questioning> findByIdPartitioning(String idPartitioning) {
@@ -91,11 +95,14 @@ public class QuestioningRepositoryStub implements QuestioningRepository {
     }
 
     @Override
-    public Set<Questioning> findBySurveyUnitIdSuIn(Set<String> surveyUnitIds) {
-        if(tooManyValuesException){
+    public Set<Questioning> findBySurveyUnitIdSuInAndCampaignIdAndOpen(Set<String> surveyUnitIds, String campaignId) {
+        if (tooManyValuesException) {
             throw new TooManyValuesException(surveyUnitIds.stream().findFirst().get());
         }
-        return new HashSet<>(questionings);
+        return questionings.stream()
+                .filter(q -> surveyUnitIds.contains(q.getSurveyUnit().getIdSu()))
+                .filter(q -> campaignId.equals(campaignByPartitioningId.get(q.getIdPartitioning())))
+                .collect(Collectors.toSet());
     }
 
     @Override
