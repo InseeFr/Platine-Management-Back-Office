@@ -202,7 +202,7 @@ public class QuestioningServiceImpl implements QuestioningService {
         String paperModeUrl = questioningUrlComponent.buildPaperUrl(questioning);
 
         boolean canExportDataPdf = canExportQuestioningDataToPdf(questioning.getId());
-        String exportDataPdfUrl =questioningUrlComponent.buildExportDataPdfUrl(questioning);
+        String exportDataPdfUrl = questioningUrlComponent.buildExportDataPdfUrl(questioning);
 
 
         return new QuestioningDetailsDtoBuilder()
@@ -213,7 +213,7 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .events(questioningEventsDto, questioning.getHighestEventType(), questioning.getHighestEventDate(), validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
-                .readOnlyUrl(readOnlyUrl)
+                .readOnlyUrl(canExportDataPdf, readOnlyUrl)
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
                 .paperModeUrl(canWriteInPaperEnvironment, paperModeUrl)
