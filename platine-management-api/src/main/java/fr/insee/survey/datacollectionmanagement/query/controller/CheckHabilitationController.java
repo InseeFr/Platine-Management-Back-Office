@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,7 +60,8 @@ public class CheckHabilitationController {
 
         // same as role == interviewer
         if (StringUtils.isBlank(role)) {
-            return checkPermission(questioningId, Permission.INTERROGATION_DATA_EDIT, authentication);
+            boolean habilitated = permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT);
+            return new HabilitationDto(habilitated);
         }
 
         Permission permissionToCheck = switch (role) {
@@ -69,20 +71,22 @@ public class CheckHabilitationController {
             default -> throw new IllegalArgumentException("Permission does not exist");
         };
 
-        return checkPermission(questioningId, permissionToCheck, authentication);
+        boolean habilitated = permissionEvaluatorHandler.hasPermission(authentication, questioningId, permissionToCheck);
+        return new HabilitationDto(habilitated);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(path = UrlConstants.API_CHECK_PERMISSION, produces = MediaType.APPLICATION_JSON_VALUE)
-    public HabilitationDto checkPermission(
+    public ResponseEntity<Void> checkPermission(
             @RequestParam(name = "id", required = false) UUID questioningId,
             @RequestParam(name = "permission") Permission permission,
             @CurrentSecurityContext(expression = "authentication") Authentication authentication) {
 
         log.info("GET permission {} for questioning {}", permission.name(), questioningId);
-
-        boolean habilitated = permissionEvaluatorHandler.hasPermission(authentication, questioningId, permission);
-        return new HabilitationDto(habilitated);
+        if(permissionEvaluatorHandler.hasPermission(authentication, questioningId, permission)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }
