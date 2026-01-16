@@ -6,7 +6,6 @@ import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingExcep
 import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
-import fr.insee.survey.datacollectionmanagement.query.dto.SuCampaignViewImpl;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -20,7 +19,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.component.Ex
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningRepositoryStub;
-import fr.insee.survey.datacollectionmanagement.questioning.service.stub.SurveyUnitRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,19 +49,15 @@ class QuestioningEventServiceImplTest {
 
     private QuestioningEventServiceImpl questioningEventService;
 
-    private SurveyUnitRepositoryStub surveyUnitRepository;
-
     @BeforeEach
     void setUp() {
         questioningEventRepository = new QuestioningEventRepositoryStub();
         questioningRepository = new QuestioningRepositoryStub();
-        surveyUnitRepository = new SurveyUnitRepositoryStub();
         InterrogationEventComparator interrogationEventComparator = new InterrogationEventComparator(new InterrogationEventOrderRepositoryStub());
         questioningEventService = new QuestioningEventServiceImpl(
                 null,
                 questioningEventRepository,
                 questioningRepository,
-                surveyUnitRepository,
                 new ModelMapper(),
                 interrogationEventComparator,
                 new ExpertEventComponent(),
@@ -534,6 +528,8 @@ class QuestioningEventServiceImplTest {
         // GIVEN
         String csvContent = """
                 ID_UNITE_ENQUETEE
+                
+                   
                 456
                 """;
         Questioning questioning = new Questioning();
@@ -543,9 +539,7 @@ class QuestioningEventServiceImplTest {
         questioning.setIdPartitioning("123");
         questioning.setSurveyUnit(surveyUnit);
         questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
-        surveyUnitRepository.setSuCampaignView(Set.of(
-                new SuCampaignViewImpl("456",  "TEST_CAMPAIGN")
-        ));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "TEST_CAMPAIGN"));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -566,9 +560,6 @@ class QuestioningEventServiceImplTest {
             ID_UNITE_ENQUETEE
             123456789
             """;
-        surveyUnitRepository.setSuCampaignView(Set.of(
-                new SuCampaignViewImpl("123456789", "CAMP_A")
-        ));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -623,12 +614,10 @@ class QuestioningEventServiceImplTest {
         SurveyUnit surveyUnitBis = new SurveyUnit();
         surveyUnitBis.setIdSu("456");
         questioningBis.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd21"));
-        questioningBis.setIdPartitioning("789");
+        questioningBis.setIdPartitioning("123");
         questioningBis.setSurveyUnit(surveyUnitBis);
         questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning, questioningBis)));
-        surveyUnitRepository.setSuCampaignView(Set.of(
-                new SuCampaignViewImpl("456",  "TEST_CAMPAIGN")
-        ));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "TEST_CAMPAIGN"));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
@@ -675,9 +664,7 @@ class QuestioningEventServiceImplTest {
         questioning.setIdPartitioning("123");
         questioning.setSurveyUnit(surveyUnit);
         questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
-        surveyUnitRepository.setSuCampaignView(Set.of(
-                new SuCampaignViewImpl("789",  "TEST_CAMPAIGN")
-        ));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "OTHER_CAMPAIGN"));
 
         MultipartFile file = new MockMultipartFile(
                 "file",
