@@ -279,9 +279,9 @@ class QuestioningServiceImplTest {
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
-    @DisplayName("Should return RECEIVED when validated/receivedPaper event exists before closing date")
+    @DisplayName("Should return RECEIVED when validated event exists before closing date")
     @ParameterizedTest
-    @ValueSource(strings={"VALINT","RECUPAP", "PARTIELPAP"})
+    @ValueSource(strings={"VALINT","VALPAP"})
     void getQuestioningStatusTest4(String typeName) {
         partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
         partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
@@ -293,6 +293,22 @@ class QuestioningServiceImplTest {
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
+    }
+
+    @DisplayName("Should return NOT_RECEIVED when partial receivedPaper event exists before closing date")
+    @ParameterizedTest
+    @ValueSource(strings={"RECUPAP","PARTIELPAP"})
+    void getQuestioningStatusTest5(String typeName) {
+        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
+        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(typeName);
+        events.add(questioningEvent);
+        questioningEventService.setQuestioningEvents(events);
+
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
     @DisplayName("Should return NOT_STARTED when interrogation not opened by user but accessible before closing date")
