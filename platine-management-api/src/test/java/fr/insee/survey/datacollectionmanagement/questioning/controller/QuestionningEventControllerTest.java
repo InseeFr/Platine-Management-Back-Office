@@ -285,7 +285,7 @@ class QuestionningEventControllerTest {
                 )
                 .andExpect(status().isConflict())
                 .andExpect(status().is(409))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Mapping for ID_UNITE_ENQUETEE not found, expected one of [ID_UNITE_ENQUETEEE]")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("The column name [ID_UNITE_ENQUETEEE] is incorrect")));
     }
 
     @Test
@@ -312,7 +312,7 @@ class QuestionningEventControllerTest {
                 )
                 .andExpect(status().isConflict())
                 .andExpect(status().is(409))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("No value of ID_UNITE_ENQUETEE identifier")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("The column name [ID_UNITE_ENQUETEEE] is incorrect")));
     }
 
     @Test
