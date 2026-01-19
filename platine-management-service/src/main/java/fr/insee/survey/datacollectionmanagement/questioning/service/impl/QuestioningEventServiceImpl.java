@@ -276,12 +276,14 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
             CSVParser csvParser = format.parse(reader)) {
             Set<String> surveyUnitIds = new HashSet<>();
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            if (headerMap == null || !headerMap.containsKey(SURVEY_UNIT_ID)) {
-                Set<String> headers = headerMap == null ? Collections.emptySet() : headerMap.keySet();
+            Set<String> headers = headerMap == null ? Collections.emptySet() : headerMap.keySet();
+
+            if (!headers.contains(SURVEY_UNIT_ID)) {
                 throw new IllegalArgumentException(
                         String.format("The column name %s is incorrect", headers)
                 );
             }
+
             for (CSVRecord listSu : csvParser) {
                 String surveyUnitId = listSu.get(SURVEY_UNIT_ID);
                 if (surveyUnitId == null || surveyUnitId.isBlank()) {
