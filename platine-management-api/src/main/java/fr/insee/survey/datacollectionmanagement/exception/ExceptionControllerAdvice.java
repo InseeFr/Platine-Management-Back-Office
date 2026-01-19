@@ -265,4 +265,18 @@ public class ExceptionControllerAdvice {
         log.error(e.getMessage(), e);
         return processException(e, HttpStatus.CONFLICT, request);
     }
+
+    @ExceptionHandler(InterrogationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ApiError> interrogationNotFoundException(InterrogationNotFoundException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(TooManyInterrogationsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> tooManyInterrogationsException(TooManyInterrogationsException e, WebRequest request) {
+        log.error(e.getMessage(), e);
+        return processException(e, HttpStatus.BAD_REQUEST, request);
+    }
 }

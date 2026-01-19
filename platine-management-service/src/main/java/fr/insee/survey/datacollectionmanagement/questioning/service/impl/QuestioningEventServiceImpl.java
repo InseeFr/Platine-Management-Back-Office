@@ -1,13 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingException;
-import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.exception.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.LastQuestioningEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
@@ -245,7 +241,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws NotFoundException, TooManyValuesException{
+    public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws InterrogationNotFoundException, TooManyInterrogationsException{
         final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
         Date nowDate = new Date();
 
@@ -279,6 +275,13 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
             CSVParser csvParser = format.parse(reader)) {
             Set<String> surveyUnitIds = new HashSet<>();
+            Map<String, Integer> headerMap = csvParser.getHeaderMap();
+            if (headerMap == null || !headerMap.containsKey(SURVEY_UNIT_ID)) {
+                Set<String> headers = headerMap == null ? Collections.emptySet() : headerMap.keySet();
+                throw new IllegalArgumentException(
+                        String.format("The column name %s is incorrect", headers)
+                );
+            }
             for (CSVRecord listSu : csvParser) {
                 String surveyUnitId = listSu.get(SURVEY_UNIT_ID);
                 if (surveyUnitId == null || surveyUnitId.isBlank()) {
@@ -305,17 +308,17 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private void validateSuInQuestionings(
             Map<String, List<Questioning>> questionningBySu,
             Set<String> surveyUnitIds
-    ) throws NotFoundException, TooManyValuesException {
+    ) throws InterrogationNotFoundException, TooManyInterrogationsException {
 
         for (String su : surveyUnitIds) {
             List<Questioning> list = questionningBySu.get(su);
 
             if (list == null || list.isEmpty()) {
-                throw new NotFoundException(su);
+                throw new InterrogationNotFoundException(su);
             }
 
             if (list.size() > 1) {
-                throw new TooManyValuesException(su);
+                throw new TooManyInterrogationsException(su);
             }
         }
     }
