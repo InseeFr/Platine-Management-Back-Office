@@ -237,12 +237,11 @@ public class QuestioningServiceImpl implements QuestioningService {
         }
 
         boolean validated = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.VALIDATED_EVENTS);
-        boolean receivedPaperEvents = questioningEventService.containsTypeQuestioningEvents(events, List.of(TypeQuestioningEvent.RECUPAP, TypeQuestioningEvent.PARTIELPAP));
         boolean opened = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.OPENED_EVENTS);
         boolean started = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.STARTED_EVENTS);
 
 
-        if (validated || receivedPaperEvents) {
+        if (validated) {
             return QuestionnaireStatusTypeEnum.RECEIVED;
         }
         if (started) {
