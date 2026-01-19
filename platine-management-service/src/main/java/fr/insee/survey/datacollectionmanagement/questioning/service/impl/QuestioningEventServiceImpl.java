@@ -314,15 +314,8 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
                 throw new NotFoundException(su);
             }
 
-            long distinctPartitionings = list.stream()
-                    .map(Questioning::getIdPartitioning)
-                    .distinct()
-                    .count();
-
-            if (distinctPartitionings != list.size()) {
-                throw new TooManyValuesException(
-                        su + " (duplicate idPartitioning)"
-                );
+            if (list.size() > 1) {
+                throw new TooManyValuesException(su);
             }
         }
     }
