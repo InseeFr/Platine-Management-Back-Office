@@ -2,10 +2,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.exception.CsvFileProcessingException;
-import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.exception.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
@@ -570,7 +567,7 @@ class QuestioningEventServiceImplTest {
 
         // WHEN & THEN
         assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
-                .isInstanceOf(NotFoundException.class)
+                .isInstanceOf(InterrogationNotFoundException.class)
                 .hasMessageStartingWith("123456789");
     }
 
@@ -628,7 +625,7 @@ class QuestioningEventServiceImplTest {
 
         // WHEN / THEN
         assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
-                .isInstanceOf(TooManyValuesException.class)
+                .isInstanceOf(TooManyInterrogationsException.class)
                 .hasMessageContaining("456"); // The duplicated SU id
     }
 
@@ -675,7 +672,7 @@ class QuestioningEventServiceImplTest {
 
         // WHEN & THEN
         assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
-                .isInstanceOf(NotFoundException.class)
+                .isInstanceOf(InterrogationNotFoundException.class)
                 .hasMessageStartingWith("456");
     }
 
