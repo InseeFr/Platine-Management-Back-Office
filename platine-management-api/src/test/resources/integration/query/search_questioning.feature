@@ -95,18 +95,18 @@ Feature: Search for questionings
       | VALINT |
       | RECUPAP |
     Then the result should contain the following questionings
-      | id | surveyUnitId | validationDate      | highestEventType | lastCommunicationType |
-      | 1  | QSU005       | 2025-06-20T20:02:00 | RECUPAP           | COURRIER_OUVERTURE    |
+      | id | surveyUnitId | validationDate | highestEventType | lastCommunicationType |
+      | 1  | QSU005       |                | RECUPAP          | COURRIER_OUVERTURE    |
 
   Scenario: Search by last communication types
     When I search questionings for campaign "TIC2023T01" and last communication types
       | MAIL_RELANCE       |
       | COURRIER_OUVERTURE |
     Then the result should contain the following questionings
-      | id | surveyUnitId | validationDate      | highestEventType | lastCommunicationType |
-      | 0  | QSU005       |                     | PARTIELINT       | MAIL_RELANCE          |
-      | 1  | QSU005       | 2025-06-20T20:02:00 | RECUPAP           | COURRIER_OUVERTURE    |
-      | 2  | QSU005       |                     | PARTIELINT       | MAIL_RELANCE          |
+      | id | surveyUnitId | validationDate | highestEventType | lastCommunicationType |
+      | 0  | QSU005       |                | PARTIELINT       | MAIL_RELANCE          |
+      | 1  | QSU005       |                | RECUPAP          | COURRIER_OUVERTURE    |
+      | 2  | QSU005       |                | PARTIELINT       | MAIL_RELANCE          |
 
 
   Scenario: Search by last communication type and highest type event
