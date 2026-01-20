@@ -176,7 +176,7 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should return not fount exception")
+    @DisplayName("Should return not found exception")
     void notFoundQuestioning() throws Exception {
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
@@ -211,14 +211,14 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should return forbidden for automatic status even for admin role")
+    @DisplayName("Should delete questioning event with automatic status even for admin roles")
     void shouldReturnForbiddenForAutomaticStatus() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
                         .with(user("admin").roles("ADMIN"))
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNoContent());
 
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
     }
 
 

@@ -201,24 +201,25 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent) {
+    public void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId) {
 
         QuestioningEvent event = questioningEventRepository.findById(questioningEventId)
                 .orElseThrow(() -> new NotFoundException(String.format("QuestioningEvent %s not found", questioningEventId)));
 
-        if (StatusEvent.AUTOMATIC.equals(event.getStatus())) {
+        boolean isAdmin = userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole());
+
+        if (StatusEvent.AUTOMATIC.equals(event.getStatus()) && !isAdmin) {
             throw new ForbiddenAccessException(
                     String.format("Deletion of automatic event %s is forbidden", questioningEventId)
             );
         }
 
-        boolean isAdmin = userRoles.contains(AuthorityRoleEnum.ADMIN.securityRole());
         boolean isInternalUserAllowed = userRoles.contains(AuthorityRoleEnum.INTERNAL_USER.securityRole())
-                && TypeQuestioningEvent.MANUAL_EVENTS.contains(typeQuestioningEvent);
+                && StatusEvent.MANUAL.equals(event.getStatus());
 
         if (!isAdmin && !isInternalUserAllowed) {
             throw new ForbiddenAccessException(
-                    String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent)
+                    String.format("User role %s is not allowed to delete questioning event of status %s", userRoles, event.getStatus())
             );
         }
 
