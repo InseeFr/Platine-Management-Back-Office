@@ -1,9 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.contact.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.validation.ContactEventTypeValid;
 import lombok.Getter;
 import lombok.Setter;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Date;
 

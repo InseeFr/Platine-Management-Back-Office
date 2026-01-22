@@ -1,9 +1,9 @@
 package fr.insee.survey.datacollectionmanagement.questioning.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import lombok.Getter;
 import lombok.Setter;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Date;
 import java.util.UUID;

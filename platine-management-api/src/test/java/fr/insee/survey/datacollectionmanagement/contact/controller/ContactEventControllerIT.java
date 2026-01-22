@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,16 +43,19 @@ class ContactEventControllerIT {
     @Autowired
     private ContactService contactService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
     void getContactEventOk() throws Exception {
         String identifier = "CONT1";
         String json = createJsonContactEvent(identifier);
-        String response = this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier))
+        String response = this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -66,9 +69,9 @@ class ContactEventControllerIT {
     void getContactEventOkForSupportRole() throws Exception {
         String identifier = "CONT1";
         String json = createJsonContactEvent(identifier);
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.SUPPORT));
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier))
+                .perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier)
+                        .with(authentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.SUPPORT))))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -81,7 +84,8 @@ class ContactEventControllerIT {
     @Test
     void getContactEventNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier)
+                        .with(authentication(auth))).andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }

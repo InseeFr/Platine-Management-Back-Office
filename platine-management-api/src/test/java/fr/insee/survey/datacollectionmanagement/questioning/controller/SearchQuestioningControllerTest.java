@@ -1,22 +1,24 @@
 package fr.insee.survey.datacollectionmanagement.questioning.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.core.Authentication;
+import tools.jackson.databind.json.JsonMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,16 +42,19 @@ class SearchQuestioningControllerTest {
     QuestioningRepository questioningRepository;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
+
+    private Authentication auth;
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
     void testSearchWithoutParams() throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .with(authentication(auth))
                         .content("{}")
                         .param("page", "0")
                         .param("size", "20")
@@ -73,6 +78,7 @@ class SearchQuestioningControllerTest {
                 }
                 """;
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .with(authentication(auth))
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -86,6 +92,7 @@ class SearchQuestioningControllerTest {
     @Test
     void testPaginationAndSorting() throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .with(authentication(auth))
                         .content("{}")
                         .param("page", "1")
                         .param("size", "5")
@@ -102,6 +109,7 @@ class SearchQuestioningControllerTest {
     @CsvSource({"where 1=1,ASC", "status,ASC"})
     void testSortParamsForbiddenThenNoSort(String field, String direction) throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .with(authentication(auth))
                         .content("{}")
                         .param("sort", String.format("%s,%s", field, direction))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,6 +121,7 @@ class SearchQuestioningControllerTest {
     @Test
     void testSearchWithResultBiggerThanPageSize() throws Exception {
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_SEARCH)
+                        .with(authentication(auth))
                         .content("{}")
                         .param("page", "0")
                         .param("size", "5")
@@ -131,10 +140,11 @@ class SearchQuestioningControllerTest {
         Questioning existingQuestioning = questioningRepository.findAll().getFirst();
         boolean newStatus = !existingQuestioning.isOnProbation();
         QuestioningProbationDto dto = new QuestioningProbationDto(existingQuestioning.getId(), newStatus);
-        String jsonContent = objectMapper.writeValueAsString(dto);
+        String jsonContent = jsonMapper.writeValueAsString(dto);
 
         // When
         mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .with(authentication(auth))
                         .content(jsonContent)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -150,10 +160,11 @@ class SearchQuestioningControllerTest {
         // Given
         UUID nonExistentId = UUID.randomUUID();
         QuestioningProbationDto dto = new QuestioningProbationDto(nonExistentId, true);
-        String jsonContent = objectMapper.writeValueAsString(dto);
+        String jsonContent = jsonMapper.writeValueAsString(dto);
 
         // When
         mockMvc.perform(put(UrlConstants.API_QUESTIONINGS_PROBATION)
+                        .with(authentication(auth))
                         .content(jsonContent)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

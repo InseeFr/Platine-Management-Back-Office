@@ -13,11 +13,11 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,23 +47,30 @@ class QuestionningAccreditationControllerTest {
     @Autowired
     QuestioningService questioningService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
     void getQuestioningAccreditationOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         String json = createJsonQuestioningAcreditation();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, questioning.getId())).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, questioning.getId())
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 
     @Test
     void getQuestioningAccreditationNotFound() throws Exception {
         UUID identifier = UUID.randomUUID();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -77,6 +85,7 @@ class QuestionningAccreditationControllerTest {
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
                         post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                                .with(authentication(auth))
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -92,6 +101,7 @@ class QuestionningAccreditationControllerTest {
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
                         post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                                .with(authentication(auth))
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -107,6 +117,7 @@ class QuestionningAccreditationControllerTest {
         String jsonAccreditation = createJson(accreditation);
         mockMvc.perform(
                         post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                                .with(authentication(auth))
                                 .content(jsonAccreditation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonAccreditation, false));
@@ -123,6 +134,7 @@ class QuestionningAccreditationControllerTest {
         String jsonAccreditationUpdate = createJson(accreditation);
         mockMvc.perform(
                         post(UrlConstants.API_QUESTIONINGS_ID_QUESTIONING_ACCREDITATIONS, idQuestioning)
+                                .with(authentication(auth))
                                 .content(jsonAccreditationUpdate).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonAccreditationUpdate, false));

@@ -1,10 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.user.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.user.validation.UserEventTypeValid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Date;
 

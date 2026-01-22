@@ -1,11 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.ldap.impl;
 
+import fr.insee.survey.datacollectionmanagement.configuration.LdapApiProperties;
 import fr.insee.survey.datacollectionmanagement.contact.dto.LdapAccreditationDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.LdapContactInputDto;
 import fr.insee.survey.datacollectionmanagement.contact.dto.LdapContactOutputDto;
 import fr.insee.survey.datacollectionmanagement.ldap.LdapRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,36 +25,26 @@ public class LdapRepositoryImpl implements LdapRepository {
     public static final String STORAGES_PATH = PATH_SLASH + "storages";
     public static final String CONTACT_PATH = PATH_SLASH + "users";
 
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.realm}")
-    String realm;
-
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.storage}")
-    String storage;
-
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.application}")
-    String accreditationApplication;
-
-    @Value("${fr.insee.datacollectionmanagement.ldap.api.accreditation.role}")
-    String accreditationRole;
-
+    private final LdapApiProperties properties;
 
     @Override
     public ResponseEntity<LdapContactOutputDto> createContact()
     {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("realm", realm);
-        headers.set("storage", storage);
+        headers.set("realm", properties.realm());
+        headers.set("storage", properties.storage());
         headers.set("X-SUGOI-ASYNCHRONOUS-ALLOWED-REQUEST", "false");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         LdapAccreditationDto ldapAccreditationDto = new LdapAccreditationDto();
-        ldapAccreditationDto.setApplication(accreditationApplication);
-        ldapAccreditationDto.setRole(accreditationRole);
+        ldapAccreditationDto.setApplication(properties.accreditationApplication());
+        ldapAccreditationDto.setRole(properties.accreditationRole());
         LdapContactInputDto ldapContact = new LdapContactInputDto();
         ldapContact.setHabilitations(List.of(ldapAccreditationDto));
 
-        String path = REALMS_PATH + PATH_SLASH + realm + STORAGES_PATH + PATH_SLASH + storage + CONTACT_PATH;
+        String path = REALMS_PATH + PATH_SLASH + properties.realm() +
+                STORAGES_PATH + PATH_SLASH + properties.storage() + CONTACT_PATH;
 
         return restClient.post()
                 .uri(path)

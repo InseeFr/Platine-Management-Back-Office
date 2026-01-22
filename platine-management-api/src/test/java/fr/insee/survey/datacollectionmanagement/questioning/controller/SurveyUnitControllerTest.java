@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,10 +51,11 @@ class SurveyUnitControllerTest {
     @Autowired
     SurveyUnitRepository surveyUnitRepository;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
-                .getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
@@ -62,7 +64,8 @@ class SurveyUnitControllerTest {
         SurveyUnit surveyUnit = surveyUnitService.findbyId(identifier);
         String json = createJson(surveyUnit);
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier))
+                .perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -80,7 +83,8 @@ class SurveyUnitControllerTest {
 
         // when & then
         String jsonResult = this.mockMvc
-               .perform(get(UrlConstants.API_SURVEY_UNITS_ID_CAMPAIGNS, identifier))
+               .perform(get(UrlConstants.API_SURVEY_UNITS_ID_CAMPAIGNS, identifier)
+                       .with(authentication(auth)))
                .andDo(print())
                .andExpect(status().isOk())
                .andReturn()
@@ -98,7 +102,9 @@ class SurveyUnitControllerTest {
     @Test
     void getSurveyUnitNotFound() throws Exception {
         String identifier = "900000000";
-        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -110,7 +116,8 @@ class SurveyUnitControllerTest {
         jo.put("numberOfElements", surveyUnitRepository.count());
 
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_SURVEY_UNITS))
+                .perform(get(UrlConstants.API_SURVEY_UNITS)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -128,7 +135,9 @@ class SurveyUnitControllerTest {
         SurveyUnit surveyUnit = initSurveyUnit(identifier);
         String jsonSurveyUnit = createJson(surveyUnit);
         String response = mockMvc.perform(
-                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
+                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                                .with(authentication(auth))
+                                .content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -144,8 +153,11 @@ class SurveyUnitControllerTest {
         // update surveyUnit - status ok
         surveyUnit.setIdentificationName("identificationNameUpdate");
         String jsonSurveyUnitUpdate = createJson(surveyUnit);
-        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
-                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                        .with(authentication(auth))
+                        .content(jsonSurveyUnitUpdate)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -171,7 +183,9 @@ class SurveyUnitControllerTest {
         SurveyUnit surveyUnit = initSurveyUnitAddress(identifier);
         String jsonSurveyUnit = createJsonSurveyUnitAddress(surveyUnit);
         String response = mockMvc.perform(
-                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnit)
+                        put(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                                .with(authentication(auth))
+                                .content(jsonSurveyUnit)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -186,7 +200,9 @@ class SurveyUnitControllerTest {
         String newCityName = "cityUpdate";
         surveyUnit.getSurveyUnitAddress().setCityName(newCityName);
         String jsonSurveyUnitUpdate = createJsonSurveyUnitAddress(surveyUnit);
-        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier).content(jsonSurveyUnitUpdate)
+        response = mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, identifier)
+                        .with(authentication(auth))
+                        .content(jsonSurveyUnitUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -209,7 +225,9 @@ class SurveyUnitControllerTest {
         String otherIdentifier = "WRONG";
         SurveyUnit surveyUnit = initSurveyUnit(identifier);
         String jsonSurveyUnit = createJson(surveyUnit);
-        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, otherIdentifier).content(jsonSurveyUnit)
+        mockMvc.perform(put(UrlConstants.API_SURVEY_UNITS_ID, otherIdentifier)
+                        .with(authentication(auth))
+                        .content(jsonSurveyUnit)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and idSu don't match")));

@@ -1,6 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.user.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 import org.junit.jupiter.api.Test;
@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JsonWalletParserStrategyTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final JsonWalletParserStrategy parser = new JsonWalletParserStrategy(objectMapper);
+    private final JsonMapper jsonMapper = new JsonMapper();
+    private final JsonWalletParserStrategy parser = new JsonWalletParserStrategy(jsonMapper);
 
     @Test
     void supports_shouldReturnTrueForJson_andFalseOtherwise() {

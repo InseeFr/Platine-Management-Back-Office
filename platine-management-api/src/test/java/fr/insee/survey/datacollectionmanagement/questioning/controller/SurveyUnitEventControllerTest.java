@@ -13,15 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,9 +39,11 @@ class SurveyUnitEventControllerTest {
     @Autowired
     SurveyUnitEventService surveyUnitEventService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
@@ -57,6 +60,7 @@ class SurveyUnitEventControllerTest {
                 """;
 
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "11")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson)
                         .accept(MediaType.APPLICATION_JSON))
@@ -78,24 +82,28 @@ class SurveyUnitEventControllerTest {
 
         // when / then
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.format(jsonBody, "SOURCE12023T01", SurveyUnitEventType.CESSATION_IN_PROGRESS, SurveyUnitEventSource.ENTERPRISE, "1760368478660"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000001")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.format(jsonBody, "SOURCE22022T02", SurveyUnitEventType.RESTRUCTURING, SurveyUnitEventSource.OTHER_SOURCE, "1760368478662"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(String.format(jsonBody, "SOURCE12023T01", SurveyUnitEventType.TEMPORARY_INACTIVITY, SurveyUnitEventSource.SIRUS, "1760368478661"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         String jsonResult = mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -138,6 +146,7 @@ class SurveyUnitEventControllerTest {
 
         // when / then
         mockMvc.perform(post(UrlConstants.API_SURVEY_UNITS_ID_EVENTS, "100000000")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody)
                         .accept(MediaType.APPLICATION_JSON))

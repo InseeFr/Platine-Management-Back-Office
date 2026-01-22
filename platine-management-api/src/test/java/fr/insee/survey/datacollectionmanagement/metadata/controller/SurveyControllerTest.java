@@ -13,16 +13,17 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -44,9 +45,11 @@ class SurveyControllerTest {
     @Autowired
     SurveyRepository surveyRepository;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
     @Test
     void getSourcesOk() throws Exception {
@@ -54,7 +57,10 @@ class SurveyControllerTest {
         jo.put("totalElements", surveyRepository.count());
         jo.put("numberOfElements", surveyRepository.count());
 
-        this.mockMvc.perform(get(UrlConstants.API_SURVEYS)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEYS)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().json(jo.toString(), false));
 
     }
@@ -62,7 +68,9 @@ class SurveyControllerTest {
     @Test
     void getSurveyNotFound() throws Exception {
         String identifier = "SURVEYNOTFOUND";
-        this.mockMvc.perform(get(UrlConstants.API_SURVEYS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEYS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -76,7 +84,9 @@ class SurveyControllerTest {
         Survey survey = initSurvey(identifier);
         String jsonSurvey = createJson(survey, "SOURCE1");
         mockMvc.perform(
-                        put(UrlConstants.API_SURVEYS_ID, identifier).content(jsonSurvey)
+                        put(UrlConstants.API_SURVEYS_ID, identifier)
+                                .with(authentication(auth))
+                                .content(jsonSurvey)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(jsonSurvey.toString(), false));
@@ -90,7 +100,9 @@ class SurveyControllerTest {
         // update survey - status ok
         survey.setLongWording("Long wording update");
         String jsonSurveyUpdate = createJson(survey, "SOURCE1");
-        mockMvc.perform(put(UrlConstants.API_SURVEYS_ID, identifier).content(jsonSurveyUpdate)
+        mockMvc.perform(put(UrlConstants.API_SURVEYS_ID, identifier)
+                        .with(authentication(auth))
+                        .content(jsonSurveyUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(content().json(jsonSurveyUpdate.toString(), false));
         assertDoesNotThrow(() -> surveyService.findById(identifier));
@@ -100,13 +112,17 @@ class SurveyControllerTest {
         assertEquals(survey.getId(), surveyFoundAfterUpdate.getId());
 
         // delete survey
-        mockMvc.perform(delete(UrlConstants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_SURVEYS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         assertThrows(NotFoundException.class, () -> surveyService.findById(identifier));
 
         // delete survey not found
-        mockMvc.perform(delete(UrlConstants.API_SURVEYS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_SURVEYS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
@@ -117,9 +133,12 @@ class SurveyControllerTest {
         String otherIdentifier = "WRONG";
         Survey survey = initSurvey(identifier);
         String jsonSurvey = createJson(survey, "SOURCE1");
-        mockMvc.perform(put(UrlConstants.API_SURVEYS_ID, otherIdentifier).content(jsonSurvey)
+        mockMvc.perform(put(UrlConstants.API_SURVEYS_ID, otherIdentifier)
+                        .content(jsonSurvey)
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and idSurvey don't match")));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and idSurvey don't match")));
 
 
     }
@@ -152,7 +171,10 @@ class SurveyControllerTest {
         Survey survey = surveyService.findById(identifier);
 
         String json = createJson(survey, "SOURCE1");
-        this.mockMvc.perform(get(UrlConstants.API_SURVEYS_ID, identifier)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_SURVEYS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().json(json, false));
     }
 }

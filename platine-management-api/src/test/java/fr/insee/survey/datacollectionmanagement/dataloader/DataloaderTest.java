@@ -1,8 +1,8 @@
 package fr.insee.survey.datacollectionmanagement.dataloader;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.github.javafaker.Faker;
 import fr.insee.survey.datacollectionmanagement.contact.domain.*;
 import fr.insee.survey.datacollectionmanagement.contact.enums.ContactEventTypeEnum;
@@ -201,11 +201,11 @@ public class DataloaderTest {
         contactEvent.setContact(contact);
         String json = "{\"contact_identifier\":\"" + contact.getIdentifier() + "\",\"name\":\"" + contact.getLastName()
                 + "\"}";
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = new JsonMapper();
         try {
             JsonNode node = mapper.readTree(json);
             contactEvent.setPayload(node);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException _) {
             log.error("json error");
         }
         contactEventRepository.save(contactEvent);

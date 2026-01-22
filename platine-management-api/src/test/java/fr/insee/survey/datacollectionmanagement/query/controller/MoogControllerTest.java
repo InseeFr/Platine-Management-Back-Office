@@ -6,13 +6,14 @@ import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -26,9 +27,12 @@ class MoogControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     
@@ -36,8 +40,10 @@ class MoogControllerTest {
     void getMoogReadOnlyUrl() throws Exception {
         String idCampaign = "SOURCE12023T01";
         String surveyUnitId = "100000000";
-        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isOk())
-
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().string("http://localhost:8090/lunatic/normal/v3/review/interrogations/bbbbbbbb-bbbb-bbbb-bbbb-000000000000"));
     }
 
@@ -46,13 +52,19 @@ class MoogControllerTest {
     void getMoogReadOnlyUrlCampaignNotFound() throws Exception {
         String idCampaign = "CAMPAIGN";
         String surveyUnitId = "100000000";
-        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)
+                .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void getMoogReadOnlyUrlQuestioningNotFound() throws Exception {
         String idCampaign = "SOURCE12023T01";
         String surveyUnitId = "SU";
-        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)).andDo(print()).andExpect(status().isNotFound());
+        this.mockMvc.perform(get(UrlConstants.MOOG_API_READONLY_URL, idCampaign, surveyUnitId)
+                .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

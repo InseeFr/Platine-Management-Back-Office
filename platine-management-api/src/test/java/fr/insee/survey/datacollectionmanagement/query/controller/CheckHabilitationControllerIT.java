@@ -10,11 +10,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,8 +46,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldAllowAccessForAdmin() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
+                        .with(authentication(auth))
                         .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -57,8 +59,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldAllowAccessForRespondent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
+                        .with(authentication(auth))
                         .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -69,8 +72,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldNotAllowAccessForRespondent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
+                        .with(authentication(auth))
                         .param("id", String.valueOf(questioningId))
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -81,8 +85,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldAllowAccessForAdminV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
+                        .with(authentication(auth))
                         .param("id", "id")
                         .param("campaign", "campaign")
                         .accept(MediaType.APPLICATION_JSON)
@@ -94,8 +99,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldAllowAccessForRespondentV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
+                        .with(authentication(auth))
                         .param("id", "100000000")
                         .param("campaign", "SOURCE12023T01")
                         .accept(MediaType.APPLICATION_JSON)
@@ -107,8 +113,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldNotAllowAccessForRespondentV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT);
         mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
+                        .with(authentication(auth))
                         .param("id", "100000000")
                         .param("campaign", "SOURCE12023T01")
                         .accept(MediaType.APPLICATION_JSON)
@@ -120,8 +127,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldNotAllowPermissionAccessForRespondent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT);
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
+                        .with(authentication(auth))
                         .param("id", UUID.randomUUID().toString())
                         .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
@@ -138,15 +146,14 @@ class CheckHabilitationControllerIT {
     ) throws Exception {
 
         // given
-        SecurityContextHolder.getContext().setAuthentication(
-                AuthenticationUserProvider.getAuthenticatedUser(
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser(
                         "USER",
                         role
-                )
-        );
+                );
 
         // when / then
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
+                        .with(authentication(auth))
                         .param("permission", permission.name())
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -156,8 +163,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldAllowPermissionAccessForInternalUser() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER);
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
+                        .with(authentication(auth))
                         .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000002")
                         .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
@@ -168,8 +176,9 @@ class CheckHabilitationControllerIT {
 
     @Test
     void shouldNotAllowPermissionAccessForInternalUserWhenNoBusinessSource() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER));
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser("GESTIO1", AuthorityRoleEnum.INTERNAL_USER);
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
+                        .with(authentication(auth))
                         .param("id", "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
                         .param("permission", Permission.INTERROGATION_DATA_EXPORT.name())
                         .accept(MediaType.APPLICATION_JSON)
@@ -187,15 +196,14 @@ class CheckHabilitationControllerIT {
                                     String description) throws Exception {
 
         // Given
-        SecurityContextHolder.getContext().setAuthentication(
-                AuthenticationUserProvider.getAuthenticatedUser(
+        Authentication auth = AuthenticationUserProvider.getAuthenticatedUser(
                         "GESTIO1",
                         AuthorityRoleEnum.INTERNAL_USER
-                )
-        );
+                );
 
         // When / Then
         mockMvc.perform(get(UrlConstants.API_CHECK_PERMISSION)
+                        .with(authentication(auth))
                         .param("id", id)
                         .param("permission", Permission.INTERROGATION_PAPER_DATA_EDIT.name())
                         .accept(MediaType.APPLICATION_JSON)
