@@ -12,18 +12,18 @@ import fr.insee.survey.datacollectionmanagement.contact.repository.ContactEventR
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactRepository;
 import fr.insee.survey.datacollectionmanagement.contact.repository.ContactSourceRepository;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.*;
+import fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodicityEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.repository.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.*;
-import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserRoleTypeEnum;
-import fr.insee.survey.datacollectionmanagement.user.repository.UserRepository;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import fr.insee.survey.datacollectionmanagement.view.domain.View;
 import fr.insee.survey.datacollectionmanagement.view.repository.ViewRepository;
@@ -135,7 +135,7 @@ public class DataloaderTest {
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("7"), TypeQuestioningEvent.VALINT.toString(), 7));
             orderRepository
-                    .saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.VALPAP.toString(), 6));
+                    .saveAndFlush(new EventOrder(Long.parseLong("6"), TypeQuestioningEvent.RECUPAP.toString(), 6));
             orderRepository.saveAndFlush(new EventOrder(Long.parseLong("5"), TypeQuestioningEvent.HC.toString(), 5));
             orderRepository
                     .saveAndFlush(new EventOrder(Long.parseLong("4"), TypeQuestioningEvent.PARTIELINT.toString(), 4));
@@ -160,7 +160,7 @@ public class DataloaderTest {
             interrogationOrderRepository.saveAndFlush(
                     new InterrogationEventOrder(Long.parseLong("5"), TypeQuestioningEvent.REFUSAL, 3));
             interrogationOrderRepository
-                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.VALPAP, 2));
+                    .saveAndFlush(new InterrogationEventOrder(Long.parseLong("4"), TypeQuestioningEvent.RECUPAP, 2));
             interrogationOrderRepository.saveAndFlush(
                     new InterrogationEventOrder(Long.parseLong("3"), TypeQuestioningEvent.VALINT, 2));
             interrogationOrderRepository.saveAndFlush(
@@ -268,6 +268,8 @@ public class DataloaderTest {
                 source.setPeriodicity(PeriodicityEnum.T);
                 SourceTypeEnum type = sourceRepository.count() % 2 == 0 ? SourceTypeEnum.BUSINESS : SourceTypeEnum.HOUSEHOLD;
                 source.setType(type);
+                boolean paperInputFormEnabled = sourceRepository.count() % 2 == 0 ? true : false;
+                source.setPaperFormInputEnabled(paperInputFormEnabled);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();
                 setSourcesInsee.add(source);
@@ -304,6 +306,7 @@ public class DataloaderTest {
                         campaign.setId(sourceName + (year - j) + period);
                         campaign.setCampaignWording(
                                 "Campaign about " + sourceName + " in " + (year - j) + " and period " + period);
+                        campaign.setDataCollectionTarget(campaignRepository.count() % 2 == 0 ? DataCollectionEnum.LUNATIC_NORMAL : DataCollectionEnum.LUNATIC_SENSITIVE);
                         setCampaigns.add(campaign);
                         campaignRepository.save(campaign);
                         Set<Partitioning> setParts = new HashSet<>();
@@ -397,13 +400,17 @@ public class DataloaderTest {
 
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.INITLA, qu));
+                    TypeQuestioningEvent.INITLA, qu, StatusEvent.AUTOMATIC));
             qeList.add(new QuestioningEvent(
                     faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.PARTIELINT, qu));
-            qeList.add(new QuestioningEvent(
-                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
-                    TypeQuestioningEvent.VALINT, qu));
+                    TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.MANUAL));
+
+            if(questioningRepository.count() % 10 != 0) {
+                qeList.add(new QuestioningEvent(
+                        part.get().getClosingDate(),
+                        TypeQuestioningEvent.VALINT,
+                        qu, StatusEvent.MANUAL));
+            }
 
             qeList.stream().forEach(questEvent -> questioningEventRepository.save(questEvent));
 

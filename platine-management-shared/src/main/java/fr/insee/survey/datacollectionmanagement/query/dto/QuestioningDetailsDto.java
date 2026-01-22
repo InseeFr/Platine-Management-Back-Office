@@ -22,9 +22,10 @@ public class QuestioningDetailsDto {
     private String surveyUnitIdentificationName;
     private String surveyUnitLabel;
     private List<QuestioningEventDto> listEvents;
-    private Long lastEventId;
-    private String lastEvent;
-    private Date dateLastEvent;
+    private Long highestEventId;
+    private String highestEventType;
+    private String highestEventStatus;
+    private Date highestEventDate;
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunicationType;
     private boolean lastCommunicationReceipt;
@@ -35,4 +36,6 @@ public class QuestioningDetailsDto {
     private String readOnlyUrl;
     private Boolean isHousehold;
     private Boolean isOnProbation;
+    private String paperModeUrl;
+    private String exportDataPdfUrl;
 }

@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class QuestioningEventController {
                 .toList();
 
         Upload upload = questioningEvent.getUpload();
-        questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, questioningEvent.getId(), questioningEvent.getType());
+        questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(userRoles, questioningEvent.getId());
         if (upload != null && questioningEventService.countIdUploadInEvents(upload.getId()) == 0) {
             uploadService.delete(upload);
         }
@@ -153,4 +154,27 @@ public class QuestioningEventController {
         questioningEventService.postExpertEvent(id, expertEventDto);
     }
 
+    @Operation(summary = "Uploading of interrogation events from received paper questionnaires from file (CSV)")
+    @PostMapping(value = UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "File processed successfully",
+                    content = @Content(schema = @Schema(example = "{\"message\": \"File processed successfully\"}"))),
+            @ApiResponse(responseCode = "404", description = "Invalid file or business rule violation - NotFoundException",
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid file or data\"}"))),
+            @ApiResponse(responseCode = "400", description = "Invalid file or business rule violation - TooManyValuesException",
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid file or data\"}"))),
+            @ApiResponse(responseCode = "409", description = "Invalid file or business rule violation - Mapping for column name not found | No value of ID_UNITE_ENQUETEE identifier",
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid file or data\"}"))),
+            @ApiResponse(responseCode = "500", description = "Unexpected error",
+                    content = @Content(schema = @Schema(example = "{\"error\": \"An unexpected error occurred while processing the file.\"}")))
+    })
+    public void bulkUploadRecupapInterrogationEvents(
+            @PathVariable("campaignId") String campaignId,
+            @RequestPart("file") MultipartFile file)  {
+        log.info("Uploading RECUPAP events for campaign {}", campaignId);
+        questioningEventService.bulkUploadRecupapInterrogationEvents(campaignId, file);
+    }
 }

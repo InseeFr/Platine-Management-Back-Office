@@ -8,7 +8,9 @@ public enum TypeQuestioningEvent {
     PND,
     WASTE,
     PARTIELINT,
+    PARTIELPAP,
     HC,
+    RECUPAP,
     VALPAP,
     VALINT,
     REFUSAL,
@@ -20,7 +22,7 @@ public enum TypeQuestioningEvent {
 
     public static final List<TypeQuestioningEvent> STATE_EVENTS = List.of(
             VALINT,
-            VALPAP,
+            RECUPAP,
             REFUSAL,
             WASTE,
             HC,
@@ -30,7 +32,7 @@ public enum TypeQuestioningEvent {
 
     public static final List<TypeQuestioningEvent> FOLLOWUP_EVENTS = List.of(
             VALINT,
-            VALPAP,
+            RECUPAP,
             REFUSAL,
             WASTE,
             HC);
@@ -38,13 +40,6 @@ public enum TypeQuestioningEvent {
     public static final List<TypeQuestioningEvent> EXTRACT_EVENTS = List.of(
             VALINT,
             PARTIELINT);
-
-    public static final List<TypeQuestioningEvent> MY_QUESTIONINGS_EVENTS = List.of(
-            PARTIELINT,
-            HC,
-            VALPAP,
-            VALINT,
-            REFUSAL);
 
     public static final List<TypeQuestioningEvent> VALIDATED_EVENTS = List.of(
             VALINT,
@@ -65,7 +60,7 @@ public enum TypeQuestioningEvent {
             INITLA,
             PARTIELINT,
             VALINT,
-            VALPAP,
+            RECUPAP,
             REFUSAL,
             WASTE,
             HC,
@@ -73,7 +68,9 @@ public enum TypeQuestioningEvent {
             ONGEXPERT,
             VALID,
             ENDEXPERT,
-            NOQUAL
+            NOQUAL,
+            PARTIELPAP,
+            VALPAP
     );
 
     public static final List<TypeQuestioningEvent> EXPERT_EVENTS = List.of(

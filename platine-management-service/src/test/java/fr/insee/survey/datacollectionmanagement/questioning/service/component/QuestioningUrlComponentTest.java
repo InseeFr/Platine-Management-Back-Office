@@ -39,6 +39,8 @@ class QuestioningUrlComponentTest {
     private final String questionnaireApiSensitiveUrl = "https://questionnaire-api-sensitive";
     private final String xform1Url = "https://xform1";
     private final String xform2Url = "https://xform2";
+    private final String paperUiUrl = "http://paper-ui";
+    private final String exportDataPdfUrl = "http://export-data-pdf.fr";
 
     private final PeriodEnum period = PeriodEnum.T04;
     private final String surveyUnitId = "SURVEYID";
@@ -52,7 +54,7 @@ class QuestioningUrlComponentTest {
 
     @BeforeEach
     void setUp() {
-        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url);
+        component = new QuestioningUrlComponent(lunaticNormalUrl, lunaticSensitiveUrl, questionnaireApiUrl, questionnaireApiSensitiveUrl, xform1Url, xform2Url, paperUiUrl, exportDataPdfUrl);
     }
 
     private QuestioningUrlContext createQuestioningUrlContext(
@@ -198,6 +200,34 @@ class QuestioningUrlComponentTest {
         QuestioningUrlContext questioningUrlContext = createQuestioningUrlContext(DataCollectionEnum.XFORM2, null);
         String url = component.buildAccessUrl(UserRoles.REVIEWER, questioningUrlContext);
         String expected = "https://xform2/visualiser/sourceid-2024-T04/" + surveyUnitId;
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testPaperUrl() {
+        String url = component.buildPaperUrl(createQuestioning());
+        String expected = "http://paper-ui/interrogations/" + questioningId;
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testPaperUrlNoQuestioning() {
+        String url = component.buildPaperUrl(null);
+        String expected = "";
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testExportDataPdfUrl() {
+        String url = component.buildExportDataPdfUrl(createQuestioning());
+        String expected = "http://export-data-pdf.fr/api/interrogations/" + questioningId + "/responses/pdf";
+        assertThat(url).isEqualTo(expected);
+    }
+
+    @Test
+    void testExportDataPdfUrlNoQUestioning() {
+        String url = component.buildExportDataPdfUrl(null);
+        String expected = "";
         assertThat(url).isEqualTo(expected);
     }
 

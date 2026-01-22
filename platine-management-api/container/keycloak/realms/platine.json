@@ -218,6 +218,22 @@
       "realmRoles": ["admin"]
     },
     {
+      "username": "assist",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Alain",
+      "lastName": "Assistance",
+      "email": "alain@insee.fr",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "assist",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["assistance"]
+    },
+    {
       "username": "E2E_SUPPORT_1",
       "enabled": true,
       "emailVerified": true,

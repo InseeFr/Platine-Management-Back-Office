@@ -10,12 +10,12 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import fr.insee.survey.datacollectionmanagement.query.domain.ResultUpload;
 import fr.insee.survey.datacollectionmanagement.query.dto.MoogUploadQuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningCommunication;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommunicationInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.UploadRepository;
@@ -78,7 +78,9 @@ public class UploadServiceImpl implements UploadService {
                 Optional<Questioning> quest = questionings.stream().filter(q -> listIdParts.contains(q.getIdPartitioning())).findFirst();
 
                 qe.setUpload(up);
+                mmDto =renameValpaptoRecupap(mmDto);
                 qe.setType(TypeQuestioningEvent.valueOf(mmDto.getStatus()));
+                qe.setStatus(StatusEvent.MANUAL);
                 qe.setQuestioning(quest.get());
                 ObjectNode payload = JsonNodeFactory.instance.objectNode();
 
@@ -114,6 +116,14 @@ public class UploadServiceImpl implements UploadService {
         saveAndFlush(up);
 
         return result;
+    }
+
+    MoogUploadQuestioningEventDto renameValpaptoRecupap(MoogUploadQuestioningEventDto mmDto) {
+        //Service used by moog. Useful if you don't want to change moog and want to have both VALPAP and RECUPAP status in the csv sent.
+        if(mmDto.getStatus().equals(TypeQuestioningEvent.VALPAP.name())){
+            mmDto.setStatus(TypeQuestioningEvent.RECUPAP.name());
+        }
+        return mmDto;
     }
 
     @Override

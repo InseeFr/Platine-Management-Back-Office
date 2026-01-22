@@ -1,113 +1,167 @@
 package fr.insee.survey.datacollectionmanagement.query.controller;
 
-import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
-import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.Permission;
+import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.PermissionEvaluatorHandler;
+import fr.insee.survey.datacollectionmanagement.constants.UserRoles;
+import fr.insee.survey.datacollectionmanagement.query.dto.HabilitationDto;
 import fr.insee.survey.datacollectionmanagement.query.service.CheckHabilitationService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-@AutoConfigureMockMvc
-@SpringBootTest
-@ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@ExtendWith(MockitoExtension.class)
 class CheckHabilitationControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
+    @Mock
+    CheckHabilitationService checkHabilitationService;
 
-    @Autowired
-    private CheckHabilitationService checkHabilitationService;
+    @Mock
+    PermissionEvaluatorHandler permissionEvaluatorHandler;
 
-    private final UUID questioningId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-000000000001");
+    @Mock
+    Authentication authentication;
 
     @Test
-    void shouldAllowAccessForAdmin() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("id", String.valueOf(questioningId))
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+    @DisplayName("should use INTERROGATION_DATA_EDIT when role is null")
+    void shouldUseEditPermissionWhenRoleIsNull() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT))
+                .thenReturn(true);
+
+        HabilitationDto result = controller.checkHabilitation(null, questioningId, authentication);
+
+        assertThat(result.isHabilitated()).isTrue();
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT);
+        verifyNoInteractions(checkHabilitationService);
     }
 
     @Test
-    void shouldAllowAccessForRespondent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("id", String.valueOf(questioningId))
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+    @DisplayName("should use INTERROGATION_DATA_EDIT when role is blank")
+    void shouldUseEditPermissionWhenRoleIsBlank() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT))
+                .thenReturn(false);
+
+        HabilitationDto result = controller.checkHabilitation("   ", questioningId, authentication);
+
+        assertThat(result.isHabilitated()).isFalse();
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT);
+        verifyNoInteractions(checkHabilitationService);
     }
 
     @Test
-    void shouldNotAllowAccessForRespondent() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION)
-                        .param("id", String.valueOf(questioningId))
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(false));
+    @DisplayName("should map REVIEWER role to INTERROGATION_DATA_READ")
+    void shouldMapReviewerToReadPermission() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ))
+                .thenReturn(true);
+
+        HabilitationDto result = controller.checkHabilitation(UserRoles.REVIEWER, questioningId, authentication);
+
+        assertThat(result.isHabilitated()).isTrue();
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ);
+        verifyNoInteractions(checkHabilitationService);
     }
 
     @Test
-    void shouldAllowAccessForAdminV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("ADMIN", AuthorityRoleEnum.ADMIN));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
-                        .param("id", "id")
-                        .param("campaign", "campaign")
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+    @DisplayName("should map INTERVIEWER role to INTERROGATION_DATA_EDIT")
+    void shouldMapInterviewerToEditPermission() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT))
+                .thenReturn(true);
+
+        HabilitationDto result = controller.checkHabilitation(UserRoles.INTERVIEWER, questioningId, authentication);
+
+        assertThat(result.isHabilitated()).isTrue();
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_EDIT);
+        verifyNoInteractions(checkHabilitationService);
     }
 
     @Test
-    void shouldAllowAccessForRespondentV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("CONT1", AuthorityRoleEnum.RESPONDENT));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
-                        .param("id", "100000000")
-                        .param("campaign", "SOURCE12023T01")
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(true));
+    @DisplayName("should map EXPERT role to INTERROGATION_EXPERT_DATA_EDIT")
+    void shouldMapExpertToExpertEditPermission() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_EXPERT_DATA_EDIT))
+                .thenReturn(false);
+
+        HabilitationDto result = controller.checkHabilitation(UserRoles.EXPERT, questioningId, authentication);
+
+        assertThat(result.isHabilitated()).isFalse();
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_EXPERT_DATA_EDIT);
+        verifyNoInteractions(checkHabilitationService);
     }
 
     @Test
-    void shouldNotAllowAccessForRespondentV1() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("NOTHAB", AuthorityRoleEnum.RESPONDENT));
-        mockMvc.perform(get(UrlConstants.API_CHECK_HABILITATION_V1)
-                        .param("id", "100000000")
-                        .param("campaign", "SOURCE12023T01")
-                        .accept(MediaType.APPLICATION_JSON)
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.habilitated").value(false));
+    @DisplayName("should throw IllegalArgumentException for unsupported role")
+    void shouldThrowForUnsupportedRole() {
+        UUID questioningId = UUID.randomUUID();
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                        controller.checkHabilitation("UNKNOWN", questioningId, authentication)
+                ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Permission does not exist");
+
+        verifyNoInteractions(checkHabilitationService, permissionEvaluatorHandler);
     }
 
+    @Test
+    @DisplayName("checkPermission should return 200 when permissionEvaluatorHandler grants permission")
+    void checkPermission_shouldReturn200_whenGranted() {
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        UUID questioningId = UUID.randomUUID();
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ))
+                .thenReturn(true);
+
+        ResponseEntity<Void> response = controller.checkPermission(questioningId, Permission.INTERROGATION_DATA_READ, authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ);
+        verifyNoInteractions(checkHabilitationService);
+    }
+
+    @Test
+    @DisplayName("checkPermission should return 403 when permissionEvaluatorHandler denies permission")
+    void checkPermission_shouldReturn403_whenDenied() {
+        CheckHabilitationController controller =
+                new CheckHabilitationController(checkHabilitationService, permissionEvaluatorHandler);
+
+        UUID questioningId = UUID.randomUUID();
+        when(permissionEvaluatorHandler.hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ))
+                .thenReturn(false);
+
+        ResponseEntity<Void> response = controller.checkPermission(questioningId, Permission.INTERROGATION_DATA_READ, authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        verify(permissionEvaluatorHandler).hasPermission(authentication, questioningId, Permission.INTERROGATION_DATA_READ);
+        verifyNoInteractions(checkHabilitationService);
+    }
 }

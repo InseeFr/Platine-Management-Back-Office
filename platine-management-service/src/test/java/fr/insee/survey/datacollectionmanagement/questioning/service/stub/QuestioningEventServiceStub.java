@@ -8,6 +8,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +82,12 @@ public class QuestioningEventServiceStub implements QuestioningEventService {
     }
 
     @Override
-    public void deleteQuestioningEventIfSpecificRole(List<String> userRoles, Long questioningEventId, TypeQuestioningEvent typeQuestioningEvent) {
+    public void deleteQuestioningEventIfSpecificRoleAndManualStatus(List<String> userRoles, Long questioningEventId) {
+        //not used
+    }
+
+    @Override
+    public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) {
         //not used
     }
 }

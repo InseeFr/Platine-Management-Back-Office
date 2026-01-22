@@ -54,4 +54,14 @@ public class WebConfig implements WebMvcConfigurer {
     public String questionnaireApiSensitiveUrl() {
         return applicationConfig.getQuestionnaireApiSensitiveUrl();
     }
+
+    @Bean
+    public String paperUiUrl() {
+        return applicationConfig.getPaperUiUrl();
+    }
+
+    @Bean
+    public String exportDataPdfApiUrl() {
+        return applicationConfig.getExportDataPdfApiUrl();
+    }
 }

@@ -10,6 +10,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class ContactEventControllerTest {
+class ContactEventControllerIT {
 
     @Autowired
     MockMvc mockMvc;
@@ -50,8 +52,30 @@ class ContactEventControllerTest {
     void getContactEventOk() throws Exception {
         String identifier = "CONT1";
         String json = createJsonContactEvent(identifier);
-        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+        String response = this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
+    }
+
+    @Test
+    void getContactEventOkForSupportRole() throws Exception {
+        String identifier = "CONT1";
+        String json = createJsonContactEvent(identifier);
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.SUPPORT));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -84,61 +108,5 @@ class ContactEventControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
     }
 
-    @Test
-    void postNewContactEventOk() throws Exception {
-        String contactId = "CONT1";
-
-        JSONObject joPayload = new JSONObject();
-        joPayload.put("identifier", contactId);
-        joPayload.put("type", "firstConnect");
-        joPayload.put("date", "2024-01-01T00:00:00Z");
-
-        this.mockMvc.perform(
-                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .content(joPayload.toString()))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE));
-    }
-
-    @Test
-    void postNewContactEvent_NotMatchingIdentifiers_ShouldReturn403() throws Exception {
-        String contactId = "CONT1";
-        String payloadId = "OTHER";
-
-        JSONObject joPayload = new JSONObject();
-        joPayload.put("identifier", payloadId);
-        joPayload.put("type", "firstConnect");
-        joPayload.put("date", "2024-01-01T00:00:00Z");
-
-        this.mockMvc.perform(
-                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .content(joPayload.toString()))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void postNewContactEvent_ContactNotFound_ShouldReturn404() throws Exception {
-        String contactId = "DOES_NOT_EXIST";
-
-        JSONObject joPayload = new JSONObject();
-        joPayload.put("identifier", contactId);
-        joPayload.put("type", "firstConnect");
-        joPayload.put("date", "2024-01-01T00:00:00Z");
-
-        this.mockMvc.perform(
-                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                                .post(UrlConstants.API_CONTACT_CONTACTEVENTS)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .content(joPayload.toString()))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
-
+  
 }

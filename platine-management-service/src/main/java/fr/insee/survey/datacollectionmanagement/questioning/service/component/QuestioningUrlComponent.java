@@ -33,6 +33,10 @@ public class QuestioningUrlComponent {
 
     private final String xform2Url;
 
+    private final String paperUiUrl;
+
+    private final String exportDataPdfApiUrl;
+
     private static final String PATH_ASSISTANCE = "pathAssistance";
     private static final String SURVEY_UNIT_COMPOSITE_NAME = "surveyUnitCompositeName";
 
@@ -68,6 +72,19 @@ public class QuestioningUrlComponent {
                 ""
         );
         return buildAccessUrl(role, ctx);
+    }
+
+    /**
+     * Generates a export data api URL based on the provided parameters.
+     * @param questioning The questioning object.
+     * @return The generated access URL.
+     */
+    public String buildExportDataPdfUrl(Questioning questioning) {
+        if (questioning == null ) {
+            return "";
+        }
+        return String.format("%s/api/interrogations/%s/responses/pdf", exportDataPdfApiUrl, questioning.getId());
+
     }
 
     /**
@@ -220,4 +237,16 @@ public class QuestioningUrlComponent {
         return String.format("%s %s (%s)", StringUtils.capitalize(label), identificationName, surveyUnitId);
     }
 
+    /**
+     * Generates a paper URL based on the provided parameters.
+     * @param questioning The questioning object.
+     * @return The generated access URL.
+     */
+    public String buildPaperUrl(Questioning questioning) {
+        if (questioning == null ) {
+            return "";
+        }
+        return String.format("%s/interrogations/%s", paperUiUrl, questioning.getId());
+
+    }
 }

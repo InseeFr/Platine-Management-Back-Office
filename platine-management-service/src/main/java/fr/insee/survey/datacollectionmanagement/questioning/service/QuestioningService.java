@@ -41,7 +41,7 @@ public interface QuestioningService {
     /**
      * Delete questionings attached to one partitioning
      *
-     * @param partitioning
+     * @param partitioning the partitioning to search
      * @return nb questioning deleted
      */
     int deleteQuestioningsOfOnePartitioning(Partitioning partitioning);
@@ -61,4 +61,25 @@ public interface QuestioningService {
     void updatePriorities(List<InterrogationPriorityInputDto> priorities);
 
     Set<UUID> findMissingIds(Set<UUID> ids);
+
+    /**
+     * Indicates whether the given questioning data can be exported to pdf
+     * @param questioningId the questioning identifier
+     * @return {@code true} if the questioning data can be exported, {@code false} otherwise
+     */
+    boolean canExportQuestioningDataToPdf(UUID questioningId);
+
+    /**
+     * Indicates whether the given questioning data can be filled in a paper environment
+     * @param questioningId the questioning identifier
+     * @return {@code true} if the questioning data can be filled in paper environment, {@code false} otherwise
+     */
+    boolean canWriteInPaperEnvironment(UUID questioningId);
+
+    /**
+     * Indicates whether the given questioning data is validated in a paper environment
+     * @param questioningId the questioning identifier
+     * @return {@code true} if the questioning data is validated in paper environment, {@code false} otherwise
+     */
+    boolean isValidatedInPaperEnvironment(UUID questioningId);
 }

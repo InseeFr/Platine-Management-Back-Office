@@ -222,7 +222,7 @@ public class MoogRepository {
                     left join questioning_event on
                         B.id = questioning_event.questioning_id
                     where
-                        type in ('VALINT', 'VALPAP', 'HC', 'REFUSAL', 'WASTE'))
+                        type in ('VALINT', 'RECUPAP', 'HC', 'REFUSAL', 'WASTE'))
                 order by
                     id_su,
                     pnd desc

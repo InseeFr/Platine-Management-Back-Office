@@ -18,5 +18,16 @@ public class QuestioningEventDto {
     @QuestioningEventTypeValid
     private String type;
     private JsonNode payload;
+    private String status;
 
+    @Override
+    public String toString() {
+        return "QuestioningEventDto{" +
+                "id=" + id +
+                ", questioningId=" + questioningId +
+                ", eventDate=" + eventDate +
+                ", type='" + type + '\'' +
+                ", payload=" + payload +
+                '}';
+    }
 }

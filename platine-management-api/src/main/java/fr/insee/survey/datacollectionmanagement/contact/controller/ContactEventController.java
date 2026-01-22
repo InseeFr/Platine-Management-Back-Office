@@ -8,7 +8,6 @@ import fr.insee.survey.datacollectionmanagement.contact.dto.ContactEventDto;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactEventService;
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.exception.NotMatchException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,22 +37,6 @@ public class ContactEventController {
 
     private final ModelMapper modelMapper;
 
-    @Operation(summary = "Create a contact event")
-    @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
-    public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto,
-                                                               @CurrentSecurityContext(expression = "authentication.name") String contactId) {
-        if (!contactEventDto.getIdentifier().equalsIgnoreCase(contactId)) {
-            throw new NotMatchException("contactId and contact identifier don't match");
-        }
-        if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
-            throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
-        }
-        ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(newContactEvent);
-    }
-
     @Operation(summary = "Create a contactEvent (accessible only by user with PORTAL_PRIVILEGE)")
     @PostMapping(value = UrlConstants.API_CONTACT_CONTACTEVENTS_PORTAL_PRIVILEGE, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES)
@@ -80,7 +63,7 @@ public class ContactEventController {
 
     @Operation(summary = "Search for contactEvents by the contact id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID_CONTACTEVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
 
     public ResponseEntity<List<ContactEventDto>> getContactContactEvents(@PathVariable("id") String identifier) {
         Contact contact = contactService.findByIdentifier(identifier);

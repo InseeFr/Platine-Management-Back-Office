@@ -57,12 +57,19 @@ public class QuestioningDetailsDtoBuilder {
 
     public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestEventType, Date highestEventDate, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
-        if (highestEventType != null && highestEventDate != null) {
-            Long highestEventId = events.stream().filter( e -> e.getType().equals(highestEventType.name()) && e.getEventDate().equals(highestEventDate)).toList().getFirst().getId();
-            instance.setLastEventId(highestEventId);
-            instance.setLastEvent(String.valueOf(highestEventType));
-            instance.setDateLastEvent(highestEventDate);
+
+        if (highestEventType != null && highestEventDate != null && events != null) {
+            events.stream()
+                    .filter(e -> e.getType().equals(highestEventType.name()) && e.getEventDate().equals(highestEventDate))
+                    .findFirst()
+                    .ifPresent(event -> {
+                        instance.setHighestEventId(event.getId());
+                        instance.setHighestEventType(event.getType());
+                        instance.setHighestEventStatus(event.getStatus());
+                        instance.setHighestEventDate(event.getEventDate());
+                    });
         }
+
         if (validatedEvent != null) {
             instance.setValidationDate(validatedEvent.getEventDate());
         }
@@ -88,12 +95,25 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder readOnlyUrl(String readOnlyUrl) {
-        instance.setReadOnlyUrl(readOnlyUrl);
+    public QuestioningDetailsDtoBuilder readOnlyUrl(boolean canExportQuestioningDataToPdf, String readOnlyUrl) {
+        instance.setReadOnlyUrl(canExportQuestioningDataToPdf ? "" : readOnlyUrl);
         return this;
     }
+
+    public QuestioningDetailsDtoBuilder paperModeUrl(boolean canWritePaperMode, String paperModeUrl) {
+        instance.setPaperModeUrl(canWritePaperMode ? paperModeUrl : "");
+        return this;
+    }
+
+    public QuestioningDetailsDtoBuilder exportDataPdfUrl(boolean canExportQuestioningDataToPdf, String exportDataPdfUrl) {
+        instance.setExportDataPdfUrl(canExportQuestioningDataToPdf ? exportDataPdfUrl : "");
+        return this;
+    }
+
 
     public QuestioningDetailsDto build() {
         return instance;
     }
+
+
 }

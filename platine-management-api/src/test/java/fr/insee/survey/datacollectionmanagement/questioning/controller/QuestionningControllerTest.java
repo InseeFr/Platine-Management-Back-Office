@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,7 +46,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -76,7 +77,7 @@ class QuestionningControllerTest {
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
 
 
@@ -84,9 +85,13 @@ class QuestionningControllerTest {
     void getQuestioningsBySurveyUnit() throws Exception {
         String idSu = "100000000";
         String json = createJsonQuestionings(idSu);
-        this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())
+        String response = this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
 
     }
 

@@ -1,15 +1,16 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
-import fr.insee.survey.datacollectionmanagement.exception.ForbiddenAccessException;
-import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
-import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
+import fr.insee.survey.datacollectionmanagement.exception.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventInputDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.ExpertEventComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
@@ -22,7 +23,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,6 +35,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class QuestioningEventServiceImplTest {
 
@@ -50,7 +57,8 @@ class QuestioningEventServiceImplTest {
                 questioningRepository,
                 new ModelMapper(),
                 interrogationEventComparator,
-                new ExpertEventComponent());
+                new ExpertEventComponent(),
+                new ObjectMapper());
     }
 
     private Questioning createQuestioning() {
@@ -67,17 +75,18 @@ class QuestioningEventServiceImplTest {
         return validatedDto;
     }
 
-    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning, Clock clock) {
+    private QuestioningEvent createQuestioningEvent(long id, StatusEvent status, TypeQuestioningEvent type, Questioning questioning, Clock clock) {
         QuestioningEvent event = new QuestioningEvent();
         event.setId(id);
         event.setQuestioning(questioning);
+        event.setStatus(status);
         event.setType(type);
         event.setDate(Date.from(Instant.now(clock)));
         return event;
     }
 
-    private QuestioningEvent createQuestioningEvent(long id, TypeQuestioningEvent type, Questioning questioning) {
-        return createQuestioningEvent(id, type, questioning, Clock.systemUTC());
+    private QuestioningEvent createQuestioningEvent(long id, StatusEvent status, TypeQuestioningEvent type, Questioning questioning) {
+        return createQuestioningEvent(id, status, type, questioning, Clock.systemUTC());
     }
 
     @Test
@@ -94,8 +103,8 @@ class QuestioningEventServiceImplTest {
     void postValintQuestioningEventTest2() {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning);
-        QuestioningEvent event2 = createQuestioningEvent(2L, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent event = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(event);
         questioningEvents.add(event2);
@@ -116,7 +125,7 @@ class QuestioningEventServiceImplTest {
     void postValintQuestioningEventTest3() {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent event = createQuestioningEvent(1L, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
+        QuestioningEvent event = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.VALINT, questioning, Clock.systemUTC());
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(event);
         questioning.setQuestioningEvents(questioningEvents);
@@ -203,7 +212,7 @@ class QuestioningEventServiceImplTest {
                             int score, int scoreInit) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioning.setQuestioningEvents(questioningEvents);
@@ -211,7 +220,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(score, scoreInit, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -254,7 +263,7 @@ class QuestioningEventServiceImplTest {
                             TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioning.setQuestioningEvents(questioningEvents);
@@ -262,7 +271,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -285,8 +294,8 @@ class QuestioningEventServiceImplTest {
                                           TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
-        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioningEvents.add(init2);
@@ -295,7 +304,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -319,8 +328,8 @@ class QuestioningEventServiceImplTest {
                                           TypeQuestioningEvent postedType) {
         Questioning questioning = createQuestioning();
         UUID questioningId = questioning.getId();
-        QuestioningEvent init = createQuestioningEvent(1L, initialType, questioning);
-        QuestioningEvent init2 = createQuestioningEvent(2L, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
+        QuestioningEvent init = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, initialType, questioning);
+        QuestioningEvent init2 = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, initialType2, questioning, Clock.offset(Clock.systemUTC(), Duration.ofHours(1)));
         Set<QuestioningEvent> questioningEvents = new HashSet<>();
         questioningEvents.add(init);
         questioningEvents.add(init2);
@@ -329,7 +338,7 @@ class QuestioningEventServiceImplTest {
         questioningRepository.save(questioning);
         questioningEventRepository.saveAll(questioning.getQuestioningEvents());
 
-        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType));
+        questioningEventService.postExpertEvent(questioningId, new ExpertEventDto(0, 0, postedType, StatusEvent.AUTOMATIC));
 
         List<QuestioningEvent> events = questioningEventRepository
                 .findByQuestioningIdAndType(questioningId, postedType);
@@ -359,7 +368,7 @@ class QuestioningEventServiceImplTest {
     void saveQuestioningEvent() {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
-        QuestioningEvent questioningEvent = createQuestioningEvent(1L, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning);
         QuestioningEvent saved = questioningEventService.saveQuestioningEvent(questioningEvent);
         assertThat(saved).isNotNull();
         assertThat(saved.getQuestioning()).isNotNull();
@@ -373,8 +382,8 @@ class QuestioningEventServiceImplTest {
         Questioning questioning = createQuestioning();
         questioningRepository.save(questioning);
 
-        QuestioningEvent event = createQuestioningEvent(2L, TypeQuestioningEvent.INITLA, questioning);
-        QuestioningEvent event2 = createQuestioningEvent(3L, TypeQuestioningEvent.PARTIELINT, questioning);
+        QuestioningEvent event = createQuestioningEvent(2L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning);
+        QuestioningEvent event2 = createQuestioningEvent(3L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.PARTIELINT, questioning);
         questioningEventRepository.save(event);
         questioningEventRepository.save(event2);
 
@@ -450,65 +459,194 @@ class QuestioningEventServiceImplTest {
 
 
     @Test
-    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event type")
+    @DisplayName("canUserDeleteQuestioningEvent shouldn't throw a forbidden exception and delete questioning event when user has given rights for deleting a specific event status")
     void canUserDeleteQuestioningEventTest1() {
 
         Questioning questioning = createQuestioning();
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
-        {
-            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
-        }
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.REFUSED_EVENTS)
-        {
-            QuestioningEvent questioningEvent = createQuestioningEvent(1L, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(1L)).isPresent();
-            assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRole(List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole()), 1L, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(1L)).isNotPresent();
-        }
+        QuestioningEvent questioningEvent = createQuestioningEvent(1L, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning, Clock.systemUTC());
+        questioningEventRepository.save(questioningEvent);
+        assertThat(questioningEventRepository.findById(1L)).isPresent();
+        assertThatNoException().isThrownBy(() -> questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(List.of(AuthorityRoleEnum.ADMIN.securityRole()), 1L));
+        assertThat(questioningEventRepository.findById(1L)).isNotPresent();
+
     }
 
     @Test
-    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event type")
+    @DisplayName("canUserDeleteQuestioningEvent should throw forbidden exception and no delete questioning event when user doest not have given rights for deleting a specific event status")
     void canUserDeleteQuestioningEventTest2() {
 
         Questioning questioning = createQuestioning();
         List<String> managementExcludedRoles = AuthorityRoleEnum.MANAGEMENT_EXCLUDED_SECURITY_ROLES;
 
-        for (TypeQuestioningEvent typeQuestioningEvent : TypeQuestioningEvent.values())
-        {
-            long id = new Random().nextLong();
-            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(managementExcludedRoles,  id, typeQuestioningEvent))
-                    .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", managementExcludedRoles, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-        }
 
-        List<TypeQuestioningEvent> typeQuestioningEventsWithoutRefused = Arrays.stream(TypeQuestioningEvent.values())
-                .filter(p -> !TypeQuestioningEvent.REFUSED_EVENTS.contains(p))
-                .toList();
+        long id = new Random().nextLong();
+        QuestioningEvent questioningEvent = createQuestioningEvent(id, StatusEvent.AUTOMATIC, TypeQuestioningEvent.INITLA, questioning, Clock.systemUTC());
+        questioningEventRepository.save(questioningEvent);
+        assertThat(questioningEventRepository.findById(id)).isPresent();
+        assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRoleAndManualStatus(managementExcludedRoles,  id))
+                .isInstanceOf(ForbiddenAccessException.class)
+                .hasMessage(String.format("Deletion of automatic event %s is forbidden", id));
+        assertThat(questioningEventRepository.findById(id)).isPresent();
 
-        for (TypeQuestioningEvent typeQuestioningEvent : typeQuestioningEventsWithoutRefused)
-        {
-            long id = new Random().nextLong();
-            List<String> userRoles =  List.of(AuthorityRoleEnum.INTERNAL_USER.securityRole());
-            QuestioningEvent questioningEvent = createQuestioningEvent(id, typeQuestioningEvent, questioning, Clock.systemUTC());
-            questioningEventRepository.save(questioningEvent);
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-            assertThatThrownBy(() ->  questioningEventService.deleteQuestioningEventIfSpecificRole(userRoles, id, typeQuestioningEvent))
-                    .isInstanceOf(ForbiddenAccessException.class)
-                    .hasMessage(String.format("User role %s is not allowed to delete questioning event of type %s", userRoles, typeQuestioningEvent));
-            assertThat(questioningEventRepository.findById(id)).isPresent();
-        }
+    }
+
+    @Test
+    @DisplayName("import from csv should not throw when type is RECUPAP and SU belongs to campaign")
+    void importFromCsvShouldNotThrowWhenTypeIsVALPAP() {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                
+                   
+                456
+                """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "TEST_CAMPAIGN"));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        assertThatCode(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found in List<Questioning>")
+    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFoundInListQuestioning() {
+        // GIVEN
+        String csvContent = """
+            ID_UNITE_ENQUETEE
+            123456789
+            """;
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(InterrogationNotFoundException.class)
+                .hasMessageStartingWith("123456789");
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values in List<Questioning>")
+    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValuesInListQuestioning() {
+        // GIVEN : CSV with TYPE != VALPAP
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                123456789
+                """;
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+        questioningRepository.setTooManyValuesException(true);
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(TooManyValuesException.class)
+                .hasMessageContaining("123456789"); // Optionnel
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw TooManyValuesException when surveyUnitId too many values in List<Questioning> bis")
+    void importFromCsvShouldThrowTooManyValuesExceptionWhenSurveyUnitIdTooManyValuesInListQuestioningBis() {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                456
+                """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        Questioning questioningBis = new Questioning();
+        SurveyUnit surveyUnitBis = new SurveyUnit();
+        surveyUnitBis.setIdSu("456");
+        questioningBis.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd21"));
+        questioningBis.setIdPartitioning("123");
+        questioningBis.setSurveyUnit(surveyUnitBis);
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning, questioningBis)));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "TEST_CAMPAIGN"));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(TooManyInterrogationsException.class)
+                .hasMessageContaining("456"); // The duplicated SU id
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw IOException")
+    void importFromCsvShouldWrapIOExceptionIntoCsvFileProcessingException() throws IOException {
+        // GIVEN
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getInputStream()).thenThrow(new IOException("file.csv"));
+
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(CsvFileProcessingException.class)
+                .hasCauseInstanceOf(IOException.class)
+                .hasCauseExactlyInstanceOf(IOException.class)
+                .hasMessageContaining("file.csv")
+                .cause()
+                .hasMessage("file.csv");
+    }
+
+    @Test
+    @DisplayName("import from CSV should throw NotFoundException when surveyUnitId not found in Campaign")
+    void importFromCsvShouldThrowNotFoundExceptionWhenSurveyUnitIdNotFoundInCampaign() {
+        // GIVEN
+        String csvContent = """
+            ID_UNITE_ENQUETEE
+            456
+            """;
+        Questioning questioning = new Questioning();
+        SurveyUnit surveyUnit = new SurveyUnit();
+        surveyUnit.setIdSu("456");
+        questioning.setId(UUID.fromString("0c83fb82-0197-7197-8e8c-a6ce2c2dbd20"));
+        questioning.setIdPartitioning("123");
+        questioning.setSurveyUnit(surveyUnit);
+        questioningRepository.setQuestionings(new ArrayList<>(List.of(questioning)));
+        questioningRepository.setCampaignByPartitioningId(Map.of("123", "OTHER_CAMPAIGN"));
+
+        MultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN & THEN
+        assertThatThrownBy(() -> questioningEventService.bulkUploadRecupapInterrogationEvents("TEST_CAMPAIGN", file))
+                .isInstanceOf(InterrogationNotFoundException.class)
+                .hasMessageStartingWith("456");
     }
 
 }

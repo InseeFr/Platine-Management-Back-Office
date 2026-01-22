@@ -5,20 +5,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class AuthorizationProfileFactory {
 
     public AuthorizationProfile buildProfile(Set<AuthorityRoleEnum> applicationRoles, Set<String> sources) {
-        Set<Permission> permissions = new HashSet<>();
+        Set<Permission> permissions = Arrays.stream(Permission.values())
+                .filter(Permission::global)
+                .filter(permission ->
+                        permission.isAllowedForRoles(applicationRoles)
+                )
+                .collect(Collectors.toSet());
 
-        for(AuthorityRoleEnum applicationRole : applicationRoles) {
-            if (Objects.requireNonNull(applicationRole).equals(AuthorityRoleEnum.SUPPORT)) {
-                permissions.add(Permission.READ_SUPPORT);
-            }
-        }
-        return new AuthorizationProfile(applicationRoles, sources, permissions);
+        return new AuthorizationProfile(
+                applicationRoles,
+                sources,
+                permissions
+        );
     }
 }
 

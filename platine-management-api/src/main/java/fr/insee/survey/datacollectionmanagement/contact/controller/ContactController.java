@@ -56,28 +56,12 @@ public class ContactController {
 
     private final QuestioningAccreditationService questioningAccreditationService;
 
-    /**
-     * @deprecated
-     */
-    @Operation(summary = "Search for contacts, paginated")
-    @GetMapping(value = UrlConstants.API_CONTACTS_ALL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Deprecated(since = "2.6.0", forRemoval = true)
-    public ContactPage getContacts(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(defaultValue = "identifier") String sort) {
-        log.warn("DEPRECATED");
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        Page<Contact> pageC = contactService.findAll(pageable);
-        List<ContactDto> listC = pageC.stream().map(contactService::convertToDto).toList();
-        return new ContactPage(listC, pageable, pageC.getTotalElements());
-    }
 
     @Operation(summary = "Search for a contact by its id")
     @GetMapping(value = UrlConstants.API_CONTACTS_ID)
     @PreAuthorize(AuthorityPrivileges.HAS_PORTAL_PRIVILEGES +
             " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
-            " || hasPermission(null, 'READ_SUPPORT')")
+            " || hasPermission(null, 'SUPPORT_READ')")
     public ContactDetailsDto getContact(@PathVariable("id") String id) {
         String idContact = StringUtils.upperCase(id);
         return contactService.getContactDetails(idContact);
@@ -113,7 +97,7 @@ public class ContactController {
     @PutMapping(value = UrlConstants.API_CONTACTS_ID, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES +
             " || " + AuthorityPrivileges.HAS_RESPONDENT_LIMITED_PRIVILEGES +
-            " || hasPermission(null, 'READ_SUPPORT')")
+            " || hasPermission(null, 'SUPPORT_READ')")
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                   @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                   @RequestBody @Valid ContactDto contactDto,
@@ -176,7 +160,7 @@ public class ContactController {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(array = @ArraySchema(schema = @Schema(implementation = SearchContactDto.class)))),
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES  + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES  + " || hasPermission(null, 'SUPPORT_READ')")
     public Page<SearchContactDto> searchContacts(
             @RequestParam(required = true) String searchParam,
             @RequestParam(required = false) @Valid @ValidContactParam String searchType,

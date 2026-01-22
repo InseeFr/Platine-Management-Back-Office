@@ -18,15 +18,6 @@ import java.util.UUID;
 @Service
 public interface ContactService {
 
-    /**
-     * Find all contacts
-     *
-     * @param pageable pageable
-     * @return contact Page
-     */
-    Page<Contact> findAll(Pageable pageable);
-
-    List<Contact> findAll();
 
     /**
      * Find a contact by its identifier.

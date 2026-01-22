@@ -7,6 +7,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEv
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.SearchQuestioningParams;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunication;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningEventRepository;
@@ -85,7 +86,7 @@ public class SearchQuestioningSteps {
     UUID realId = questioningContext.getRealId(questioningId);
 
     Questioning questioning = questioningRepository.getReferenceById(realId);
-    QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning);
+    QuestioningEvent qe = new QuestioningEvent(date, TypeQuestioningEvent.valueOf(type), questioning, StatusEvent.AUTOMATIC);
     questioningEventRepository.save(qe);
     questioning.getQuestioningEvents().add(qe);
     questioningRepository.saveAndFlush(questioning);

@@ -17,7 +17,10 @@ import fr.insee.survey.datacollectionmanagement.query.enums.QuestionnaireStatusT
 import fr.insee.survey.datacollectionmanagement.questioning.InterrogationPriorityInputDto;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
 import fr.insee.survey.datacollectionmanagement.questioning.dao.search.SearchQuestioningDao;
-import fr.insee.survey.datacollectionmanagement.questioning.domain.*;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAccreditation;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningComment;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.*;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
@@ -195,6 +198,13 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .map(comment -> modelMapper.map(comment, QuestioningCommentOutputDto.class))
                 .toList();
 
+        boolean canWriteInPaperEnvironment = canWriteInPaperEnvironment(questioning.getId());
+        String paperModeUrl = questioningUrlComponent.buildPaperUrl(questioning);
+
+        boolean canExportDataPdf = canExportQuestioningDataToPdf(questioning.getId());
+        String exportDataPdfUrl = questioningUrlComponent.buildExportDataPdfUrl(questioning);
+
+
         return new QuestioningDetailsDtoBuilder()
                 .questioningId(id)
                 .campaignId(campaignId)
@@ -203,9 +213,11 @@ public class QuestioningServiceImpl implements QuestioningService {
                 .events(questioningEventsDto, questioning.getHighestEventType(), questioning.getHighestEventDate(), validatedEventDto)
                 .communications(questioningCommunicationsDto)
                 .comments(questioningCommentOutputsDto)
-                .readOnlyUrl(readOnlyUrl)
+                .readOnlyUrl(canExportDataPdf, readOnlyUrl)
                 .isHousehold(isHousehold)
                 .isOnProbation(questioning.isOnProbation())
+                .paperModeUrl(canWriteInPaperEnvironment, paperModeUrl)
+                .exportDataPdfUrl(canExportDataPdf,exportDataPdfUrl)
                 .build();
     }
 
@@ -296,4 +308,31 @@ public class QuestioningServiceImpl implements QuestioningService {
         return missingIdentifiers;
     }
 
+    @Override
+    public boolean canExportQuestioningDataToPdf(UUID questioningId) {
+        return questioningRepository.existsBusinessSourceForLunaticNormal(questioningId);
+    }
+
+    @Override
+    public boolean canWriteInPaperEnvironment(UUID questioningId) {
+        List<TypeQuestioningEvent> allowedEventTypes = new ArrayList<>();
+        allowedEventTypes.add(TypeQuestioningEvent.INITLA);
+        allowedEventTypes.add(TypeQuestioningEvent.FOLLOWUP);
+        allowedEventTypes.add(TypeQuestioningEvent.PARTIELINT);
+        allowedEventTypes.add(TypeQuestioningEvent.PARTIELPAP);
+        allowedEventTypes.add(TypeQuestioningEvent.RECUPAP);
+        allowedEventTypes.add(TypeQuestioningEvent.REFUSAL);
+
+        List<TypeQuestioningEvent> forbiddenEventTypes = new ArrayList<>();
+        forbiddenEventTypes.add(TypeQuestioningEvent.VALINT);
+        forbiddenEventTypes.add(TypeQuestioningEvent.VALPAP);
+
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes, forbiddenEventTypes);
+    }
+
+    @Override
+    public boolean isValidatedInPaperEnvironment(UUID questioningId) {
+        List<TypeQuestioningEvent> allowedEventTypes = List.of(TypeQuestioningEvent.VALPAP);
+        return questioningRepository.existsPaperSourceAndQuestioningPaperEvents(questioningId, allowedEventTypes);
+    }
 }

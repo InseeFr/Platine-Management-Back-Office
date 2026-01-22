@@ -1,12 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import fr.insee.survey.datacollectionmanagement.contact.service.ContactService;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.exception.TooManyValuesException;
@@ -33,24 +27,12 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEv
 import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningProbationDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.component.QuestioningUrlComponent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.QuestioningEventServiceStub;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,9 +41,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class QuestioningServiceImplTest {
@@ -220,7 +212,7 @@ class QuestioningServiceImplTest {
         QuestioningEvent event = new QuestioningEvent(
                 new Date(),
                 TypeQuestioningEvent.INITLA,
-                questioning);
+                questioning, StatusEvent.AUTOMATIC);
         questioning.setQuestioningEvents(Set.of(event));
         questioning.setQuestioningComments(Set.of());
         questioning.setQuestioningCommunications(Set.of());
@@ -247,6 +239,7 @@ class QuestioningServiceImplTest {
         assertThat(result.getListContacts()).isNotEmpty();
         assertThat(result.getListContacts().getFirst().identifier()).isEqualTo("contact1");
         assertThat(result.getIsOnProbation()).isTrue();
+        assertThat(result.getPaperModeUrl()).isEmpty();
     }
 
     @Test
@@ -287,18 +280,35 @@ class QuestioningServiceImplTest {
     }
 
     @DisplayName("Should return RECEIVED when validated event exists before closing date")
-    @Test
-    void getQuestioningStatusTest4() {
+    @ParameterizedTest
+    @ValueSource(strings={"VALINT","VALPAP"})
+    void getQuestioningStatusTest4(String typeName) {
         partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
         partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
-        questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
+        questioningEvent.setType(typeName);
         events.add(questioningEvent);
         questioningEventService.setQuestioningEvents(events);
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.RECEIVED);
+    }
+
+    @DisplayName("Should return NOT_RECEIVED when partial receivedPaper event exists before closing date")
+    @ParameterizedTest
+    @ValueSource(strings={"RECUPAP","PARTIELPAP"})
+    void getQuestioningStatusTest5(String typeName) {
+        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
+        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        List<QuestioningEventDto> events = new ArrayList<>();
+        QuestioningEventDto questioningEvent = new QuestioningEventDto();
+        questioningEvent.setType(typeName);
+        events.add(questioningEvent);
+        questioningEventService.setQuestioningEvents(events);
+
+        QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
+        assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
     }
 
     @DisplayName("Should return NOT_STARTED when interrogation not opened by user but accessible before closing date")

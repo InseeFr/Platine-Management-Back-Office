@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
@@ -27,6 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -87,7 +90,7 @@ class ContactControllerTest {
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
     }
 
     @Test
@@ -95,8 +98,15 @@ class ContactControllerTest {
         String identifier = "CONT1";
         Contact contact = contactService.findByIdentifier(identifier);
         String json = createJson(contact);
-        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID, identifier)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(json, false));
+        String response = this.mockMvc
+                .perform(get(UrlConstants.API_CONTACTS_ID, identifier))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(json, response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -107,15 +117,6 @@ class ContactControllerTest {
 
     }
 
-    @Test
-    void getContactsOk() throws Exception {
-        JSONObject jo = new JSONObject();
-        jo.put("totalElements", contactRepository.count());
-        jo.put("numberOfElements", contactRepository.count());
-
-        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ALL)).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().json(jo.toString(), false));
-    }
 
     @Test
     void putContactCreateUpdateDelete() throws Exception {
@@ -124,24 +125,38 @@ class ContactControllerTest {
         // create contact - status created
         Contact contact = initContact(identifier);
         String jsonContact = createJson(contact);
-        mockMvc.perform(
-                        put(UrlConstants.API_CONTACTS_ID, identifier).content(jsonContact).contentType(MediaType.APPLICATION_JSON))
+        String response = mockMvc
+                .perform(
+                        put(UrlConstants.API_CONTACTS_ID, identifier)
+                                .content(jsonContact)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonContact.toString(), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonContact, response, JSONCompareMode.LENIENT);
         Contact contactFound = contactService.findByIdentifier(identifier);
         assertEquals(contact.getLastName(), contactFound.getLastName());
         assertEquals(contact.getFirstName(), contactFound.getFirstName());
         assertEquals(contact.getEmail(), contactFound.getEmail());
         List<ContactEvent> list = new ArrayList<>(contactEventService.findContactEventsByContact(contactFound));
         assertEquals(1, list.size());
-        assertEquals(ContactEventTypeEnum.create, list.get(0).getType());
+        assertEquals(ContactEventTypeEnum.create, list.getFirst().getType());
 
         // update contact - status ok
         contact.setLastName("lastNameUpdate");
         String jsonContactUpdate = createJson(contact);
-        mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, identifier).content(jsonContactUpdate)
-                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonContactUpdate.toString(), false));
+        response = mockMvc
+                .perform(put(UrlConstants.API_CONTACTS_ID, identifier)
+                        .content(jsonContactUpdate)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonContactUpdate, response, JSONCompareMode.LENIENT);
         Contact contactFoundAfterUpdate = contactService.findByIdentifier(identifier);
         assertEquals("lastNameUpdate", contactFoundAfterUpdate.getLastName());
         assertEquals(contact.getFirstName(), contactFoundAfterUpdate.getFirstName());
@@ -170,10 +185,17 @@ class ContactControllerTest {
         // create contact - status created
         Contact contact = initContactAddress(identifier);
         String jsonContact = createJsonContactAddress(contact);
-        mockMvc.perform(
-                        put(UrlConstants.API_CONTACTS_ID, identifier).content(jsonContact).contentType(MediaType.APPLICATION_JSON))
+        String response = mockMvc
+                .perform(
+                        put(UrlConstants.API_CONTACTS_ID, identifier)
+                                .content(jsonContact)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(jsonContact.toString(), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonContact, response, JSONCompareMode.LENIENT);
         Contact countactFound = contactService.findByIdentifier(identifier);
         assertEquals(contact.getAddress().getCityName(), countactFound.getAddress().getCityName());
 
@@ -181,9 +203,16 @@ class ContactControllerTest {
         String newCityName = "cityUpdate";
         contact.getAddress().setCityName(newCityName);
         String jsonContactUpdate = createJsonContactAddress(contact);
-        mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, identifier).content(jsonContactUpdate)
-                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(content().json(jsonContactUpdate.toString(), false));
+        response = mockMvc
+                .perform(put(UrlConstants.API_CONTACTS_ID, identifier)
+                        .content(jsonContactUpdate)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JSONAssert.assertEquals(jsonContactUpdate, response, JSONCompareMode.LENIENT);
         Contact countactFoundAfterUpdate = contactService.findByIdentifier(identifier);
         assertEquals(contact.getAddress().getCityName(), countactFoundAfterUpdate.getAddress().getCityName());
 
@@ -200,11 +229,14 @@ class ContactControllerTest {
         String otherIdentifier = "WRONG";
         Contact contact = initContact(identifier);
         String jsonContact = createJson(contact);
-        mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, otherIdentifier).content(jsonContact)
+        String response = mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, otherIdentifier).content(jsonContact)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and contact identifier don't match"), false));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
+        JSONAssert.assertEquals(JsonUtil.createJsonErrorBadRequest("id and contact identifier don't match"), response, JSONCompareMode.LENIENT);
     }
 
     @Test
@@ -238,6 +270,7 @@ class ContactControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
@@ -271,12 +304,13 @@ class ContactControllerTest {
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
-        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, 1L)
+        this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contactJson))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
 
+        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isNotPresent();
         List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findByContactIdentifier(username);
@@ -390,7 +424,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())
@@ -413,7 +447,7 @@ class ContactControllerTest {
         this.mockMvc.perform(
                         org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                 .put(UrlConstants.API_CONTACT)
-                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUserWithPermissions(contactId, AuthorityRoleEnum.RESPONDENT)))
+                                .with(authentication(AuthenticationUserProvider.getAuthenticatedUser(contactId, AuthorityRoleEnum.RESPONDENT)))
                                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(joPayload.toString()))
                 .andDo(print())

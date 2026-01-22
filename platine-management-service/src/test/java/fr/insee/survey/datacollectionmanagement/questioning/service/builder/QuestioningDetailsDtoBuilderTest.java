@@ -83,14 +83,17 @@ class QuestioningDetailsDtoBuilderTest {
     void shouldSetEvents() {
         QuestioningEventDto event1 = new QuestioningEventDto();
         event1.setType("INIT_LA");
+        event1.setStatus("MANUAL");
         event1.setEventDate(new Date(1709022000000L));
 
         QuestioningEventDto event2 = new QuestioningEventDto();
         event2.setType("VALINT");
+        event2.setStatus("AUTOMATIC");
         event2.setEventDate(new Date(1709108400000L));
 
         QuestioningEventDto validatedEvent = new QuestioningEventDto();
         validatedEvent.setType("VALID");
+        validatedEvent.setStatus("AUTOMATIC");
         validatedEvent.setEventDate(new Date(1709194800000L));
 
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
@@ -98,9 +101,10 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).hasSize(2);
-        assertThat(dto.getLastEventId()).isEqualTo(event2.getId());
-        assertThat(dto.getLastEvent()).isEqualTo("VALINT");
-        assertThat(dto.getDateLastEvent()).isEqualTo(event2.getEventDate());
+        assertThat(dto.getHighestEventId()).isEqualTo(event2.getId());
+        assertThat(dto.getHighestEventType()).isEqualTo("VALINT");
+        assertThat(dto.getHighestEventStatus()).isEqualTo("AUTOMATIC");
+        assertThat(dto.getHighestEventDate()).isEqualTo(event2.getEventDate());
         assertThat(dto.getValidationDate()).isEqualTo(validatedEvent.getEventDate());
     }
 
@@ -111,9 +115,10 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).isNull();
-        assertThat(dto.getLastEventId()).isNull();
-        assertThat(dto.getLastEvent()).isNull();
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getHighestEventId()).isNull();
+        assertThat(dto.getHighestEventType()).isNull();
+        assertThat(dto.getHighestEventStatus()).isNull();
+        assertThat(dto.getHighestEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
 
@@ -124,9 +129,10 @@ class QuestioningDetailsDtoBuilderTest {
                 .build();
 
         assertThat(dto.getListEvents()).isEmpty();
-        assertThat(dto.getLastEventId()).isNull();
-        assertThat(dto.getLastEvent()).isNull();
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getHighestEventId()).isNull();
+        assertThat(dto.getHighestEventType()).isNull();
+        assertThat(dto.getHighestEventStatus()).isNull();
+        assertThat(dto.getHighestEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
     }
 
@@ -203,12 +209,23 @@ class QuestioningDetailsDtoBuilderTest {
     }
 
     @Test
-    void shouldSetReadOnlyUrl() {
+    void shouldSetReadOnlyUrlWhenExportDataNotPossible() {
+        boolean canExportDataToPf = false;
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
-                .readOnlyUrl("https://example.com/readOnly")
+                .readOnlyUrl(canExportDataToPf, "https://example.com/readOnly")
                 .build();
 
         assertThat(dto.getReadOnlyUrl()).isEqualTo("https://example.com/readOnly");
+    }
+
+    @Test
+    void shouldNotSetReadOnlyUrlWhenExportDataPossible() {
+        boolean canExportDataToPf = true;
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .readOnlyUrl(canExportDataToPf, "https://example.com/readOnly")
+                .build();
+
+        assertThat(dto.getReadOnlyUrl()).isEmpty();
     }
 
     @Test
@@ -238,14 +255,32 @@ class QuestioningDetailsDtoBuilderTest {
                 .events(null, TypeQuestioningEvent.EXPERT, null, null)
                 .build();
 
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getHighestEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
 
         dto = new QuestioningDetailsDtoBuilder()
                 .events(null, null, new Date(), null)
                 .build();
 
-        assertThat(dto.getDateLastEvent()).isNull();
+        assertThat(dto.getHighestEventDate()).isNull();
         assertThat(dto.getValidationDate()).isNull();
+    }
+
+    @Test
+    void shouldSetPaperUrl() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .paperModeUrl( true,"https://paper.com")
+                .build();
+
+        assertThat(dto.getPaperModeUrl()).isEqualTo("https://paper.com");
+    }
+
+    @Test
+    void shouldNotSetPaperUrl() {
+        QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
+                .paperModeUrl( false,"https://paper.com")
+                .build();
+
+        assertThat(dto.getPaperModeUrl()).isEmpty();
     }
 }

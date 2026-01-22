@@ -48,7 +48,7 @@ public class PartitioningController {
 
     @Operation(summary = "Search for partitionings by the campaign id")
     @GetMapping(value = UrlConstants.API_CAMPAIGNS_ID_PARTITIONINGS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'READ_SUPPORT')")
+    @PreAuthorize(AuthorityPrivileges.HAS_MANAGEMENT_PRIVILEGES + " || hasPermission(null, 'SUPPORT_READ')")
     public ResponseEntity<List<PartitioningDto>> getPartitioningsByCampaign(@PathVariable("id") String id) {
         Campaign campaign = campaignService.findById(id);
         return ResponseEntity.ok()

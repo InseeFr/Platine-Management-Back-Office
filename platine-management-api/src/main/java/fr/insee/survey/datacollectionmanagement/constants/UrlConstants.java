@@ -9,9 +9,7 @@ public class UrlConstants {
 
     // API CONTACTS DOMAIN
     public static final String API_CONTACTS = "/api/contacts/";
-    public static final String API_CONTACTS_ALL = "/api/contacts";
     public static final String API_CONTACTS_ID = "/api/contacts/{id}";
-    public static final String API_CONTACTS_ID_ADDRESS = "/api/contacts/{id}/address";
     public static final String API_CONTACTS_ID_CONTACTEVENTS = "/api/contacts/{id}/contact-events";
     public static final String API_CONTACT = "/api/contact/";
     public static final String API_CONTACT_CONTACTEVENTS = "/api/contact/contact-events";
@@ -20,14 +18,9 @@ public class UrlConstants {
     public static final String API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN = "/api/contact/{interrogationId}/new-main-contact-with-interrogation";
 
     // API USER DOMAIN
-
     public static final String API_USERS_ALL = "/api/users";
-
     public static final String API_USERS_ALL_NO_PAGINATION ="/api/users/v2" ;
     public static final String API_USERS_ID = "/api/users/{id}";
-    public static final String API_USERS_ID_USEREVENTS = "/api/users/{id}/user-events";
-    public static final String API_USEREVENTS = "/api/users/contact-events";
-    public static final String API_USEREVENTS_ID = "/api/users/user-events/{id}";
     public static final String API_SOURCE_ID_WALLET = "/api/source/{id}/wallet";
 
 
@@ -56,10 +49,8 @@ public class UrlConstants {
     public static final String API_QUESTIONING_QUESTIONING_EVENTS_ID = "/api/questionings/questioning-events/{id}";
     public static final String API_QUESTIONING_ID_QUESTIONING_COMMUNICATIONS = "/api/questionings/{id}/questioning-communications";
     public static final String API_QUESTIONING_ID_COMMENT = "/api/questionings/{id}/comment";
-
-
     public static final String API_MAIN_CONTACT = "/api/main-contact";
-
+    public static final String API_UPLOADING_INTERROGATION_EVENTS_RECUPAP = "/api/campaigns/{campaignId}/interrogation-events/import/recupap";
 
     // API METADATA DOMAIN
     public static final String API_SOURCES = "/api/sources";
@@ -67,7 +58,6 @@ public class UrlConstants {
     public static final String API_SOURCES_ID = "/api/sources/{id}";
     public static final String API_SOURCES_ID_SURVEYS = "/api/sources/{id}/surveys";
     public static final String API_SURVEYS = "/api/surveys";
-    public static final String API_SOURCE_ID_OPENED = "/api/sources/{id}/is-opened";
     public static final String API_SOURCES_ID_PARAMS = "/api/sources/{id}/params";
     public static final String API_SOURCES_ID_SUPPPORT = "/api/sources/{id}/support";
 
@@ -104,6 +94,7 @@ public class UrlConstants {
 
     // API CROSS DOMAIN
     public static final String API_CHECK_HABILITATION = "/api/check-habilitation";
+    public static final String API_CHECK_PERMISSION = "/api/permissions/check";
     public static final String API_CHECK_HABILITATION_V1 = "/api/v1/check-habilitation";
     public static final String MOOG_API_CAMPAIGNS = "/api/moog/campaigns";
     public static final String MOOG_API_CAMPAIGNS_ID = "/api/moog/campaigns/{id}";

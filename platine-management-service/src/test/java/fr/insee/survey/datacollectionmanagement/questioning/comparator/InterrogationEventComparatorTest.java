@@ -1,6 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.questioning.comparator;
 
 import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.service.stub.InterrogationEventOrderRepositoryStub;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,21 +91,21 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT, -2),
-                                event(TypeQuestioningEvent.VALPAP, -1),
+                                event(TypeQuestioningEvent.RECUPAP, -1),
                                 event(TypeQuestioningEvent.VALINT, 0)),
                         TypeQuestioningEvent.VALINT),
 
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT,-2),
-                                event(TypeQuestioningEvent.VALPAP,  0),
+                                event(TypeQuestioningEvent.RECUPAP,  0),
                                 event(TypeQuestioningEvent.VALINT, -1)),
-                        TypeQuestioningEvent.VALPAP),
+                        TypeQuestioningEvent.RECUPAP),
 
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.REFUSAL)),
                         TypeQuestioningEvent.REFUSAL),
@@ -112,7 +113,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.WASTE)),
                         TypeQuestioningEvent.WASTE),
@@ -120,7 +121,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.HC)),
                         TypeQuestioningEvent.HC),
@@ -174,7 +175,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.REFUSAL, -1),
                                 event(TypeQuestioningEvent.WASTE, 0)),
@@ -183,7 +184,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.WASTE,-1),
                                 event(TypeQuestioningEvent.REFUSAL, 0)),
@@ -192,7 +193,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.REFUSAL),
                                 event(TypeQuestioningEvent.HC)),
@@ -201,7 +202,7 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.INITLA),
                                 event(TypeQuestioningEvent.PARTIELINT),
-                                event(TypeQuestioningEvent.VALPAP),
+                                event(TypeQuestioningEvent.RECUPAP),
                                 event(TypeQuestioningEvent.VALINT),
                                 event(TypeQuestioningEvent.WASTE),
                                 event(TypeQuestioningEvent.HC)),
@@ -220,12 +221,12 @@ class InterrogationEventComparatorTest {
                                 eventWithFixedDate(2L, TypeQuestioningEvent.PARTIELINT),
                                 eventWithFixedDate(5L, TypeQuestioningEvent.VALINT),
                                 eventWithFixedDate(3L, TypeQuestioningEvent.PARTIELINT),
-                                eventWithFixedDate(4L, TypeQuestioningEvent.VALPAP)),
+                                eventWithFixedDate(4L, TypeQuestioningEvent.RECUPAP)),
                         TypeQuestioningEvent.VALINT),
 
                 scenario(
                         List.of(event(TypeQuestioningEvent.PARTIELINT,0),
-                                event(TypeQuestioningEvent.VALPAP,-1),
+                                event(TypeQuestioningEvent.RECUPAP,-1),
                                 event(TypeQuestioningEvent.VALINT,-2)),
                         TypeQuestioningEvent.PARTIELINT),
 
@@ -254,15 +255,30 @@ class InterrogationEventComparatorTest {
                 scenario(
                         List.of(event(TypeQuestioningEvent.ENDEXPERT,0),
                                 event(TypeQuestioningEvent.VALID,-1)),
-                        TypeQuestioningEvent.ENDEXPERT)
+                        TypeQuestioningEvent.ENDEXPERT),
 
+                scenario(
+                        List.of(event(TypeQuestioningEvent.INITLA,-2),
+                                event(TypeQuestioningEvent.VALINT,-1),
+                                event(TypeQuestioningEvent.RECUPAP,0)),
+                        TypeQuestioningEvent.RECUPAP),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.REFUSAL,-2),
+                                event(TypeQuestioningEvent.RECUPAP,0)),
+                        TypeQuestioningEvent.REFUSAL),
+
+                scenario(
+                        List.of(event(TypeQuestioningEvent.HC,-2),
+                                event(TypeQuestioningEvent.RECUPAP,0)),
+                        TypeQuestioningEvent.HC)
         );
     }
 
     private static QuestioningEvent event(TypeQuestioningEvent type, int offsetDays) {
         LocalDate base = LocalDate.now().plusDays(offsetDays);
         Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         return qe;
     }
@@ -272,7 +288,7 @@ class InterrogationEventComparatorTest {
         ZoneId zoneId = ZoneId.of("Europe/Paris");
         LocalDate base = LocalDate.now(Clock.fixed(fixedInstant, zoneId));
         Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        QuestioningEvent qe = new QuestioningEvent(date, type, null);
+        QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(id);
         return qe;
     }

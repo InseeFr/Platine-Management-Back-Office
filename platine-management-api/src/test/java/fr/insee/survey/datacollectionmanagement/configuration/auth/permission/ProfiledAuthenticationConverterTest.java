@@ -34,13 +34,13 @@ class ProfiledAuthenticationConverterTest {
     @BeforeEach
     void setUp() {
         // Setup default application config
-        when(applicationConfig.getRoleAdmin()).thenReturn(Arrays.asList("ROLE_ADMIN", "ADMIN"));
-        when(applicationConfig.getRoleRespondent()).thenReturn(Arrays.asList("ROLE_RESPONDENT"));
-        when(applicationConfig.getRoleInternalUser()).thenReturn(Arrays.asList("ROLE_INTERNAL_USER"));
-        when(applicationConfig.getRoleWebClient()).thenReturn(Arrays.asList("ROLE_WEB_CLIENT"));
-        when(applicationConfig.getRolePortal()).thenReturn(Arrays.asList("ROLE_PORTAL"));
-        when(applicationConfig.getRoleReader()).thenReturn(Arrays.asList("ROLE_READER"));
-        when(applicationConfig.getRoleSupport()).thenReturn(Arrays.asList("ROLE_SUPPORT"));
+        when(applicationConfig.getRoleAdmin()).thenReturn(List.of("ROLE_ADMIN", "ADMIN"));
+        when(applicationConfig.getRoleRespondent()).thenReturn(List.of("ROLE_RESPONDENT"));
+        when(applicationConfig.getRoleInternalUser()).thenReturn(List.of("ROLE_INTERNAL_USER"));
+        when(applicationConfig.getRoleWebClient()).thenReturn(List.of("ROLE_WEB_CLIENT"));
+        when(applicationConfig.getRolePortal()).thenReturn(List.of("ROLE_PORTAL"));
+        when(applicationConfig.getRoleReader()).thenReturn(List.of("ROLE_READER"));
+        when(applicationConfig.getRoleSupport()).thenReturn(List.of("ROLE_SUPPORT"));
         when(applicationConfig.getRoleClaim()).thenReturn(null);
 
         // Setup profile factory to return a basic profile
@@ -182,7 +182,7 @@ class ProfiledAuthenticationConverterTest {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(PRINCIPAL_CLAIM_NAME, "user");
-        claims.put(customClaimName, Arrays.asList("ROLE_ADMIN"));
+        claims.put(customClaimName, List.of("ROLE_ADMIN"));
 
         Jwt jwt = createJwtWithClaims(claims);
 
@@ -234,7 +234,7 @@ class ProfiledAuthenticationConverterTest {
 
         // When/Then - Should not throw exception
         converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
-        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN"));
+        Jwt jwt = createJwt("user", List.of("ROLE_ADMIN"));
         AbstractAuthenticationToken result = converter.convert(jwt);
 
         assertThat(result.getAuthorities()).isEmpty();
@@ -246,7 +246,7 @@ class ProfiledAuthenticationConverterTest {
         when(applicationConfig.getRoleAdmin()).thenReturn(Arrays.asList("ROLE_ADMIN", "", null));
         converter = new ProfiledAuthenticationConverter(applicationConfig, profileFactory, PRINCIPAL_CLAIM_NAME);
 
-        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN"));
+        Jwt jwt = createJwt("user", List.of("ROLE_ADMIN"));
 
         // When
         AbstractAuthenticationToken result = converter.convert(jwt);
@@ -258,7 +258,7 @@ class ProfiledAuthenticationConverterTest {
     @Test
     void testConvert_shouldPassRolesToProfileFactory() {
         // Given
-        Jwt jwt = createJwt("user", Arrays.asList("ROLE_ADMIN", "ROLE_SUPPORT"));
+        Jwt jwt = createJwt("user", List.of("ROLE_ADMIN", "ROLE_SUPPORT"));
 
         // When
         converter.convert(jwt);
@@ -276,7 +276,7 @@ class ProfiledAuthenticationConverterTest {
         Map<String, Object> claims = new HashMap<>();
         claims.put(customPrincipalClaim, "customUser");
         Map<String, Object> realmAccess = new HashMap<>();
-        realmAccess.put("roles", Arrays.asList("ROLE_ADMIN"));
+        realmAccess.put("roles", List.of("ROLE_ADMIN"));
         claims.put("realm_access", realmAccess);
 
         Jwt jwt = createJwtWithClaims(claims);

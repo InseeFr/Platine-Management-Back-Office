@@ -133,19 +133,6 @@ class SourceControllerSecurityTest {
                 .andExpect(status().isNoContent());
     }
 
-    // === /api/sources/{id}/opened ===
-    @Test
-    void isSourceOpened_401() throws Exception {
-        mockMvc.perform(get(UrlConstants.API_SOURCE_ID_OPENED, "SOURCE1")
-                        .with(anonymous()))
-                .andExpect(status().isUnauthorized());
-    }
-    @Test
-    void isSourceOpened_200() throws Exception {
-        mockMvc.perform(get(UrlConstants.API_SOURCE_ID_OPENED, "SOURCE1")
-                        .with(jwtWithRole(AuthorityRoleEnum.PORTAL)))
-                .andExpect(status().isOk());
-    }
 
     // === /api/owners/{id}/sources ===
     @Test

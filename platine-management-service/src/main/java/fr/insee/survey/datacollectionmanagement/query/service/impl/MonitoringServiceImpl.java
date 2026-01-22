@@ -44,7 +44,7 @@ public class MonitoringServiceImpl implements MonitoringService {
                     case "VALINT":
                         lot.setNbIntReceived(row.getTotal());
                         break;
-                    case "VALPAP":
+                    case "RECUPAP":
                         lot.setNbPapReceived(row.getTotal());
                         break;
                     case "HC":

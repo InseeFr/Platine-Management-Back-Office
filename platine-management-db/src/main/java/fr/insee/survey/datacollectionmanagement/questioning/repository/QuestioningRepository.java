@@ -2,10 +2,12 @@ package fr.insee.survey.datacollectionmanagement.questioning.repository;
 
 import fr.insee.survey.datacollectionmanagement.metadata.dto.QuestioningCsvDto;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 
@@ -66,4 +68,74 @@ public interface QuestioningRepository extends JpaRepository<Questioning, UUID> 
 
     @Query("select distinct q.id from Questioning q where q.id in :ids")
     Set<UUID> findExistingInterrogationIds(Collection<UUID> ids);
+
+    @Query("""
+    SELECT (COUNT(q) > 0)
+        FROM Questioning q
+        JOIN Partitioning p ON q.idPartitioning = p.id
+        JOIN p.campaign c
+        JOIN c.survey su
+        JOIN su.source s
+    WHERE q.id = :questioningId
+      AND c.dataCollectionTarget = fr.insee.survey.datacollectionmanagement.metadata.enums.DataCollectionEnum.LUNATIC_NORMAL
+      AND s.type = fr.insee.survey.datacollectionmanagement.metadata.enums.SourceTypeEnum.BUSINESS
+    AND EXISTS (
+        SELECT 1
+        FROM QuestioningEvent qe
+        WHERE qe.questioning = q
+        AND qe.type IN ('VALINT', 'VALPAP')
+    )
+    """)
+    boolean existsBusinessSourceForLunaticNormal(@Param("questioningId") UUID questioningId);
+
+    @Query("""
+    SELECT q
+        FROM Questioning q
+        JOIN Partitioning p ON p.id = q.idPartitioning
+    WHERE q.surveyUnit.idSu IN :surveyUnitIds
+      AND upper(p.campaign.id) = upper(:campaignId)
+      AND p.openingDate <= CURRENT_TIMESTAMP
+      AND (p.closingDate IS NULL OR p.closingDate >= CURRENT_TIMESTAMP)
+    """)
+    Set<Questioning> findBySurveyUnitIdSuInAndCampaignIdAndOpen(Set<String> surveyUnitIds, String campaignId);
+
+    @Query("""
+    SELECT (COUNT(q) > 0)
+        FROM Questioning q
+        JOIN Partitioning p ON q.idPartitioning = p.id
+        JOIN p.campaign c
+        JOIN c.survey su
+        JOIN su.source s
+    WHERE q.id = :questioningId
+    AND s.paperFormInputEnabled = true
+    AND q.highestEventType IN (
+        :allowedEventTypes
+    )
+    """)
+    boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId,
+                                                       List<TypeQuestioningEvent> allowedEventTypes);
+
+    @Query("""
+    SELECT (COUNT(q) > 0)
+        FROM Questioning q
+        JOIN q.questioningEvents qe
+        JOIN Partitioning p ON q.idPartitioning = p.id
+        JOIN p.campaign c
+        JOIN c.survey su
+        JOIN su.source s
+    WHERE q.id = :questioningId
+    AND s.paperFormInputEnabled = true
+    AND q.highestEventType IN (
+        :allowedEventTypes
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM QuestioningEvent qe
+        WHERE qe.questioning = q
+        AND qe.type IN :forbiddenEventTypes
+    )
+    """)
+    boolean existsPaperSourceAndQuestioningPaperEvents(UUID questioningId,
+                                                       List<TypeQuestioningEvent> allowedEventTypes,
+                                                       List<TypeQuestioningEvent> forbiddenEventTypes);
 }

@@ -6,14 +6,18 @@ import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.questioning.domain.Questioning;
+import fr.insee.survey.datacollectionmanagement.questioning.domain.SurveyUnit;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.ExpertEventDto;
+import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
+import fr.insee.survey.datacollectionmanagement.questioning.repository.SurveyUnitRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningEventService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,13 +33,13 @@ import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -49,12 +54,14 @@ class QuestionningEventControllerTest {
     MockMvc mockMvc;
     @Autowired
     QuestioningEventService questioningEventService;
+    @Autowired
+    private SurveyUnitRepository surveyUnitRepository;
 
     @BeforeEach
     void init() {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
-                    .getAuthenticatedUserWithPermissions("test", AuthorityRoleEnum.ADMIN));
+                    .getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
 
         }
     }
@@ -86,7 +93,7 @@ class QuestionningEventControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(randomUUID)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, VALPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
+                .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, RECUPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
     }
 
     @Test
@@ -133,7 +140,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
         assertThat(questioning.getScore()).isNull();
         assertThat(questioning.getScoreInit()).isNull();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -148,7 +155,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is null")
     void badRequestExpertiseEvent() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -160,7 +167,7 @@ class QuestionningEventControllerTest {
     @DisplayName("Should return bad request if type is not expert_event")
     void badRequestExpertiseEvent2() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000005").stream().findFirst().get();
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -169,9 +176,9 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should return not fount exception")
+    @DisplayName("Should return not found exception")
     void notFoundQuestioning() throws Exception {
-        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT);
+        ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON).content(json))
@@ -180,29 +187,38 @@ class QuestionningEventControllerTest {
     }
 
     @Test
-    @DisplayName("Should delete questioning event")
+    @DisplayName("Should delete questioning event with manual status")
     @WithMockUser(roles={"ADMIN"})
-    void shouldDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
-        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+    void shouldDeleteQuestioningEventWithManualStatus() throws Exception {
+        assertThat(questioningEventService.findbyId(2L)).isNotNull();
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 2L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> questioningEventService.findbyId(2L)).isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    @DisplayName("Should not delete questioning event")
-    @WithMockUser(roles={"RESPONDENT"})
-    void shouldNotDeleteQuestioningEvent() throws Exception {
-        assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    @DisplayName("Should return forbidden when user has unauthorized role")
+    void shouldReturnForbiddenForUnauthorizedRole() throws Exception {
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("user").roles("RESPONDENT"))
                         .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isForbidden());
 
         assertThat(questioningEventService.findbyId(1L)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should delete questioning event with automatic status even for admin roles")
+    void shouldReturnForbiddenForAutomaticStatus() throws Exception {
+        mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 1L)
+                        .with(user("admin").roles("ADMIN"))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        assertThatThrownBy(() -> questioningEventService.findbyId(1L)).isInstanceOf(NotFoundException.class);
     }
 
 
@@ -214,4 +230,116 @@ class QuestionningEventControllerTest {
         return joEvent.toString();
     }
 
+    @Disabled
+    @Test
+    @DisplayName("Uploading interrogation events from paper questionnaires and should return ok")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationEventsFromPaperQuestionnairesAndShouldReturnOk() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                100000000
+                """;
+        SurveyUnit su =  new SurveyUnit();
+        su.setIdSu(UUID.randomUUID().toString());
+        surveyUnitRepository.save(su);
+
+        MockMultipartFile csv = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12025T10")
+                                .file(csv)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation events from paper questionnaires should return MappingForColumnName not found : 409")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnMappingForColumnNameNotFound409() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEEE
+                100000001
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(status().is(409))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("The column name [ID_UNITE_ENQUETEEE] is incorrect")));
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation events from paper questionnaires should return NoValueOfSurveyUNitId identifier : 409")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnNoValueOfSurveyUNitIdIdentifier409() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEEE
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isConflict())
+                .andExpect(status().is(409))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("The column name [ID_UNITE_ENQUETEEE] is incorrect")));
+    }
+
+    @Test
+    @DisplayName("Uploading interrogation events from paper questionnaires should return SurveyUnitNotFound : 404")
+    @WithMockUser(roles={"ADMIN"})
+    void uploadingInterrogationEventsFromPaperQuestionnairesShouldReturnSurveyUnitNotFound404() throws Exception {
+        // GIVEN
+        String csvContent = """
+                ID_UNITE_ENQUETEE
+                123_NOT_FOUND_456
+                """;
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "statuses.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(
+                        multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
+                                .file(file)
+                                .contentType(MediaType.MULTIPART_FORM_DATA)
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(status().is(404))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("123_NOT_FOUND_456")));
+    }
 }

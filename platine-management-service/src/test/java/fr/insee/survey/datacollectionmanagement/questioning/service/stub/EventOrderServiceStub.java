@@ -16,14 +16,14 @@ public class EventOrderServiceStub implements EventOrderService {
     @Override
     public List<EventOrder> findAll() {
         return List.of(
-                new EventOrder(1L, TypeQuestioningEvent.INITLA.toString(), 1),
-                new EventOrder(2L, TypeQuestioningEvent.PND.toString(), 2),
-                new EventOrder(3L, TypeQuestioningEvent.WASTE.toString(), 3),
-                new EventOrder(4L, TypeQuestioningEvent.PARTIELINT.toString(), 4),
-                new EventOrder(5L, TypeQuestioningEvent.HC.toString(), 5),
-                new EventOrder(6L, TypeQuestioningEvent.VALPAP.toString(), 6),
-                new EventOrder(7L, TypeQuestioningEvent.VALINT.toString(), 7),
-                new EventOrder(8L, TypeQuestioningEvent.REFUSAL.toString(), 8)
+                new EventOrder(1L, TypeQuestioningEvent.INITLA.name(), 1),
+                new EventOrder(2L, TypeQuestioningEvent.PND.name(), 2),
+                new EventOrder(3L, TypeQuestioningEvent.WASTE.name(), 3),
+                new EventOrder(4L, TypeQuestioningEvent.PARTIELINT.name(), 4),
+                new EventOrder(5L, TypeQuestioningEvent.HC.name(), 5),
+                new EventOrder(6L, TypeQuestioningEvent.RECUPAP.name(), 6),
+                new EventOrder(7L, TypeQuestioningEvent.VALINT.name(), 7),
+                new EventOrder(8L, TypeQuestioningEvent.REFUSAL.name(), 8)
         );
     }
 }
