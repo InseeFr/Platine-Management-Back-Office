@@ -22,11 +22,6 @@ public class ViewServiceImpl implements ViewService {
     }
 
     @Override
-    public View findFirstViewByIdentifier(String identifier) {
-        return viewRepository.findFirstByIdentifier(identifier);
-    }
-
-    @Override
     public List<View> findByIdentifierContainingAndIdSuNotNull(String identifier) {
         return viewRepository.findByIdentifierContainingAndIdSuNotNull(identifier);
     }
@@ -39,11 +34,6 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public List<String> findDistinctCampaignByIdentifier(String identifier) {
         return viewRepository.findDistinctCampaignByIdentifier(identifier);
-    }
-
-    @Override
-    public List<View> findViewByIdSu(String idSu) {
-        return viewRepository.findByIdSu(idSu);
     }
 
     @Override
@@ -66,10 +56,6 @@ public class ViewServiceImpl implements ViewService {
         viewRepository.delete(view);
     }
 
-    @Override
-    public void deleteViewByIdentifier(String identifier) {
-        viewRepository.deleteByIdentifier(identifier);
-    }
 
     @Override
     public View createViewAndDeleteEmptyExistingOnesByIdentifier(String identifier, String idSu, String campaignId) {
