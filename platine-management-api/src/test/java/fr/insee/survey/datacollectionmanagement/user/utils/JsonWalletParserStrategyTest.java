@@ -75,7 +75,6 @@ class JsonWalletParserStrategyTest {
 
     @Test
     void parse_shouldThrow_whenJsonIsMalformed() {
-        // JSON malformé volontairement
         String badJson = "{ this is not : valid json ]";
         MockMultipartFile file = new MockMultipartFile(
                 "file",

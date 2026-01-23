@@ -67,7 +67,6 @@ public class CampaignSteps {
 
     @When("I type {string} in the searching campaign area by name")
     public void iTypeInTheSearchingCampaignAreaByName(String campaignName) throws Exception {
-        // NB: ton code ne se sert pas de campaignName et appelle /C1, je garde tel quel
         mockMvc.perform(get(UrlConstants.API_CAMPAIGNS + "/C1")
                         .with(authentication(testSecurityContext.getAuthentication())))
                 .andExpect(status().isOk());
