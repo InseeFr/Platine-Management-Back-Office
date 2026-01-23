@@ -260,7 +260,7 @@ public class DataloaderTest {
 
             Source source = new Source();
             String sourceName = "SOURCE" + Math.addExact(sourceRepository.count(), 1);
-            if (!StringUtils.contains(sourceName, " ") && sourceRepository.findById(sourceName).isEmpty()) {
+            if (!sourceName.contains(" ") && sourceRepository.findById(sourceName).isEmpty()) {
 
                 source.setId(sourceName);
                 source.setLongWording("Long wording of " + sourceName + " ?");
@@ -268,7 +268,7 @@ public class DataloaderTest {
                 source.setPeriodicity(PeriodicityEnum.T);
                 SourceTypeEnum type = sourceRepository.count() % 2 == 0 ? SourceTypeEnum.BUSINESS : SourceTypeEnum.HOUSEHOLD;
                 source.setType(type);
-                boolean paperInputFormEnabled = sourceRepository.count() % 2 == 0 ? true : false;
+                boolean paperInputFormEnabled = sourceRepository.count() % 2 == 0;
                 source.setPaperFormInputEnabled(paperInputFormEnabled);
                 sourceRepository.save(source);
                 Set<Survey> setSurveys = new HashSet<>();

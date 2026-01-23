@@ -9,7 +9,6 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -105,10 +104,10 @@ public class SearchContactSteps {
 
             boolean found = pageSearchContact.getContent().stream()
                     .anyMatch(contact ->
-                            StringUtils.equalsIgnoreCase(contact.getIdentifier(), expectedIdep) &&
-                                    StringUtils.equalsIgnoreCase(contact.getLastName(), expectedLastname) &&
-                                    StringUtils.equalsIgnoreCase(contact.getFirstName(), expectedFirstname) &&
-                                    StringUtils.equalsIgnoreCase(contact.getEmail(), expectedEmail)
+                            expectedIdep.equalsIgnoreCase(contact.getIdentifier()) &&
+                            expectedLastname.equalsIgnoreCase(contact.getLastName()) &&
+                            expectedFirstname.equalsIgnoreCase(contact.getFirstName()) &&
+                            expectedEmail.equalsIgnoreCase(contact.getEmail())
                     );
 
             assertTrue(found, "Expected to find contact with idep: " + expectedIdep);

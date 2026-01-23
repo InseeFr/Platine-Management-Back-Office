@@ -9,7 +9,6 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -96,8 +95,8 @@ public class SearchSurveyUnitSteps {
 
             boolean found = pageSearchSurveyUnit.getContent().stream()
                     .anyMatch(su ->
-                            StringUtils.equalsIgnoreCase(su.getIdentificationCode(), expectedCode) &&
-                                    StringUtils.equalsIgnoreCase(su.getIdentificationName(), expectedName)
+                            expectedCode.equalsIgnoreCase(su.getIdentificationCode()) &&
+                                    expectedName.equalsIgnoreCase(su.getIdentificationName())
                     );
 
             assertTrue(found, "Expected to find survey unit with code: " + expectedCode);

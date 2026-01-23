@@ -75,7 +75,7 @@ public class CampaignSteps {
 
     @Then("I found the following campaign")
     public void iFoundTheFollowingCampaign(io.cucumber.datatable.DataTable dataTable) {
-        // TODO selon tes attentes
+        // TODO define this
     }
 
     @When("I search all opening campaigns for user {string}")

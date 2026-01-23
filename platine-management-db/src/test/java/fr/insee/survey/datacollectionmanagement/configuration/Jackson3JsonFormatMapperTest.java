@@ -18,7 +18,6 @@ import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link Jackson3JsonFormatMapper}.
- *
  * Uses:
  * - JUnit 5 @DisplayName
  * - AssertJ assertions
@@ -120,7 +119,7 @@ class Jackson3JsonFormatMapperTest {
         mapper.writeToTarget(new Person("Bob", 7), javaType, generator, options);
         generator.flush();
 
-        assertThat(writer.toString()).isEqualTo("{\"name\":\"Bob\",\"age\":7}");
+        assertThat(writer.toString()).hasToString("{\"name\":\"Bob\",\"age\":7}");
     }
 
     @Test
