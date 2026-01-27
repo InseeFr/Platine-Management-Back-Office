@@ -38,6 +38,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -222,17 +223,17 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
-        Date today = new Date();
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, LocalDateTime openingDate, LocalDateTime closingDate) {
+        LocalDateTime today = LocalDateTime.now();
 
-        if (today.before(openingDate)) {
+        if (today.isBefore(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
         List<QuestioningEventDto> events = questioningEventService.getQuestioningEventsByQuestioningId(questioningId);
 
         boolean refused = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if (events.isEmpty() || refused || !closingDate.after(today)) {
+        if (events.isEmpty() || refused || !closingDate.isAfter(today)) {
             return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
         }
 
@@ -255,14 +256,14 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
-        Date today = new Date();
+    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(LocalDateTime openingDate, LocalDateTime closingDate) {
+        LocalDateTime today = LocalDateTime.now();
 
-        if (today.before(openingDate)) {
+        if (today.isBefore(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
 
-        if (today.after(closingDate)) {
+        if (today.isAfter(closingDate)) {
             return QuestionnaireStatusTypeEnum.RECEIVED;
         }
 
