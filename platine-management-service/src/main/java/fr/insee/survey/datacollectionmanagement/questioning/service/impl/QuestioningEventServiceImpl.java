@@ -1,7 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.exception.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
@@ -26,6 +24,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     private static final String QUESTIONING_NOT_FOUND_MESSAGE = "Questioning %s not found";
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -243,7 +243,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
 
     @Override
     public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws InterrogationNotFoundException, TooManyInterrogationsException{
-        final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
+        final JsonNode payload = jsonMapper.createObjectNode().put("source", "platine-gestion");
         Date nowDate = new Date();
 
         try {

@@ -9,11 +9,11 @@ import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,15 +39,19 @@ class MetadataControllerTest {
     @Autowired
     CampaignService campaignService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
     void getCampaignNotFound() throws Exception {
         String campaignId = "CAMPAIGNNOTFOUND";
-        this.mockMvc.perform(get(UrlConstants.API_METADATA_BUSINESS, campaignId)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_METADATA_BUSINESS, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
@@ -56,7 +61,10 @@ class MetadataControllerTest {
 
         assertDoesNotThrow(() -> campaignService.findById(campaignId));
         Campaign campaign = campaignService.findById(campaignId);
-        this.mockMvc.perform(get(UrlConstants.API_METADATA_BUSINESS, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_METADATA_BUSINESS, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
                 .andExpect(xpath("/InformationsCollecte/ServiceProducteur/Libelle")
                         .string(Optional.ofNullable(campaign.getSurvey().getSource().getOwner().getLabel()).orElse("")))

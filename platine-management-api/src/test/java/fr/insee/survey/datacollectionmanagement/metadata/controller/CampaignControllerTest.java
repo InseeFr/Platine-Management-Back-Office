@@ -16,12 +16,12 @@ import org.assertj.core.util.DateUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,6 +32,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -52,15 +53,19 @@ class CampaignControllerTest {
     @Autowired
     QuestioningService questioningService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
     void getCampaignNotFound() throws Exception {
         String campaignId = "CAMPAIGNNOTFOUND";
-        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, campaignId)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
     }
 
@@ -72,7 +77,9 @@ class CampaignControllerTest {
         String surveyId = "SOURCE12023";
         Campaign campaign = initOpenedCampaign(campaignId);
         String jsonCampaign = createJson(campaign, surveyId);
-        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, othercampaignId).content(jsonCampaign)
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, othercampaignId)
+                        .with(authentication(auth))
+                        .content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("id and idCampaign don't match"));
@@ -85,7 +92,9 @@ class CampaignControllerTest {
 
         Campaign campaign = initOpenedCampaign(campaignId);
         String jsonCampaign = createJson(campaign, surveyId, false, "WRONG_TARGET");
-        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId).content(jsonCampaign)
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth))
+                        .content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("DataCollectionTarget missing or not recognized. Only LUNATIC_NORMAL, LUNATIC_SENSITIVE, XFORM1, XFORM2, FILE_UPlOAD are valid"));
@@ -97,7 +106,9 @@ class CampaignControllerTest {
         String surveyId = "SOURCE12023";
         Campaign campaign = initOpenedCampaign(campaignId);
         String jsonCampaign = createJson(campaign, surveyId, false, DataCollectionEnum.LUNATIC_NORMAL.name());
-        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId).content(jsonCampaign)
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth))
+                        .content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -108,7 +119,9 @@ class CampaignControllerTest {
         String surveyId = "SOURCE12023";
         Campaign campaign = initOpenedCampaign(campaignId);
         String jsonCampaign = createJson(campaign, surveyId, true, DataCollectionEnum.LUNATIC_SENSITIVE.name());
-        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId).content(jsonCampaign)
+        mockMvc.perform(put(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth))
+                        .content(jsonCampaign)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -120,7 +133,10 @@ class CampaignControllerTest {
         Campaign campaign = initOpenedCampaign(campaignId);
         initCampaignAndPartitionings(campaignId, campaign);
 
-        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ongoing").value(true));
 
     }
@@ -131,7 +147,10 @@ class CampaignControllerTest {
         Campaign campaign = initClosedCampaign(campaignId);
         initCampaignAndPartitionings(campaignId, campaign);
 
-        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ongoing").value(false));
 
 
@@ -143,7 +162,10 @@ class CampaignControllerTest {
         Campaign campaign = initFutureCampaign(campaignId);
         initCampaignAndPartitionings(campaignId, campaign);
 
-        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ongoing").value(false));
     }
 
@@ -155,14 +177,20 @@ class CampaignControllerTest {
         String jsonCampaign = createJson(campaign, surveyId);
 
         mockMvc.perform(
-                        put(UrlConstants.API_CAMPAIGNS_ID, campaignId).content(jsonCampaign)
+                        put(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                                .with(authentication(auth))
+                                .content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
                 .andExpect(jsonPath("$.surveyId").value(surveyId))
                 .andExpect(jsonPath("$.year").value(campaign.getYear()));
 
-        this.mockMvc.perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc
+                .perform(get(UrlConstants.CAMPAIGNS_ID_ONGOING, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ongoing").value(false));
 
     }
@@ -173,7 +201,9 @@ class CampaignControllerTest {
         Campaign campaign = initClosedCampaign(campaignId);
         initCampaignAndPartitionings(campaignId, campaign);
 
-        this.mockMvc.perform(delete(UrlConstants.API_CAMPAIGNS_ID, campaignId)).andDo(print())
+        this.mockMvc.perform(delete(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -181,7 +211,9 @@ class CampaignControllerTest {
     void getCampaigns() throws Exception {
         String campaignId = "OPENED";
 
-        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS, campaignId)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(16)));
     }
@@ -191,7 +223,9 @@ class CampaignControllerTest {
         String jsonCampaign = createJson(campaign, surveyId);
 
         mockMvc.perform(
-                        put(UrlConstants.API_CAMPAIGNS_ID, campaignId).content(jsonCampaign)
+                        put(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                                .with(authentication(auth))
+                                .content(jsonCampaign)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
@@ -204,14 +238,18 @@ class CampaignControllerTest {
         String jsonPart1 = createJsonPart(part1);
 
         mockMvc.perform(
-                        put(UrlConstants.API_PARTITIONINGS_ID, part1.getId()).content(jsonPart1)
+                        put(UrlConstants.API_PARTITIONINGS_ID, part1.getId())
+                                .with(authentication(auth))
+                                .content(jsonPart1)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         Partitioning part2 = partitions.get(1);
         String jsonPart2 = createJsonPart(part2);
 
         mockMvc.perform(
-                        put(UrlConstants.API_PARTITIONINGS_ID, part2.getId()).content(jsonPart2)
+                        put(UrlConstants.API_PARTITIONINGS_ID, part2.getId())
+                                .with(authentication(auth))
+                                .content(jsonPart2)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
@@ -298,7 +336,10 @@ class CampaignControllerTest {
 
         assertDoesNotThrow(() -> campaignService.findById(campaignId));
         Campaign campaign = campaignService.findById(campaignId);
-        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, campaignId)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_ID, campaignId)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.campaignWording").value(campaign.getCampaignWording()))
                 .andExpect(jsonPath("$.surveyId").value(campaign.getSurvey().getId()))
                 .andExpect(jsonPath("$.year").value(campaign.getYear()));
@@ -315,7 +356,8 @@ class CampaignControllerTest {
         initCampaignAndPartitionings("CAMP3", campaign3);
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -338,7 +380,8 @@ class CampaignControllerTest {
         String campaignId = "CAMP1";
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value("CAMP1"))
@@ -357,7 +400,8 @@ class CampaignControllerTest {
         String campaignId = "CAMP3";
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value("CAMP3"))
@@ -372,7 +416,8 @@ class CampaignControllerTest {
         String campaignId = "NOT_FOUND";
 
         // when / then
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ID, campaignId)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -383,7 +428,8 @@ class CampaignControllerTest {
 
         List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId)
+                        .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(header().string(
                         HttpHeaders.CONTENT_TYPE,
@@ -401,7 +447,8 @@ class CampaignControllerTest {
 
         List<QuestioningCsvDto> data = questioningService.getQuestioningsByCampaignIdForCsv(campaignId);
 
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId)
+                        .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(header().string(
                         HttpHeaders.CONTENT_TYPE,
@@ -423,7 +470,8 @@ class CampaignControllerTest {
             questioningService.deleteQuestioning(questioningCsvDto.interrogationId());
         }
 
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId)
+                        .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     String content = result.getResponse().getContentAsString();
@@ -437,7 +485,8 @@ class CampaignControllerTest {
     void downloadQuestioningsCsv_shouldReturnNotFoundWhenUnknownCampaign() throws Exception {
         String campaignId = "NOT_FOUND";
 
-        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId))
+        mockMvc.perform(get(UrlConstants.API_CAMPAIGN_ID_QUESTIONINGS_CSV, campaignId)
+                        .with(authentication(auth)))
                 .andExpect(status().isNotFound());
     }
 
@@ -485,6 +534,7 @@ class CampaignControllerTest {
         
         // When / Then
         mockMvc.perform(get(UrlConstants.API_CAMPAIGNS_COMMONS_ONGOING)
+                        .with(authentication(auth))
                         .param("walletFilter", "ALL"))
                 .andDo(print())
                 .andExpect(status().isOk())

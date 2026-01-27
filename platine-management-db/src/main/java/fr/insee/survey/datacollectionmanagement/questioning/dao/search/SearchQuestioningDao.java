@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -384,7 +385,7 @@ public class SearchQuestioningDao {
         String lastCommunicationType = (String) row[2];
         boolean lastCommunicationReceipt = row[3] != null && (boolean) row[3];
         boolean lastCommunicationQuestionnaire = row[4] != null && (boolean) row[4];
-        Date validationDate = (Date) row[5];
+        LocalDateTime validationDate = (LocalDateTime) row[5];
         String highestEventType = (String) row[6];
         String surveyUnitId = (String) row[7];
         String identificationCode = (String) row[8];

@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ public class PayloadUtil {
       Map<String, String> mapAuthorAndSource = new HashMap<>();
       mapAuthorAndSource.put("author", author);
       mapAuthorAndSource.put("source", source);
-      return new ObjectMapper().valueToTree(mapAuthorAndSource);
+      return new JsonMapper().valueToTree(mapAuthorAndSource);
     }
 
 

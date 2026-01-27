@@ -18,16 +18,17 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,9 +48,11 @@ class SourceControllerTest {
     @Autowired
     SourceRepository sourceRepository;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
@@ -59,7 +62,8 @@ class SourceControllerTest {
         Source source = sourceService.findById(identifier);
         String json = createJson(source);
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_SOURCES_ID, identifier))
+                .perform(get(UrlConstants.API_SOURCES_ID, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -72,7 +76,9 @@ class SourceControllerTest {
     @Test
     void getSourceNotFound() throws Exception {
         String identifier = "SOURCENOTFOUND";
-        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -80,7 +86,8 @@ class SourceControllerTest {
     @Test
     void getSupportBySourceOk() throws Exception {
         String identifier = "SOURCE1";
-        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").value("SupportInsee"))
@@ -92,7 +99,8 @@ class SourceControllerTest {
     @Test
     void getSupportBySourceNotFound() throws Exception {
         String identifier = "SOURCENOTFOUND";
-        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier))
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES_ID_SUPPPORT, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
@@ -106,7 +114,10 @@ class SourceControllerTest {
         Source source2 = sourceService.findById("SOURCE2");
         jo.put(createJson(source2));
 
-        this.mockMvc.perform(get(UrlConstants.API_SOURCES)).andDo(print()).andExpect(status().isOk())
+        this.mockMvc.perform(get(UrlConstants.API_SOURCES)
+                        .with(authentication(auth)))
+                .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("SOURCE1"))
                 .andExpect(jsonPath("$[1].id").value("SOURCE2"))
                 .andExpect(jsonPath("$[0].shortWording").value("Short wording of SOURCE1"))
@@ -125,7 +136,9 @@ class SourceControllerTest {
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
         String response = mockMvc.perform(
-                        put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSource)
+                        put(UrlConstants.API_SOURCES_ID, identifier)
+                                .with(authentication(auth))
+                                .content(jsonSource)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -147,7 +160,9 @@ class SourceControllerTest {
         source.setPaperFormInputEnabled(false);
         String jsonSourceUpdate = createJson(source);
         response = mockMvc
-                .perform(put(UrlConstants.API_SOURCES_ID, identifier).content(jsonSourceUpdate)
+                .perform(put(UrlConstants.API_SOURCES_ID, identifier)
+                        .with(authentication(auth))
+                        .content(jsonSourceUpdate)
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -161,12 +176,16 @@ class SourceControllerTest {
         assertEquals(source.isPaperFormInputEnabled(), sourceFoundAfterUpdate.isPaperFormInputEnabled());
 
         // delete source
-        mockMvc.perform(delete(UrlConstants.API_SOURCES_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_SOURCES_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> sourceService.findById(identifier));
 
         // delete source not found
-        mockMvc.perform(delete(UrlConstants.API_SOURCES + "/" + identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_SOURCES + "/" + identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
@@ -177,9 +196,12 @@ class SourceControllerTest {
         String otherIdentifier = "WRONG";
         Source source = initSource(identifier);
         String jsonSource = createJson(source);
-        mockMvc.perform(put(UrlConstants.API_SOURCES + "/" + otherIdentifier).content(jsonSource)
+        mockMvc.perform(put(UrlConstants.API_SOURCES + "/" + otherIdentifier)
+                        .with(authentication(auth))
+                        .content(jsonSource)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and source id don't match")));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and source id don't match")));
 
     }
 

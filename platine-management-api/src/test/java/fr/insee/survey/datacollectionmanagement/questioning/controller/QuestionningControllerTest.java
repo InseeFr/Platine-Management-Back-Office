@@ -27,10 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -75,9 +75,11 @@ class QuestionningControllerTest {
     @Autowired
     ViewService viewService;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
 
@@ -85,7 +87,9 @@ class QuestionningControllerTest {
     void getQuestioningsBySurveyUnit() throws Exception {
         String idSu = "100000000";
         String json = createJsonQuestionings(idSu);
-        String response = this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)).andDo(print())
+        String response = this.mockMvc.perform(get(UrlConstants.API_SURVEY_UNITS_ID_QUESTIONINGS, idSu)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -218,6 +222,7 @@ class QuestionningControllerTest {
                 """.formatted(questioningId);
 
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_PRIORITIES)
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk());
@@ -235,6 +240,7 @@ class QuestionningControllerTest {
                 """;
 
         mockMvc.perform(post(UrlConstants.API_QUESTIONINGS_PRIORITIES)
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());

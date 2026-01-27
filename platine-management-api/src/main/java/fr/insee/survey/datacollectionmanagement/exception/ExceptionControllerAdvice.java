@@ -1,7 +1,6 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import fr.insee.survey.datacollectionmanagement.configuration.auth.permission.evaluator.ApplicationPermissionEvaluatorException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.validation.ConstraintViolationException;
@@ -22,6 +21,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
 
 import java.util.List;
 
@@ -153,11 +154,11 @@ public class ExceptionControllerAdvice {
         Throwable rootCause = e.getRootCause();
 
         String errorMessage = "Error when deserializing JSON";
-        if (rootCause instanceof JsonParseException parseException) {
+        if (rootCause instanceof StreamReadException parseException) {
             String location = parseException.getLocation() != null ? "[line: " + parseException.getLocation().getLineNr() + ", column: " + parseException.getLocation().getColumnNr() + "]" : "";
             errorMessage = "Error with JSON syntax. Check that your json is well formatted: " + parseException.getOriginalMessage() + " " + location;
         }
-        if (rootCause instanceof JsonMappingException mappingException) {
+        if (rootCause instanceof DatabindException mappingException) {
             String location = mappingException.getLocation() != null ? "[line: " + mappingException.getLocation().getLineNr() + ", column: " + mappingException.getLocation().getColumnNr() + "]" : "";
             errorMessage = "Error when deserializing JSON. Check that your JSON properties are of the expected types " + location;
         }

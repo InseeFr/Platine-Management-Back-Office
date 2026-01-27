@@ -1,8 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.domain.Source;
@@ -16,12 +13,16 @@ import jakarta.transaction.Transactional;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 public class SurveySteps {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,8 +32,11 @@ public class SurveySteps {
     @Autowired
     private SourceRepository sourceRepository;
 
+    @Autowired
+    private TestSecurityContext testSecurityContext;
+
     private final String surveyId = "SURVEY-ID";
-  private ResultActions resultActions;
+    private ResultActions resultActions;
 
     @Transactional
     @Given("a survey exists")
@@ -51,6 +55,7 @@ public class SurveySteps {
         survey.setSpecimenUrl("specimenUrl");
         survey.setNoticeUrl("noticeUrl");
         survey.setVisaNumber("visa");
+
         Source source = new Source();
         source.setId("SOURCE-ID");
         source = sourceRepository.save(source);
@@ -61,21 +66,25 @@ public class SurveySteps {
 
     @Given("I am an authenticated user")
     public void setRole() {
-      String role = AuthorityRoleEnum.INTERNAL_USER.name();
-        SecurityContextHolder.getContext()
-                .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(
-                    role)));
+        testSecurityContext.setAuthentication(
+                AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.INTERNAL_USER)
+        );
     }
 
     @When("I'm searching the existing survey")
     public void searchSurveyById() throws Exception {
-        resultActions = mockMvc.perform(get("/api/surveys/" + surveyId));
+        resultActions = mockMvc.perform(
+                get("/api/surveys/" + surveyId)
+                        .with(authentication(testSecurityContext.getAuthentication()))
+        );
     }
 
     @Then("the survey is returned")
     public void surveyReturned() throws Exception {
-        MvcResult mvcResult = resultActions.andExpect(status().isOk())
+        MvcResult mvcResult = resultActions
+                .andExpect(status().isOk())
                 .andReturn();
+
         String content = mvcResult.getResponse().getContentAsString();
         String expectedContent = """
         {
@@ -95,6 +104,7 @@ public class SurveySteps {
           "sourceId": "SOURCE-ID"
         }
         """;
+
         JSONAssert.assertEquals(expectedContent, content, JSONCompareMode.LENIENT);
     }
 }

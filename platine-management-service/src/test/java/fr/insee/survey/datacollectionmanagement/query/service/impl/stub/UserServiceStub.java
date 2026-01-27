@@ -1,12 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.query.service.impl.stub;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import fr.insee.survey.datacollectionmanagement.user.service.UserService;
 import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import tools.jackson.databind.JsonNode;
 
 import java.util.*;
 import java.util.stream.Collectors;

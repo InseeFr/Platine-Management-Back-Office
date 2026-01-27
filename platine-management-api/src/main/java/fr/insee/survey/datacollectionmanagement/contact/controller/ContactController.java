@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+
+import tools.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.configuration.auth.user.AuthorityPrivileges;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
@@ -38,6 +38,7 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tools.jackson.core.JacksonException;
 
 import java.io.Serial;
 import java.util.Collections;
@@ -101,7 +102,7 @@ public class ContactController {
     public ResponseEntity<ContactDto> putContact(@PathVariable("id") String id,
                                                   @RequestHeader(name = "Source", defaultValue = "unknown") String source,
                                                   @RequestBody @Valid ContactDto contactDto,
-                                                 Authentication auth) throws JsonProcessingException {
+                                                 Authentication auth) throws JacksonException {
         if (!contactDto.getIdentifier().equalsIgnoreCase(id)) {
             throw new NotMatchException("id and contact identifier don't match");
         }
@@ -113,7 +114,7 @@ public class ContactController {
         HttpStatus httpStatus = HttpStatus.OK;
         try {
             contactService.findByIdentifier(id);
-        } catch (NotFoundException e) {
+        } catch (NotFoundException _) {
             log.info("Creating contact with the identifier {}", contactDto.getIdentifier());
             httpStatus = HttpStatus.CREATED;
         }

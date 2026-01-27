@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.json.JsonCompareMode;
@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -57,13 +58,11 @@ class QuestionningEventControllerTest {
     @Autowired
     private SurveyUnitRepository surveyUnitRepository;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider
-                    .getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
-
-        }
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
     @Test
@@ -71,7 +70,8 @@ class QuestionningEventControllerTest {
     void getQuestioningEventOk() throws Exception {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         String json = createJsonQuestioningEvent();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId()))
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, questioning.getId())
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(json, JsonCompareMode.LENIENT));
@@ -80,7 +80,9 @@ class QuestionningEventControllerTest {
     @Test
     void getQuestioningEventNotFound() throws Exception {
         UUID identifier = UUID.randomUUID();
-        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_QUESTIONING_ID_QUESTIONING_EVENTS, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -90,7 +92,9 @@ class QuestionningEventControllerTest {
         String notValidEvent = "notValidEvent";
         UUID randomUUID = UUID.randomUUID();
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, notValidEvent)
-                        .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(randomUUID)))
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJsonQuestioningEventInputDto(randomUUID)))
                 .andDo(print())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("Type missing or not recognized. Only VALINT, RECUPAP, REFUSAL, WASTE, HC, INITLA, PARTIELINT, PND are valid"));
@@ -102,6 +106,7 @@ class QuestionningEventControllerTest {
         Questioning questioning = questioningService.findBySurveyUnitIdSu("100000001").stream().findFirst().get();
         UUID id = questioning.getId();
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_TYPE, TypeQuestioningEvent.REFUSAL.name())
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON).content(createJsonQuestioningEventInputDto(id)))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
@@ -143,6 +148,7 @@ class QuestionningEventControllerTest {
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
@@ -158,6 +164,7 @@ class QuestionningEventControllerTest {
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, null, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -170,6 +177,7 @@ class QuestionningEventControllerTest {
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.HC, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, questioning.getId())
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -181,6 +189,7 @@ class QuestionningEventControllerTest {
         ExpertEventDto expertEventDto = new ExpertEventDto(4,4, TypeQuestioningEvent.EXPERT, StatusEvent.AUTOMATIC);
         String json = createJsonExpertEvent(expertEventDto);
         this.mockMvc.perform(post(UrlConstants.API_QUESTIONING_ID_EXPERT_EVENTS, UUID.randomUUID().toString())
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON).content(json))
                 .andDo(print())
                 .andExpect(status().isNotFound());
@@ -192,6 +201,7 @@ class QuestionningEventControllerTest {
     void shouldDeleteQuestioningEventWithManualStatus() throws Exception {
         assertThat(questioningEventService.findbyId(2L)).isNotNull();
         mockMvc.perform(delete(UrlConstants.API_QUESTIONING_QUESTIONING_EVENTS_ID, 2L)
+                        .with(authentication(auth))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -281,6 +291,7 @@ class QuestionningEventControllerTest {
         mockMvc.perform(
                         multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
+                                .with(authentication(auth))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isConflict())
@@ -308,6 +319,7 @@ class QuestionningEventControllerTest {
         mockMvc.perform(
                         multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
+                                .with(authentication(auth))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isConflict())
@@ -336,6 +348,7 @@ class QuestionningEventControllerTest {
         mockMvc.perform(
                         multipart(UrlConstants.API_UPLOADING_INTERROGATION_EVENTS_RECUPAP, "SOURCE12023T01")
                                 .file(file)
+                                .with(authentication(auth))
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isNotFound())

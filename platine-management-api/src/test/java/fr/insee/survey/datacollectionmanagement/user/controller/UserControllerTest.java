@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,16 +58,20 @@ class UserControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    private Authentication auth;
+
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
     }
 
 
     @Test
     void getUserNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -75,7 +79,9 @@ class UserControllerTest {
     @Test
     void getUserOk() throws Exception {
         String identifier = "USER1";
-        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_USERS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()));
 
     }
@@ -87,7 +93,8 @@ class UserControllerTest {
         jo.put("numberOfElements", userRepository.count());
 
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_USERS_ALL))
+                .perform(get(UrlConstants.API_USERS_ALL)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -107,6 +114,7 @@ class UserControllerTest {
         String response = mockMvc
                 .perform(
                         put(UrlConstants.API_USERS_ID, identifier)
+                                .with(authentication(auth))
                                 .content(jsonUser)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -125,6 +133,7 @@ class UserControllerTest {
         String jsonUserUpdate = createJson(user);
         response = mockMvc
                 .perform(put(UrlConstants.API_USERS_ID, identifier)
+                        .with(authentication(auth))
                         .content(jsonUserUpdate)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -141,14 +150,18 @@ class UserControllerTest {
         assertEquals(UserEventTypeEnum.UPDATE, listUpdate.get(1).getType());
 
         // delete user
-        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> userService.findByIdentifier(identifier));
 
         assertTrue(userEventService.findUserEventsByUser(userFoundAfterUpdate).isEmpty());
 
         // delete user not found
-        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_USERS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
@@ -159,7 +172,9 @@ class UserControllerTest {
         String otherIdentifier = "WRONG";
         User user = initGestionnaire(identifier);
         String jsonUser = createJson(user);
-        mockMvc.perform(put(UrlConstants.API_USERS_ID, otherIdentifier).content(jsonUser)
+        mockMvc.perform(put(UrlConstants.API_USERS_ID, otherIdentifier)
+                        .with(authentication(auth))
+                        .content(jsonUser)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(JsonUtil.createJsonErrorBadRequest("id and user identifier don't match")));

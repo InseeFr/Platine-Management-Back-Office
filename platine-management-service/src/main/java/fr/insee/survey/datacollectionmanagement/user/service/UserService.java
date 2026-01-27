@@ -1,12 +1,12 @@
 package fr.insee.survey.datacollectionmanagement.user.service;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.exception.NotFoundException;
 import fr.insee.survey.datacollectionmanagement.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Optional;
 import java.util.Set;

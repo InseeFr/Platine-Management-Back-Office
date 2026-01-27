@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.exception.*;
 import fr.insee.survey.datacollectionmanagement.questioning.comparator.InterrogationEventComparator;
@@ -25,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.modelmapper.ModelMapper;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -58,7 +58,7 @@ class QuestioningEventServiceImplTest {
                 new ModelMapper(),
                 interrogationEventComparator,
                 new ExpertEventComponent(),
-                new ObjectMapper());
+                new JsonMapper());
     }
 
     private Questioning createQuestioning() {

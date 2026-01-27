@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -54,8 +54,8 @@ public class MySurveysServiceImpl implements MySurveysService {
                     contactId
             );
 
-            Date openingDate = details.getPartitioningOpeningDate();
-            Date closingDate = details.getPartitioningClosingDate();
+            LocalDateTime openingDate = details.getPartitioningOpeningDate();
+            LocalDateTime closingDate = details.getPartitioningClosingDate();
 
             QuestionnaireStatusTypeEnum status = isFileUpload(ctx.dataCollection())
                     ? questioningService.getQuestioningStatusFileUpload(openingDate, closingDate)
@@ -73,7 +73,7 @@ public class MySurveysServiceImpl implements MySurveysService {
                     details.getQuestioningId(),
                     details.getPartitioningLabel(),
                     details.getPartitioningId(),
-                    details.getPartitioningReturnDate() != null ? details.getPartitioningReturnDate().toInstant() : null,
+                    details.getPartitioningReturnDate() != null ? details.getPartitioningReturnDate() : null,
                     details.getSurveyUnitId(),
                     urls.downloadUrl().orElse(null),
                     details.getOperationUploadReference(),

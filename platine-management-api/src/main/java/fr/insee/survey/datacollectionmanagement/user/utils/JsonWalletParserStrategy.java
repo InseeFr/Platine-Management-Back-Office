@@ -1,7 +1,7 @@
 package fr.insee.survey.datacollectionmanagement.user.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import fr.insee.survey.datacollectionmanagement.exception.WalletFileProcessingException;
 import fr.insee.survey.datacollectionmanagement.user.dto.WalletDto;
 
@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class JsonWalletParserStrategy implements WalletParserStrategy {
 
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     /**
      * Checks if this parser supports the given file (by extension).
@@ -43,7 +43,7 @@ public class JsonWalletParserStrategy implements WalletParserStrategy {
     @Override
     public List<WalletDto> parse(MultipartFile file) {
         try {
-            List<WalletDto> dtos = objectMapper.readValue(
+            List<WalletDto> dtos = jsonMapper.readValue(
                     file.getInputStream(),
                     new TypeReference<>() {
                     }

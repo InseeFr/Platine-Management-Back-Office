@@ -1,11 +1,11 @@
 package fr.insee.survey.datacollectionmanagement.user.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.user.enums.UserEventTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Date;
 

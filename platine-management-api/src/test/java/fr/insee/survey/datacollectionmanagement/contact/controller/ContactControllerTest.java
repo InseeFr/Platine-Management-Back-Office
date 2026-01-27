@@ -1,8 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.contact.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.core.Authentication;
+import tools.jackson.databind.json.JsonMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import fr.insee.survey.datacollectionmanagement.configuration.ApplicationConfig;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
@@ -27,15 +29,13 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -83,14 +83,20 @@ class ContactControllerTest {
     @Autowired
     QuestioningAccreditationRepository questioningAccreditationRepository;
 
-    @RegisterExtension
-    static WireMockExtension wmLdap = WireMockExtension.newInstance()
-            .options(wireMockConfig().port(4444))
-            .build();
+    private WireMockServer wireMockServer;
+
+    private Authentication auth;
 
     @BeforeEach
     void init() {
-        SecurityContextHolder.getContext().setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN));
+        wireMockServer = new WireMockServer(wireMockConfig().port(4444));
+        wireMockServer.start();
+        auth = AuthenticationUserProvider.getAuthenticatedUser("test", AuthorityRoleEnum.ADMIN);
+    }
+
+    @AfterEach
+    void tearDown() {
+        wireMockServer.stop();
     }
 
     @Test
@@ -99,7 +105,8 @@ class ContactControllerTest {
         Contact contact = contactService.findByIdentifier(identifier);
         String json = createJson(contact);
         String response = this.mockMvc
-                .perform(get(UrlConstants.API_CONTACTS_ID, identifier))
+                .perform(get(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -112,7 +119,9 @@ class ContactControllerTest {
     @Test
     void getContactNotFound() throws Exception {
         String identifier = "CONT500";
-        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID, identifier)).andDo(print())
+        this.mockMvc.perform(get(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth)))
+                .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
 
     }
@@ -128,6 +137,7 @@ class ContactControllerTest {
         String response = mockMvc
                 .perform(
                         put(UrlConstants.API_CONTACTS_ID, identifier)
+                                .with(authentication(auth))
                                 .content(jsonContact)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -149,6 +159,7 @@ class ContactControllerTest {
         String jsonContactUpdate = createJson(contact);
         response = mockMvc
                 .perform(put(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth))
                         .content(jsonContactUpdate)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -167,13 +178,17 @@ class ContactControllerTest {
         assertEquals(ContactEventTypeEnum.update, listUpdate.get(1).getType());
 
         // delete contact
-        mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> contactService.findByIdentifier(identifier));
         assertTrue(contactEventService.findContactEventsByContact(contactFoundAfterUpdate).isEmpty());
 
         // delete contact not found
-        mockMvc.perform(delete(UrlConstants.API_CONTACTS + identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_CONTACTS + identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
     }
@@ -189,7 +204,8 @@ class ContactControllerTest {
                 .perform(
                         put(UrlConstants.API_CONTACTS_ID, identifier)
                                 .content(jsonContact)
-                                .contentType(MediaType.APPLICATION_JSON))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .with(authentication(auth)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
@@ -205,6 +221,7 @@ class ContactControllerTest {
         String jsonContactUpdate = createJsonContactAddress(contact);
         response = mockMvc
                 .perform(put(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth))
                         .content(jsonContactUpdate)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -217,7 +234,9 @@ class ContactControllerTest {
         assertEquals(contact.getAddress().getCityName(), countactFoundAfterUpdate.getAddress().getCityName());
 
         // delete contact
-        mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete(UrlConstants.API_CONTACTS_ID, identifier)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
         assertThrows(NotFoundException.class, () -> contactService.findByIdentifier(identifier));
 
@@ -229,7 +248,9 @@ class ContactControllerTest {
         String otherIdentifier = "WRONG";
         Contact contact = initContact(identifier);
         String jsonContact = createJson(contact);
-        String response = mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, otherIdentifier).content(jsonContact)
+        String response = mockMvc.perform(put(UrlConstants.API_CONTACTS_ID, otherIdentifier)
+                        .with(authentication(auth))
+                        .content(jsonContact)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn()
@@ -253,24 +274,25 @@ class ContactControllerTest {
         contactDto.setEmail(email);
         contactDto.setAddress(address);
 
-        String contactJson = new ObjectMapper().writeValueAsString(contactDto);
+        String contactJson = new JsonMapper().writeValueAsString(contactDto);
         String path = String.format("/v2/realms/%s/storages/%s/users",
                 applicationConfig.getLdapApiRealm(),
                 applicationConfig.getLdapApiStorage());
 
-        wmLdap.stubFor(post(path)
+        wireMockServer.stubFor(post(path)
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(createResponseBody(username))));
 
         this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, interrogationId)
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contactJson))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
+        wireMockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isPresent();
         assertThat(createdContact.get().getEmail()).isEqualTo(email);
@@ -295,22 +317,23 @@ class ContactControllerTest {
         contactDto.setEmail(email);
         contactDto.setAddress(address);
 
-        String contactJson = new ObjectMapper().writeValueAsString(contactDto);
+        String contactJson = new JsonMapper().writeValueAsString(contactDto);
         String path = String.format("/v2/realms/%s/storages/%s/users",
                 applicationConfig.getLdapApiRealm(),
                 applicationConfig.getLdapApiStorage());
 
-        wmLdap.stubFor(post(path)
+        wireMockServer.stubFor(post(path)
                 .willReturn(aResponse()
                         .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
         this.mockMvc.perform(put(UrlConstants.API_NEW_MAIN_CONTACT_INTERROGATIONS_ASSIGN, "bbbbbbbb-bbbb-bbbb-bbbb-000000000001")
+                        .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(contactJson))
                 .andDo(print())
                 .andExpect(status().isInternalServerError());
 
-        wmLdap.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
+        wireMockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(path)));
         Optional<Contact> createdContact = contactRepository.findById(username);
         assertThat(createdContact).isNotPresent();
         List<QuestioningAccreditation> questioningAccreditations = questioningAccreditationService.findByContactIdentifier(username);

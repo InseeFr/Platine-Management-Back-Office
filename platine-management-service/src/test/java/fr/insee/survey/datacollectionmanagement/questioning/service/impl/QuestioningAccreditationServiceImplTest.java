@@ -1,6 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.questioning.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.insee.survey.datacollectionmanagement.contact.domain.Contact;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactEvent;
 import fr.insee.survey.datacollectionmanagement.contact.domain.ContactSource;
@@ -32,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Date;
 import java.util.List;

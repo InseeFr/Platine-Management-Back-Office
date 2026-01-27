@@ -1,7 +1,5 @@
 package fr.insee.survey.datacollectionmanagement.integration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.insee.survey.datacollectionmanagement.configuration.AuthenticationUserProvider;
 import fr.insee.survey.datacollectionmanagement.constants.AuthorityRoleEnum;
 import fr.insee.survey.datacollectionmanagement.constants.UrlConstants;
@@ -11,99 +9,86 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@SpringBootTest
-@ActiveProfiles("test")
 public class SearchContactSteps {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper objectMapper;
+    JsonMapper jsonMapper;
+
+    @Autowired
+    private TestSecurityContext testSecurityContext;
 
     private MvcResult mvcResult;
     private Page<SearchContactDtoImpl> pageSearchContact;
-    private String role;
-
 
     @Given("I am a survey manager")
     public void setRole() {
-        role = AuthorityRoleEnum.INTERNAL_USER.name();
-        SecurityContextHolder.getContext()
-                .setAuthentication(AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.valueOf(role)));
+        testSecurityContext.setAuthentication(
+                AuthenticationUserProvider.getAuthenticatedUser("USER", AuthorityRoleEnum.INTERNAL_USER)
+        );
     }
 
     @When("I type {string} in the searching contact area by email")
     public void searchContactByEmail(String param) throws Exception {
         mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
+                        .with(authentication(testSecurityContext.getAuthentication()))
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.EMAIL.getValue()))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String content = mvcResult.getResponse().getContentAsString();
-
-        Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
-        });
-        List<SearchContactDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
-        });
-
+        Map<String, Object> result = jsonMapper.readValue(content, new TypeReference<>() {});
+        List<SearchContactDtoImpl> contentList = jsonMapper.convertValue(result.get("content"), new TypeReference<>() {});
         pageSearchContact = new PageImpl<>(contentList);
     }
 
     @When("I type {string} in the searching contact area by name")
     public void searchContactByName(String param) throws Exception {
         mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
+                        .with(authentication(testSecurityContext.getAuthentication()))
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.NAME.getValue()))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String content = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-
-        Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
-        });
-        List<SearchContactDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
-        });
-
+        Map<String, Object> result = jsonMapper.readValue(content, new TypeReference<>() {});
+        List<SearchContactDtoImpl> contentList = jsonMapper.convertValue(result.get("content"), new TypeReference<>() {});
         pageSearchContact = new PageImpl<>(contentList);
     }
 
     @When("I type {string} in the searching contact area by identifier")
     public void searchContactByIdentifier(String param) throws Exception {
         mvcResult = mockMvc.perform(get(UrlConstants.API_CONTACTS_SEARCH)
+                        .with(authentication(testSecurityContext.getAuthentication()))
                         .param("searchParam", param)
                         .param("searchType", ContactParamEnum.IDENTIFIER.getValue()))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String content = mvcResult.getResponse().getContentAsString();
-
-        Map<String, Object> result = objectMapper.readValue(content, new TypeReference<>() {
-        });
-        List<SearchContactDtoImpl> contentList = objectMapper.convertValue(result.get("content"), new TypeReference<>() {
-        });
-
+        Map<String, Object> result = jsonMapper.readValue(content, new TypeReference<>() {});
+        List<SearchContactDtoImpl> contentList = jsonMapper.convertValue(result.get("content"), new TypeReference<>() {});
         pageSearchContact = new PageImpl<>(contentList);
     }
 
@@ -119,10 +104,10 @@ public class SearchContactSteps {
 
             boolean found = pageSearchContact.getContent().stream()
                     .anyMatch(contact ->
-                            StringUtils.equalsIgnoreCase(contact.getIdentifier(), expectedIdep) &&
-                                    StringUtils.equalsIgnoreCase(contact.getLastName(), expectedLastname) &&
-                                    StringUtils.equalsIgnoreCase(contact.getFirstName(), expectedFirstname) &&
-                                    StringUtils.equalsIgnoreCase(contact.getEmail(), expectedEmail)
+                            expectedIdep.equalsIgnoreCase(contact.getIdentifier()) &&
+                            expectedLastname.equalsIgnoreCase(contact.getLastName()) &&
+                            expectedFirstname.equalsIgnoreCase(contact.getFirstName()) &&
+                            expectedEmail.equalsIgnoreCase(contact.getEmail())
                     );
 
             assertTrue(found, "Expected to find contact with idep: " + expectedIdep);
@@ -133,6 +118,4 @@ public class SearchContactSteps {
     public void iFoundNothing() {
         assertTrue(pageSearchContact.isEmpty(), "Expected to find no contacts");
     }
-
 }
-
