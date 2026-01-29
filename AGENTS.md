@@ -14,7 +14,7 @@
 - Coverage (JaCoCo): `./mvnw -P coverage verify` → report aggregate at `platine-management-api/target/site/jacoco-aggregate/jacoco.xml`.
 
 ## Coding Style & Naming Conventions
-- Language: Java 21, Spring Boot 3.5.
+- Language: Java 25, Spring Boot 3.5.
 - Indentation: 4 spaces; line endings UTF‑8.
 - Packages: `fr.insee.survey.datacollectionmanagement.*`.
 - Classes: `PascalCase`; methods/fields: `camelCase`; constants: `UPPER_SNAKE_CASE`.
