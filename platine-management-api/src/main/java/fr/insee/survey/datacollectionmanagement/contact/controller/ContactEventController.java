@@ -32,6 +32,7 @@ import java.util.List;
 @Slf4j
 public class ContactEventController {
 
+    public static final String CONTACT_S_NOT_FOUND = "contact %s not found";
     private final ContactEventService contactEventService;
 
     private final ContactService contactService;
@@ -44,7 +45,7 @@ public class ContactEventController {
     public ResponseEntity<ContactEventDto> postContactEventWithPlatineServiceAccount(@RequestBody @Valid ContactEventDto contactEventDto) {
 
         if (!contactService.existsByIdentifier(contactEventDto.getIdentifier().toUpperCase())) {
-            throw new NotFoundException(String.format("contact %s not found", contactEventDto.getIdentifier()));
+            throw new NotFoundException(String.format(CONTACT_S_NOT_FOUND, contactEventDto.getIdentifier()));
         }
 
         ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
@@ -57,7 +58,7 @@ public class ContactEventController {
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public List<ContactEventDto> getAllContactEvents(@CurrentSecurityContext(expression = "authentication.name") String contactId) {
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
-            throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
+            throw new NotFoundException(String.format(CONTACT_S_NOT_FOUND, contactId.toUpperCase()));
         }
         return contactEventService.findContactEventsByContactId(contactId.toUpperCase());
     }
@@ -67,12 +68,18 @@ public class ContactEventController {
     @PreAuthorize(AuthorityPrivileges.HAS_RESPONDENT_PRIVILEGES)
     public ResponseEntity<ContactEventDto> postContactEvent(@RequestBody @Valid ContactEventDto contactEventDto,
                                                             @CurrentSecurityContext(expression = "authentication.name") String contactId) {
-        if (!contactEventDto.getIdentifier().equalsIgnoreCase(contactId)) {
+
+
+        final String normalizedContactId = contactId == null ? null : contactId.trim().toUpperCase();
+
+        if (normalizedContactId == null || !normalizedContactId.equalsIgnoreCase(contactEventDto.getIdentifier())) {
             throw new NotMatchException("contactId and contact identifier don't match");
         }
+
         if (!contactService.existsByIdentifier(contactId.toUpperCase())) {
-            throw new NotFoundException(String.format("contact %s not found", contactId.toUpperCase()));
+            throw new NotFoundException(String.format(CONTACT_S_NOT_FOUND, contactId.toUpperCase()));
         }
+
         ContactEventDto newContactEvent = contactEventService.addContactEvent(contactEventDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newContactEvent);
