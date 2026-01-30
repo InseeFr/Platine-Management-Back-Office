@@ -67,10 +67,6 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     return questioningAccreditationRepository.save(questioningAccreditation);
   }
 
-  @Override
-  public void deleteAccreditation(QuestioningAccreditation acc) {
-    questioningAccreditationRepository.deleteById(acc.getId());
-  }
 
   @Override
   public void createQuestioningAccreditation(Questioning questioning,

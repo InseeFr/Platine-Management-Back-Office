@@ -24,8 +24,6 @@ public interface QuestioningAccreditationService {
 
   QuestioningAccreditation saveQuestioningAccreditation(QuestioningAccreditation questioningAccreditation);
 
-  void deleteAccreditation(QuestioningAccreditation c);
-
   void createQuestioningAccreditation(Questioning questioning,
       boolean isMain,
       Contact contact,

@@ -46,11 +46,6 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void deleteAccreditation(QuestioningAccreditation c) {
-        //not used
-    }
-
-    @Override
     public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign, Boolean isNew) {
         // not used
     }
