@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,6 +18,8 @@ public class Partitioning {
 
     @Id
     private String id;
+    @Column(name = "technical_id",unique = true)
+    private UUID technicalId;
     private String label;
     private Date openingDate;
     private Date closingDate;
@@ -49,5 +52,4 @@ public class Partitioning {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Enumerated(EnumType.STRING)
     private Set<Parameters> params;
-
 }

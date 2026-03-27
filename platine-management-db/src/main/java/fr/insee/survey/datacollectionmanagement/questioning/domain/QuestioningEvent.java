@@ -55,6 +55,9 @@ public class QuestioningEvent {
     public QuestioningEvent() {
     }
 
+    public QuestioningEvent(Date between, TypeQuestioningEvent typeQuestioningEvent, Questioning qu) {
+    }
+
     @Override
     public String toString() {
         return "QuestioningEvent [id=" + id + ", date=" + date + ", type=" + type + ", payload=" + payload

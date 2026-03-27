@@ -15,6 +15,9 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: install model filiere
+        run: mvn install:install-file -Dfile="$(pwd)/libs/modelefiliere-1.1.1.jar" -DgroupId=fr.insee -DartifactId=modelefiliere -Dversion=1.1.1 -Dpackaging=jar -DgeneratePom=true
+
       - name: Build with Maven
         run: mvn -B clean package --no-transfer-progress
       - name: Upload jar

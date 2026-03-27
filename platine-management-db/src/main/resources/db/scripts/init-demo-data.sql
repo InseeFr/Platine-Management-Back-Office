@@ -16,15 +16,15 @@ INSERT INTO public.survey(id, cnis_url, communication, diffusion_url, long_objec
   ('AQV2023', 'http://cnis/AQV2023', '', 'http://diffusion/AQV2023', 'Cette enquête permet de connaître précisément...', 'AQV stromae V2', 'http://notice/AQV2023', 0, 'Cette enquête permet de connaître précisément ...', 'Test pour AQV', 'http://specimenUrl/AQV2022', '2023xxxxxx', 2023, 'AQV'),
   ('AQV2024', 'http://cnis/AQV2024', '', 'http://diffusion/AQV2024', 'Cette enquête permet de connaître précisément...', 'AQV stromae V2', 'http://notice/AQV2023', 0, 'Cette enquête permet de connaître précisément ...', 'Test pour AQV', 'http://specimenUrl/AQV2022', '2024xxxxxx', 2024, 'AQV');
 
-INSERT INTO public.campaign(id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity) VALUES
-  ('AQV2022X00', 'AQV2022X00', 'AQV2022', 'X00', 2022, 'LUNATIC_NORMAL', false),
-  ('AQV2024X00', 'AQV2024X00', 'AQV2024', 'X00', 2024, 'LUNATIC_NORMAL', false),
-  ('AQV2023X00', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
+INSERT INTO public.campaign(id, technical_id, campaign_wording, survey_id, period_value, year_value, datacollection_target, sensitivity) VALUES
+  ('AQV2022X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa01', 'AQV2022X00', 'AQV2022', 'X00', 2022, 'LUNATIC_NORMAL', false),
+  ('AQV2024X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa02', 'AQV2024X00', 'AQV2024', 'X00', 2024, 'LUNATIC_NORMAL', false),
+  ('AQV2023X00', '0c83fb82-0197-7197-8e8c-a6ce2ccaaa03', 'Campagne qualité volaille en 2023 - AQV2023X00', 'AQV2023', 'X00', 2023, 'LUNATIC_SENSITIVE', true);
 
-INSERT INTO public.partitioning (id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
-  ('AQV2024X0000', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
-  ('AQV2023X0000', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
-  ('AQV2022X0000', '2099-10-30 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
+INSERT INTO public.partitioning (id, technical_id, closing_date, opening_date, return_date, campaign_id, "label") VALUES
+  ('AQV2024X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa01', '2099-12-30 01:00:00.000', '2023-03-07 01:00:00.000', '2024-12-31 10:33:27.723',  'AQV2024X00', 'vague 00'),
+  ('AQV2023X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa02', '2099-11-30 01:00:00.000', '2022-04-20 18:27:02.745', '2024-12-26 07:28:27.086', 'AQV2023X00', NULL),
+  ('AQV2022X0000', '0c83fb82-0197-7197-8e8c-a6ce2caaaa03', '2099-10-30 02:00:00.000', '2022-03-08 10:33:27.723', '2022-12-31 10:33:27.723', 'AQV2022X00', 'vague 00');
 
 INSERT INTO public.address(id,  country_name, street_name, street_number, zip_code, address_supplement, cedex_code, cedex_name, city_name, country_code, repetition_index, special_distribution, street_type) VALUES
   (207, 'France', 'rue des oies', '1', '75000', NULL, NULL, NULL, 'Paris', NULL, NULL, NULL, NULL),
@@ -126,30 +126,30 @@ INSERT INTO public.survey_unit (id_su, identification_name, identification_code,
   ('PROTO21', 'raison sociale 001', 'SIREN001', NULL, NULL),
   ('PROTO99', 'raison sociale 001', 'SIREN001', NULL, NULL);
 
-INSERT INTO public.questioning (id, id_partitioning, model_name, survey_unit_id_su, score, priority) VALUES
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', 'AQV2023X0000', 'aqv2023x00', 'PROTO01',1,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', 'AQV2023X0000', 'aqv2023x00', 'PROTO02',2,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd03', 'AQV2023X0000', 'aqv2023x00', 'PROTO03',3,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd04', 'AQV2023X0000', 'aqv2023x00', 'PROTO04',4,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd05', 'AQV2023X0000', 'aqv2023x00', 'PROTO05',5,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd06', 'AQV2023X0000', 'aqv2023x00', 'PROTO06',6,null),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd07', 'AQV2023X0000', 'aqv2023x00', 'PROTO07',6,100),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd08', 'AQV2023X0000', 'aqv2023x00', 'PROTO08',7,100),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd09', 'AQV2023X0000', 'aqv2023x00', 'PROTO09',7,200),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd10', 'AQV2023X0000', 'aqv2023x00', 'PROTO10',8,200),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd11', 'AQV2023X0000', 'aqv2023x00', 'PROTO11',9,300),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd12', 'AQV2023X0000', 'aqv2023x00', 'PROTO12',9,400),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd13', 'AQV2023X0000', 'aqv2023x00', 'PROTO13',9,400),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd14', 'AQV2023X0000', 'aqv2023x00', 'PROTO14',9,500),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd15', 'AQV2023X0000', 'aqv2023x00', 'PROTO15',9,600),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd16', 'AQV2023X0000', 'aqv2023x00', 'PROTO16',null,600),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd17', 'AQV2023X0000', 'aqv2023x00', 'PROTO17',null,600),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd18', 'AQV2023X0000', 'aqv2023x00', 'PROTO18',null,700),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd19', 'AQV2023X0000', 'aqv2023x00', 'PROTO19',null,800),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd20', 'AQV2023X0000', 'aqv2023x00', 'PROTO20',null,900),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21', 'AQV2022X0000', 'aqv2022x00', 'PROTO21',null,900),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21', 'AQV2023X0000', 'aqv2023x00', 'PROTO21',null,1000),
-  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd21', 'AQV2024X0000', 'aqv2024x00', 'PROTO21',null,1000);
+INSERT INTO public.questioning (id, id_partitioning, model_name, survey_unit_id_su) VALUES
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', 'AQV2023X0000', 'aqv2023x00', 'PROTO01'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', 'AQV2023X0000', 'aqv2023x00', 'PROTO02'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd03', 'AQV2023X0000', 'aqv2023x00', 'PROTO03'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd04', 'AQV2023X0000', 'aqv2023x00', 'PROTO04'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd05', 'AQV2023X0000', 'aqv2023x00', 'PROTO05'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd06', 'AQV2023X0000', 'aqv2023x00', 'PROTO06'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd07', 'AQV2023X0000', 'aqv2023x00', 'PROTO07'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd08', 'AQV2023X0000', 'aqv2023x00', 'PROTO08'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd09', 'AQV2023X0000', 'aqv2023x00', 'PROTO09'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd10', 'AQV2023X0000', 'aqv2023x00', 'PROTO10'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd11', 'AQV2023X0000', 'aqv2023x00', 'PROTO11'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd12', 'AQV2023X0000', 'aqv2023x00', 'PROTO12'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd13', 'AQV2023X0000', 'aqv2023x00', 'PROTO13'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd14', 'AQV2023X0000', 'aqv2023x00', 'PROTO14'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd15', 'AQV2023X0000', 'aqv2023x00', 'PROTO15'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd16', 'AQV2023X0000', 'aqv2023x00', 'PROTO16'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd17', 'AQV2023X0000', 'aqv2023x00', 'PROTO17'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd18', 'AQV2023X0000', 'aqv2023x00', 'PROTO18'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd19', 'AQV2023X0000', 'aqv2023x00', 'PROTO19'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd20', 'AQV2023X0000', 'aqv2023x00', 'PROTO20'),
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21', 'AQV2022X0000', 'aqv2022x00', 'PROTO21'),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21', 'AQV2023X0000', 'aqv2023x00', 'PROTO21'),
+  ('0c83fb82-0197-7197-8e8c-a6ce2c2dbd21', 'AQV2024X0000', 'aqv2024x00', 'PROTO21');
 
 INSERT INTO public.questioning_accreditation (id, creation_author, creation_date, id_contact, is_main, questioning_id) VALUES
   (262, 'string', '2022-11-18 16:12:49.697', 'RESPON2', true, '0c83fb82-0197-7197-8e8c-a6ce2c2dbd01'),
@@ -179,41 +179,41 @@ INSERT INTO public.questioning_accreditation (id, creation_author, creation_date
   (1216, 'platine-batch', '2023-03-08 12:25:33.484', 'RESPON5', true, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21'),
   (1220, 'platine-batch', '2023-03-08 15:49:51.670', 'RESPON5', true, '0c83fb82-0197-7197-8e8c-a6ce2c2dbd21');
 
-INSERT INTO public.questioning_event (id, "date", "type", questioning_id, payload, id_upload, status) VALUES
-  (398,  '2023-02-03 16:32:16.116', 'VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', '{}'::jsonb, NULL, 'AUTOMATIC'),
-  (331,  '2023-01-11 11:05:07.380', 'INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', '{}'::jsonb, NULL, 'AUTOMATIC'),
-  (406,  '2023-02-10 11:04:43.737', 'VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL, 'AUTOMATIC'),
-  (397,  '2023-02-01 11:09:48.967', 'PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL, 'AUTOMATIC'),
-  (332,  '2023-01-11 11:05:07.380', 'INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL, 'AUTOMATIC'),
-  (1410, '2023-03-24 12:06:38.494','VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd03','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (333,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd03','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (334,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd04','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (335,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd05','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (336,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd06','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (1411, '2023-03-24 12:06:38.503','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd07','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (337,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd07','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (338,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd08','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (339,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd09','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (2620506,'2025-01-22 13:22:46.225','REFUSAL','0c83fb82-0197-7197-8e8c-a6ce2c2dbd09','{"source":"platine-gestion"}'::jsonb, NULL, 'MANUAL'),
-  (1412, '2023-03-24 12:06:38.508','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (341,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (2596506,'2024-03-05 15:25:59.748','HC',      '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-gestion"}'::jsonb, NULL, 'MANUAL'),
-  (2596556,'2024-03-05 15:25:59.748','HC',      '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-gestion"}'::jsonb, NULL, 'MANUAL'),
-  (342,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd11','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (343,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd12','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (344,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd13','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (345,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd14','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (346,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd15','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (347,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd16','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (348,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd17','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (349,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd18','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (350,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd19','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (351,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd20','{}'::jsonb, NULL, 'AUTOMATIC'),
-  (2820, '2023-06-01 13:53:50.656','VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd20','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (1213, '2023-03-08 12:13:59.566','INITLA',    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (1217, '2023-03-08 12:25:33.960','INITLA',    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (1221, '2023-03-08 15:49:52.310','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC'),
-  (2822, '2023-06-01 13:53:50.683','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL, 'AUTOMATIC');
+INSERT INTO public.questioning_event (id, "date", "type", questioning_id, payload, id_upload) VALUES
+  (398,  '2023-02-03 16:32:16.116', 'VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', '{}'::jsonb, NULL),
+  (331,  '2023-01-11 11:05:07.380', 'INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd01', '{}'::jsonb, NULL),
+  (406,  '2023-02-10 11:04:43.737', 'VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL),
+  (397,  '2023-02-01 11:09:48.967', 'PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL),
+  (332,  '2023-01-11 11:05:07.380', 'INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd02', '{}'::jsonb, NULL),
+  (1410, '2023-03-24 12:06:38.494','VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd03','{"source":"platine-batch"}'::jsonb, NULL),
+  (333,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd03','{}'::jsonb, NULL),
+  (334,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd04','{}'::jsonb, NULL),
+  (335,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd05','{}'::jsonb, NULL),
+  (336,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd06','{}'::jsonb, NULL),
+  (1411, '2023-03-24 12:06:38.503','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd07','{"source":"platine-batch"}'::jsonb, NULL),
+  (337,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd07','{}'::jsonb, NULL),
+  (338,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd08','{}'::jsonb, NULL),
+  (339,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd09','{}'::jsonb, NULL),
+  (2620506,'2025-01-22 13:22:46.225','REFUSAL','0c83fb82-0197-7197-8e8c-a6ce2c2dbd09','{"source":"platine-gestion"}'::jsonb, NULL),
+  (1412, '2023-03-24 12:06:38.508','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-batch"}'::jsonb, NULL),
+  (341,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{}'::jsonb, NULL),
+  (2596506,'2024-03-05 15:25:59.748','HC',      '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-gestion"}'::jsonb, NULL),
+  (2596556,'2024-03-05 15:25:59.748','HC',      '0c83fb82-0197-7197-8e8c-a6ce2c2dbd10','{"source":"platine-gestion"}'::jsonb, NULL),
+  (342,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd11','{}'::jsonb, NULL),
+  (343,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd12','{}'::jsonb, NULL),
+  (344,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd13','{}'::jsonb, NULL),
+  (345,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd14','{}'::jsonb, NULL),
+  (346,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd15','{}'::jsonb, NULL),
+  (347,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd16','{}'::jsonb, NULL),
+  (348,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd17','{}'::jsonb, NULL),
+  (349,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd18','{}'::jsonb, NULL),
+  (350,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd19','{}'::jsonb, NULL),
+  (351,  '2023-01-11 11:05:07.380','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd20','{}'::jsonb, NULL),
+  (2820, '2023-06-01 13:53:50.656','VALINT',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd20','{"source":"platine-batch"}'::jsonb, NULL),
+  (1213, '2023-03-08 12:13:59.566','INITLA',    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa21','{"source":"platine-batch"}'::jsonb, NULL),
+  (1217, '2023-03-08 12:25:33.960','INITLA',    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21','{"source":"platine-batch"}'::jsonb, NULL),
+  (1221, '2023-03-08 15:49:52.310','INITLA',    '0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL),
+  (2822, '2023-06-01 13:53:50.683','PARTIELINT','0c83fb82-0197-7197-8e8c-a6ce2c2dbd21','{"source":"platine-batch"}'::jsonb, NULL);
 
 INSERT INTO public.questioning_comment(id, author, "comment", "date", questioning_id) VALUES
   (252, 'Robert', 'Commentaire 1 PROTO001', '2025-01-24 14:06:44.706', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbb21'),

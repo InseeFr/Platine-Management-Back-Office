@@ -37,6 +37,5 @@
     <include file="changelog/180_rename_events_VALPAP_to_RECUPAP.sql" relativeToChangelogFile="true"/>
     <include file="changelog/191_switch_to_manual_status_for_RECUPAP.sql" relativeToChangelogFile="true"/>
     <include file="changelog/190_create_VALPAP_PARTIELPAP_events.sql" relativeToChangelogFile="true"/>
-
-
+    <include file="changelog/192_update_source_survey_campaign_partitioning_with_technical-id.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>
