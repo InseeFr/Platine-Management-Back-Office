@@ -12,7 +12,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +30,7 @@ public class QuestioningCommunication {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_communication_seq")
     private Long id;
 
-    private LocalDateTime date;
+    private Instant date;
     @Enumerated(EnumType.STRING)
     private TypeCommunicationEvent type;
     private boolean withQuestionnaire;
@@ -42,7 +42,7 @@ public class QuestioningCommunication {
     @Enumerated(EnumType.STRING)
     private StatusCommunication status;
 
-    public QuestioningCommunication(LocalDateTime date, TypeCommunicationEvent type, Questioning questioning, StatusCommunication status) {
+    public QuestioningCommunication(Instant date, TypeCommunicationEvent type, Questioning questioning, StatusCommunication status) {
         this.date = date;
         this.type = type;
         this.questioning = questioning;

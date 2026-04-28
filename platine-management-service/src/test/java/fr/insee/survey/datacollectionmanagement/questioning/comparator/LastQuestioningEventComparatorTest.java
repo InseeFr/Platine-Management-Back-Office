@@ -7,7 +7,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.service.stub.EventOr
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ class LastQuestioningEventComparatorTest {
         QuestioningEvent event = new QuestioningEvent();
         event.setId(id);
         event.setType(type);
-        event.setDate(new Date());
+        event.setDate(Instant.now());
         return event;
     }
 }

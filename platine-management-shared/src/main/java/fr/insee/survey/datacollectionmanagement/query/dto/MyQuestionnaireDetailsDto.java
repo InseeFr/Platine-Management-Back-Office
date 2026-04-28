@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -19,9 +19,9 @@ public class MyQuestionnaireDetailsDto {
     private UUID questioningId;
     private String partitioningLabel;
     private String partitioningId;
-    private Date partitioningOpeningDate;
-    private Date partitioningClosingDate;
-    private Date partitioningReturnDate;
+        private Instant partitioningOpeningDate;
+        private Instant partitioningClosingDate;
+        private Instant partitioningReturnDate;
     private String surveyUnitIdentificationCode;
     private String surveyUnitIdentificationName;
     private String surveyUnitCompositeName;

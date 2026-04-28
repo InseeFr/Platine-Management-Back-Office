@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Clock;
 
 @Service
 @Slf4j
@@ -21,11 +21,12 @@ public class QuestioningCommentServiceImpl implements QuestioningCommentService 
 
     private final QuestioningCommentRepository questioningCommentRepository;
     private final ModelMapper modelMapper;
+    private final Clock clock;
 
     @Override
     public QuestioningCommentOutputDto saveQuestioningComment(Questioning questioning, QuestioningCommentInputDto questioningCommentInputDto) {
         QuestioningComment questioningComment = convertToEntity(questioningCommentInputDto);
-        questioningComment.setDate(new Date());
+        questioningComment.setDate(clock.instant());
         questioningComment.setQuestioning(questioning);
         QuestioningComment newQuestioningComment = questioningCommentRepository.save(questioningComment);
         return convertToOutputDto(newQuestioningComment);

@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.questioning.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -20,7 +20,7 @@ public class QuestioningAccreditation {
     private Long id;
 
     private boolean isMain;
-    private Date creationDate;
+    private Instant creationDate;
     private String creationAuthor;
     @NonNull
     private String idContact;

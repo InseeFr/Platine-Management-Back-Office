@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,8 +44,7 @@ class MySurveyServiceImplTest {
     @BeforeEach
     void setUp() {
         questioningAccreditationRepositoryStub = new QuestioningAccreditationRepositoryStub();
-        Date date = new Date();
-        instant = date.toInstant();
+        instant = Instant.now();
         questioningService = new QuestioningServiceStub();
         UUID questioningId = UUID.randomUUID();
         myQuestionnaireDetailsDto = new MyQuestionnaireDetailsDto();
@@ -59,7 +57,7 @@ class MySurveyServiceImplTest {
         myQuestionnaireDetailsDto.setPartitioningLabel("Partition Label");
         myQuestionnaireDetailsDto.setQuestioningId(questioningId);
         myQuestionnaireDetailsDto.setPartitioningId("partition1");
-        myQuestionnaireDetailsDto.setPartitioningReturnDate(date);
+        myQuestionnaireDetailsDto.setPartitioningReturnDate(instant);
         myQuestionnaireDetailsDto.setSourceType(SourceTypeEnum.HOUSEHOLD.toString());
 
         mySurveysService = new MySurveysServiceImpl(
@@ -307,9 +305,9 @@ class MySurveyServiceImplTest {
         Partitioning partitioning = new Partitioning();
         partitioning.setId(id);
         partitioning.setLabel("label");
-        partitioning.setOpeningDate(new Date());
-        partitioning.setClosingDate(new Date());
-        partitioning.setReturnDate(new Date());
+        partitioning.setOpeningDate(Instant.now());
+        partitioning.setClosingDate(Instant.now());
+        partitioning.setReturnDate(Instant.now());
         partitioning.setCampaign(campaign);
         return partitioning;
     }

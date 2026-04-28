@@ -12,7 +12,9 @@ import fr.insee.survey.datacollectionmanagement.metadata.enums.PeriodEnum;
 import fr.insee.survey.datacollectionmanagement.metadata.service.CampaignService;
 import fr.insee.survey.datacollectionmanagement.questioning.service.QuestioningService;
 import net.minidev.json.JSONObject;
-import org.assertj.core.util.DateUtil;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,24 +219,24 @@ class CampaignControllerTest {
     }
 
     private Campaign initOpenedCampaign(String campaignId) {
-        return initCampaign(campaignId, DateUtil.parse("2000-01-01"), DateUtil.parse("2050-01-01"));
+        return initCampaign(campaignId, Instant.parse("2000-01-01T00:00:00Z"), Instant.parse("2050-01-01T00:00:00Z"));
     }
 
     private Campaign initClosedCampaign(String campaignId) {
-        return initCampaign(campaignId, DateUtil.parse("2010-01-01"), DateUtil.parse("2010-01-31"));
+        return initCampaign(campaignId, Instant.parse("2010-01-01T00:00:00Z"), Instant.parse("2010-01-31T00:00:00Z"));
     }
 
     private Campaign initFutureCampaign(String campaignId) {
-        return initCampaign(campaignId, DateUtil.parse("2050-01-01"), DateUtil.parse("2050-01-31"));
+        return initCampaign(campaignId, Instant.parse("2050-01-01T00:00:00Z"), Instant.parse("2050-01-31T00:00:00Z"));
     }
 
     private Campaign initEmptyCampaign(String campaignId) {
-        Campaign empty = initCampaign(campaignId, DateUtil.parse("2050-01-01"), DateUtil.parse("2050-01-31"));
+        Campaign empty = initCampaign(campaignId, Instant.parse("2050-01-01T00:00:00Z"), Instant.parse("2050-01-31T00:00:00Z"));
         empty.setPartitionings(new HashSet<>());
         return empty;
     }
 
-    private Campaign initCampaign(String campaignId, Date openingDate, Date closingDate) {
+    private Campaign initCampaign(String campaignId, Instant openingDate, Instant closingDate) {
         Campaign campaignMock = new Campaign();
         campaignMock.setYear(2023);
         campaignMock.setPeriod(PeriodEnum.A00);
@@ -247,7 +249,7 @@ class CampaignControllerTest {
         return campaignMock;
     }
 
-    private Partitioning initPartitioning(String campaignId, String s, Date openingDate, Date closingDate, Campaign campaignMock) {
+    private Partitioning initPartitioning(String campaignId, String s, Instant openingDate, Instant closingDate, Campaign campaignMock) {
         Partitioning part = new Partitioning();
         part.setId(campaignId + s);
         part.setOpeningDate(openingDate);
@@ -256,13 +258,16 @@ class CampaignControllerTest {
         return part;
     }
 
+    private static final DateTimeFormatter DTO_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
+
     private String createJsonPart(Partitioning part) {
         JSONObject jo = new JSONObject();
         jo.put("id", part.getId());
         jo.put("campaignId", part.getCampaign().getId());
-        jo.put("openingDate", part.getOpeningDate().toInstant().toString());
-        jo.put("closingDate", part.getClosingDate().toInstant().toString());
-        jo.put("returnDate", part.getClosingDate().toInstant().toString());
+        jo.put("openingDate", DTO_DATE_FORMAT.format(part.getOpeningDate()));
+        jo.put("closingDate", DTO_DATE_FORMAT.format(part.getClosingDate()));
+        jo.put("returnDate", DTO_DATE_FORMAT.format(part.getClosingDate()));
         jo.put("label", "label");
         return jo.toString();
     }

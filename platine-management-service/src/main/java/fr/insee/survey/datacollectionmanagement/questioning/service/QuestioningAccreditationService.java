@@ -8,7 +8,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.QuestioningAc
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ public interface QuestioningAccreditationService {
       boolean isMain,
       Contact contact,
       JsonNode payload,
-      Date date,
+      Instant date,
       Campaign campaign, Boolean isNew);
 
   void setQuestioningAccreditationAsMain(QuestioningAccreditation qa, Contact contact, JsonNode eventPayload);

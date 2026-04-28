@@ -5,7 +5,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusEvent;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -13,7 +13,7 @@ import java.util.UUID;
 public class QuestioningEventInputDto {
 
     private UUID questioningId;
-    private Date date;
+    private Instant date;
     private JsonNode payload;
     private StatusEvent status;
 

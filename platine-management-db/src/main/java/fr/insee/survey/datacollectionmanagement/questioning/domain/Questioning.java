@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -54,7 +54,7 @@ public class Questioning {
     private Integer scoreInit;
 
     @Column(name= "highest_event_date")
-    private Date highestEventDate;
+    private Instant highestEventDate;
 
     @Column(name= "highest_event_type")
     @Enumerated(EnumType.STRING)

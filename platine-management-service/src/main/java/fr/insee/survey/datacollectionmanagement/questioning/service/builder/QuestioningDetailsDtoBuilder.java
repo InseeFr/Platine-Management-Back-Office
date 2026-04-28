@@ -8,8 +8,8 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningCommu
 import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEventDto;
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestioningEvent;
 
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,7 +55,7 @@ public class QuestioningDetailsDtoBuilder {
         return this;
     }
 
-    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestEventType, Date highestEventDate, QuestioningEventDto validatedEvent) {
+    public QuestioningDetailsDtoBuilder events(List<QuestioningEventDto> events, TypeQuestioningEvent highestEventType, Instant highestEventDate, QuestioningEventDto validatedEvent) {
         instance.setListEvents(events);
 
         if (highestEventType != null && highestEventDate != null && events != null) {

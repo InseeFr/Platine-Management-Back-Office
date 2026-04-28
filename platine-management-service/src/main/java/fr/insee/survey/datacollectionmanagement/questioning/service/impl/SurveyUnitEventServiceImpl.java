@@ -50,8 +50,8 @@ public class SurveyUnitEventServiceImpl implements SurveyUnitEventService {
         SurveyUnitEvent event = new SurveyUnitEvent(
                 surveyUnit,
                 campaign,
-                LocalDateTime.ofInstant(eventDate, clock.getZone()),
-                LocalDateTime.now(clock),
+                eventDate,
+                clock.instant(),
                 eventDto.eventType(),
                 eventDto.source());
 
@@ -63,9 +63,7 @@ public class SurveyUnitEventServiceImpl implements SurveyUnitEventService {
                 event.getCampaign().getId(),
                 event.getType(),
                 event.getSource(),
-                event.getDate()
-                        .atZone(clock.getZone()).toInstant().toEpochMilli(),
-                event.getCreationDate()
-                        .atZone(clock.getZone()).toInstant().toEpochMilli());
+                event.getDate().toEpochMilli(),
+                event.getCreationDate().toEpochMilli());
     }
 }

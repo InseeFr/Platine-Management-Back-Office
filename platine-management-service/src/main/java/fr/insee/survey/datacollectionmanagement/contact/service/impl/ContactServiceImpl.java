@@ -27,7 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +53,7 @@ public class ContactServiceImpl implements ContactService {
 
   private final QuestioningRepository questioningRepository;
 
+  private final Clock clock;
 
   @Override
   public Contact findByIdentifier(String identifier) {
@@ -257,7 +260,7 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public void saveContactCreationEvent(String contactId) {
     ContactEventDto contactEventDto = new ContactEventDto();
-    contactEventDto.setEventDate(new Date());
+    contactEventDto.setEventDate(clock.instant());
     contactEventDto.setType(ContactEventTypeEnum.create.toString());
     contactEventDto.setPayload(ServiceJsonUtil.createPayload("platine-pilotage"));
     contactEventDto.setIdentifier(contactId);

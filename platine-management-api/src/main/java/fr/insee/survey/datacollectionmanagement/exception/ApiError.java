@@ -1,11 +1,10 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -18,8 +17,7 @@ public class ApiError {
     private String path;
     private String message;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy hh:mm:ss")
-    private Date timestamp;
+        private Instant timestamp;
 
     private List<String> details;
 
@@ -29,7 +27,7 @@ public class ApiError {
      * @param timestamp    timestamp of the generated error
      * @param errorMessage error message
      */
-    public ApiError(HttpStatus status, String path, Date timestamp, String errorMessage) {
+    public ApiError(HttpStatus status, String path, Instant timestamp, String errorMessage) {
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = status.getReasonPhrase();
         }
@@ -43,14 +41,14 @@ public class ApiError {
      * @param errorMessage error message
      *
      */
-    public ApiError(HttpStatus status, String path, Date timestamp, String errorMessage,  List<String> details) {
+    public ApiError(HttpStatus status, String path, Instant timestamp, String errorMessage,  List<String> details) {
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = status.getReasonPhrase();
         }
         createApiError(status.value(), path, timestamp, errorMessage, details);
     }
 
-    private void createApiError(int code, String path, Date timestamp, String errorMessage,  List<String> details) {
+    private void createApiError(int code, String path, Instant timestamp, String errorMessage,  List<String> details) {
         this.code = code;
         this.path = path;
         this.message = errorMessage;

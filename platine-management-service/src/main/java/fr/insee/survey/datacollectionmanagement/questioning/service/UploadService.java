@@ -6,7 +6,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.domain.Upload;
 import fr.insee.survey.datacollectionmanagement.questioning.dto.UploadDto;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -22,7 +22,7 @@ public interface UploadService {
 
     Upload saveAndFlush(Upload up);
 
-    boolean checkUploadDate(String idCampaign, Date date);
+    boolean checkUploadDate(String idCampaign, Instant date);
 
     void removeEmptyUploads();
 

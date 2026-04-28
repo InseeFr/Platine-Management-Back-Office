@@ -33,13 +33,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
 class QuestioningAccreditationServiceImplTest {
 
@@ -65,7 +68,7 @@ class QuestioningAccreditationServiceImplTest {
         service = new QuestioningAccreditationServiceImpl(
                 accreditationRepo, contactEventService,
                 contactSourceService, partitioningService, viewService,
-                questioningRepository, contactRepository
+                questioningRepository, contactRepository, Clock.systemUTC()
         );
     }
 
@@ -194,7 +197,7 @@ class QuestioningAccreditationServiceImplTest {
         acc.setQuestioning(questioning);
         acc.setMain(true);
         acc.setIdContact(contact.getIdentifier());
-        acc.setCreationDate(new Date());
+        acc.setCreationDate(Instant.now());
         accreditationRepo.save(acc);
         return acc;
     }
@@ -220,7 +223,7 @@ class QuestioningAccreditationServiceImplTest {
         assertThat(event).isPresent();
         assertThat(event.get().getType()).isEqualTo(ContactEventTypeEnum.update);
         assertThat(event.get().getPayload()).isEqualTo(payload);
-        assertThat(event.get().getEventDate()).isCloseTo(new Date(), 5000L);
+        assertThat(event.get().getEventDate()).isCloseTo(Instant.now(), within(5, ChronoUnit.SECONDS));
     }
 
     private void assertContactSourceExists(String contactId, Campaign campaign, String idSu) {
@@ -250,7 +253,7 @@ class QuestioningAccreditationServiceImplTest {
     @DisplayName("Should create and save new questioning accreditation")
     void shouldCreateQuestioningAccreditation() {
         Questioning questioning = createAndRegisterQuestioning();
-        Date now = new Date();
+        Instant now = Instant.now();
         Contact contact = createAndSaveContact("contact-id");
         JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
         Campaign campaign = getCampaignFromPartition();
@@ -386,12 +389,12 @@ class QuestioningAccreditationServiceImplTest {
         Contact contact = createAndSaveContact("secondary-contact");
         Campaign campaign = getCampaignFromPartition();
         JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
-        Date now = new Date();
+        Instant now = Instant.now();
         QuestioningAccreditation existing = new QuestioningAccreditation();
         existing.setId(200L);
         existing.setIdContact(contact.getIdentifier());
         existing.setMain(false);
-        existing.setCreationDate(new Date(now.getTime() - 100000));
+        existing.setCreationDate(now.minusMillis(100000));
         existing.setQuestioning(questioning);
         accreditationRepo.save(existing);
 

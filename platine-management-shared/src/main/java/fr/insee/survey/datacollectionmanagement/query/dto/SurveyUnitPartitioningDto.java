@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ public class SurveyUnitPartitioningDto {
     private int year;
     private PeriodEnum period;
     private String campaignWording;
-    private Date partioningClosingDate;
+        private Instant partioningClosingDate;
     private TypeQuestioningEvent lastEvent;
 
 }

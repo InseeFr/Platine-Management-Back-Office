@@ -5,14 +5,14 @@ import fr.insee.survey.datacollectionmanagement.contact.validation.ContactEventT
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
 public class ContactEventDto {
 
     private String identifier;
-    private Date eventDate;
+    private Instant eventDate;
     @ContactEventTypeValid
     private String type;
     private JsonNode payload;

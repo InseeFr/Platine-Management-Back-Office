@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.dto;
 import fr.insee.survey.datacollectionmanagement.metadata.enums.CollectionStatus;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Data
 public class CampaignSummaryDto {
@@ -13,6 +13,6 @@ public class CampaignSummaryDto {
     private int year;
     private String period;
     private CollectionStatus status;
-    private Date openingDate;
-    private Date closingDate;
+    private Instant openingDate;
+    private Instant closingDate;
 }

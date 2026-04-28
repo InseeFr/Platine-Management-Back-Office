@@ -31,8 +31,8 @@ public class PartitioningServiceStub implements PartitioningService {
 
     @Override
     public boolean isOnGoing(Partitioning part, Instant now) {
-        return part.getClosingDate().toInstant().isAfter(now) &&
-                part.getOpeningDate().toInstant().isBefore(now);
+        return part.getClosingDate().isAfter(now) &&
+                part.getOpeningDate().isBefore(now);
     }
 
 }

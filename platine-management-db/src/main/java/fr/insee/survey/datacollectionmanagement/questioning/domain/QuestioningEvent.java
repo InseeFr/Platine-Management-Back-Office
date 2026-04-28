@@ -10,7 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -24,7 +24,7 @@ public class QuestioningEvent {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questioning_event_seq")
     private Long id;
 
-    private Date date;
+    private Instant date;
     @Enumerated(EnumType.STRING)
     private TypeQuestioningEvent type;
 
@@ -45,7 +45,7 @@ public class QuestioningEvent {
     @Column(name = "status")
     private StatusEvent status;
 
-    public QuestioningEvent(Date date, TypeQuestioningEvent type, Questioning questioning, StatusEvent status) {
+    public QuestioningEvent(Instant date, TypeQuestioningEvent type, Questioning questioning, StatusEvent status) {
         this.date = date;
         this.type = type;
         this.questioning = questioning;

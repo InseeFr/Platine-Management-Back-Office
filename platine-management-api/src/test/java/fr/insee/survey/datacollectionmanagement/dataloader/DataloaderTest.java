@@ -37,6 +37,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 @Configuration
@@ -197,7 +198,7 @@ public class DataloaderTest {
         ContactEvent contactEvent = new ContactEvent();
         contactRepository.save(contact);
         contactEvent.setType(ContactEventTypeEnum.create);
-        contactEvent.setEventDate(new Date());
+        contactEvent.setEventDate(Instant.now());
         contactEvent.setContact(contact);
         String json = "{\"contact_identifier\":\"" + contact.getIdentifier() + "\",\"name\":\"" + contact.getLastName()
                 + "\"}";
@@ -317,9 +318,9 @@ public class DataloaderTest {
                             Partitioning part = new Partitioning();
                             part.setId(sourceName + (year - j) + "T" + trimester + "00" + l);
                             log.info("Part created : {}", part.getId());
-                            Date openingDate = sdf.parse("01/01/" + year);
-                            Date closingDate = sdf.parse("31/12/" + year);
-                            Date returnDate = sdf.parse("01/06/" + year);
+                            Instant openingDate = sdf.parse("01/01/" + year).toInstant();
+                            Instant closingDate = sdf.parse("31/12/" + year).toInstant();
+                            Instant returnDate = sdf.parse("01/06/" + year).toInstant();
 
                             part.setOpeningDate(openingDate);
                             part.setClosingDate(closingDate);
@@ -399,10 +400,10 @@ public class DataloaderTest {
             Optional<Partitioning> part = partitioningRepository.findById(qu.getIdPartitioning());
 
             qeList.add(new QuestioningEvent(
-                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                    faker.date().between(Date.from(part.get().getOpeningDate()), Date.from(part.get().getClosingDate())).toInstant(),
                     TypeQuestioningEvent.INITLA, qu, StatusEvent.AUTOMATIC));
             qeList.add(new QuestioningEvent(
-                    faker.date().between(part.get().getOpeningDate(), part.get().getClosingDate()),
+                    faker.date().between(Date.from(part.get().getOpeningDate()), Date.from(part.get().getClosingDate())).toInstant(),
                     TypeQuestioningEvent.PARTIELINT, qu, StatusEvent.MANUAL));
 
             if(questioningRepository.count() % 10 != 0) {

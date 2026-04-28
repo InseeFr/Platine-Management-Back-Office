@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.*;
 
 @Setter
@@ -46,7 +47,7 @@ public class QuestioningAccreditationServiceStub implements QuestioningAccredita
     }
 
     @Override
-    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Date date, Campaign campaign, Boolean isNew) {
+    public void createQuestioningAccreditation(Questioning questioning, boolean isMain, Contact contact, JsonNode payload, Instant date, Campaign campaign, Boolean isNew) {
         // not used
     }
 

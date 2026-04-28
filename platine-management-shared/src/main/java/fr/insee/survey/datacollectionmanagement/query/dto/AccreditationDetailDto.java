@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class AccreditationDetailDto {
     private PeriodEnum period;
     private String campaignId;
     private String partition;
-    private Date partioningClosingDate;
+        private Instant partioningClosingDate;
     private String surveyUnitId;
     private String identificationName;
     private boolean isMain;

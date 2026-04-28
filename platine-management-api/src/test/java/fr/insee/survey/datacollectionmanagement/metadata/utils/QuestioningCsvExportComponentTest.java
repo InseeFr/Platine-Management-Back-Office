@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -28,7 +28,7 @@ class QuestioningCsvExportComponentTest {
                 "PART1",
                 "SU1",
                 TypeQuestioningEvent.INITLA,
-                new Date(0L),
+                Instant.ofEpochMilli(0L),
                 true
         );
 
@@ -68,7 +68,7 @@ class QuestioningCsvExportComponentTest {
                 "PART2",
                 "SU2",
                 TypeQuestioningEvent.EXPERT,
-                new Date(0L),
+                Instant.ofEpochMilli(0L),
                 false
         );
 
@@ -172,7 +172,7 @@ class QuestioningCsvExportComponentTest {
                         "PART" + i,
                         "SU" + i,
                         TypeQuestioningEvent.INITLA,
-                        new Date(i),
+                        Instant.ofEpochMilli(i),
                         i % 2 == 0
                 ))
                 .toList();

@@ -27,6 +27,7 @@ import io.cucumber.java.en.Given;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -109,10 +110,8 @@ public class ContextSteps {
         part.setId(partId);
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate tomorrow  = LocalDate.now().plusDays(1);
-        Date yesterdayDate = Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date tomorrowDate = Date.from(tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        part.setOpeningDate(yesterdayDate);
-        part.setClosingDate(tomorrowDate);
+        part.setOpeningDate(yesterday.atStartOfDay(ZoneId.of("UTC")).toInstant());
+        part.setClosingDate(tomorrow.atStartOfDay(ZoneId.of("UTC")).toInstant());
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
         part.setCampaign(campaign);
         partitioningRepository.save(part);
@@ -124,9 +123,9 @@ public class ContextSteps {
         Partitioning part = new Partitioning();
         part.setId(partId);
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        Date yesterdayDate = Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        part.setOpeningDate(yesterdayDate);
-        part.setClosingDate(yesterdayDate);
+        Instant yesterdayInstant = yesterday.atStartOfDay(ZoneId.of("UTC")).toInstant();
+        part.setOpeningDate(yesterdayInstant);
+        part.setClosingDate(yesterdayInstant);
         Campaign campaign = campaignRepository.findById(campaignId).orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
         part.setCampaign(campaign);
         partitioningRepository.save(part);

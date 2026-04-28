@@ -31,6 +31,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private static final String QUESTIONING_NOT_FOUND_MESSAGE = "Questioning %s not found";
 
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     @Override
     public QuestioningEvent findbyId(Long id) {
@@ -186,7 +189,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
         QuestioningEvent created = new QuestioningEvent();
         created.setQuestioning(questioning);
         created.setType(newType);
-        created.setDate(new Date());
+        created.setDate(clock.instant());
 
         created.setStatus(expertEventDto.status() != null
                 ? expertEventDto.status()
@@ -244,7 +247,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     @Override
     public void bulkUploadRecupapInterrogationEvents(String campaignId, MultipartFile file) throws InterrogationNotFoundException, TooManyInterrogationsException{
         final JsonNode payload = objectMapper.createObjectNode().put("source", "platine-gestion");
-        Date nowDate = new Date();
+        Instant nowDate = clock.instant();
 
         try {
             Set<String> surveyUnitIds = readSurveyUnitIdsFromCsv(file);
@@ -329,7 +332,7 @@ public class QuestioningEventServiceImpl implements QuestioningEventService {
     private List<QuestioningEvent> buildRecupapInterrogationEvents(
             Map<String, List<Questioning>> questionningBySu,
             JsonNode payload,
-            Date nowDate) {
+            Instant nowDate) {
 
         int estimatedSize = questionningBySu.values().stream().mapToInt(List::size).sum();
         List<QuestioningEvent> events = new ArrayList<>(estimatedSize);

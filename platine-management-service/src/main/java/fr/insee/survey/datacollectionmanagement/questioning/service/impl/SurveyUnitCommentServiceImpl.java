@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Clock;
 
 @Service
 @Slf4j
@@ -22,11 +22,13 @@ public class SurveyUnitCommentServiceImpl implements SurveyUnitCommentService {
     private final SurveyUnitCommentRepository surveyUnitCommentRepository;
     private final SurveyUnitService surveyUnitService;
     private final ModelMapper modelMapper;
+    private final Clock clock;
+
     @Override
     public SurveyUnitCommentOutputDto saveSurveyUnitComment(SurveyUnit surveyUnit, SurveyUnitCommentInputDto surveyUnitCommentInputDto) {
 
         SurveyUnitComment surveyUnitComment = convertToEntity(surveyUnitCommentInputDto);
-        surveyUnitComment.setDate(new Date());
+        surveyUnitComment.setDate(clock.instant());
         surveyUnitComment.setSurveyUnit(surveyUnit);
         SurveyUnitComment newSurveyUnitComment = surveyUnitCommentRepository.save(surveyUnitComment);
         return convertToOutputDto(newSurveyUnitComment);

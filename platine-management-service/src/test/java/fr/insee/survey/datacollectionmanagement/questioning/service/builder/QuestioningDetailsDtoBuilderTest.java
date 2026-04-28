@@ -10,9 +10,6 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeQuestionin
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,17 +81,17 @@ class QuestioningDetailsDtoBuilderTest {
         QuestioningEventDto event1 = new QuestioningEventDto();
         event1.setType("INIT_LA");
         event1.setStatus("MANUAL");
-        event1.setEventDate(new Date(1709022000000L));
+        event1.setEventDate(Instant.ofEpochMilli(1709022000000L));
 
         QuestioningEventDto event2 = new QuestioningEventDto();
         event2.setType("VALINT");
         event2.setStatus("AUTOMATIC");
-        event2.setEventDate(new Date(1709108400000L));
+        event2.setEventDate(Instant.ofEpochMilli(1709108400000L));
 
         QuestioningEventDto validatedEvent = new QuestioningEventDto();
         validatedEvent.setType("VALID");
         validatedEvent.setStatus("AUTOMATIC");
-        validatedEvent.setEventDate(new Date(1709194800000L));
+        validatedEvent.setEventDate(Instant.ofEpochMilli(1709194800000L));
 
         QuestioningDetailsDto dto = new QuestioningDetailsDtoBuilder()
                 .events(List.of(event1, event2), TypeQuestioningEvent.valueOf(event2.getType()), event2.getEventDate(), validatedEvent)
@@ -141,14 +138,14 @@ class QuestioningDetailsDtoBuilderTest {
     void shouldSetCommunications() {
         QuestioningCommunicationDto comm1 = new QuestioningCommunicationDto();
         comm1.setType("EMAIL");
-        comm1.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709022000000L), ZoneId.systemDefault()));
+        comm1.setDate(Instant.ofEpochMilli(1709022000000L));
         QuestioningCommunicationDto comm2 = new QuestioningCommunicationDto();
         comm2.setType("PHONE_CALL");
-        comm2.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
+        comm2.setDate(Instant.ofEpochMilli(1709108400000L));
         QuestioningCommunicationDto comm3 = new QuestioningCommunicationDto();
         comm3.setWithReceipt(false);
         comm3.setType("RELANCE");
-        comm3.setDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(1709108400000L), ZoneId.systemDefault()));
+        comm3.setDate(Instant.ofEpochMilli(1709108400000L));
         comm3.setWithQuestionnaire(true);
         comm3.setWithReceipt(true);
 
@@ -194,7 +191,7 @@ class QuestioningDetailsDtoBuilderTest {
         QuestioningCommentOutputDto comment = new QuestioningCommentOutputDto();
         comment.setComment("This is a comment.");
         comment.setAuthor("John Doe");
-        comment.setCommentDate(new Date(1709022000000L));
+        comment.setCommentDate(Instant.ofEpochMilli(1709022000000L));
 
         List<QuestioningCommentOutputDto> comments = List.of(comment);
 
@@ -259,7 +256,7 @@ class QuestioningDetailsDtoBuilderTest {
         assertThat(dto.getValidationDate()).isNull();
 
         dto = new QuestioningDetailsDtoBuilder()
-                .events(null, null, new Date(), null)
+                .events(null, null, Instant.now(), null)
                 .build();
 
         assertThat(dto.getHighestEventDate()).isNull();

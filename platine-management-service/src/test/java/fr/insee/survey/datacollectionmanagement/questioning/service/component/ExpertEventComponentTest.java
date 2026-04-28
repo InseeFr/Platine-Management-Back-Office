@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ class ExpertEventComponentTest {
     private static QuestioningEvent event(TypeQuestioningEvent type, Clock clock) {
         QuestioningEvent e = new QuestioningEvent();
         e.setType(type);
-        e.setDate(Date.from(Instant.now(clock)));
+        e.setDate(Instant.now(clock));
         return e;
     }
 
@@ -90,7 +89,7 @@ class ExpertEventComponentTest {
         QuestioningEvent last = component.getLastExpertEvent(q);
         assertThat(last).isNotNull();
         assertThat(last.getType()).isEqualTo(TypeQuestioningEvent.VALID);
-        assertThat(last.getDate()).isEqualTo(Date.from(Instant.now(t2)));
+        assertThat(last.getDate()).isEqualTo(Instant.now(t2));
     }
 
     @Test

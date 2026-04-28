@@ -14,7 +14,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
@@ -277,7 +276,7 @@ class InterrogationEventComparatorTest {
 
     private static QuestioningEvent event(TypeQuestioningEvent type, int offsetDays) {
         LocalDate base = LocalDate.now().plusDays(offsetDays);
-        Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Instant date = base.atStartOfDay(ZoneId.of("UTC")).toInstant();
         QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE));
         return qe;
@@ -285,9 +284,9 @@ class InterrogationEventComparatorTest {
 
     private static QuestioningEvent eventWithFixedDate(Long id, TypeQuestioningEvent type) {
         Instant fixedInstant = Instant.ofEpochMilli(1747395350727L);
-        ZoneId zoneId = ZoneId.of("Europe/Paris");
+        ZoneId zoneId = ZoneId.of("UTC");
         LocalDate base = LocalDate.now(Clock.fixed(fixedInstant, zoneId));
-        Date date = Date.from(base.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Instant date = base.atStartOfDay(zoneId).toInstant();
         QuestioningEvent qe = new QuestioningEvent(date, type, null, StatusEvent.AUTOMATIC);
         qe.setId(id);
         return qe;

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +40,7 @@ class UploadServiceImplTest {
         questioningServiceStub = new QuestioningServiceStub();
         questioningEventServiceStub = new QuestioningEventServiceStub();
         CampaignServiceStub campaignServiceStub = new CampaignServiceStub();
-        uploadService = new UploadServiceImpl(uploadRepository, questioningEventServiceStub,null, campaignServiceStub, questioningServiceStub);
+        uploadService = new UploadServiceImpl(Clock.systemUTC(), uploadRepository, questioningEventServiceStub, null, campaignServiceStub, questioningServiceStub);
     }
     @Test
     @DisplayName("Should save something")

@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,11 +31,11 @@ class ContactEventServiceImplTest {
     private ContactEvent contactEvent;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(ContactEvent.class, ContactEventDto.class)
                 .addMapping(src -> src.getContact().getIdentifier(), ContactEventDto::setIdentifier);
-        contactEventService = new ContactEventServiceImpl(contactEventRepository, modelMapper);
+        contactEventService = new ContactEventServiceImpl(contactEventRepository, modelMapper, Clock.systemUTC());
         contactEvent = new ContactEvent();
         contactEvent.setId(CONTACT_EVENT_ID);
     }

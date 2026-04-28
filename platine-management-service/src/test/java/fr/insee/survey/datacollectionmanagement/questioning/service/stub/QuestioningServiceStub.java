@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,7 +107,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Instant openingDate, Instant closingDate) {
         return questionnaireStatus;
     }
 
@@ -150,7 +151,7 @@ public class QuestioningServiceStub implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
+    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Instant openingDate, Instant closingDate) {
         return questionnaireStatus;
     }
 }

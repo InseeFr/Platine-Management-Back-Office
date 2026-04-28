@@ -27,12 +27,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UploadServiceImpl implements UploadService {
+
+    private final Clock clock;
 
     private final UploadRepository uploadRepository;
 
@@ -49,14 +53,14 @@ public class UploadServiceImpl implements UploadService {
     public ResultUpload save(String idCampaign, UploadDto uploadDto) throws RessourceNotValidatedException {
 
         ResultUpload result = new ResultUpload();
-        Date today = new Date();
+        Instant today = clock.instant();
 
         // Check campaign exists and date in intervals
         if (!checkUploadDate(idCampaign, today))
             throw new RessourceNotValidatedException("Campaign", idCampaign);
 
         // Creating and saving the upload to get the id
-        Upload up = new Upload(null, today.getTime(), null);
+        Upload up = new Upload(null, today.toEpochMilli(), null);
         up = saveAndFlush(up);
         // Creation of managementMonitoringInfo list and saving of link with upload
         List<QuestioningEvent> liste = new ArrayList<>();
@@ -158,21 +162,14 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public boolean checkUploadDate(String idCampaign, Date date) {
+    public boolean checkUploadDate(String idCampaign, Instant date) {
         Campaign campaign = campaignService.findById(idCampaign);
-        long timestamp = date.getTime();
-        Optional<Date> openingDate = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
-                .toList().stream()
-                .min(Comparator.comparing(Date::getTime));
-        Optional<Date> closingDate = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
-                .toList().stream()
-                .max(Comparator.comparing(Date::getTime));
+        Optional<Instant> openingDate = campaign.getPartitionings().stream().map(Partitioning::getOpeningDate)
+                .min(Comparator.naturalOrder());
+        Optional<Instant> closingDate = campaign.getPartitionings().stream().map(Partitioning::getClosingDate)
+                .max(Comparator.naturalOrder());
         if (openingDate.isPresent() && closingDate.isPresent()) {
-            long start = openingDate.get().getTime();
-            long end = closingDate.get().getTime();
-            return (start < timestamp && timestamp < end);
-
-
+            return openingDate.get().isBefore(date) && date.isBefore(closingDate.get());
         }
         return false;
     }

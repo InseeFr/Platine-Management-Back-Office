@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -19,7 +19,7 @@ public class QuestioningComment {
     @Column(length = 2000)
     private String comment;
     private String author;
-    private Date date;
+    private Instant date;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "questioning_id")
     private Questioning questioning;

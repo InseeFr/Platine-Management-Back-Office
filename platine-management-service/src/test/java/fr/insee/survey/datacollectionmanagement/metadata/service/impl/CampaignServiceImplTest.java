@@ -44,8 +44,8 @@ class CampaignServiceImplTest {
         c1.setId("c1");
         Partitioning partitioning1 = new Partitioning();
         partitioning1.setId("partitioning1");
-        partitioning1.setOpeningDate(new Date());
-        partitioning1.setClosingDate(new Date());
+        partitioning1.setOpeningDate(Instant.now());
+        partitioning1.setClosingDate(Instant.now());
         Set<Partitioning> partitionings1 = Set.of(partitioning1);
         c1.setPartitionings(partitionings1);
 
@@ -53,8 +53,8 @@ class CampaignServiceImplTest {
         c2.setId("c2");
         Partitioning partitioning2 = new Partitioning();
         partitioning2.setId("partitioning1");
-        partitioning2.setOpeningDate(new Date());
-        partitioning2.setClosingDate(new Date());
+        partitioning2.setOpeningDate(Instant.now());
+        partitioning2.setClosingDate(Instant.now());
         Set<Partitioning> partitionings2 = Set.of(partitioning2);
         c2.setPartitionings(partitionings2);
 
@@ -62,8 +62,8 @@ class CampaignServiceImplTest {
         c3.setId("c3");
         Partitioning partitioning3 = new Partitioning();
         partitioning3.setId("partitioning1");
-        partitioning3.setOpeningDate(new Date());
-        partitioning3.setClosingDate(new Date());
+        partitioning3.setOpeningDate(Instant.now());
+        partitioning3.setClosingDate(Instant.now());
         Set<Partitioning> partitionings3 = Set.of(partitioning3);
         c3.setPartitionings(partitionings3);
 
@@ -119,8 +119,8 @@ class CampaignServiceImplTest {
     private Partitioning createPartitioning(String idCampaign, long daysBefore, long daysAfter) {
         Partitioning partitioning = new Partitioning();
         Instant instant = Instant.now();
-        partitioning.setOpeningDate(Date.from(instant.minus(daysBefore, ChronoUnit.DAYS)));
-        partitioning.setClosingDate(Date.from(instant.plus(daysAfter, ChronoUnit.DAYS)));
+        partitioning.setOpeningDate(instant.minus(daysBefore, ChronoUnit.DAYS));
+        partitioning.setClosingDate(instant.plus(daysAfter, ChronoUnit.DAYS));
         campaign = new Campaign();
         campaign.setId(idCampaign);
         partitioning.setCampaign(campaign);
@@ -392,15 +392,15 @@ class CampaignServiceImplTest {
         Campaign campaign1 = new Campaign();
         campaign1.setId("CAMP1");
         Partitioning partitioning1 = new Partitioning();
-        partitioning1.setOpeningDate(new Date(System.currentTimeMillis() - 86400000));
-        partitioning1.setClosingDate(new Date(System.currentTimeMillis() + 86400000));
+        partitioning1.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        partitioning1.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS));
         campaign1.setPartitionings(Set.of(partitioning1));
 
         Campaign campaign2 = new Campaign();
         campaign2.setId("CAMP2");
         Partitioning partitioning2 = new Partitioning();
-        partitioning2.setOpeningDate(new Date(System.currentTimeMillis() - 86400000 * 10));
-        partitioning2.setClosingDate(new Date(System.currentTimeMillis() - 86400000 * 5));
+        partitioning2.setOpeningDate(Instant.now().minus(10, ChronoUnit.DAYS));
+        partitioning2.setClosingDate(Instant.now().minus(5, ChronoUnit.DAYS));
         campaign2.setPartitionings(Set.of(partitioning2));
 
         Campaign campaign3 = new Campaign();
@@ -506,11 +506,11 @@ class CampaignServiceImplTest {
         Partitioning p = new Partitioning();
         p.setId(UUID.randomUUID().toString());
         if (opened) {
-            p.setOpeningDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
-            p.setClosingDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+            p.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS));
+            p.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS));
         } else {
-            p.setOpeningDate(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
-            p.setClosingDate(Date.from(Instant.now().plus(2, ChronoUnit.DAYS)));
+            p.setOpeningDate(Instant.now().plus(1, ChronoUnit.DAYS));
+            p.setClosingDate(Instant.now().plus(2, ChronoUnit.DAYS));
         }
         return p;
     }

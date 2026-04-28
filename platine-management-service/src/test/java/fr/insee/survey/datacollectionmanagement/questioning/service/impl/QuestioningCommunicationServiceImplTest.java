@@ -14,6 +14,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.enums.StatusCommunic
 import fr.insee.survey.datacollectionmanagement.questioning.enums.TypeCommunicationEvent;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningCommunicationRepository;
 import fr.insee.survey.datacollectionmanagement.questioning.repository.QuestioningRepository;
+import java.time.Clock;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class QuestioningCommunicationServiceImplTest {
   @BeforeEach
   void setUp() {
     questioningCommunicationService =
-        new QuestioningCommunicationServiceImpl(modelMapper, questioningRepository, questioningCommunicationRepository);
+        new QuestioningCommunicationServiceImpl(modelMapper, Clock.systemUTC(), questioningRepository, questioningCommunicationRepository);
   }
 
   @Test

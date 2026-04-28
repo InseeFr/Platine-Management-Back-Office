@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
+import java.time.Instant;
 import java.util.*;
 
 public interface QuestioningService {
@@ -52,9 +53,9 @@ public interface QuestioningService {
 
     QuestioningDetailsDto getQuestioningDetails(UUID id);
 
-    QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate);
-  
-    QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate);
+    QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Instant openingDate, Instant closingDate);
+
+    QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Instant openingDate, Instant closingDate);
 
     boolean hasExpertiseStatus(UUID questioningId);
 

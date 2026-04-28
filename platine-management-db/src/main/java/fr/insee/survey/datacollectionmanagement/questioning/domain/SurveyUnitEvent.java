@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -32,11 +32,11 @@ public class SurveyUnitEvent {
 
     @Column(name= "date")
     @NotNull
-    private LocalDateTime date;
+    private Instant date;
 
     @Column(name= "creation_date")
     @NotNull
-    private LocalDateTime creationDate;
+    private Instant creationDate;
 
     @Column(name= "type")
     @Enumerated(EnumType.STRING)
@@ -50,8 +50,8 @@ public class SurveyUnitEvent {
 
     public SurveyUnitEvent(SurveyUnit surveyUnit,
                            Campaign campaign,
-                           LocalDateTime date,
-                           LocalDateTime creationDate,
+                           Instant date,
+                           Instant creationDate,
                            SurveyUnitEventType type,
                            SurveyUnitEventSource source) {
         this.surveyUnit = surveyUnit;

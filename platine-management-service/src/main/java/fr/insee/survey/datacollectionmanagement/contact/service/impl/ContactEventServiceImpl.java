@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +25,8 @@ public class ContactEventServiceImpl implements ContactEventService {
     private final ContactEventRepository contactEventRepository;
 
     private final ModelMapper modelMapper;
+
+    private final Clock clock;
 
     @Override
     public Page<ContactEvent> findAll(Pageable pageable) {
@@ -52,7 +54,7 @@ public class ContactEventServiceImpl implements ContactEventService {
         contactEventCreate.setContact(contact);
         contactEventCreate.setType(type);
         contactEventCreate.setPayload(payload);
-        contactEventCreate.setEventDate(new Date());
+        contactEventCreate.setEventDate(clock.instant());
         return contactEventCreate;
     }
 

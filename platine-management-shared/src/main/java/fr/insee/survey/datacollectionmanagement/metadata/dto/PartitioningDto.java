@@ -3,7 +3,7 @@ package fr.insee.survey.datacollectionmanagement.metadata.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Data
 public class PartitioningDto {
@@ -12,19 +12,19 @@ public class PartitioningDto {
     private String id;
     private String campaignId;
     private String label;
-    private Date openingDate;
-    private Date closingDate;
-    private Date returnDate;
-    private Date openingLetterDate;
-    private Date openingMailDate;
-    private Date followupLetter1Date;
-    private Date followupLetter2Date;
-    private Date followupLetter3Date;
-    private Date followupLetter4Date;
-    private Date followupMail1Date;
-    private Date followupMail2Date;
-    private Date followupMail3Date;
-    private Date followupMail4Date;
-    private Date formalNoticeDate;
-    private Date noReplyDate;
+        private Instant openingDate;
+        private Instant closingDate;
+        private Instant returnDate;
+        private Instant openingLetterDate;
+        private Instant openingMailDate;
+        private Instant followupLetter1Date;
+        private Instant followupLetter2Date;
+        private Instant followupLetter3Date;
+        private Instant followupLetter4Date;
+        private Instant followupMail1Date;
+        private Instant followupMail2Date;
+        private Instant followupMail3Date;
+        private Instant followupMail4Date;
+        private Instant formalNoticeDate;
+        private Instant noReplyDate;
 }

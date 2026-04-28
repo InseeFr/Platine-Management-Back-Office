@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -18,7 +18,7 @@ public class ContactEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "contact_event_seq")
     private Long id;
-    private Date eventDate;
+    private Instant eventDate;
 
     @JdbcTypeCode(SqlTypes.INTEGER)
     @Enumerated(EnumType.ORDINAL)

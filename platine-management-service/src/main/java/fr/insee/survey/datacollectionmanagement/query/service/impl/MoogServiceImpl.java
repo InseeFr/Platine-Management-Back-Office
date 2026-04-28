@@ -63,9 +63,9 @@ public class MoogServiceImpl implements MoogService {
             moogCampaign.setId(view.getCampaignId());
             moogCampaign.setLabel(camp.getCampaignWording());
             moogCampaign
-                    .setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());
+                    .setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().toEpochMilli());
             moogCampaign
-                    .setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().getTime());
+                    .setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().toEpochMilli());
             moogSearchDto.setIdContact(view.getIdentifier());
             String address = createAddressMoog(c.getAddress());
             moogSearchDto.setAddress(address);
@@ -98,8 +98,8 @@ public class MoogServiceImpl implements MoogService {
         MoogCampaignDto moogCampaign = new MoogCampaignDto();
         moogCampaign.setId(campaign);
         moogCampaign.setLabel(camp.getCampaignWording());
-        moogCampaign.setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().getTime());
-        moogCampaign.setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().getTime());
+        moogCampaign.setCollectionEndDate(camp.getPartitionings().iterator().next().getClosingDate().toEpochMilli());
+        moogCampaign.setCollectionStartDate(camp.getPartitionings().iterator().next().getOpeningDate().toEpochMilli());
         MoogSearchDto surveyUnit = new MoogSearchDto();
         surveyUnit.setCampaign(moogCampaign);
         moogEvents.stream().forEach(e -> e.setSurveyUnit(surveyUnit));

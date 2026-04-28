@@ -58,7 +58,8 @@ class QuestioningEventServiceImplTest {
                 new ModelMapper(),
                 interrogationEventComparator,
                 new ExpertEventComponent(),
-                new ObjectMapper());
+                new ObjectMapper(),
+                Clock.systemUTC());
     }
 
     private Questioning createQuestioning() {
@@ -71,7 +72,7 @@ class QuestioningEventServiceImplTest {
     private QuestioningEventInputDto createValidedInputDto(UUID questioningId) {
         QuestioningEventInputDto validatedDto = new QuestioningEventInputDto();
         validatedDto.setQuestioningId(questioningId);
-        validatedDto.setDate(Date.from(Instant.now()));
+        validatedDto.setDate(Instant.now());
         return validatedDto;
     }
 
@@ -81,7 +82,7 @@ class QuestioningEventServiceImplTest {
         event.setQuestioning(questioning);
         event.setStatus(status);
         event.setType(type);
-        event.setDate(Date.from(Instant.now(clock)));
+        event.setDate(Instant.now(clock));
         return event;
     }
 
@@ -420,17 +421,17 @@ class QuestioningEventServiceImplTest {
 
         QuestioningEvent evtInit = new QuestioningEvent();
         evtInit.setType(TypeQuestioningEvent.INITLA);
-        Date dateInit = new GregorianCalendar(2025, Calendar.JANUARY, 10).getTime();
+        Instant dateInit = Instant.parse("2025-01-10T00:00:00Z");
         evtInit.setDate(dateInit);
 
         QuestioningEvent evtPart = new QuestioningEvent();
         evtPart.setType(TypeQuestioningEvent.PARTIELINT);
-        Date datePart = new GregorianCalendar(2025, Calendar.FEBRUARY, 20).getTime();
+        Instant datePart = Instant.parse("2025-02-20T00:00:00Z");
         evtPart.setDate(datePart);
 
         QuestioningEvent evtVal = new QuestioningEvent();
         evtVal.setType(TypeQuestioningEvent.VALINT);
-        Date dateVal = new GregorianCalendar(2025, Calendar.MARCH, 5).getTime();
+        Instant dateVal = Instant.parse("2025-03-05T00:00:00Z");
         evtVal.setDate(dateVal);
 
         questioning.setQuestioningEvents(Set.of(evtInit, evtPart, evtVal));

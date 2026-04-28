@@ -1,0 +1,114 @@
+# Workflow : workflow-testing
+
+## Déclencheur
+
+L'utilisateur tape `workflow-testing` ou transition depuis `workflow-coding`.
+
+## Table de Transition
+
+| Étape | Agent courant | Sortie attendue | Condition | Agent suivant |
+|---|---|---|---|---|
+| 1 | LeCheckListeur | Section TESTS ajoutée à `checklist.md` | Liste validée | LeTesteur |
+| 2 | LeTesteur | Tests écrits et cochés | Tous les tests rédigés | LeSuperviseurDeTache |
+| 3 | LeSuperviseurDeTache | Résultat d'exécution des tests | Test KO | LeTesteur (corrige le test, jamais le code de prod) |
+| 3 | LeSuperviseurDeTache | Résultat d'exécution des tests | Tests OK mais scénarios manquants | LeTesteur |
+| 3 | LeSuperviseurDeTache | Rapport final | Tous tests OK et couverts | Fin — informer l'utilisateur |
+
+Principe : LeTesteur ne touche **jamais** au code de production, même pour faire passer un test.
+
+## Déroulé Détaillé
+
+### Étape 1 — LeCheckListeur
+
+```
+---
+[Agent] LeCheckListeur prend la main — Étape 1 du workflow-testing
+Objectif : Identifier les tests nécessaires pour couverture 100%
+---
+```
+
+Actions :
+1. Analyser le code de production ajouté/modifié
+2. Lister les scénarios de test par fichier :
+   - Cas nominal
+   - Cas d'erreur (exceptions)
+   - Cas limites (null, empty, bornes)
+   - Branches conditionnelles
+3. Mettre à jour `checklist.md` avec la section tests
+
+**Section ajoutée à la checklist :**
+```markdown
+## TESTS (LeTesteur)
+
+### 1. Tests Domain — [ServiceName]Test
+- [ ] Cas nominal : [description]
+- [ ] Cas d'erreur : [exception attendue]
+- [ ] Cas limite : null/empty
+- [ ] Branches conditionnelles : [description]
+
+### 2. Tests Contrôleur — [ControllerName]Test
+- [ ] GET 200 : réponse nominale
+- [ ] GET 404 : ressource non trouvée
+- [ ] GET 400 : paramètre invalide
+
+### 3. Tests Mapping — [MapperName]Test
+- [ ] Entity → Domain
+- [ ] Domain → Entity
+```
+
+### Étape 2 — LeTesteur
+
+```
+---
+[Agent] LeTesteur prend la main — Étape 2 du workflow-testing
+Objectif : Écrire les tests listés dans la checklist
+---
+```
+
+Actions :
+1. Lire la checklist section tests
+2. Créer le Fake Repository si nécessaire
+3. Écrire les tests dans l'ordre de la checklist
+4. Cocher chaque test écrit
+
+### Étape 3 — LeSuperviseurDeTache
+
+```
+---
+[Agent] LeSuperviseurDeTache prend la main — Étape 3 du workflow-testing
+Objectif : Exécuter les tests et vérifier la complétion
+---
+```
+
+Actions :
+1. Lancer les tests : `./mvnw test -pl [module]`
+2. Si tests KO → LeTesteur corrige le test (jamais le code de prod)
+3. Si tests OK → vérifier si tous les tests de la checklist sont faits
+4. Si tests manquants → retour LeTesteur
+5. Si tout est fait → informer l'utilisateur du succès
+
+**Rapport final :**
+```
+RAPPORT DE TESTS — [Date]
+
+Tests écrits : [N]
+Tests passent : [N/N]
+Couverture estimée : [%]
+
+Fichiers de test créés :
+- [fichier 1]
+- [fichier 2]
+
+Workflow-testing terminé avec succès.
+```
+
+## Limites d'Itération
+
+| Boucle | Max |
+|---|---|
+| Testeur → SuperviseurDeTache → Testeur (test KO) | 3 tours |
+| Testeur → SuperviseurDeTache → Testeur (tests manquants) | 2 tours |
+
+Quand une limite est atteinte, appliquer le protocole unifié de
+`skills/escalation.md` (template de rapport, règles d'arrêt, procédure
+orchestrateur).

@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.Clock;
 import java.util.Set;
 
 @Service
@@ -21,6 +21,7 @@ import java.util.Set;
 public class UserEventServiceImpl implements UserEventService {
 
     private final UserEventRepository userEventRepository;
+    private final Clock clock;
 
     @Override
     public Page<UserEvent> findAll(Pageable pageable) {
@@ -43,7 +44,7 @@ public class UserEventServiceImpl implements UserEventService {
         userEventCreate.setUser(user);
         userEventCreate.setType(type);
         userEventCreate.setPayload(payload);
-        userEventCreate.setEventDate(new Date());
+        userEventCreate.setEventDate(clock.instant());
         return userEventCreate;
     }
 }

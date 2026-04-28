@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class CampaignServiceStub implements CampaignService {
@@ -32,14 +34,8 @@ public class CampaignServiceStub implements CampaignService {
         campaign.setId(idCampaign);
         campaign.setCampaignWording("Test Campaign");
         Partitioning partitioning = new Partitioning();
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -1);
-
-        Date yesterday = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_YEAR, 2);
-        Date tomorrow = calendar.getTime();
-        partitioning.setOpeningDate(yesterday);
-        partitioning.setClosingDate(tomorrow);
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS));
         campaign.setPartitionings(Set.of(partitioning));
         return campaign;
     }

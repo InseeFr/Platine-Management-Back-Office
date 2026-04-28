@@ -38,6 +38,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestioningServiceImpl implements QuestioningService {
 
+    private final Clock clock;
     private final InterrogationEventComparator interrogationEventComparator;
     private final QuestioningRepository questioningRepository;
     private final SearchQuestioningDao searchQuestioningDao;
@@ -222,17 +225,17 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Date openingDate, Date closingDate) {
-        Date today = new Date();
+    public QuestionnaireStatusTypeEnum getQuestioningStatus(UUID questioningId, Instant openingDate, Instant closingDate) {
+        Instant today = clock.instant();
 
-        if (today.before(openingDate)) {
+        if (today.isBefore(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
         List<QuestioningEventDto> events = questioningEventService.getQuestioningEventsByQuestioningId(questioningId);
 
         boolean refused = questioningEventService.containsTypeQuestioningEvents(events, TypeQuestioningEvent.REFUSED_EVENTS);
 
-        if (events.isEmpty() || refused || !closingDate.after(today)) {
+        if (events.isEmpty() || refused || !closingDate.isAfter(today)) {
             return QuestionnaireStatusTypeEnum.NOT_RECEIVED;
         }
 
@@ -255,14 +258,14 @@ public class QuestioningServiceImpl implements QuestioningService {
     }
 
     @Override
-    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Date openingDate, Date closingDate) {
-        Date today = new Date();
+    public QuestionnaireStatusTypeEnum getQuestioningStatusFileUpload(Instant openingDate, Instant closingDate) {
+        Instant today = clock.instant();
 
-        if (today.before(openingDate)) {
+        if (today.isBefore(openingDate)) {
             return QuestionnaireStatusTypeEnum.INCOMING;
         }
 
-        if (today.after(closingDate)) {
+        if (today.isAfter(closingDate)) {
             return QuestionnaireStatusTypeEnum.RECEIVED;
         }
 

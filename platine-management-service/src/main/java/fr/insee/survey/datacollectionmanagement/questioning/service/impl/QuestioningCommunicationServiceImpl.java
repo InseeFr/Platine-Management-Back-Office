@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +22,7 @@ import java.util.UUID;
 @Transactional
 public class QuestioningCommunicationServiceImpl implements QuestioningCommunicationService {
     private final ModelMapper modelMapper;
+    private final Clock clock;
 
     private final QuestioningRepository questioningRepository;
 
@@ -46,7 +47,7 @@ public class QuestioningCommunicationServiceImpl implements QuestioningCommunica
     newQuestioningCommunication.setQuestioning(questioning);
     newQuestioningCommunication.setType(questioningCommunicationInputDto.communicationType());
     newQuestioningCommunication.setStatus(questioningCommunicationInputDto.status());
-    newQuestioningCommunication.setDate(LocalDateTime.now());
+    newQuestioningCommunication.setDate(clock.instant());
     newQuestioningCommunication = questioningCommunicationRepository.save(newQuestioningCommunication);
 
     // Update the bidirectional link

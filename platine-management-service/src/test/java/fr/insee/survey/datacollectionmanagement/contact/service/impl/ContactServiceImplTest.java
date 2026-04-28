@@ -30,6 +30,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,8 @@ class ContactServiceImplTest {
                 campaignService,
                 ldapService,
                 questioningAccreditationService,
-                questioningRepository);
+                questioningRepository,
+                Clock.systemUTC());
     }
 
     @Test

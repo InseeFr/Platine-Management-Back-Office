@@ -5,7 +5,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.validation.Questioni
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -14,7 +14,7 @@ public class QuestioningEventDto {
 
     private Long id;
     private UUID questioningId;
-    private Date eventDate;
+        private Instant eventDate;
     @QuestioningEventTypeValid
     private String type;
     private JsonNode payload;

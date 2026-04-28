@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ public class QuestioningAccreditationDto {
     private Long id;
 
     private boolean isMain;
-    private Date creationDate;
+        private Instant creationDate;
     private String creationAuthor;
     private String idContact;
 

@@ -7,8 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,50 +26,26 @@ class PartitioningServiceImplTest {
     @Test
     void isOnGoing_WhenPartitioningOpensYesterdayAndCloseTomorrow() {
         Partitioning part = new Partitioning();
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date openingDate = cal.getTime();
-        part.setOpeningDate(openingDate);
-
-        cal.add(Calendar.DAY_OF_MONTH, 2);
-        Date closingDate = cal.getTime();
-        part.setClosingDate(closingDate);
+        part.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        part.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS));
         assertThat(partitioningService.isOnGoing(part, Instant.now())).isTrue();
     }
 
     @Test
     void isOnGoingFalse_WhenPartitioningOpensTomorrowAndCloseAnytime() {
+        int nbDays = new Random().nextInt(1000);
         Partitioning part = new Partitioning();
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, 1);
-        Date openingDate = cal.getTime();
-        part.setOpeningDate(openingDate);
-
-        Random rand = new Random();
-        int nbDays = rand.nextInt(1000);
-        cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, nbDays);
-        Date closingDate = cal.getTime();
-        part.setClosingDate(closingDate);
-
+        part.setOpeningDate(Instant.now().plus(1, ChronoUnit.DAYS));
+        part.setClosingDate(Instant.now().plus(1 + nbDays, ChronoUnit.DAYS));
         assertThat(partitioningService.isOnGoing(part, Instant.now())).isFalse();
     }
 
     @Test
     void isOnGoingFalse_WhenPartitioningOpensAnytimeAndCloseYesterday() {
-        Random rand = new Random();
-        int nbDays = rand.nextInt(1000);
+        int nbDays = new Random().nextInt(1000);
         Partitioning part = new Partitioning();
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -nbDays);
-        Date openingDate = cal.getTime();
-        part.setOpeningDate(openingDate);
-
-        cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date closingDate = cal.getTime();
-        part.setClosingDate(closingDate);
-
+        part.setOpeningDate(Instant.now().minus(nbDays, ChronoUnit.DAYS));
+        part.setClosingDate(Instant.now().minus(1, ChronoUnit.DAYS));
         assertThat(partitioningService.isOnGoing(part, Instant.now())).isFalse();
     }
 }

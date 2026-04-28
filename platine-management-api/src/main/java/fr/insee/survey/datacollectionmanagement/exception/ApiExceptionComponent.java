@@ -1,15 +1,13 @@
 package fr.insee.survey.datacollectionmanagement.exception;
 
-import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Date;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -18,10 +16,10 @@ import java.util.Map;
 @Component
 public class ApiExceptionComponent {
 
-    private final ErrorAttributes errorAttributes;
+    private final Clock clock;
 
-    public ApiExceptionComponent(ErrorAttributes errorAttributes) {
-        this.errorAttributes = errorAttributes;
+    public ApiExceptionComponent(Clock clock) {
+        this.clock = clock;
     }
 
     /**
@@ -32,7 +30,7 @@ public class ApiExceptionComponent {
      */
     public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage) {
         String path = getPath(request);
-        Date timestamp = getTimeStamp(request);
+        Instant timestamp = clock.instant();
         return new ApiError(status, path, timestamp, errorMessage);
     }
 
@@ -44,17 +42,8 @@ public class ApiExceptionComponent {
      */
     public ApiError buildApiErrorObject(WebRequest request, HttpStatus status, String errorMessage, List<String> errors) {
         String path = getPath(request);
-        Date timestamp = getTimeStamp(request);
+        Instant timestamp = clock.instant();
         return new ApiError(status, path, timestamp, errorMessage, errors);
-    }
-
-    /**
-     * @param request origin request
-     * @return get timestamp from error attributes
-     */
-    private Date getTimeStamp(WebRequest request) {
-        Map<String, Object> attributes = errorAttributes.getErrorAttributes(request, ErrorAttributeOptions.defaults());
-        return ((Date) attributes.get("timestamp"));
     }
 
     /**

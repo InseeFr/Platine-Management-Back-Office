@@ -29,7 +29,9 @@ import org.springframework.data.domain.Sort;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -82,7 +84,7 @@ public class SearchQuestioningSteps {
   @Transactional
   @Given("the questioning event for questioning {int} with type {string} and date {string}")
   public void createQuestioningEvent(int questioningId, String type, String isoDate) throws ParseException {
-    Date date = sdf.parse(isoDate);
+    Instant date = sdf.parse(isoDate).toInstant();
     UUID realId = questioningContext.getRealId(questioningId);
 
     Questioning questioning = questioningRepository.getReferenceById(realId);
@@ -97,7 +99,7 @@ public class SearchQuestioningSteps {
     @Transactional
     @Given("the questioning communication for questioning {int} with type {string} and date {string}")
     public void createQuestioningCommunication(int questioningId, String type, String isoDate) {
-        LocalDateTime date = LocalDateTime.parse(isoDate, FORMATTER);
+        Instant date = LocalDateTime.parse(isoDate, FORMATTER).toInstant(ZoneOffset.UTC);
         UUID realId = questioningContext.getRealId(questioningId);
         Questioning questioning = questioningRepository.getReferenceById(realId);
         QuestioningCommunication qc = new QuestioningCommunication(date, TypeCommunicationEvent.valueOf(type), questioning, StatusCommunication.MANUAL);

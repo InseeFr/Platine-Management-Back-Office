@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Instant;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class ContactEventServiceStub implements ContactEventService {
         contactEvent.setContact(contact);
         contactEvent.setType(type);
         contactEvent.setPayload(payload);
-        contactEvent.setEventDate(new Date());
+        contactEvent.setEventDate(Instant.now());
         contactEvents.add(contactEvent);
         return contactEvent;
     }

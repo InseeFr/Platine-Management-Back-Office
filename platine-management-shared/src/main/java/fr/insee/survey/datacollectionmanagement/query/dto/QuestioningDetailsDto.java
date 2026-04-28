@@ -6,8 +6,7 @@ import fr.insee.survey.datacollectionmanagement.questioning.dto.QuestioningEvent
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,14 +24,14 @@ public class QuestioningDetailsDto {
     private Long highestEventId;
     private String highestEventType;
     private String highestEventStatus;
-    private Date highestEventDate;
+        private Instant highestEventDate;
     private List<QuestioningCommunicationDto> listCommunications;
     private String lastCommunicationType;
     private boolean lastCommunicationReceipt;
     private boolean lastCommunicationQuestionnaire;
-    private LocalDateTime lastCommunicationDate;
+        private Instant lastCommunicationDate;
     private List<QuestioningCommentOutputDto> listComments;
-    private Date validationDate;
+        private Instant validationDate;
     private String readOnlyUrl;
     private Boolean isHousehold;
     private Boolean isOnProbation;

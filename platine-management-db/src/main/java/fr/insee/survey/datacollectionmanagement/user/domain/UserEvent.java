@@ -7,7 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -19,7 +19,7 @@ public class UserEvent {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_event_seq")
     private Long id;
 
-    private Date eventDate;
+    private Instant eventDate;
 
     @NonNull
     @Enumerated(EnumType.ORDINAL)

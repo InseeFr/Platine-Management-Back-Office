@@ -46,6 +46,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -102,7 +105,7 @@ class QuestioningServiceImplTest {
         questioningEventService = new QuestioningEventServiceStub();
 
         questioningService = new QuestioningServiceImpl(
-                interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent,
+                Clock.systemUTC(), interrogationEventComparator, questioningRepository, searchQuestioningDao, questioningUrlComponent,
                 contactService, questioningEventService,
                 modelMapper, partitioningRepository, parametersService, sourceRepository);
     }
@@ -166,7 +169,7 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return INCOMING when today is before opening date")
     @Test
     void getQuestioningStatusTest() {
-        partitioning.setOpeningDate(new Date(System.currentTimeMillis() + 86400000)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.INCOMING);
     }
@@ -210,7 +213,7 @@ class QuestioningServiceImplTest {
         questioning.setQuestioningAccreditations(Set.of(questioningAccreditation));
 
         QuestioningEvent event = new QuestioningEvent(
-                new Date(),
+                Instant.now(),
                 TypeQuestioningEvent.INITLA,
                 questioning, StatusEvent.AUTOMATIC);
         questioning.setQuestioningEvents(Set.of(event));
@@ -258,7 +261,7 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_RECEIVED when no events exist")
     @Test
     void getQuestioningStatusTest2() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
@@ -267,8 +270,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_RECEIVED when refused event exists")
     @Test
     void getQuestioningStatusTest3() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(TypeQuestioningEvent.REFUSAL.name());
@@ -283,8 +286,8 @@ class QuestioningServiceImplTest {
     @ParameterizedTest
     @ValueSource(strings={"VALINT","VALPAP"})
     void getQuestioningStatusTest4(String typeName) {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(typeName);
@@ -299,8 +302,8 @@ class QuestioningServiceImplTest {
     @ParameterizedTest
     @ValueSource(strings={"RECUPAP","PARTIELPAP"})
     void getQuestioningStatusTest5(String typeName) {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(typeName);
@@ -314,8 +317,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_STARTED when interrogation not opened by user but accessible before closing date")
     @Test
     void getQuestioningStatusTest5() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(TypeQuestioningEvent.INITLA.name());
@@ -329,8 +332,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_RECEIVED when no valid event exists after closing date")
     @Test
     void getQuestioningStatusTest6() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), -1)); // Yesterday
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatus(questioning.getId(), partitioning.getOpeningDate(), partitioning.getClosingDate());
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.NOT_RECEIVED);
@@ -339,8 +342,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_RECEIVED when valid events exist after closing date")
     @Test
     void getQuestioningStatusTest7() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), -1)); // Yesterday
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
@@ -354,8 +357,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return NOT_RECEIVED when valid and refused events exist before closing date")
     @Test
     void getQuestioningStatusTest8() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(TypeQuestioningEvent.VALINT.name());
@@ -372,8 +375,8 @@ class QuestioningServiceImplTest {
     @DisplayName("Should return IN_PROGRESS when user started interrogation before closing date")
     @Test
     void getQuestioningStatusTest9() {
-        partitioning.setOpeningDate(addDays(new Date(), -1)); // Yesterday
-        partitioning.setClosingDate(addDays(new Date(), +1)); // Tomorrow
+        partitioning.setOpeningDate(Instant.now().minus(1, ChronoUnit.DAYS)); // Yesterday
+        partitioning.setClosingDate(Instant.now().plus(1, ChronoUnit.DAYS)); // Tomorrow
         List<QuestioningEventDto> events = new ArrayList<>();
         QuestioningEventDto questioningEvent = new QuestioningEventDto();
         questioningEvent.setType(TypeQuestioningEvent.INITLA.name());
@@ -437,8 +440,8 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getQuestioningStatusFileUpload returns INCOMING when today is before openingDate")
     void shouldReturnIncomingWhenBeforeOpeningDate() {
-        Date openingDate = addDays(new Date(), 2);
-        Date closingDate = addDays(new Date(), 10);
+        Instant openingDate = Instant.now().plus(2, ChronoUnit.DAYS);
+        Instant closingDate = Instant.now().plus(10, ChronoUnit.DAYS);
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
@@ -448,8 +451,8 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getQuestioningStatusFileUpload returns RECEIVED when today is after closingDate")
     void shouldReturnReceivedWhenAfterClosingDate() {
-        Date openingDate = addDays(new Date(), -10);
-        Date closingDate = addDays(new Date(), -2);
+        Instant openingDate = Instant.now().minus(10, ChronoUnit.DAYS);
+        Instant closingDate = Instant.now().minus(2, ChronoUnit.DAYS);
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
@@ -459,19 +462,12 @@ class QuestioningServiceImplTest {
     @Test
     @DisplayName("getQuestioningStatusFileUpload returns IN_PROGRESS when today is between openingDate and closingDate")
     void shouldReturnInProgressWhenBetweenDates() {
-        Date openingDate = addDays(new Date(), -2);
-        Date closingDate = addDays(new Date(), 2);
+        Instant openingDate = Instant.now().minus(2, ChronoUnit.DAYS);
+        Instant closingDate = Instant.now().plus(2, ChronoUnit.DAYS);
 
         QuestionnaireStatusTypeEnum status = questioningService.getQuestioningStatusFileUpload(openingDate, closingDate);
 
         assertThat(status).isEqualTo(QuestionnaireStatusTypeEnum.IN_PROGRESS);
-    }
-
-    private Date addDays(Date date, int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DATE, days);
-        return cal.getTime();
     }
 
     private Questioning buildQuestioning(UUID id, String suId) {
@@ -487,12 +483,12 @@ class QuestioningServiceImplTest {
         event.setType(TypeQuestioningEvent.INITLA);
         event.setQuestioning(q);
         event.setId(1L);
-        event.setDate(new Date(System.currentTimeMillis()));
+        event.setDate(Instant.now());
         QuestioningEvent event2 = new QuestioningEvent();
         event2.setType(TypeQuestioningEvent.VALINT);
         event2.setQuestioning(q);
         event2.setId(2L);
-        event2.setDate(new Date(System.currentTimeMillis()));
+        event2.setDate(Instant.now());
         q.setQuestioningAccreditations(new HashSet<>());
         q.setQuestioningEvents(Set.of(event, event2));
         q.setQuestioningCommunications(new HashSet<>());
@@ -532,7 +528,7 @@ class QuestioningServiceImplTest {
                         "p1",
                         "su1",
                         TypeQuestioningEvent.VALINT,
-                        new Date(),
+                        Instant.now(),
                         false
                 ),
                 new QuestioningCsvDto(
@@ -540,7 +536,7 @@ class QuestioningServiceImplTest {
                         "p2",
                         "su2",
                         TypeQuestioningEvent.FOLLOWUP,
-                        new Date(System.currentTimeMillis() - 86400000),
+                        Instant.now().minus(1, ChronoUnit.DAYS),
                         false
                 )
         );
@@ -599,7 +595,7 @@ class QuestioningServiceImplTest {
                 "p1",
                 "su1",
                 TypeQuestioningEvent.PND,
-                new Date(),
+                Instant.now(),
                 false
         );
 

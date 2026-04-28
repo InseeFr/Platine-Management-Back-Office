@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.time.Instant;
 
 @RestController
 @Slf4j
@@ -38,8 +38,8 @@ public class MetadataController {
         log.info("Updating Moog campaign with id {}", id);
         Campaign campaign = campaignService.findById(id);
         campaign.getPartitionings().forEach(p->{
-            p.setClosingDate(new Date(campaignMoogDto.getCollectionEndDate()));
-            p.setOpeningDate(new Date(campaignMoogDto.getCollectionStartDate()));
+            p.setClosingDate(Instant.ofEpochMilli(campaignMoogDto.getCollectionEndDate()));
+            p.setOpeningDate(Instant.ofEpochMilli(campaignMoogDto.getCollectionStartDate()));
             partitioningService.insertOrUpdatePartitioning(p);
         });
         campaign.setCampaignWording(campaignMoogDto.getLabel());

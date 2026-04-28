@@ -47,16 +47,16 @@ public class CampaignServiceImpl implements CampaignService {
             campaignMoogDto.setId(campaign.getId());
             campaignMoogDto.setLabel(campaign.getCampaignWording());
 
-            Optional<Date> dateMin = campaign.getPartitionings().stream()
+            Optional<Instant> dateMin = campaign.getPartitionings().stream()
                     .map(Partitioning::getOpeningDate)
-                    .min(Comparator.comparing(Date::getTime));
-            Optional<Date> dateMax = campaign.getPartitionings().stream()
+                    .min(Comparator.naturalOrder());
+            Optional<Instant> dateMax = campaign.getPartitionings().stream()
                     .map(Partitioning::getClosingDate)
-                    .max(Comparator.comparing(Date::getTime));
+                    .max(Comparator.naturalOrder());
 
             if (dateMin.isPresent() && dateMax.isPresent()) {
-                campaignMoogDto.setCollectionStartDate(dateMin.get().getTime());
-                campaignMoogDto.setCollectionEndDate(dateMax.get().getTime());
+                campaignMoogDto.setCollectionStartDate(dateMin.get().toEpochMilli());
+                campaignMoogDto.setCollectionEndDate(dateMax.get().toEpochMilli());
                 moogCampaigns.add(campaignMoogDto);
             } else {
                 log.warn("No start date or end date found for campaign {}", campaign.getId());
@@ -215,8 +215,8 @@ public class CampaignServiceImpl implements CampaignService {
         campaignSummaryDto.setYear(c.getYear());
         campaignSummaryDto.setPeriod(c.getPeriod().getValue());
         campaignSummaryDto.setStatus(getCollectionStatus(c.getId()));
-        Date openingDate = getEarliestOpeningDate(c.getPartitionings());
-        Date closingDate = getLatestClosingDate(c.getPartitionings());
+        Instant openingDate = getEarliestOpeningDate(c.getPartitionings());
+        Instant closingDate = getLatestClosingDate(c.getPartitionings());
         campaignSummaryDto.setOpeningDate(openingDate);
         campaignSummaryDto.setClosingDate(closingDate);
         return campaignSummaryDto;
@@ -229,25 +229,25 @@ public class CampaignServiceImpl implements CampaignService {
                 .orElse(null);
     }
 
-    private Date getEarliestOpeningDate(Set<Partitioning> partitionings) {
+    private Instant getEarliestOpeningDate(Set<Partitioning> partitionings) {
         if (partitionings == null) {
             return null;
         }
         return partitionings.stream()
                 .map(Partitioning::getOpeningDate)
                 .filter(Objects::nonNull)
-                .min(Comparator.comparingLong(Date::getTime))
+                .min(Comparator.naturalOrder())
                 .orElse(null);
     }
 
-    private Date getLatestClosingDate(Set<Partitioning> partitionings) {
+    private Instant getLatestClosingDate(Set<Partitioning> partitionings) {
         if (partitionings == null) {
             return null;
         }
         return partitionings.stream()
                 .map(Partitioning::getClosingDate)
                 .filter(Objects::nonNull)
-                .max(Comparator.comparingLong(Date::getTime))
+                .max(Comparator.naturalOrder())
                 .orElse(null);
     }
 

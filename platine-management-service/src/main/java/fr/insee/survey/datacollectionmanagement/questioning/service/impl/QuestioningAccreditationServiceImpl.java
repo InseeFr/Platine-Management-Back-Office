@@ -23,8 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +40,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
   private final ViewService viewService;
   private final QuestioningRepository questioningRepository;
   private final ContactRepository contactRepository;
+  private final Clock clock;
 
   public List<QuestioningAccreditation> findByContactIdentifier(String id) {
     return questioningAccreditationRepository.findByIdContact(id);
@@ -73,7 +74,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
       boolean isMain,
       Contact contact,
       JsonNode payload,
-      Date date,
+      Instant date,
       Campaign campaign, Boolean isNew)
   {
     QuestioningAccreditation qa = questioningAccreditationRepository
@@ -108,7 +109,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     Contact contact = contactRepository.findById(contactId)
         .orElseThrow(() -> new NotFoundException(String.format("Missing contact with id %s", contactId)));
 
-    Date date = Date.from(Instant.now());
+    Instant date = clock.instant();
     Campaign campaign = partitioningService.findById(questioning.getIdPartitioning()).getCampaign();
     JsonNode payload = ServiceJsonUtil.createPayload("platine-pilotage");
 
@@ -138,7 +139,7 @@ public class QuestioningAccreditationServiceImpl implements QuestioningAccredita
     questioningAccreditationRepository.deleteById(existingAccreditation.getId());
     logContactAccreditationLossUpdate(previousContact, surveyUnitId, payload, campaign, isNew);
 
-    createQuestioningAccreditation(existingAccreditation.getQuestioning(), true, newContact, payload, new Date(), campaign, isNew);
+    createQuestioningAccreditation(existingAccreditation.getQuestioning(), true, newContact, payload, clock.instant(), campaign, isNew);
   }
 
   @Override

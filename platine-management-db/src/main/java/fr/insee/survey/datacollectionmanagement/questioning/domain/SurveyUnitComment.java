@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ public class SurveyUnitComment {
     @Column(length = 2000)
     private String comment;
     private String author;
-    private Date date;
+    private Instant date;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "survey_unit_id_su")
     private SurveyUnit surveyUnit;
